@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <rect width="800" height="600" fill="#f3e7ff" />
+  <g transform="translate(400, 300)">
+    <rect width="500" height="300" x="-250" y="-150" rx="20" fill="#d6b3ff" />
+    
+    <!-- Text bubble 1 -->
+    <g transform="translate(-150, -70)">
+      <rect width="200" height="80" rx="15" fill="#ffffff" stroke="#9966cc" stroke-width="3" />
+      <line x1="30" y1="25" x2="170" y2="25" stroke="#9966cc" stroke-width="3" />
+      <line x1="30" y1="55" x2="120" y2="55" stroke="#9966cc" stroke-width="3" />
+    </g>
+    
+    <!-- Text bubble 2 -->
+    <g transform="translate(60, 30)">
+      <rect width="180" height="70" rx="15" fill="#ffffff" stroke="#9966cc" stroke-width="3" />
+      <line x1="25" y1="20" x2="155" y2="20" stroke="#9966cc" stroke-width="3" />
+      <line x1="25" y1="40" x2="155" y2="40" stroke="#9966cc" stroke-width="3" />
+      <line x1="25" y1="60" x2="95" y2="60" stroke="#9966cc" stroke-width="3" />
+    </g>
+    
+    <!-- Connection lines -->
+    <line x1="-50" y1="-30" x2="60" y2="30" stroke="#9966cc" stroke-width="3" stroke-dasharray="10,5" />
+    
+    <!-- Brain icon -->
+    <g transform="translate(-150, 30)">
+      <ellipse cx="0" cy="0" rx="60" ry="50" fill="#b380ff" />
+      <path d="M-30,-20 C-20,-35 0,-40 20,-30 C35,-40 45,-30 45,-15 C55,0 50,25 35,30 C40,45 30,55 15,55 C5,65 -15,65 -25,55 C-40,55 -50,45 -45,30 C-60,25 -65,0 -55,-15 C-55,-30 -45,-35 -30,-20" fill="#8e44ad" />
+    </g>
+  </g>
+</svg>

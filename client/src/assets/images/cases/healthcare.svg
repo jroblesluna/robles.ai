@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <rect width="800" height="600" fill="#f0f9ff" />
+  
+  <!-- Hospital Building Background -->
+  <g transform="translate(400, 300)">
+    <rect x="-350" y="-250" width="700" height="500" rx="20" fill="#ffffff" stroke="#3ba99c" stroke-width="4" />
+    
+    <!-- Hospital icon at top -->
+    <g transform="translate(0, -200)">
+      <rect x="-40" y="-30" width="80" height="60" fill="#3ba99c" rx="5" />
+      <rect x="-8" y="-25" width="16" height="50" fill="#ffffff" />
+      <rect x="-25" y="-8" width="50" height="16" fill="#ffffff" />
+    </g>
+    
+    <!-- Hospital Dashboard -->
+    <g transform="translate(0, 0)">
+      <rect x="-300" y="-150" width="600" height="300" rx="10" fill="#f0f9ff" stroke="#3ba99c" stroke-width="2" />
+      
+      <!-- Dashboard header -->
+      <rect x="-300" y="-150" width="600" height="50" rx="10" fill="#3ba99c" />
+      <text x="0" y="-115" font-family="Arial" font-size="24" fill="#ffffff" text-anchor="middle">Patient Monitoring Dashboard</text>
+      
+      <!-- Dashboard grid lines -->
+      <g stroke="#e0e0e0" stroke-width="1">
+        <line x1="-300" y1="-50" x2="300" y2="-50" />
+        <line x1="-300" y1="0" x2="300" y2="0" />
+        <line x1="-300" y1="50" x2="300" y2="50" />
+        <line x1="-300" y1="100" x2="300" y2="100" />
+        <line x1="-200" y1="-100" x2="-200" y2="150" />
+        <line x1="-100" y1="-100" x2="-100" y2="150" />
+        <line x1="0" y1="-100" x2="0" y2="150" />
+        <line x1="100" y1="-100" x2="100" y2="150" />
+        <line x1="200" y1="-100" x2="200" y2="150" />
+      </g>
+      
+      <!-- Patient Graphs and Charts -->
+      <!-- Heartbeat Graph -->
+      <g transform="translate(-200, -75)">
+        <text x="0" y="-15" font-family="Arial" font-size="14" fill="#333333" text-anchor="middle">Heart Rate</text>
+        <polyline points="-80,20 -70,10 -60,15 -50,5 -40,25 -30,0 -20,20 -10,15 0,10 10,20 20,15 30,5 40,15 50,25 60,0 70,15 80,5" fill="none" stroke="#ff6b6b" stroke-width="2" />
+      </g>
+      
+      <!-- Blood Pressure Graph -->
+      <g transform="translate(0, -75)">
+        <text x="0" y="-15" font-family="Arial" font-size="14" fill="#333333" text-anchor="middle">Blood Pressure</text>
+        <rect x="-80" y="0" width="16" height="25" fill="#4d96ff" />
+        <rect x="-50" y="5" width="16" height="20" fill="#4d96ff" />
+        <rect x="-20" y="10" width="16" height="15" fill="#4d96ff" />
+        <rect x="10" y="0" width="16" height="25" fill="#4d96ff" />
+        <rect x="40" y="5" width="16" height="20" fill="#4d96ff" />
+        <rect x="70" y="15" width="16" height="10" fill="#4d96ff" />
+      </g>
+      
+      <!-- Temperature Chart -->
+      <g transform="translate(200, -75)">
+        <text x="0" y="-15" font-family="Arial" font-size="14" fill="#333333" text-anchor="middle">Temperature</text>
+        <line x1="-80" y1="25" x2="80" y2="25" stroke="#e0e0e0" stroke-width="1" />
+        <line x1="-80" y1="15" x2="80" y2="15" stroke="#e0e0e0" stroke-width="1" />
+        <line x1="-80" y1="5" x2="80" y2="5" stroke="#e0e0e0" stroke-width="1" />
+        <polyline points="-80,20 -60,18 -40,19 -20,15 0,17 20,10 40,12 60,9 80,10" fill="none" stroke="#ffb347" stroke-width="2" />
+      </g>
+      
+      <!-- Patient Risk Assessment -->
+      <g transform="translate(-200, 25)">
+        <text x="0" y="-15" font-family="Arial" font-size="14" fill="#333333" text-anchor="middle">Risk Assessment</text>
+        <rect x="-70" y="0" width="140" height="20" rx="10" fill="#eeeeee" />
+        <rect x="-70" y="0" width="90" height="20" rx="10" fill="#ff6b6b" />
+        <text x="0" y="15" font-family="Arial" font-size="12" fill="#ffffff" text-anchor="middle">64% Risk</text>
+      </g>
+      
+      <!-- Medication Schedule -->
+      <g transform="translate(0, 25)">
+        <text x="0" y="-15" font-family="Arial" font-size="14" fill="#333333" text-anchor="middle">Medication</text>
+        <rect x="-70" y="0" width="140" height="60" rx="5" fill="#eeeeee" />
+        <line x1="-70" y1="20" x2="70" y2="20" stroke="#ffffff" stroke-width="2" />
+        <line x1="-70" y1="40" x2="70" y2="40" stroke="#ffffff" stroke-width="2" />
+        <text x="-65" y="15" font-family="Arial" font-size="12" fill="#333333">7:00 AM - Medication A</text>
+        <text x="-65" y="35" font-family="Arial" font-size="12" fill="#333333">1:00 PM - Medication B</text>
+        <text x="-65" y="55" font-family="Arial" font-size="12" fill="#333333">8:00 PM - Medication C</text>
+      </g>
+      
+      <!-- Machine Learning Prediction -->
+      <g transform="translate(200, 25)">
+        <text x="0" y="-15" font-family="Arial" font-size="14" fill="#333333" text-anchor="middle">AI Prediction</text>
+        <rect x="-70" y="0" width="140" height="60" rx="5" fill="#eeeeee" />
+        <path d="M-40,30 C-20,10 20,50 40,30" stroke="#3ba99c" stroke-width="3" fill="none" />
+        <circle cx="-40" cy="30" r="5" fill="#3ba99c" />
+        <circle cx="0" cy="30" r="5" fill="#3ba99c" />
+        <circle cx="40" cy="30" r="5" fill="#3ba99c" />
+        <text x="0" y="55" font-family="Arial" font-size="12" fill="#333333" text-anchor="middle">Readmission Risk: 23%</text>
+      </g>
+      
+      <!-- Patient Timeline -->
+      <g transform="translate(0, 115)">
+        <text x="0" y="-15" font-family="Arial" font-size="14" fill="#333333" text-anchor="middle">Patient History</text>
+        <line x1="-250" y1="0" x2="250" y2="0" stroke="#3ba99c" stroke-width="2" />
+        <circle cx="-200" cy="0" r="8" fill="#ffffff" stroke="#3ba99c" stroke-width="2" />
+        <circle cx="-100" cy="0" r="8" fill="#ffffff" stroke="#3ba99c" stroke-width="2" />
+        <circle cx="0" cy="0" r="8" fill="#ffffff" stroke="#3ba99c" stroke-width="2" />
+        <circle cx="100" cy="0" r="8" fill="#3ba99c" stroke="#3ba99c" stroke-width="2" />
+        <circle cx="200" cy="0" r="8" fill="#ffffff" stroke="#3ba99c" stroke-width="2" stroke-dasharray="3,3" />
+        <text x="-200" y="20" font-family="Arial" font-size="10" fill="#333333" text-anchor="middle">Admission</text>
+        <text x="-100" y="20" font-family="Arial" font-size="10" fill="#333333" text-anchor="middle">Surgery</text>
+        <text x="0" y="20" font-family="Arial" font-size="10" fill="#333333" text-anchor="middle">Recovery</text>
+        <text x="100" y="20" font-family="Arial" font-size="10" fill="#333333" text-anchor="middle">Current</text>
+        <text x="200" y="20" font-family="Arial" font-size="10" fill="#333333" text-anchor="middle">Discharge</text>
+      </g>
+    </g>
+  </g>
+</svg>
