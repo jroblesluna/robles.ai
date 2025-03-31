@@ -8,7 +8,7 @@ const Hero = () => {
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
-      className="relative overflow-hidden animated-bg py-20 md:py-32"
+      className="relative overflow-hidden animated-bg py-20 md:py-16"
     >
       <div className="absolute inset-0 z-0 overflow-hidden">
         {/* Animated particle background */}
@@ -19,13 +19,13 @@ const Hero = () => {
           <svg className="w-full h-full opacity-30" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <pattern id="tech-grid" width="50" height="50" patternUnits="userSpaceOnUse">
-                <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(59, 130, 246, 0.5)" strokeWidth="0.5"/>
+                <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(59, 130, 246, 0.5)" strokeWidth="5"/>
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#tech-grid)" />
-            <circle cx="500" cy="500" r="300" fill="none" stroke="rgba(59, 130, 246, 0.6)" strokeWidth="1" />
-            <circle cx="500" cy="500" r="200" fill="none" stroke="rgba(59, 130, 246, 0.8)" strokeWidth="1" />
-            <circle cx="500" cy="500" r="100" fill="none" stroke="rgba(59, 130, 246, 1)" strokeWidth="1" />
+            <circle cx="500" cy="500" r="300" fill="none" stroke="rgba(59, 130, 246, 0.6)" strokeWidth="10" />
+            <circle cx="500" cy="500" r="200" fill="none" stroke="rgba(59, 130, 246, 0.8)" strokeWidth="10" />
+            <circle cx="500" cy="500" r="100" fill="none" stroke="rgba(59, 130, 246, 1)" strokeWidth="10" />
           </svg>
         </div>
       </div>
@@ -37,7 +37,7 @@ const Hero = () => {
             custom={0}
             className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 drop-shadow-[0_4px_4px_rgba(0,0,0,0.6)]"
           >
-            Robust Artificial Intelligence Solutions
+            RAIS™ Robust Artificial Intelligence Solutions
           </motion.h1>
           
           <motion.p 
@@ -69,7 +69,7 @@ const Hero = () => {
         </div>
       </div>
       
-      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-gray-50 to-transparent"></div>
+      <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-gray-50 to-transparent"></div>
     </motion.section>
   );
 };

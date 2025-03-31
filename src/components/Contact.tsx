@@ -77,7 +77,7 @@ const Contact = () => {
   };
 
   return (
-    <section id="contact" className="py-20 bg-white">
+    <section id="contact" className="py-16 bg-gray-50">
       <motion.div 
         className="container mx-auto px-6"
         variants={staggerContainer}
@@ -154,7 +154,7 @@ const Contact = () => {
           <motion.div 
             variants={fadeIn}
             custom={0.3}
-            className="bg-gray-50 p-8 rounded-xl shadow-sm"
+            className="bg-blue-100 p-8 rounded-xl shadow-sm"
           >
             <h3 className="text-2xl font-semibold text-gray-900 mb-6">Send us a Message</h3>
             

@@ -43,7 +43,7 @@ const TeamMember = ({
 
 const Team = () => {
   return (
-    <section id="about" className="py-20 bg-gray-50">
+    <section id="about" className="py-16 bg-blue-50">
       <motion.div 
         className="container mx-auto px-6"
         variants={staggerContainer}

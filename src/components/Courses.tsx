@@ -94,7 +94,7 @@ const Courses = () => {
   const filteredCourses = coursesData;
 
   return (
-    <section id="courses" className="py-20 bg-blue-50">
+    <section id="courses" className="py-16 bg-gray-50">
       <motion.div 
         className="container mx-auto px-6"
         variants={staggerContainer}
