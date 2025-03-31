@@ -3,8 +3,6 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertContactSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
-import { exec } from "child_process";
-import { promisify } from "util";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes for contact form submissions
