@@ -12,7 +12,7 @@ export const solutionsData = [
     bgColor: "bg-blue-500",
     linkColor: "text-blue-600",
     linkHoverColor: "hover:text-blue-700",
-    image: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+    image: "ml.jpg"
   },
   {
     id: 2,
@@ -23,7 +23,7 @@ export const solutionsData = [
     bgColor: "bg-emerald-500",
     linkColor: "text-emerald-600",
     linkHoverColor: "hover:text-emerald-700",
-    image: "https://images.unsplash.com/photo-1617791160505-6f00504e3519?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+    image: "cv.jpg"
   },
   {
     id: 3,
@@ -34,7 +34,7 @@ export const solutionsData = [
     bgColor: "bg-violet-500",
     linkColor: "text-violet-600",
     linkHoverColor: "hover:text-violet-700",
-    image: "https://images.unsplash.com/photo-1456406644174-8ddd4cd52a06?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+    image: "nlp.jpg"
   },
   {
     id: 4,
@@ -45,7 +45,7 @@ export const solutionsData = [
     bgColor: "bg-gray-700",
     linkColor: "text-gray-600",
     linkHoverColor: "hover:text-gray-800",
-    image: "https://images.unsplash.com/photo-1677442135990-b842ab17dea5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+    image: "dl.jpg"
   }
 ];
 

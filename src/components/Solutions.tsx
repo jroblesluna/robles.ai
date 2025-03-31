@@ -79,7 +79,7 @@ const Solutions = () => {
   };
 
   return (
-    <section id="solutions" className="py-20 bg-blue-50">
+    <section id="solutions" className="py-16 bg-blue-50">
       <motion.div 
         className="container mx-auto px-6"
         variants={staggerContainer}
@@ -115,7 +115,7 @@ const Solutions = () => {
               bgColor={solution.bgColor}
               linkColor={solution.linkColor}
               linkHoverColor={solution.linkHoverColor}
-              image={solution.image}
+              image={"/images/"+solution.image}
               index={index}
             />
           ))}
