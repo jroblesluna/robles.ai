@@ -54,7 +54,7 @@ app.use((req, res, next) => {
   }
 
   const PORT = parseInt(process.env.PORT || "5173", 10); // Dynamically handle port
-  const HOST = process.env.HOST || "localhost"; // Set host to localhost for compatibility
+  const HOST = process.env.HOST || "0.0.0.0"; // Set host to localhost for compatibility
 
   server.listen(PORT, HOST, () => {
     log(`Server is running on http://${HOST}:${PORT}`);
