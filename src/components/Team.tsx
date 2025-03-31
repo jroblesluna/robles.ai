@@ -72,7 +72,7 @@ const Team = () => {
           {teamData.map((member, index) => (
             <TeamMember
               key={member.name}
-              image={member.image}
+              image={"/images/"+member.image}
               name={member.name}
               position={member.position}
               positionColor={member.positionColor}

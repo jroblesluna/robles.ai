@@ -328,11 +328,11 @@ export const coursesData = [
 export const teamData = [
   {
     id: 1,
-    name: "Dr. Alex Robles",
+    name: "Dr. Antonio Robles",
     position: "Founder & CEO",
     positionColor: "text-blue-600",
     bio: "Former AI researcher with 15+ years of experience in developing machine learning applications for enterprise clients.",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+    image: "ar.jpg"
   },
   {
     id: 2,
@@ -340,7 +340,7 @@ export const teamData = [
     position: "Chief Research Officer",
     positionColor: "text-emerald-600",
     bio: "Leading expert in computer vision with PhD from MIT and 20+ publications in top AI journals and conferences.",
-    image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+    image: "jk.jpg"
   },
   {
     id: 3,
@@ -348,7 +348,7 @@ export const teamData = [
     position: "Chief Technology Officer",
     positionColor: "text-violet-600",
     bio: "Software architect with expertise in implementing scalable AI systems for enterprise clients across industries.",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+    image: "mc.jpg"
   },
   {
     id: 4,
@@ -356,6 +356,6 @@ export const teamData = [
     position: "Director of AI Ethics",
     positionColor: "text-gray-700",
     bio: "Former professor with expertise in responsible AI development, ensuring ethical implementation of our solutions.",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+    image: "sm.jpg"
   }
 ];
