@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
 import { fadeIn, staggerContainer } from "@/utils/animations";
-import { teamData } from "@/lib/data";
+import { useTranslation } from "react-i18next";
 
 interface TeamMemberProps {
   image: string;
@@ -27,7 +27,7 @@ const TeamMember = ({
   >
     <div className="aspect-square relative overflow-hidden bg-gray-100">
       <img 
-        src={image} 
+        src={`/images/${image}`} 
         alt={name} 
         className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
       />
@@ -42,6 +42,9 @@ const TeamMember = ({
 );
 
 const Team = () => {
+  const { t } = useTranslation();
+  const members = t("team.members", { returnObjects: true }) as TeamMemberProps[];
+
   return (
     <section id="about" className="py-16 bg-blue-50">
       <motion.div 
@@ -57,22 +60,22 @@ const Team = () => {
             custom={0}
             className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
           >
-            Meet Our Team
+            {t("team.title")}
           </motion.h2>
           <motion.p 
             variants={fadeIn}
             custom={0.1}
             className="text-xl text-gray-600 max-w-3xl mx-auto"
           >
-            Our experts combine deep technical knowledge with industry experience to deliver cutting-edge AI solutions.
+            {t("team.subtitle")}
           </motion.p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {teamData.map((member, index) => (
+          {members.map((member: any, index: number) => (
             <TeamMember
-              key={member.name}
-              image={"/images/"+member.image}
+              key={index}
+              image={member.image}
               name={member.name}
               position={member.position}
               positionColor={member.positionColor}
@@ -91,7 +94,7 @@ const Team = () => {
             href="#" 
             className="inline-flex items-center bg-gray-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-800 transition-all hover:-translate-y-1 hover:shadow-lg"
           >
-            Join Our Team
+            {t("team.join")}
             <ExternalLink className="ml-2 h-4 w-4" />
           </a>
         </motion.div>

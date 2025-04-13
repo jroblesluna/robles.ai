@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { Twitter, Linkedin, Github } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const FooterSection = ({ title, links }: { title: string, links: Array<{ name: string, href: string }> }) => (
   <div>
@@ -18,28 +19,29 @@ const FooterSection = ({ title, links }: { title: string, links: Array<{ name: s
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  
+  const { t } = useTranslation();
+
   const solutionsLinks = [
-    { name: "Machine Learning", href: "#" },
-    { name: "Computer Vision", href: "#" },
-    { name: "Natural Language Processing", href: "#" },
-    { name: "Deep Learning", href: "#" },
-    { name: "AI Consulting", href: "#" },
+    { name: t("footer.solutions.ml"), href: "#" },
+    { name: t("footer.solutions.cv"), href: "#" },
+    { name: t("footer.solutions.nlp"), href: "#" },
+    { name: t("footer.solutions.dl"), href: "#" },
+    { name: t("footer.solutions.consulting"), href: "#" }
   ];
 
   const companyLinks = [
-    { name: "About Us", href: "#" },
-    { name: "Careers", href: "#" },
-    { name: "Blog", href: "#" },
-    { name: "Press", href: "#" },
-    { name: "Contact", href: "#contact" },
+    { name: t("footer.company.about"), href: "#" },
+    { name: t("footer.company.careers"), href: "#" },
+    { name: t("footer.company.blog"), href: "#" },
+    { name: t("footer.company.press"), href: "#" },
+    { name: t("footer.company.contact"), href: "#contact" }
   ];
 
   const legalLinks = [
-    { name: "Privacy Policy", href: "#" },
-    { name: "Terms of Service", href: "#" },
-    { name: "Cookie Policy", href: "#" },
-    { name: "AI Ethics Statement", href: "#" },
+    { name: t("footer.legal.privacy"), href: "#" },
+    { name: t("footer.legal.terms"), href: "#" },
+    { name: t("footer.legal.cookies"), href: "#" },
+    { name: t("footer.legal.ethics"), href: "#" }
   ];
 
   return (
@@ -55,24 +57,24 @@ const Footer = () => {
               <span className="text-xl font-bold text-white">Robles<span className="text-blue-400">.AI</span></span>
             </Link>
             <p className="text-gray-400 mb-6">
-              Delivering cutting-edge AI solutions that transform businesses through innovation, ethics, and technical excellence.
+              {t("footer.description")}
             </p>
-            <p className="text-gray-400">© {currentYear} Robles.AI. All rights reserved.</p>
+            <p className="text-gray-400">© {currentYear} Robles.AI. {t("footer.rights")}</p>
           </div>
-          
+
           {/* Solutions */}
-          <FooterSection title="Solutions" links={solutionsLinks} />
-          
+          <FooterSection title={t("footer.titles.solutions")} links={solutionsLinks} />
+
           {/* Company */}
-          <FooterSection title="Company" links={companyLinks} />
-          
+          <FooterSection title={t("footer.titles.company")} links={companyLinks} />
+
           {/* Legal */}
-          <FooterSection title="Legal" links={legalLinks} />
+          <FooterSection title={t("footer.titles.legal")} links={legalLinks} />
         </div>
-        
+
         <div className="border-t border-gray-800 pt-8">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center">
-            <p className="text-gray-500 mb-4 md:mb-0">Robles.AI - Robust Artificial Intelligence Solutions</p>
+            <p className="text-gray-500 mb-4 md:mb-0">{t("footer.tagline")}</p>
             <div className="flex space-x-6">
               <a href="#" className="text-gray-400 hover:text-white transition-colors">
                 <Twitter className="h-5 w-5" />

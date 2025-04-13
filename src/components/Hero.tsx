@@ -1,8 +1,11 @@
 import { motion } from "framer-motion";
 import { fadeIn, staggerContainer } from "@/utils/animations";
 import ParticleBackground from './ParticleBackground';
+import { useTranslation } from 'react-i18next';
 
 const Hero = () => {
+  const { t } = useTranslation();
+
   return (
     <motion.section
       variants={staggerContainer}
@@ -11,10 +14,7 @@ const Hero = () => {
       className="relative overflow-hidden animated-bg py-20 md:py-16"
     >
       <div className="absolute inset-0 z-0 overflow-hidden">
-        {/* Animated particle background */}
         <ParticleBackground />
-        
-        {/* Digital grid overlay */}
         <div className="absolute inset-0 z-10 mix-blend-overlay">
           <svg className="w-full h-full opacity-30" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
             <defs>
@@ -29,7 +29,7 @@ const Hero = () => {
           </svg>
         </div>
       </div>
-      
+
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-3xl mx-auto text-center">
           <motion.h1 
@@ -37,17 +37,17 @@ const Hero = () => {
             custom={0}
             className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 drop-shadow-[0_4px_4px_rgba(0,0,0,0.6)]"
           >
-            RAIS™ Robust Artificial Intelligence Solutions
+            {t("hero.title")}
           </motion.h1>
-          
+
           <motion.p 
             variants={fadeIn}
             custom={0.2}
             className="text-xl md:text-2xl text-white mb-8 drop-shadow-[0_2px_3px_rgba(0,0,0,0.5)]"
           >
-            Transform your business with cutting-edge AI technology that delivers real-world results.
+            {t("hero.subtitle")}
           </motion.p>
-          
+
           <motion.div 
             variants={fadeIn}
             custom={0.4}
@@ -57,18 +57,18 @@ const Hero = () => {
               href="#solutions" 
               className="px-6 py-3 bg-white text-blue-700 font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
             >
-              Explore Solutions
+              {t("hero.cta1")}
             </a>
             <a 
               href="#contact" 
               className="px-6 py-3 bg-blue-500 text-white font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-white/20"
             >
-              Book a Consultation
+              {t("hero.cta2")}
             </a>
           </motion.div>
         </div>
       </div>
-      
+
       <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-gray-50 to-transparent"></div>
     </motion.section>
   );

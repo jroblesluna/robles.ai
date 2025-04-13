@@ -1,7 +1,8 @@
+// i18n version of Contact.tsx
 import { motion } from "framer-motion";
-import { 
-  Phone, 
-  Mail, 
+import {
+  Phone,
+  Mail,
   MapPin,
   Send
 } from "lucide-react";
@@ -17,27 +18,28 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { toast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { insertContactSchema } from "@shared/schema";
+import { useTranslation } from "react-i18next";
 
-// Form validation schema
 const contactFormSchema = insertContactSchema.extend({
   name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
+    message: "Name must be at least 2 characters."
   }),
   email: z.string().email({
-    message: "Please enter a valid email address.",
+    message: "Please enter a valid email address."
   }),
   company: z.string().optional(),
   subject: z.string().default("Website Inquiry"),
   message: z.string().min(10, {
-    message: "Message must be at least 10 characters.",
+    message: "Message must be at least 10 characters."
   }),
-  newsletter: z.boolean().default(false),
+  newsletter: z.boolean().default(false)
 });
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
 
 const Contact = () => {
-  // Initialize form
+  const { t } = useTranslation();
+
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
@@ -46,39 +48,32 @@ const Contact = () => {
       company: "",
       subject: "Website Inquiry",
       message: "",
-      newsletter: false,
-    },
+      newsletter: false
+    }
   });
 
   const { isSubmitting } = form.formState;
 
-  // Handle form submission
   const onSubmit = async (data: ContactFormValues) => {
     try {
-      await apiRequest(
-        "POST",
-        "/api/contact",
-        data
-      );
-      
+      await apiRequest("POST", "/api/contact", data);
       toast({
-        title: "Message sent!",
-        description: "Thank you for contacting us. We'll get back to you soon.",
+        title: t("contact.successTitle"),
+        description: t("contact.successMessage")
       });
-      
       form.reset();
     } catch (error) {
       toast({
-        title: "Error",
-        description: "There was a problem sending your message. Please try again.",
-        variant: "destructive",
+        title: t("contact.errorTitle"),
+        description: t("contact.errorMessage"),
+        variant: "destructive"
       });
     }
   };
 
   return (
     <section id="contact" className="py-16 bg-gray-50">
-      <motion.div 
+      <motion.div
         className="container mx-auto px-6"
         variants={staggerContainer}
         initial="hidden"
@@ -86,78 +81,72 @@ const Contact = () => {
         viewport={{ once: true, amount: 0.2 }}
       >
         <div className="text-center mb-16">
-          <motion.h2 
+          <motion.h2
             variants={fadeIn}
             custom={0}
             className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
           >
-            Contact Us
+            {t("contact.title")}
           </motion.h2>
-          <motion.p 
+          <motion.p
             variants={fadeIn}
             custom={0.1}
             className="text-xl text-gray-600 max-w-3xl mx-auto"
           >
-            Have questions about our AI solutions? Reach out to us and our team will get back to you soon.
+            {t("contact.subtitle")}
           </motion.p>
         </div>
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Contact Information */}
-          <motion.div 
-            variants={fadeIn}
-            custom={0.2}
-            className="space-y-8"
-          >
-            <h3 className="text-2xl font-semibold text-gray-900 mb-6">Get in Touch</h3>
-            
+          <motion.div variants={fadeIn} custom={0.2} className="space-y-8">
+            <h3 className="text-2xl font-semibold text-gray-900 mb-6">{t("contact.infoTitle")}</h3>
+
             <div className="space-y-6">
               <div className="flex items-start">
                 <div className="bg-blue-100 rounded-full p-3 mr-4">
                   <Phone className="h-6 w-6 text-blue-600" />
                 </div>
                 <div>
-                  <h4 className="text-lg font-medium text-gray-900">Phone</h4>
+                  <h4 className="text-lg font-medium text-gray-900">{t("contact.phone")}</h4>
                   <p className="text-gray-600">+1 (408) 590-0153</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start">
                 <div className="bg-blue-100 rounded-full p-3 mr-4">
                   <Mail className="h-6 w-6 text-blue-600" />
                 </div>
                 <div>
-                  <h4 className="text-lg font-medium text-gray-900">Email</h4>
+                  <h4 className="text-lg font-medium text-gray-900">{t("contact.email")}</h4>
                   <p className="text-gray-600">contact@robles.ai</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start">
                 <div className="bg-blue-100 rounded-full p-3 mr-4">
                   <MapPin className="h-6 w-6 text-blue-600" />
                 </div>
                 <div>
-                  <h4 className="text-lg font-medium text-gray-900">Address</h4>
-                  <p className="text-gray-600">20380 Stevens Creek Blvd, Suite 205<br/>Cupertino, CA 95014</p>
+                  <h4 className="text-lg font-medium text-gray-900">{t("contact.address")}</h4>
+                  <p className="text-gray-600">20380 Stevens Creek Blvd, Suite 205<br />Cupertino, CA 95014</p>
                 </div>
               </div>
             </div>
-            
+
             <div className="pt-6">
-              <h4 className="text-lg font-medium text-gray-900 mb-4">Business Hours</h4>
-              <p className="text-gray-600">Monday - Friday: 9:00 AM - 6:00 PM PST</p>
-              <p className="text-gray-600">Saturday - Sunday: Closed</p>
+              <h4 className="text-lg font-medium text-gray-900 mb-4">{t("contact.hoursTitle")}</h4>
+              <p className="text-gray-600">{t("contact.hoursWeek")}</p>
+              <p className="text-gray-600">{t("contact.hoursWeekend")}</p>
             </div>
           </motion.div>
-          
-          {/* Contact Form */}
-          <motion.div 
+
+          <motion.div
             variants={fadeIn}
             custom={0.3}
             className="bg-blue-100 p-8 rounded-xl shadow-sm"
           >
-            <h3 className="text-2xl font-semibold text-gray-900 mb-6">Send us a Message</h3>
-            
+            <h3 className="text-2xl font-semibold text-gray-900 mb-6">{t("contact.formTitle")}</h3>
+
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <FormField
@@ -165,54 +154,54 @@ const Contact = () => {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel>{t("contact.name")}</FormLabel>
                       <FormControl>
-                        <Input placeholder="Your name" {...field} />
+                        <Input placeholder={t("contact.namePlaceholder")} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>{t("contact.email")}</FormLabel>
                       <FormControl>
-                        <Input placeholder="Your email" {...field} />
+                        <Input placeholder={t("contact.emailPlaceholder")} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="company"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Company (Optional)</FormLabel>
+                      <FormLabel>{t("contact.company")}</FormLabel>
                       <FormControl>
-                        <Input placeholder="Your company name" {...field} />
+                        <Input placeholder={t("contact.companyPlaceholder")} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="message"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Message</FormLabel>
+                      <FormLabel>{t("contact.message")}</FormLabel>
                       <FormControl>
-                        <Textarea 
-                          placeholder="How can we help you?" 
-                          className="min-h-[120px]" 
-                          {...field} 
+                        <Textarea
+                          placeholder={t("contact.messagePlaceholder")}
+                          className="min-h-[120px]"
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
@@ -226,29 +215,22 @@ const Contact = () => {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                       <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                       </FormControl>
                       <div className="space-y-1 leading-none">
-                        <FormLabel>
-                          Subscribe to our newsletter
-                        </FormLabel>
-                        <p className="text-sm text-gray-500">
-                          Get the latest AI insights and updates from our team.
-                        </p>
+                        <FormLabel>{t("contact.subscribe")}</FormLabel>
+                        <p className="text-sm text-gray-500">{t("contact.subscribeDesc")}</p>
                       </div>
                     </FormItem>
                   )}
                 />
-                
-                <Button 
-                  type="submit" 
+
+                <Button
+                  type="submit"
                   className="w-full bg-blue-600 hover:bg-blue-700"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Sending..." : "Send Message"}
+                  {isSubmitting ? t("contact.sending") : t("contact.send")}
                   <Send className="ml-2 h-4 w-4" />
                 </Button>
               </form>

@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
-import { Clock, Users, Video, BookOpen, ChevronRight, ArrowRight } from "lucide-react";
+import { Clock, Video, ChevronRight, ArrowRight } from "lucide-react";
 import { fadeIn, staggerContainer } from "@/utils/animations";
-import { coursesData } from "@/lib/data";
+import { useTranslation } from "react-i18next";
 
 interface CourseCardProps {
   image: string;
@@ -30,17 +30,17 @@ const CourseCard = ({
   category,
   buttonBg,
   buttonHoverBg,
-  index
+  index,
 }: CourseCardProps) => (
-  <motion.div 
+  <motion.div
     variants={fadeIn}
     custom={0.3 + index * 0.1}
     className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col"
   >
     <div className="h-48 relative overflow-hidden bg-gray-100">
-      <img 
-        src={image} 
-        alt={title} 
+      <img
+        src={image}
+        alt={title}
         className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
@@ -77,8 +77,8 @@ const CourseCard = ({
             <span className="text-blue-600 font-semibold">{price}</span>
           )}
         </div>
-        <a 
-          href="#" 
+        <a
+          href="#"
           className={`px-4 py-2 ${buttonBg} ${buttonHoverBg} text-white rounded-md transition-all duration-300 hover:-translate-y-1 hover:shadow-md flex items-center`}
         >
           Enroll
@@ -90,12 +90,12 @@ const CourseCard = ({
 );
 
 const Courses = () => {
-  // Display all courses without filtering
-  const filteredCourses = coursesData;
+  const { t } = useTranslation();
+  const coursesData = t("courses.items", { returnObjects: true }) as CourseCardProps[];
 
   return (
     <section id="courses" className="py-16 bg-gray-50">
-      <motion.div 
+      <motion.div
         className="container mx-auto px-6"
         variants={staggerContainer}
         initial="hidden"
@@ -103,55 +103,40 @@ const Courses = () => {
         viewport={{ once: true, amount: 0.2 }}
       >
         <div className="text-center mb-16">
-          <motion.h2 
+          <motion.h2
             variants={fadeIn}
             custom={0}
             className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
           >
-            AI Education & Training
+            {t("courses.title")}
           </motion.h2>
-          <motion.p 
+          <motion.p
             variants={fadeIn}
             custom={0.1}
             className="text-xl text-gray-600 max-w-3xl mx-auto"
           >
-            Enhance your team's AI capabilities with our specialized courses and workshops.
+            {t("courses.subtitle")}
           </motion.p>
         </div>
-        
-        {/* Section spacing instead of filters */}
+
         <div className="mb-12"></div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredCourses.map((course, index) => (
-            <CourseCard
-              key={course.title}
-              image={course.image}
-              level={course.level}
-              title={course.title}
-              description={course.description}
-              duration={course.duration}
-              format={course.format}
-              price={course.regularPrice || course.price}
-              salePrice={course.regularPrice ? course.price : undefined}
-              category={course.category}
-              buttonBg={course.buttonBg}
-              buttonHoverBg={course.buttonHoverBg}
-              index={index}
-            />
+          {coursesData.map((course, index) => (
+            <CourseCard key={index} {...course} index={index} />
           ))}
         </div>
-        
-        <motion.div 
+
+        <motion.div
           variants={fadeIn}
           custom={0.6}
           className="text-center mt-12"
         >
-          <a 
-            href="#" 
+          <a
+            href="#"
             className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
           >
-            Browse all courses
+            {t("courses.cta")}
             <ChevronRight className="h-5 w-5 ml-2" />
           </a>
         </motion.div>

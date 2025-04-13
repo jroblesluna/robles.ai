@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+import { useMemo } from 'react'
 import { motion } from "framer-motion";
 import { Lightbulb, Shield, Zap, Award } from "lucide-react";
 import { fadeIn, staggerContainer } from "@/utils/animations";
@@ -33,36 +35,38 @@ const FeatureCard = ({
 );
 
 const Features = () => {
-  const features = [
+  const { t, i18n } = useTranslation();
+
+  const features = useMemo(() => [
     {
-      title: "Innovation-Driven",
-      description: "Implementing cutting-edge AI research into practical solutions that give your business a competitive advantage.",
+      title: t("features.items.innovation.title"),
+      description: t("features.items.innovation.description"),
       icon: <Lightbulb className="h-8 w-8" />,
       iconBgColor: "bg-blue-100",
       iconColor: "text-blue-600",
     },
     {
-      title: "Ethically Developed",
-      description: "We build AI with integrity, ensuring solutions that are fair, transparent, and designed with privacy in mind.",
+      title: t("features.items.ethics.title"),
+      description: t("features.items.ethics.description"),
       icon: <Shield className="h-8 w-8" />,
       iconBgColor: "bg-emerald-100",
       iconColor: "text-emerald-600",
     },
     {
-      title: "Rapid Deployment",
-      description: "Our streamlined approach delivers AI solutions from concept to production faster than traditional development methods.",
+      title: t("features.items.rapid.title"),
+      description: t("features.items.rapid.description"),
       icon: <Zap className="h-8 w-8" />,
       iconBgColor: "bg-violet-100",
       iconColor: "text-violet-600",
     },
     {
-      title: "Industry Expertise",
-      description: "Our team of AI specialists brings deep domain knowledge across healthcare, manufacturing, finance, and retail industries.",
+      title: t("features.items.expertise.title"),
+      description: t("features.items.expertise.description"),
       icon: <Award className="h-8 w-8" />,
       iconBgColor: "bg-amber-100",
       iconColor: "text-amber-600",
     }
-  ];
+  ], [i18n.language, t]);
 
   return (
     <section className="py-16 bg-gray-50">
@@ -79,21 +83,21 @@ const Features = () => {
             custom={0}
             className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
           >
-            Why Choose Robles<span className="text-blue-600">.AI</span>?
+            {t("features.title")}Robles<span className="text-blue-600">.AI</span>?
           </motion.h2>
           <motion.p 
             variants={fadeIn}
             custom={0.2}
             className="text-xl text-gray-600 max-w-3xl mx-auto"
           >
-            We combine expertise in AI, machine learning, and computer vision to create solutions that drive business growth.
+            {t("features.subtitle")}
           </motion.p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
           {features.map((feature, index) => (
             <FeatureCard
-              key={feature.title}
+              key={index}
               icon={feature.icon}
               title={feature.title}
               description={feature.description}

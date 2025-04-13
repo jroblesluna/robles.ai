@@ -1,7 +1,10 @@
+import { JSX } from "react";
 import { motion } from "framer-motion";
 import { Cpu, Eye, MessageSquare, BarChart3 } from "lucide-react";
 import { fadeIn, staggerContainer } from "@/utils/animations";
-import { solutionsData } from "@/lib/data";
+import { useTranslation } from "react-i18next";
+
+type IconName = "Cpu" | "Eye" | "MessageSquare" | "BarChart3";
 
 interface SolutionCardProps {
   icon: React.ReactNode;
@@ -11,8 +14,9 @@ interface SolutionCardProps {
   bgColor: string;
   linkColor: string;
   linkHoverColor: string;
-  image: string | any; // Allow imported image sources
+  image: string;
   index: number;
+  solutionCta: string;
 }
 
 const iconAnimation = {
@@ -33,7 +37,8 @@ const SolutionCard = ({
   linkColor,
   linkHoverColor,
   image,
-  index
+  index,
+  solutionCta
 }: SolutionCardProps) => (
   <motion.div 
     variants={fadeIn}
@@ -57,10 +62,10 @@ const SolutionCard = ({
       </div>
     </div>
     <div className="p-6">
-      <h3 className="text-xl font-semibold text-gray-900 mb-2">{title}</h3>
+      <h3 className={`text-xl font-semibold ${color} mb-2`}>{title}</h3>
       <p className="text-gray-600 mb-4">{description}</p>
       <a href="#" className={`${linkColor} font-bold ${linkHoverColor} flex items-center transition-all duration-300 group-hover:translate-x-1`}>
-        Learn more
+        {solutionCta}
         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
         </svg>
@@ -70,12 +75,16 @@ const SolutionCard = ({
 );
 
 const Solutions = () => {
-  // Map icons to the data
-  const iconComponents = {
-    "Cpu": <Cpu className="w-full h-full" />,
-    "Eye": <Eye className="w-full h-full" />,
-    "MessageSquare": <MessageSquare className="w-full h-full" />,
-    "BarChart3": <BarChart3 className="w-full h-full" />
+  const { t } = useTranslation();
+  const solutions = t("solutions.items", { returnObjects: true }) as Array<
+  SolutionCardProps & { icon: IconName; id: number }
+>;
+
+  const iconComponents: Record<IconName, JSX.Element> = {
+    Cpu: <Cpu className="w-full h-full" />,
+    Eye: <Eye className="w-full h-full" />,
+    MessageSquare: <MessageSquare className="w-full h-full" />,
+    BarChart3: <BarChart3 className="w-full h-full" />
   };
 
   return (
@@ -93,30 +102,31 @@ const Solutions = () => {
             custom={0}
             className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
           >
-            Our AI Solutions
+            {t("solutions.title")}
           </motion.h2>
           <motion.p 
             variants={fadeIn}
             custom={0.1}
             className="text-xl text-gray-600 max-w-3xl mx-auto"
           >
-            Discover how our expertise in AI, machine learning, and computer vision can transform your business operations.
+            {t("solutions.subtitle")}
           </motion.p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {solutionsData.map((solution, index) => (
+          {solutions.map((solution, index) => (
             <SolutionCard
-              key={solution.title}
-              icon={iconComponents[solution.icon as keyof typeof iconComponents]}
+              key={solution.id}
+              icon={iconComponents[solution.icon as IconName]}
               title={solution.title}
               description={solution.description}
               color={solution.color}
               bgColor={solution.bgColor}
               linkColor={solution.linkColor}
               linkHoverColor={solution.linkHoverColor}
-              image={"/images/"+solution.image}
+              image={`/images/${solution.image}`}
               index={index}
+              solutionCta={solution.solutionCta}
             />
           ))}
         </div>
