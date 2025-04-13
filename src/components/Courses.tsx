@@ -10,8 +10,8 @@ interface CourseCardProps {
   description: string;
   duration: string;
   format: string;
+  regularPrice: string;
   price: string;
-  salePrice?: string;
   category: string;
   buttonBg: string;
   buttonHoverBg: string;
@@ -25,8 +25,8 @@ const CourseCard = ({
   description,
   duration,
   format,
+  regularPrice,
   price,
-  salePrice,
   category,
   buttonBg,
   buttonHoverBg,
@@ -61,20 +61,20 @@ const CourseCard = ({
           <Clock className="h-4 w-4 text-gray-500 mr-2" />
           <span className="text-gray-600 text-sm">{duration}</span>
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center justify-end">
           <Video className="h-4 w-4 text-gray-500 mr-2" />
           <span className="text-gray-600 text-sm">{format}</span>
         </div>
       </div>
       <div className="flex justify-between items-center">
         <div>
-          {salePrice ? (
+          {price ? (
             <div className="flex flex-col">
-              <span className="text-gray-500 line-through text-sm">{price}</span>
-              <span className="text-red-600 font-semibold">{salePrice}</span>
+              <span className="text-gray-500 line-through text-sm">{regularPrice}</span>
+              <span className="text-red-600 font-semibold">{price}</span>
             </div>
           ) : (
-            <span className="text-blue-600 font-semibold">{price}</span>
+            <span className="text-blue-600 font-semibold">{regularPrice}</span>
           )}
         </div>
         <a
