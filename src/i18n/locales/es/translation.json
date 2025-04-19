@@ -49,7 +49,8 @@
         "linkColor": "text-blue-600",
         "linkHoverColor": "hover:text-blue-700",
         "image": "ml.jpg",
-        "solutionCta": "Ver más sobre ML"
+        "solutionCta": "Ver más sobre ML",
+        "videoSrc": "https://www.youtube.com/embed/mWbxPRkfx74?autoplay=1&rel=0"
       },
       {
         "id": 2,
@@ -61,7 +62,8 @@
         "linkColor": "text-emerald-600",
         "linkHoverColor": "hover:text-emerald-700",
         "image": "cv.jpg",
-        "solutionCta": "Ver más sobre CV"
+        "solutionCta": "Ver más sobre CV",
+        "videoSrc": "/videos/cv-es.mp4"
       },
       {
         "id": 3,
@@ -73,7 +75,8 @@
         "linkColor": "text-violet-600",
         "linkHoverColor": "hover:text-violet-700",
         "image": "nlp.jpg",
-        "solutionCta": "Ver más sobre NLP"
+        "solutionCta": "Ver más sobre NLP",
+        "videoSrc": "/videos/nlp-es.mp4"
       },
       {
         "id": 4,
@@ -85,7 +88,8 @@
         "linkColor": "text-gray-600",
         "linkHoverColor": "hover:text-gray-800",
         "image": "dl.jpg",
-        "solutionCta": "Ver más sobre DL"
+        "solutionCta": "Ver más sobre DL",
+        "videoSrc": "/videos/dl-es.mp4"
       }
     ]
   },

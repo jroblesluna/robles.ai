@@ -49,7 +49,8 @@
                 "linkColor": "text-blue-600",
                 "linkHoverColor": "hover:text-blue-700",
                 "image": "ml.jpg",
-                "solutionCta": "More about ML Solutions"
+                "solutionCta": "More about ML Solutions",
+                "videoSrc": "https://www.youtube.com/embed/V76pXl6zgHM?autoplay=1&rel=0"
             },
             {
                 "id": 2,
@@ -61,7 +62,8 @@
                 "linkColor": "text-emerald-600",
                 "linkHoverColor": "hover:text-emerald-700",
                 "image": "cv.jpg",
-                "solutionCta": "More about CV Solutions"
+                "solutionCta": "More about CV Solutions",
+                "videoSrc": "https://www.youtube.com/watch/V76pXl6zgHM?autoplay=1&rel=0"
             },
             {
                 "id": 3,
@@ -73,7 +75,8 @@
                 "linkColor": "text-violet-600",
                 "linkHoverColor": "hover:text-violet-700",
                 "image": "nlp.jpg",
-                "solutionCta": "More about NLP Solutions"
+                "solutionCta": "More about NLP Solutions",
+                "videoSrc": "/videos/nlp-en.mp4"
             },
             {
                 "id": 4,
@@ -85,7 +88,8 @@
                 "linkColor": "text-gray-600",
                 "linkHoverColor": "hover:text-gray-800",
                 "image": "dl.jpg",
-                "solutionCta": "More about DL Solutions"
+                "solutionCta": "More about DL Solutions",
+                "videoSrc": "/videos/dl-en.mp4"
             }
         ]
     },
