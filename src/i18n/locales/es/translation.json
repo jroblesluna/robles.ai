@@ -63,7 +63,7 @@
         "linkHoverColor": "hover:text-emerald-700",
         "image": "cv.jpg",
         "solutionCta": "Ver más sobre CV",
-        "videoSrc": "/videos/cv-es.mp4"
+        "videoSrc": "https://www.youtube.com/embed/wX7m1-gZOLA?autoplay=1&rel=0"
       },
       {
         "id": 3,
