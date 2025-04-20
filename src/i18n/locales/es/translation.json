@@ -76,7 +76,7 @@
         "linkHoverColor": "hover:text-violet-700",
         "image": "nlp.jpg",
         "solutionCta": "Ver más sobre NLP",
-        "videoSrc": "/videos/nlp-es.mp4"
+        "videoSrc": "https://www.youtube.com/embed/wvrGQMqqJRM?autoplay=1&rel=0"
       },
       {
         "id": 4,
