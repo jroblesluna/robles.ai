@@ -103,10 +103,11 @@ const SolutionCard = ({
   <motion.div
     variants={fadeIn}
     custom={0.3 + index * 0.1}
-    className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group"
+    className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group cursor-pointer"
     whileHover="hover"
     initial="hidden"
     animate="visible"
+    onClick={onCtaClick}
   >
     <div className={`h-48 ${bgColor} relative overflow-hidden`}>
       <div className="absolute inset-0 opacity-40 group-hover:opacity-20 transition-opacity duration-300">
