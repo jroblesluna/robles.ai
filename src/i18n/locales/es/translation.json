@@ -89,7 +89,7 @@
         "linkHoverColor": "hover:text-gray-800",
         "image": "dl.jpg",
         "solutionCta": "Ver más sobre DL",
-        "videoSrc": "/videos/dl-es.mp4"
+        "videoSrc": "https://www.youtube.com/embed/AqUIzpd1vNg?autoplay=1&rel=0"
       }
     ]
   },

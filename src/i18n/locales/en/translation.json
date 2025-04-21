@@ -89,7 +89,7 @@
                 "linkHoverColor": "hover:text-gray-800",
                 "image": "dl.jpg",
                 "solutionCta": "More about DL Solutions",
-                "videoSrc": "/videos/dl-en.mp4"
+                "videoSrc": "https://www.youtube.com/embed/jH7UWhjrVuk?autoplay=1&rel=0"
             }
         ]
     },
