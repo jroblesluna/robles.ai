@@ -130,20 +130,16 @@ const SolutionCard = ({
         className={`${linkColor} font-bold ${linkHoverColor} flex items-center transition-all duration-300 group-hover:translate-x-1`}
       >
         {solutionCta}
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-4 w-4 ml-1 transition-transform duration-300 group-hover:translate-x-1"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M9 5l7 7-7 7"
-          />
-        </svg>
+        <span className="ml-2 inline-flex items-center px-2 py-1 bg-red-600 text-white rounded-md shadow-md">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-3.5 w-3.5"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+    >
+      <path d="M8 5v14l11-7z" />
+    </svg>
+  </span>
       </button>
     </div>
   </motion.div>

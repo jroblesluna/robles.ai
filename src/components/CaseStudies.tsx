@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   CheckCircle,
   Clock,
@@ -6,6 +7,86 @@ import {
 } from "lucide-react";
 import { fadeIn, staggerContainer } from "@/utils/animations";
 import { useTranslation } from "react-i18next";
+
+const PdfModal = ({ pdfUrl, onClose }: { pdfUrl: string; onClose: () => void }) => {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const backdropRef = useRef(null);
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
+
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === backdropRef.current) {
+      onClose();
+    }
+  };
+
+  const handlePrint = () => {
+    alert("Printing PDF...");
+    const iframe = iframeRef.current;
+    if (iframe?.contentWindow) {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        ref={backdropRef}
+        className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center"
+        onClick={handleBackdropClick}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.9 }}
+          transition={{ type: "spring", stiffness: 260, damping: 22 }}
+          className="relative w-full max-w-4xl h-[80vh] bg-white rounded-xl shadow-2xl"
+        >
+          {/* Botón en “oreja flotante” */}
+          <button
+            onClick={onClose}
+            className="absolute top-0 -right-10 z-20 bg-white text-black w-10 h-10 flex items-center justify-center shadow-xl rounded-full ring-1 ring-black/10 hover:scale-105 transition-transform"
+            aria-label="Close PDF"
+            title="Close PDF"
+          >
+            ✕
+          </button>
+          <button
+            onClick={handlePrint}
+            className="absolute top-12 -right-10 z-20 bg-white text-black w-10 h-10 flex items-center justify-center shadow-xl rounded-full ring-1 ring-black/10 hover:scale-105 transition-transform"
+            aria-label="Print PDF"
+            title="Print PDF"
+          >
+            🖨️
+          </button>
+
+          <iframe
+            ref={iframeRef}
+            src={pdfUrl}
+            className="w-full h-full rounded-xl"
+            title="Case Study PDF"
+          />
+        </motion.div>
+
+
+      </motion.div>
+    </AnimatePresence>
+  );
+};
 
 interface CaseStudyCardProps {
   image: string;
@@ -22,6 +103,9 @@ interface CaseStudyCardProps {
   ctaColor: string;
   ctaHoverColor: string;
   index: number;
+  ctaText: string;
+  ctaLink: string;
+  onCtaClick?: () => void;
 }
 
 const CaseStudyCard = ({
@@ -35,11 +119,15 @@ const CaseStudyCard = ({
   ctaColor,
   ctaHoverColor,
   index,
+  ctaText,
+  ctaLink,
+  onCtaClick,
 }: CaseStudyCardProps) => (
   <motion.div
     variants={fadeIn}
     custom={0.3 + index * 0.2}
-    className="bg-white rounded-xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border border-gray-100"
+    className="bg-white rounded-xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border border-gray-100 cursor-pointer"
+    onClick={onCtaClick}
   >
     <div className="aspect-video bg-gray-200 relative overflow-hidden">
       <img
@@ -72,13 +160,13 @@ const CaseStudyCard = ({
           </div>
         ))}
       </div>
-      <a
-        href="#"
+      <button
+        onClick={onCtaClick}
         className={`inline-flex items-center ${ctaColor} font-medium ${ctaHoverColor} transition-all duration-300 hover:translate-x-1`}
       >
-        Read full case study
+        {ctaText}
         <ChevronRight className="h-4 w-4 ml-1 transition-transform duration-300 group-hover:translate-x-1" />
-      </a>
+      </button>
     </div>
   </motion.div>
 );
@@ -97,6 +185,7 @@ const getIconComponent = (iconName: string) => {
 const CaseStudies = () => {
   const { t } = useTranslation();
   const caseStudies = t("caseStudies.items", { returnObjects: true }) as any[];
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
   const processedCaseStudies = caseStudies.map((study) => ({
     ...study,
@@ -134,7 +223,11 @@ const CaseStudies = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           {processedCaseStudies.map((study, index) => (
-            <CaseStudyCard key={study.id} {...study} index={index} />
+            <CaseStudyCard
+              key={study.id} {...study}
+              index={index}
+              onCtaClick={() => setPdfUrl(study.ctaLink)}
+            />
           ))}
         </div>
 
@@ -152,6 +245,7 @@ const CaseStudies = () => {
           </a>
         </motion.div>
       </motion.div>
+      {pdfUrl && <PdfModal pdfUrl={pdfUrl} onClose={() => setPdfUrl(null)} />}
     </section>
   );
 };
