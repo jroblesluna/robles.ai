@@ -9,7 +9,17 @@ export default {
     "bg-yellow-500", "hover:bg-yellow-600",
     "bg-green-500", "hover:bg-green-600",
     "bg-violet-500", "hover:bg-violet-600",
-    "bg-red-500", "hover:bg-red-600"
+    "bg-red-500", "hover:bg-red-600",
+    "text-",
+    "text-blue-500", "hover:text-blue-600",
+    "text-blue-600", "hover:text-blue-700",
+    "text-emerald-500", "hover:text-emerald-600",
+    "text-emerald-600", "hover:text-emerald-700",
+    "text-amber-500", "hover:text-amber-600",
+    "text-amber-600", "hover:text-amber-700",
+    "text-violet-500", "hover:text-violet-600",
+    
+
   ],
   theme: {
     extend: {

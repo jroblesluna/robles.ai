@@ -31,7 +31,6 @@ const PdfModal = ({ pdfUrl, onClose }: { pdfUrl: string; onClose: () => void }) 
   };
 
   const handlePrint = () => {
-    alert("Printing PDF...");
     const iframe = iframeRef.current;
     if (iframe?.contentWindow) {
       iframe.contentWindow.focus();
@@ -81,8 +80,6 @@ const PdfModal = ({ pdfUrl, onClose }: { pdfUrl: string; onClose: () => void }) 
             title="Case Study PDF"
           />
         </motion.div>
-
-
       </motion.div>
     </AnimatePresence>
   );
