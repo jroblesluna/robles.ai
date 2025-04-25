@@ -118,7 +118,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4 className="text-lg font-medium text-gray-900">{t("contact.email")}</h4>
-                  <p className="text-gray-600">antonio@robles.ai</p>
+                  <p className="text-gray-600">info@robles.ai</p>
                 </div>
               </div>
 
