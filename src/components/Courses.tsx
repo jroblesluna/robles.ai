@@ -126,20 +126,6 @@ const Courses = () => {
             <CourseCard key={index} {...course} index={index} />
           ))}
         </div>
-
-        <motion.div
-          variants={fadeIn}
-          custom={0.6}
-          className="text-center mt-12"
-        >
-          <a
-            href="#"
-            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-          >
-            {t("courses.cta")}
-            <ChevronRight className="h-5 w-5 ml-2" />
-          </a>
-        </motion.div>
       </motion.div>
     </section>
   );

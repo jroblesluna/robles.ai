@@ -96,7 +96,6 @@
     "caseStudies": {
         "title": "Case Studies",
         "subtitle": "Explore how we've helped businesses solve complex challenges with AI-powered solutions.",
-        "viewAll": "View all case studies",
         "items": [
             {
                 "id": 1,
@@ -171,7 +170,7 @@
                 "ctaColor": "text-violet-600",
                 "ctaHoverColor": "hover:text-violet-700",
                 "ctaText": "Read Full Case Study",
-                "ctaLink": "/case-studies/Robles.AI-Fraud-Detection-for-Financial-Services.pdf"
+                "ctaLink": "https://drive.google.com/file/d/1oau7UvcQVduS6_aNE9OAPysYSrr6SkBL/preview"
             },
             {
                 "id": 4,
@@ -196,7 +195,7 @@
                 "ctaColor": "text-amber-600",
                 "ctaHoverColor": "hover:text-amber-700",
                 "ctaText": "Read Full Case Study",
-                "ctaLink": "/case-studies/Robles.AI-AI-Chatbot-for-Customer-Service-Automation.pdf"
+                "ctaLink": "https://drive.google.com/file/d/1ztlfPfTHn_Vd8znDUzbaznoRYz91p6KW/preview"
             }
         ]
     },
@@ -289,7 +288,6 @@
     "courses": {
         "title": "AI Education & Training",
         "subtitle": "Enhance your team's AI capabilities with our specialized courses and workshops.",
-        "cta": "Browse all courses",
         "items": [
             {
                 "title": "PyTorch Deep Learning",
@@ -457,7 +455,7 @@
             {
                 "name": "Dr. Sophia Martinez",
                 "position": "Director of AI Ethics",
-                "positionColor": "text-gray-700",
+                "positionColor": "text-amber-600",
                 "bio": "Former professor with expertise in responsible AI development, ensuring ethical implementation of our solutions.",
                 "image": "sm.jpg"
             }

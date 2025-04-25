@@ -96,7 +96,6 @@
   "caseStudies": {
     "title": "Casos de Éxito",
     "subtitle": "Descubre cómo hemos ayudado a empresas a resolver desafíos complejos con soluciones impulsadas por IA.",
-    "viewAll": "Ver todos los casos",
     "items": [
       {
         "id": 1,
@@ -172,7 +171,7 @@
         "ctaColor": "text-violet-600",
         "ctaHoverColor": "hover:text-violet-700",
         "ctaText": "Leer el Estudio de Caso",
-        "ctaLink": "/case-studies/Robles.AI-Deteccion-de-Fraude-para-Servicios-Financieros.pdf"
+        "ctaLink": "https://drive.google.com/file/d/17RaMDOiMyIR1QzR4529jVIvWBZBg-lbr/preview"
       },
       {
         "id": 4,
@@ -197,7 +196,7 @@
         "ctaColor": "text-amber-600",
         "ctaHoverColor": "hover:text-amber-700",
         "ctaText": "Leer el Estudio de Caso",
-        "ctaLink": "/case-studies/Robles.AI-AI-Chatbot-para-Automatizacion-de-Atencion-al-Cliente.pdf"
+        "ctaLink": "https://drive.google.com/file/d/1icqLYKzcg_SmxvjqGmLYORMLSqHWecmj/preview"
       }
     ]
   },
@@ -290,7 +289,6 @@
   "courses": {
     "title": "Educación y Capacitación en IA",
     "subtitle": "Mejora las capacidades de IA de tu equipo con nuestros cursos y talleres especializados.",
-    "cta": "Explorar todos los cursos",
     "items": [
       {
         "title": "Deep Learning con PyTorch",
@@ -458,7 +456,7 @@
       {
         "name": "Dra. Sophia Martinez",
         "position": "Directora de Ética en IA",
-        "positionColor": "text-gray-700",
+        "positionColor": "text-amber-600",
         "bio": "Ex profesora con experiencia en desarrollo responsable de IA, asegurando la implementación ética de nuestras soluciones.",
         "image": "sm.jpg"
       }
