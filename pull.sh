@@ -1,21 +1,16 @@
 #!/bin/bash
 
-# Pull the latest changes from the Git repository
-git pull
-# Check if there are any changes pulled from the repository
-if [ "$(git diff --name-only HEAD@{1} HEAD)" != "" ]; then
-    echo "Changes detected. Proceeding with npm install and build."
-    # Stop all PM2 processes
-    pm2 stop all
-    # Install dependencies
-    npm install
+# Pull the latest changes and capture the output
+pull_output=$(git pull)
 
-    # Compile the project
-    npm run build
-
-    # Start all PM2 processes
-    pm2 start all
-else
+# Check if "Already up to date." appears in the output
+if echo "$pull_output" | grep -q "Already up to date."; then
     echo "No changes detected. Skipping npm install and build."
     exit 0
+else
+    echo "Changes detected. Proceeding with npm install and build."
+    pm2 stop all
+    npm install
+    npm run build
+    pm2 start all
 fi
