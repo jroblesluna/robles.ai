@@ -72,7 +72,7 @@ const Contact = () => {
   };
 
   return (
-    <section id="contact" className="py-16 bg-gray-50">
+    <section id="contact" className="py-16 bg-gray-50 scroll-mt-10">
       <motion.div
         className="container mx-auto px-6"
         variants={staggerContainer}

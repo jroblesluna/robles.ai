@@ -161,7 +161,7 @@ const Solutions = () => {
   };
 
   return (
-    <section id="solutions" className="py-16 bg-blue-50">
+    <section id="solutions" className="py-16 bg-blue-50 scroll-mt-10">
       <motion.div
         className="container mx-auto px-6"
         variants={staggerContainer}

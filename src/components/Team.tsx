@@ -46,7 +46,7 @@ const Team = () => {
   const members = t("team.members", { returnObjects: true }) as TeamMemberProps[];
 
   return (
-    <section id="about" className="py-16 bg-blue-50">
+    <section id="about" className="py-16 bg-blue-50 scroll-mt-10">
       <motion.div 
         className="container mx-auto px-6"
         variants={staggerContainer}

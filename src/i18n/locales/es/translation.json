@@ -1,465 +1,583 @@
 {
-  "nav": {
-    "solutions": "Soluciones",
-    "caseStudies": "Casos de Éxito",
-    "customers": "Clientes",
-    "courses": "Cursos",
-    "about": "Nosotros",
-    "contact": "Contáctanos"
-  },
-  "hero": {
-    "title": "Soluciones Robustas de Inteligencia Artificial",
-    "subtitle": "Transforma tu negocio con tecnología de IA de vanguardia que ofrece resultados reales.",
-    "cta1": "Explorar soluciones",
-    "cta2": "Agenda una consulta"
-  },
-  "features": {
-    "title": "¿Por qué elegir ",
-    "subtitle": "Combinamos experiencia en IA, machine learning y visión computacional para crear soluciones que impulsen el crecimiento de tu negocio.",
-    "items": {
-      "innovation": {
-        "title": "Impulsados por la innovación",
-        "description": "Aplicamos lo último en investigación de IA para ofrecer soluciones prácticas que le den a tu negocio una ventaja competitiva."
-      },
-      "ethics": {
-        "title": "Desarrollo ético",
-        "description": "Creamos soluciones con integridad, garantizando transparencia, equidad y respeto por tu privacidad."
-      },
-      "rapid": {
-        "title": "Implementación rápida",
-        "description": "Nuestro enfoque ágil permite pasar de la idea a la producción más rápido que los métodos tradicionales."
-      },
-      "expertise": {
-        "title": "Experiencia en la industria",
-        "description": "Nuestro equipo cuenta con experiencia profunda en salud, manufactura, finanzas y retail."
-      }
-    }
-  },
-  "solutions": {
-    "title": "Nuestras Soluciones de IA",
-    "subtitle": "Descubre cómo nuestra experiencia en IA, aprendizaje automático y visión computacional puede transformar tu negocio.",
-    "items": [
-      {
-        "id": 1,
-        "title": "Modelos de Aprendizaje Automático",
-        "description": "Soluciones personalizadas de machine learning para análisis predictivo, sistemas de recomendación y optimización de procesos.",
-        "icon": "Cpu",
-        "color": "text-blue-600",
-        "bgColor": "bg-blue-500",
-        "linkColor": "text-blue-600",
-        "linkHoverColor": "hover:text-blue-700",
-        "image": "ml.jpg",
-        "solutionCta": "Ver vídeo de ML",
-        "videoSrc": "https://www.youtube.com/embed/mWbxPRkfx74?autoplay=1&rel=0"
-      },
-      {
-        "id": 2,
-        "title": "Sistemas de Visión por Computadora",
-        "description": "Soluciones para análisis de imágenes y video, detección de objetos, reconocimiento facial y control visual de calidad.",
-        "icon": "Eye",
-        "color": "text-emerald-600",
-        "bgColor": "bg-emerald-500",
-        "linkColor": "text-emerald-600",
-        "linkHoverColor": "hover:text-emerald-700",
-        "image": "cv.jpg",
-        "solutionCta": "Ver vídeo de CV",
-        "videoSrc": "https://www.youtube.com/embed/wX7m1-gZOLA?autoplay=1&rel=0"
-      },
-      {
-        "id": 3,
-        "title": "Procesamiento de Lenguaje Natural",
-        "description": "Análisis de texto, detección de sentimiento y sistemas de IA conversacional para atención al cliente y análisis de contenido.",
-        "icon": "MessageSquare",
-        "color": "text-violet-600",
-        "bgColor": "bg-violet-500",
-        "linkColor": "text-violet-600",
-        "linkHoverColor": "hover:text-violet-700",
-        "image": "nlp.jpg",
-        "solutionCta": "Ver vídeo de NLP",
-        "videoSrc": "https://www.youtube.com/embed/wvrGQMqqJRM?autoplay=1&rel=0"
-      },
-      {
-        "id": 4,
-        "title": "Sistemas de Deep Learning",
-        "description": "Redes neuronales avanzadas para reconocimiento de patrones complejos, detección de anomalías y toma de decisiones autónoma.",
-        "icon": "BarChart3",
-        "color": "text-gray-600",
-        "bgColor": "bg-gray-700",
-        "linkColor": "text-gray-600",
-        "linkHoverColor": "hover:text-gray-800",
-        "image": "dl.jpg",
-        "solutionCta": "Ver vídeo de DL",
-        "videoSrc": "https://www.youtube.com/embed/AqUIzpd1vNg?autoplay=1&rel=0"
-      }
-    ]
-  },
-  "caseStudies": {
-    "title": "Casos de Éxito",
-    "subtitle": "Descubre cómo hemos ayudado a empresas a resolver desafíos complejos con soluciones impulsadas por IA.",
-    "items": [
-      {
-        "id": 1,
-        "title": "Sistema de Vigilancia para Ciudades Inteligentes",
-        "description": "Implementamos un sistema de visión computacional a nivel ciudad que ayudó a reducir el crimen en un 27% y mejoró los tiempos de respuesta ante emergencias en un 42%.",
-        "image": "https://images.unsplash.com/photo-1519501025264-65ba15a82390?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
-        "category": "Ciudades Inteligentes",
-        "categoryColor": "text-blue-700",
-        "categoryBgColor": "bg-blue-100",
-        "stats": [
-          {
-            "icon": "CheckCircle",
-            "text": "27% menos crimen",
-            "iconColor": "text-blue-500"
-          },
-          {
-            "icon": "Clock",
-            "text": "Implementación en 6 meses",
-            "iconColor": "text-blue-500"
-          }
-        ],
-        "ctaColor": "text-blue-600",
-        "ctaHoverColor": "hover:text-blue-700",
-        "ctaText": "Leer el Estudio de Caso",
-        "ctaLink": "https://drive.google.com/file/d/1eKV3kMYbex9yPSeOG_8z18OZRO26sZPh/preview"
-      },
-      {
-        "id": 2,
-        "title": "Análisis Predictivo para Optimizar el Cuidado del Paciente",
-        "description": "Nuestro sistema de machine learning ayudó a un proveedor de salud a predecir el riesgo de reingreso de pacientes con un 87% de precisión, reduciendo reingresos en un 23%.",
-        "image": "https://images.unsplash.com/photo-1624727828489-a1e03b79bba8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
-        "category": "Salud",
-        "categoryColor": "text-emerald-700",
-        "categoryBgColor": "bg-emerald-100",
-        "stats": [
-          {
-            "icon": "CheckCircle",
-            "text": "23% menos reingresos",
-            "iconColor": "text-emerald-500"
-          },
-          {
-            "icon": "Clock",
-            "text": "Desarrollo en 6 meses",
-            "iconColor": "text-emerald-500"
-          }
-        ],
-        "ctaColor": "text-emerald-600",
-        "ctaHoverColor": "hover:text-emerald-700",
-        "ctaText": "Leer el Estudio de Caso",
-        "ctaLink": "https://drive.google.com/file/d/1lT-IeTgix6SxZhLkCMrYwiHSP-wODZ6G/preview"
-
-      },
-      {
-        "id": 3,
-        "title": "Detección de Fraude para Servicios Financieros",
-        "description": "Nuestro sistema de IA identificó transacciones fraudulentas con un 99.2% de precisión, ahorrando más de $4.5 millones anuales en pérdidas por fraude.",
-        "image": "https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
-        "category": "Finanzas",
-        "categoryColor": "text-violet-700",
-        "categoryBgColor": "bg-violet-100",
-        "stats": [
-          {
-            "icon": "CheckCircle",
-            "text": "99.2% precisión",
-            "iconColor": "text-violet-500"
-          },
-          {
-            "icon": "Clock",
-            "text": "Implementación en 4 meses",
-            "iconColor": "text-violet-500"
-          }
-        ],
-        "ctaColor": "text-violet-600",
-        "ctaHoverColor": "hover:text-violet-700",
-        "ctaText": "Leer el Estudio de Caso",
-        "ctaLink": "https://drive.google.com/file/d/17RaMDOiMyIR1QzR4529jVIvWBZBg-lbr/preview"
-      },
-      {
-        "id": 4,
-        "title": "Chatbot de IA para Atención al Cliente",
-        "description": "Creamos un asistente de IA generativa que responde el 78% de las consultas sin intervención humana, mejorando el tiempo de respuesta en un 85% y la satisfacción en un 32%.",
-        "image": "https://images.unsplash.com/photo-1559136555-9303baea8ebd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
-        "category": "IA Generativa",
-        "categoryColor": "text-amber-700",
-        "categoryBgColor": "bg-amber-100",
-        "stats": [
-          {
-            "icon": "CheckCircle",
-            "text": "85% respuesta más rápida",
-            "iconColor": "text-amber-500"
-          },
-          {
-            "icon": "Clock",
-            "text": "Implementado en 2 meses",
-            "iconColor": "text-amber-500"
-          }
-        ],
-        "ctaColor": "text-amber-600",
-        "ctaHoverColor": "hover:text-amber-700",
-        "ctaText": "Leer el Estudio de Caso",
-        "ctaLink": "https://drive.google.com/file/d/1icqLYKzcg_SmxvjqGmLYORMLSqHWecmj/preview"
-      }
-    ]
-  },
-  "testimonials": {
-    "title": "Lo que dicen nuestros clientes",
-    "subtitle": "Escucha a las organizaciones que han transformado sus operaciones con nuestras soluciones de IA.",
-    "items": [
-      {
-        "name": "Michael Rodriguez",
-        "position": "CTO",
-        "company": "TechVision Enterprises",
-        "location": "San Francisco, EE. UU.",
-        "imageSrc": "https://randomuser.me/api/portraits/men/32.jpg",
-        "text": "La solución de visión por computadora de Robles.AI revolucionó nuestro proceso de control de calidad. La experiencia del equipo en IA y aprendizaje automático nos permitió implementar un sistema que no solo mejoró la calidad del producto, sino que también generó importantes ahorros."
-      },
-      {
-        "name": "Sarah Chen",
-        "position": "Directora de Innovación",
-        "company": "HealthPlus",
-        "location": "Boston, EE. UU.",
-        "imageSrc": "https://randomuser.me/api/portraits/women/44.jpg",
-        "text": "La solución de análisis predictivo desarrollada por Robles.AI transformó nuestro enfoque en el cuidado del paciente. La precisión del modelo para predecir riesgos de reingreso nos permitió aplicar medidas preventivas y mejorar los resultados clínicos."
-      },
-      {
-        "name": "David Johnson",
-        "position": "VP de Operaciones",
-        "company": "RetailMax",
-        "location": "Chicago, EE. UU.",
-        "imageSrc": "https://randomuser.me/api/portraits/men/46.jpg",
-        "text": "La solución de PLN proporcionada por Robles.AI nos brindó información sin precedentes sobre la retroalimentación del cliente. Ahora entendemos mejor las tendencias de sentimiento y detectamos oportunidades de mejora ocultas anteriormente."
-      },
-      {
-        "name": "Jessica Martinez",
-        "position": "Jefa de Ciencia de Datos",
-        "company": "GlobalFinance",
-        "location": "Nueva York, EE. UU.",
-        "imageSrc": "https://randomuser.me/api/portraits/women/22.jpg",
-        "text": "Implementar el sistema de detección de fraude de Robles.AI fue un cambio radical para nuestra institución financiera. La precisión y velocidad del modelo redujo significativamente nuestra exposición al fraude."
-      },
-      {
-        "name": "Robert Kim",
-        "position": "Director de Manufactura",
-        "company": "NextGen Electronics",
-        "location": "Seúl, Corea del Sur",
-        "imageSrc": "https://randomuser.me/api/portraits/men/55.jpg",
-        "text": "El sistema de detección de defectos que implementamos con Robles.AI se ha pagado muchas veces. La eficiencia de nuestra línea de producción aumentó un 40%, manteniendo altos estándares de calidad."
-      },
-      {
-        "name": "Emily Walker",
-        "position": "Directora Digital",
-        "company": "Urban Logistics",
-        "location": "Austin, EE. UU.",
-        "imageSrc": "https://randomuser.me/api/portraits/women/33.jpg",
-        "text": "El algoritmo de optimización de rutas desarrollado por Robles.AI transformó nuestra logística. Redujimos costos de combustible en un 28% y mejoramos los tiempos de entrega en un 35%."
-      },
-      {
-        "name": "James Wilson",
-        "position": "Director de Investigación",
-        "company": "PharmaDev",
-        "location": "Londres, Reino Unido",
-        "imageSrc": "https://randomuser.me/api/portraits/men/62.jpg",
-        "text": "Los algoritmos de aprendizaje automático de Robles.AI nos ayudaron a identificar candidatos prometedores para nuevos medicamentos mucho más rápido. Su experiencia en IA y bioquímica fue clave para nuestro proceso de investigación."
-      },
-      {
-        "name": "Sophia Garcia",
-        "position": "Líder de Experiencia al Cliente",
-        "company": "TelecomOne",
-        "location": "Seattle, EE. UU.",
-        "imageSrc": "https://randomuser.me/api/portraits/women/29.jpg",
-        "text": "La implementación del sistema de IA conversacional de Robles.AI revolucionó nuestro servicio al cliente. Vimos una reducción del 60% en tiempos de espera y una mejora significativa en la satisfacción del cliente."
-      },
-      {
-        "name": "Daniel Lee",
-        "position": "Gerente de Seguridad",
-        "company": "SecureNet",
-        "location": "Toronto, Canadá",
-        "imageSrc": "https://randomuser.me/api/portraits/men/76.jpg",
-        "text": "El sistema de detección de anomalías de Robles.AI mejoró enormemente nuestra ciberseguridad. Detecta amenazas que nuestras soluciones anteriores pasaban por alto, permitiendo acciones proactivas."
-      },
-      {
-        "name": "Amanda Taylor",
-        "position": "VP de Producto",
-        "company": "SmartRetail",
-        "location": "Melbourne, Australia",
-        "imageSrc": "https://randomuser.me/api/portraits/women/57.jpg",
-        "text": "Implementar el sistema de recomendaciones de Robles.AI incrementó nuestro ticket promedio en un 32%. El equipo colaboró de cerca con nosotros para entender a nuestros clientes y optimizar el algoritmo."
-      }
-    ]
-  },
-  "courses": {
-    "title": "Educación y Capacitación en IA",
-    "subtitle": "Mejora las capacidades de IA de tu equipo con nuestros cursos y talleres especializados.",
-    "items": [
-      {
-        "title": "Deep Learning con PyTorch",
-        "description": "Domina el aprendizaje profundo con PyTorch, incluyendo arquitectura de redes neuronales, técnicas de optimización y estrategias de despliegue.",
-        "image": "https://images.unsplash.com/photo-1617854818583-09e7f077a156?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        "category": "PyTorch",
-        "level": "Intermedio",
-        "duration": "10 semanas",
-        "format": "En línea",
-        "regularPrice": "$1,995",
-        "price": "$1,595",
-        "buttonBg": "bg-blue-500",
-        "buttonHoverBg": "hover:bg-blue-600"
-      },
-      {
-        "title": "TensorFlow en Producción",
-        "description": "Aprende a construir, desplegar y mantener modelos de aprendizaje automático en producción usando TensorFlow.",
-        "image": "https://images.unsplash.com/photo-1555949963-aa79dcee981c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        "category": "TensorFlow",
-        "level": "Avanzado",
-        "duration": "12 semanas",
-        "format": "En línea",
-        "regularPrice": "$2,495",
-        "price": "$1,995",
-        "buttonBg": "bg-orange-500",
-        "buttonHoverBg": "hover:bg-orange-600"
-      },
-      {
-        "title": "Transformers de Hugging Face",
-        "description": "Descubre cómo usar modelos de lenguaje preentrenados para tareas de PLN con el ecosistema Hugging Face.",
-        "image": "https://images.unsplash.com/photo-1587620962725-abab7fe55159?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        "category": "Hugging Face",
-        "level": "Intermedio",
-        "duration": "8 semanas",
-        "format": "En línea",
-        "regularPrice": "$1,895",
-        "price": "$1,495",
-        "buttonBg": "bg-yellow-500",
-        "buttonHoverBg": "hover:bg-yellow-600"
-      },
-      {
-        "title": "Desarrollo con LangChain",
-        "description": "Construye aplicaciones de IA poderosas conectando modelos de lenguaje, prompts y herramientas externas con LangChain.",
-        "image": "https://images.unsplash.com/photo-1531482615713-2afd69097998?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        "category": "LangChain",
-        "level": "Intermedio",
-        "duration": "6 semanas",
-        "format": "En línea",
-        "regularPrice": "$1,695",
-        "price": "$1,395",
-        "buttonBg": "bg-green-500",
-        "buttonHoverBg": "hover:bg-green-600"
-      },
-      {
-        "title": "IA Generativa con OpenAI",
-        "description": "Aprende a usar las APIs de OpenAI para crear aplicaciones de IA generativa para texto, imágenes y más.",
-        "image": "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        "category": "Generative AI",
-        "level": "Principiante",
-        "duration": "8 semanas",
-        "format": "En línea",
-        "regularPrice": "$1,795",
-        "price": "$1,295",
-        "buttonBg": "bg-violet-500",
-        "buttonHoverBg": "hover:bg-violet-600"
-      },
-      {
-        "title": "Visión por Computadora con PyTorch",
-        "description": "Domina la detección de objetos, segmentación de imágenes y análisis de video usando bibliotecas de visión de PyTorch.",
-        "image": "https://images.unsplash.com/photo-1527430253228-e93688616381?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        "category": "PyTorch",
-        "level": "Avanzado",
-        "duration": "12 semanas",
-        "format": "En línea",
-        "regularPrice": "$2,495",
-        "price": "$1,995",
-        "buttonBg": "bg-blue-500",
-        "buttonHoverBg": "hover:bg-blue-600"
-      }
-    ]
-  },
-  "contact": {
-    "title": "Contáctanos",
-    "subtitle": "¿Tienes preguntas sobre nuestras soluciones de IA? Escríbenos y nuestro equipo te responderá pronto.",
-    "infoTitle": "Ponte en contacto",
-    "phone": "Teléfono",
-    "email": "Correo electrónico",
-    "address": "Dirección",
-    "hoursTitle": "Horario de atención",
-    "hoursWeek": "Lunes a Viernes: 9:00 AM - 6:00 PM PST",
-    "hoursWeekend": "Sábado y Domingo: Cerrado",
-    "formTitle": "Envíanos un mensaje",
-    "name": "Nombre",
-    "emailPlaceholder": "Tu correo electrónico",
-    "namePlaceholder": "Tu nombre",
-    "company": "Empresa (Opcional)",
-    "companyPlaceholder": "Nombre de tu empresa",
-    "message": "Mensaje",
-    "messagePlaceholder": "¿Cómo podemos ayudarte?",
-    "subscribe": "Suscríbete a nuestro boletín",
-    "subscribeDesc": "Recibe las últimas novedades e ideas sobre IA de nuestro equipo.",
-    "send": "Enviar mensaje",
-    "sending": "Enviando...",
-    "successTitle": "¡Mensaje enviado!",
-    "successMessage": "Gracias por contactarnos. Te responderemos pronto.",
-    "errorTitle": "Error",
-    "errorMessage": "Hubo un problema al enviar tu mensaje. Por favor, intenta de nuevo."
-  },
-  "footer": {
-    "titles": {
-      "solutions": "Soluciones",
-      "company": "Empresa",
-      "legal": "Legal"
+    "nav": {
+        "features": "¿Porqué Robles.AI?",
+        "solutions": "Soluciones",
+        "caseStudies": "Casos de Éxito",
+        "customers": "Clientes",
+        "courses": "Cursos",
+        "careers": "Carreras",
+        "about": "Nosotros",
+        "contact": "Contáctanos"
+    },
+    "hero": {
+        "title": "Soluciones Robustas de Inteligencia Artificial",
+        "subtitle": "Transforma tu negocio con tecnología de IA de vanguardia que ofrece resultados reales.",
+        "cta1": "Explorar soluciones",
+        "cta2": "Agenda una consulta"
+    },
+    "features": {
+        "title": "¿Por qué elegir ",
+        "subtitle": "Combinamos experiencia en IA, machine learning y visión computacional para crear soluciones que impulsen el crecimiento de tu negocio.",
+        "items": {
+            "innovation": {
+                "title": "Impulsados por la innovación",
+                "description": "Aplicamos lo último en investigación de IA para ofrecer soluciones prácticas que le den a tu negocio una ventaja competitiva."
+            },
+            "ethics": {
+                "title": "Desarrollo ético",
+                "description": "Creamos soluciones con integridad, garantizando transparencia, equidad y respeto por tu privacidad."
+            },
+            "rapid": {
+                "title": "Implementación rápida",
+                "description": "Nuestro enfoque ágil permite pasar de la idea a la producción más rápido que los métodos tradicionales."
+            },
+            "expertise": {
+                "title": "Experiencia en la industria",
+                "description": "Nuestro equipo cuenta con experiencia profunda en salud, manufactura, finanzas y retail."
+            }
+        }
     },
     "solutions": {
-      "ml": "Aprendizaje Automático",
-      "cv": "Visión por Computadora",
-      "nlp": "Procesamiento de Lenguaje Natural",
-      "dl": "Aprendizaje Profundo",
-      "consulting": "Consultoría en IA"
+        "title": "Nuestras Soluciones de IA",
+        "subtitle": "Descubre cómo nuestra experiencia en IA, aprendizaje automático y visión computacional puede transformar tu negocio.",
+        "items": [
+            {
+                "id": 1,
+                "title": "Modelos de Aprendizaje Automático",
+                "description": "Soluciones personalizadas de machine learning para análisis predictivo, sistemas de recomendación y optimización de procesos.",
+                "icon": "Cpu",
+                "color": "text-blue-600",
+                "bgColor": "bg-blue-500",
+                "linkColor": "text-blue-600",
+                "linkHoverColor": "hover:text-blue-700",
+                "image": "ml.jpg",
+                "solutionCta": "Ver vídeo de ML",
+                "videoSrc": "https://www.youtube.com/embed/mWbxPRkfx74?autoplay=1&rel=0"
+            },
+            {
+                "id": 2,
+                "title": "Sistemas de Visión por Computadora",
+                "description": "Soluciones para análisis de imágenes y video, detección de objetos, reconocimiento facial y control visual de calidad.",
+                "icon": "Eye",
+                "color": "text-emerald-600",
+                "bgColor": "bg-emerald-500",
+                "linkColor": "text-emerald-600",
+                "linkHoverColor": "hover:text-emerald-700",
+                "image": "cv.jpg",
+                "solutionCta": "Ver vídeo de CV",
+                "videoSrc": "https://www.youtube.com/embed/wX7m1-gZOLA?autoplay=1&rel=0"
+            },
+            {
+                "id": 3,
+                "title": "Procesamiento de Lenguaje Natural",
+                "description": "Análisis de texto, detección de sentimiento y sistemas de IA conversacional para atención al cliente y análisis de contenido.",
+                "icon": "MessageSquare",
+                "color": "text-violet-600",
+                "bgColor": "bg-violet-500",
+                "linkColor": "text-violet-600",
+                "linkHoverColor": "hover:text-violet-700",
+                "image": "nlp.jpg",
+                "solutionCta": "Ver vídeo de NLP",
+                "videoSrc": "https://www.youtube.com/embed/wvrGQMqqJRM?autoplay=1&rel=0"
+            },
+            {
+                "id": 4,
+                "title": "Sistemas de Deep Learning",
+                "description": "Redes neuronales avanzadas para reconocimiento de patrones complejos, detección de anomalías y toma de decisiones autónoma.",
+                "icon": "BarChart3",
+                "color": "text-gray-600",
+                "bgColor": "bg-gray-700",
+                "linkColor": "text-gray-600",
+                "linkHoverColor": "hover:text-gray-800",
+                "image": "dl.jpg",
+                "solutionCta": "Ver vídeo de DL",
+                "videoSrc": "https://www.youtube.com/embed/AqUIzpd1vNg?autoplay=1&rel=0"
+            }
+        ]
     },
-    "company": {
-      "about": "Sobre Nosotros",
-      "careers": "Empleos",
-      "blog": "Blog",
-      "press": "Prensa",
-      "contact": "Contacto"
+    "caseStudies": {
+        "title": "Casos de Éxito",
+        "subtitle": "Descubre cómo hemos ayudado a empresas a resolver desafíos complejos con soluciones impulsadas por IA.",
+        "items": [
+            {
+                "id": 1,
+                "title": "Sistema de Vigilancia para Ciudades Inteligentes",
+                "description": "Implementamos un sistema de visión computacional a nivel ciudad que ayudó a reducir el crimen en un 27% y mejoró los tiempos de respuesta ante emergencias en un 42%.",
+                "image": "https://images.unsplash.com/photo-1519501025264-65ba15a82390?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+                "category": "Ciudades Inteligentes",
+                "categoryColor": "text-blue-700",
+                "categoryBgColor": "bg-blue-100",
+                "stats": [
+                    {
+                        "icon": "CheckCircle",
+                        "text": "27% menos crimen",
+                        "iconColor": "text-blue-500"
+                    },
+                    {
+                        "icon": "Clock",
+                        "text": "Implementación en 6 meses",
+                        "iconColor": "text-blue-500"
+                    }
+                ],
+                "ctaColor": "text-blue-600",
+                "ctaHoverColor": "hover:text-blue-700",
+                "ctaText": "Leer el Estudio de Caso",
+                "ctaLink": "https://drive.google.com/file/d/1eKV3kMYbex9yPSeOG_8z18OZRO26sZPh/preview"
+            },
+            {
+                "id": 2,
+                "title": "Análisis Predictivo para Optimizar el Cuidado del Paciente",
+                "description": "Nuestro sistema de machine learning ayudó a un proveedor de salud a predecir el riesgo de reingreso de pacientes con un 87% de precisión, reduciendo reingresos en un 23%.",
+                "image": "https://images.unsplash.com/photo-1624727828489-a1e03b79bba8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+                "category": "Salud",
+                "categoryColor": "text-emerald-700",
+                "categoryBgColor": "bg-emerald-100",
+                "stats": [
+                    {
+                        "icon": "CheckCircle",
+                        "text": "23% menos reingresos",
+                        "iconColor": "text-emerald-500"
+                    },
+                    {
+                        "icon": "Clock",
+                        "text": "Desarrollo en 6 meses",
+                        "iconColor": "text-emerald-500"
+                    }
+                ],
+                "ctaColor": "text-emerald-600",
+                "ctaHoverColor": "hover:text-emerald-700",
+                "ctaText": "Leer el Estudio de Caso",
+                "ctaLink": "https://drive.google.com/file/d/1lT-IeTgix6SxZhLkCMrYwiHSP-wODZ6G/preview"
+            },
+            {
+                "id": 3,
+                "title": "Detección de Fraude para Servicios Financieros",
+                "description": "Nuestro sistema de IA identificó transacciones fraudulentas con un 99.2% de precisión, ahorrando más de $4.5 millones anuales en pérdidas por fraude.",
+                "image": "https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+                "category": "Finanzas",
+                "categoryColor": "text-violet-700",
+                "categoryBgColor": "bg-violet-100",
+                "stats": [
+                    {
+                        "icon": "CheckCircle",
+                        "text": "99.2% precisión",
+                        "iconColor": "text-violet-500"
+                    },
+                    {
+                        "icon": "Clock",
+                        "text": "Implementación en 4 meses",
+                        "iconColor": "text-violet-500"
+                    }
+                ],
+                "ctaColor": "text-violet-600",
+                "ctaHoverColor": "hover:text-violet-700",
+                "ctaText": "Leer el Estudio de Caso",
+                "ctaLink": "https://drive.google.com/file/d/17RaMDOiMyIR1QzR4529jVIvWBZBg-lbr/preview"
+            },
+            {
+                "id": 4,
+                "title": "Chatbot de IA para Atención al Cliente",
+                "description": "Creamos un asistente de IA generativa que responde el 78% de las consultas sin intervención humana, mejorando el tiempo de respuesta en un 85% y la satisfacción en un 32%.",
+                "image": "https://images.unsplash.com/photo-1559136555-9303baea8ebd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+                "category": "IA Generativa",
+                "categoryColor": "text-amber-700",
+                "categoryBgColor": "bg-amber-100",
+                "stats": [
+                    {
+                        "icon": "CheckCircle",
+                        "text": "85% respuesta más rápida",
+                        "iconColor": "text-amber-500"
+                    },
+                    {
+                        "icon": "Clock",
+                        "text": "Implementado en 2 meses",
+                        "iconColor": "text-amber-500"
+                    }
+                ],
+                "ctaColor": "text-amber-600",
+                "ctaHoverColor": "hover:text-amber-700",
+                "ctaText": "Leer el Estudio de Caso",
+                "ctaLink": "https://drive.google.com/file/d/1icqLYKzcg_SmxvjqGmLYORMLSqHWecmj/preview"
+            }
+        ]
     },
-    "legal": {
-      "privacy": "Política de Privacidad",
-      "terms": "Términos del Servicio",
-      "cookies": "Política de Cookies",
-      "ethics": "Declaración Ética de IA"
+    "testimonials": {
+        "title": "Lo que dicen nuestros clientes",
+        "subtitle": "Escucha a las organizaciones que han transformado sus operaciones con nuestras soluciones de IA.",
+        "items": [
+            {
+                "name": "Michael Rodriguez",
+                "position": "CTO",
+                "company": "TechVision Enterprises",
+                "location": "San Francisco, EE. UU.",
+                "imageSrc": "https://randomuser.me/api/portraits/men/32.jpg",
+                "text": "La solución de visión por computadora de Robles.AI revolucionó nuestro proceso de control de calidad. La experiencia del equipo en IA y aprendizaje automático nos permitió implementar un sistema que no solo mejoró la calidad del producto, sino que también generó importantes ahorros."
+            },
+            {
+                "name": "Sarah Chen",
+                "position": "Directora de Innovación",
+                "company": "HealthPlus",
+                "location": "Boston, EE. UU.",
+                "imageSrc": "https://randomuser.me/api/portraits/women/44.jpg",
+                "text": "La solución de análisis predictivo desarrollada por Robles.AI transformó nuestro enfoque en el cuidado del paciente. La precisión del modelo para predecir riesgos de reingreso nos permitió aplicar medidas preventivas y mejorar los resultados clínicos."
+            },
+            {
+                "name": "David Johnson",
+                "position": "VP de Operaciones",
+                "company": "RetailMax",
+                "location": "Chicago, EE. UU.",
+                "imageSrc": "https://randomuser.me/api/portraits/men/46.jpg",
+                "text": "La solución de PLN proporcionada por Robles.AI nos brindó información sin precedentes sobre la retroalimentación del cliente. Ahora entendemos mejor las tendencias de sentimiento y detectamos oportunidades de mejora ocultas anteriormente."
+            },
+            {
+                "name": "Jessica Martinez",
+                "position": "Jefa de Ciencia de Datos",
+                "company": "GlobalFinance",
+                "location": "Nueva York, EE. UU.",
+                "imageSrc": "https://randomuser.me/api/portraits/women/22.jpg",
+                "text": "Implementar el sistema de detección de fraude de Robles.AI fue un cambio radical para nuestra institución financiera. La precisión y velocidad del modelo redujo significativamente nuestra exposición al fraude."
+            },
+            {
+                "name": "Robert Kim",
+                "position": "Director de Manufactura",
+                "company": "NextGen Electronics",
+                "location": "Seúl, Corea del Sur",
+                "imageSrc": "https://randomuser.me/api/portraits/men/55.jpg",
+                "text": "El sistema de detección de defectos que implementamos con Robles.AI se ha pagado muchas veces. La eficiencia de nuestra línea de producción aumentó un 40%, manteniendo altos estándares de calidad."
+            },
+            {
+                "name": "Emily Walker",
+                "position": "Directora Digital",
+                "company": "Urban Logistics",
+                "location": "Austin, EE. UU.",
+                "imageSrc": "https://randomuser.me/api/portraits/women/33.jpg",
+                "text": "El algoritmo de optimización de rutas desarrollado por Robles.AI transformó nuestra logística. Redujimos costos de combustible en un 28% y mejoramos los tiempos de entrega en un 35%."
+            },
+            {
+                "name": "James Wilson",
+                "position": "Director de Investigación",
+                "company": "PharmaDev",
+                "location": "Londres, Reino Unido",
+                "imageSrc": "https://randomuser.me/api/portraits/men/62.jpg",
+                "text": "Los algoritmos de aprendizaje automático de Robles.AI nos ayudaron a identificar candidatos prometedores para nuevos medicamentos mucho más rápido. Su experiencia en IA y bioquímica fue clave para nuestro proceso de investigación."
+            },
+            {
+                "name": "Sophia Garcia",
+                "position": "Líder de Experiencia al Cliente",
+                "company": "TelecomOne",
+                "location": "Seattle, EE. UU.",
+                "imageSrc": "https://randomuser.me/api/portraits/women/29.jpg",
+                "text": "La implementación del sistema de IA conversacional de Robles.AI revolucionó nuestro servicio al cliente. Vimos una reducción del 60% en tiempos de espera y una mejora significativa en la satisfacción del cliente."
+            },
+            {
+                "name": "Daniel Lee",
+                "position": "Gerente de Seguridad",
+                "company": "SecureNet",
+                "location": "Toronto, Canadá",
+                "imageSrc": "https://randomuser.me/api/portraits/men/76.jpg",
+                "text": "El sistema de detección de anomalías de Robles.AI mejoró enormemente nuestra ciberseguridad. Detecta amenazas que nuestras soluciones anteriores pasaban por alto, permitiendo acciones proactivas."
+            },
+            {
+                "name": "Amanda Taylor",
+                "position": "VP de Producto",
+                "company": "SmartRetail",
+                "location": "Melbourne, Australia",
+                "imageSrc": "https://randomuser.me/api/portraits/women/57.jpg",
+                "text": "Implementar el sistema de recomendaciones de Robles.AI incrementó nuestro ticket promedio en un 32%. El equipo colaboró de cerca con nosotros para entender a nuestros clientes y optimizar el algoritmo."
+            }
+        ]
     },
-    "description": "Ofrecemos soluciones de IA de vanguardia que transforman negocios mediante innovación, ética y excelencia técnica.",
-    "rights": "Todos los derechos reservados.",
-    "tagline": "Robles.AI - Soluciones Robusta de Inteligencia Artificial"
-  },
-  "team": {
-    "title": "Conoce a nuestro equipo",
-    "subtitle": "Nuestros expertos combinan profundo conocimiento técnico con experiencia en la industria para ofrecer soluciones de IA de vanguardia.",
-    "join": "Únete a nuestro equipo",
-    "members": [
-      {
-        "name": "Dr. Antonio Robles",
-        "position": "Fundador y Director",
-        "positionColor": "text-blue-600",
-        "bio": "Ex investigador de IA con más de 15 años de experiencia desarrollando aplicaciones de aprendizaje automático para empresas.",
-        "image": "ar.jpg"
-      },
-      {
-        "name": "Dra. Jennifer Kim",
-        "position": "Directora de Investigación",
-        "positionColor": "text-emerald-600",
-        "bio": "Experta en visión por computadora con doctorado del MIT y más de 20 publicaciones en conferencias y revistas top de IA.",
-        "image": "jk.jpg"
-      },
-      {
-        "name": "Michael Chen",
-        "position": "Director de Tecnología",
-        "positionColor": "text-violet-600",
-        "bio": "Arquitecto de software con experiencia implementando sistemas escalables de IA para empresas de múltiples sectores.",
-        "image": "mc.jpg"
-      },
-      {
-        "name": "Dra. Sophia Martinez",
-        "position": "Directora de Ética en IA",
-        "positionColor": "text-amber-600",
-        "bio": "Ex profesora con experiencia en desarrollo responsable de IA, asegurando la implementación ética de nuestras soluciones.",
-        "image": "sm.jpg"
-      }
-    ]
-  }
+    "courses": {
+        "title": "Educación y Capacitación en IA",
+        "subtitle": "Mejora las capacidades de IA de tu equipo con nuestros cursos y talleres especializados.",
+        "items": [
+            {
+                "title": "Deep Learning con PyTorch",
+                "description": "Domina el aprendizaje profundo con PyTorch, incluyendo arquitectura de redes neuronales, técnicas de optimización y estrategias de despliegue.",
+                "image": "https://images.unsplash.com/photo-1617854818583-09e7f077a156?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                "category": "PyTorch",
+                "level": "Intermedio",
+                "duration": "10 semanas",
+                "format": "En línea",
+                "regularPrice": "$1,995",
+                "price": "$1,595",
+                "buttonBg": "bg-blue-500",
+                "buttonHoverBg": "hover:bg-blue-600"
+            },
+            {
+                "title": "TensorFlow en Producción",
+                "description": "Aprende a construir, desplegar y mantener modelos de aprendizaje automático en producción usando TensorFlow.",
+                "image": "https://images.unsplash.com/photo-1555949963-aa79dcee981c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                "category": "TensorFlow",
+                "level": "Avanzado",
+                "duration": "12 semanas",
+                "format": "En línea",
+                "regularPrice": "$2,495",
+                "price": "$1,995",
+                "buttonBg": "bg-orange-500",
+                "buttonHoverBg": "hover:bg-orange-600"
+            },
+            {
+                "title": "Transformers de Hugging Face",
+                "description": "Descubre cómo usar modelos de lenguaje preentrenados para tareas de PLN con el ecosistema Hugging Face.",
+                "image": "https://images.unsplash.com/photo-1587620962725-abab7fe55159?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                "category": "Hugging Face",
+                "level": "Intermedio",
+                "duration": "8 semanas",
+                "format": "En línea",
+                "regularPrice": "$1,895",
+                "price": "$1,495",
+                "buttonBg": "bg-yellow-500",
+                "buttonHoverBg": "hover:bg-yellow-600"
+            },
+            {
+                "title": "Desarrollo con LangChain",
+                "description": "Construye aplicaciones de IA poderosas conectando modelos de lenguaje, prompts y herramientas externas con LangChain.",
+                "image": "https://images.unsplash.com/photo-1531482615713-2afd69097998?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                "category": "LangChain",
+                "level": "Intermedio",
+                "duration": "6 semanas",
+                "format": "En línea",
+                "regularPrice": "$1,695",
+                "price": "$1,395",
+                "buttonBg": "bg-green-500",
+                "buttonHoverBg": "hover:bg-green-600"
+            },
+            {
+                "title": "IA Generativa con OpenAI",
+                "description": "Aprende a usar las APIs de OpenAI para crear aplicaciones de IA generativa para texto, imágenes y más.",
+                "image": "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                "category": "Generative AI",
+                "level": "Principiante",
+                "duration": "8 semanas",
+                "format": "En línea",
+                "regularPrice": "$1,795",
+                "price": "$1,295",
+                "buttonBg": "bg-violet-500",
+                "buttonHoverBg": "hover:bg-violet-600"
+            },
+            {
+                "title": "Visión por Computadora con PyTorch",
+                "description": "Domina la detección de objetos, segmentación de imágenes y análisis de video usando bibliotecas de visión de PyTorch.",
+                "image": "https://images.unsplash.com/photo-1527430253228-e93688616381?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                "category": "PyTorch",
+                "level": "Avanzado",
+                "duration": "12 semanas",
+                "format": "En línea",
+                "regularPrice": "$2,495",
+                "price": "$1,995",
+                "buttonBg": "bg-blue-500",
+                "buttonHoverBg": "hover:bg-blue-600"
+            }
+        ]
+    },
+    "contact": {
+        "title": "Contáctanos",
+        "subtitle": "¿Tienes preguntas sobre nuestras soluciones de IA? Escríbenos y nuestro equipo te responderá pronto.",
+        "infoTitle": "Ponte en contacto",
+        "phone": "Teléfono",
+        "email": "Correo electrónico",
+        "address": "Dirección",
+        "hoursTitle": "Horario de atención",
+        "hoursWeek": "Lunes a Viernes: 9:00 AM - 6:00 PM PST",
+        "hoursWeekend": "Sábado y Domingo: Cerrado",
+        "formTitle": "Envíanos un mensaje",
+        "name": "Nombre",
+        "emailPlaceholder": "Tu correo electrónico",
+        "namePlaceholder": "Tu nombre",
+        "company": "Empresa (Opcional)",
+        "companyPlaceholder": "Nombre de tu empresa",
+        "message": "Mensaje",
+        "messagePlaceholder": "¿Cómo podemos ayudarte?",
+        "subscribe": "Suscríbete a nuestro boletín",
+        "subscribeDesc": "Recibe las últimas novedades e ideas sobre IA de nuestro equipo.",
+        "send": "Enviar mensaje",
+        "sending": "Enviando...",
+        "successTitle": "¡Mensaje enviado!",
+        "successMessage": "Gracias por contactarnos. Te responderemos pronto.",
+        "errorTitle": "Error",
+        "errorMessage": "Hubo un problema al enviar tu mensaje. Por favor, intenta de nuevo."
+    },
+    "footer": {
+        "titles": {
+            "solutions": "Soluciones",
+            "company": "Empresa",
+            "legal": "Legal"
+        },
+        "solutions": {
+            "ml": "Aprendizaje Automático",
+            "cv": "Visión por Computadora",
+            "nlp": "Procesamiento de Lenguaje Natural",
+            "dl": "Aprendizaje Profundo",
+            "consulting": "Consultoría en IA"
+        },
+        "company": {
+            "about": "Sobre Nosotros",
+            "careers": "Empleos",
+            "blog": "Blog",
+            "press": "Prensa",
+            "contact": "Contacto"
+        },
+        "legal": {
+            "privacy": "Política de Privacidad",
+            "terms": "Términos del Servicio",
+            "cookies": "Política de Cookies",
+            "ethics": "Declaración Ética de IA"
+        },
+        "description": "Ofrecemos soluciones de IA de vanguardia que transforman negocios mediante innovación, ética y excelencia técnica.",
+        "rights": "Todos los derechos reservados.",
+        "tagline": "Robles.AI - Soluciones Robusta de Inteligencia Artificial"
+    },
+    "team": {
+        "title": "Conoce a nuestro equipo",
+        "subtitle": "Nuestros expertos combinan profundo conocimiento técnico con experiencia en la industria para ofrecer soluciones de IA de vanguardia.",
+        "join": "Únete a nuestro equipo",
+        "members": [
+            {
+                "name": "Dr. Antonio Robles",
+                "position": "Fundador y Director",
+                "positionColor": "text-blue-600",
+                "bio": "Ex investigador de IA con más de 15 años de experiencia desarrollando aplicaciones de aprendizaje automático para empresas.",
+                "image": "ar.jpg"
+            },
+            {
+                "name": "Dra. Jennifer Kim",
+                "position": "Directora de Investigación",
+                "positionColor": "text-emerald-600",
+                "bio": "Experta en visión por computadora con doctorado del MIT y más de 20 publicaciones en conferencias y revistas top de IA.",
+                "image": "jk.jpg"
+            },
+            {
+                "name": "Michael Chen",
+                "position": "Director de Tecnología",
+                "positionColor": "text-violet-600",
+                "bio": "Arquitecto de software con experiencia implementando sistemas escalables de IA para empresas de múltiples sectores.",
+                "image": "mc.jpg"
+            },
+            {
+                "name": "Dra. Sophia Martinez",
+                "position": "Directora de Ética en IA",
+                "positionColor": "text-amber-600",
+                "bio": "Ex profesora con experiencia en desarrollo responsable de IA, asegurando la implementación ética de nuestras soluciones.",
+                "image": "sm.jpg"
+            }
+        ]
+    },
+    "careers": {
+        "title": "Únete a Nuestro Equipo",
+        "subtitle": "Explora nuestras vacantes y sé parte de una cultura impulsada por la innovación.",
+        "apply": "Postular Ahora",
+        "responsibilities": "Responsabilidades",
+        "requirements": "Requisitos",
+        "name": "Nombre",
+        "email": "Correo electrónico",
+        "phone": "Teléfono",
+        "uploadResume": "Adjuntar CV",
+        "message": "Mensaje",
+        "messagePlaceholder": "Escribe tu mensaje aquí...",
+        "submit": "Enviar Solicitud",
+        "jobNotFound": "Puesto no encontrado.",
+        "jobs": [
+            {
+                "id": "fullstack",
+                "title": "Desarrollador Full Stack",
+                "description": "Desarrolla soluciones de extremo a extremo utilizando Python, React, Typescript e integraciones de IA.",
+                "location": "Remoto / Híbrido - Global",
+                "fullDescription": {
+                    "overview": "Como Desarrollador Full Stack en Robles.AI, construirás aplicaciones web escalables de alto rendimiento que integran servicios impulsados por IA. Colaborarás con científicos de datos, ingenieros de IA y diseñadores para ofrecer productos intuitivos y de alto impacto.",
+                    "responsibilities": [
+                        "Diseñar, desarrollar y mantener aplicaciones full stack usando React, Typescript y Python.",
+                        "Integrar APIs REST, endpoints GraphQL y salidas de modelos de IA en el frontend.",
+                        "Implementar interfaces de usuario responsivas y garantizar compatibilidad entre dispositivos.",
+                        "Colaborar con equipos de IA para integrar modelos de machine learning en producción.",
+                        "Optimizar el rendimiento, escalabilidad y seguridad de las aplicaciones.",
+                        "Participar en revisiones de código, discusiones de arquitectura y planificación ágil de sprints."
+                    ],
+                    "requirements": [
+                        "Más de 3 años de experiencia como Desarrollador Full Stack.",
+                        "Dominio de Python, React y Typescript.",
+                        "Familiaridad con APIs RESTful, GraphQL y arquitecturas de microservicios.",
+                        "Experiencia desplegando aplicaciones con Docker o plataformas cloud-native.",
+                        "Conocimientos básicos de conceptos de IA/ML (puntos extra por experiencia con OpenAI, Hugging Face, etc.).",
+                        "Excelentes habilidades de resolución de problemas y trabajo en equipo."
+                    ]
+                }
+            },
+            {
+                "id": "ml",
+                "title": "Ingeniero de Machine Learning",
+                "description": "Diseña, entrena y despliega modelos de Deep Learning, especializándote en arquitecturas de redes neuronales.",
+                "location": "Remoto / Híbrido - Global",
+                "fullDescription": {
+                    "overview": "Como Ingeniero de Machine Learning, desarrollarás y desplegarás modelos avanzados de Deep Learning para resolver problemas complejos en visión por computadora, NLP y analítica predictiva. Trabajarás junto a nuestros equipos de investigación y producto de IA para entregar modelos listos para producción.",
+                    "responsibilities": [
+                        "Diseñar e implementar arquitecturas de deep learning para diferentes aplicaciones.",
+                        "Entrenar, validar y ajustar modelos usando PyTorch y TensorFlow.",
+                        "Desarrollar pipelines robustos de datos para entrenamiento y evaluación de modelos.",
+                        "Monitorear y optimizar el desempeño de los modelos en producción.",
+                        "Documentar experimentos, hallazgos de investigación y mejores prácticas.",
+                        "Colaborar con ingenieros de software para integrar los modelos en producción."
+                    ],
+                    "requirements": [
+                        "Más de 2 años de experiencia en Machine Learning o Deep Learning.",
+                        "Sólidos conocimientos en arquitecturas de redes neuronales (CNNs, RNNs, Transformers).",
+                        "Experiencia práctica con PyTorch o TensorFlow.",
+                        "Experiencia manejando grandes conjuntos de datos, técnicas de augmentación y preprocesamiento.",
+                        "Conocimiento de MLOps es una ventaja (serving de modelos, loops de retraining).",
+                        "Sólida base en álgebra lineal, probabilidad y optimización."
+                    ]
+                }
+            },
+            {
+                "id": "genai",
+                "title": "Ingeniero de IA Generativa",
+                "description": "Construye y optimiza pipelines de RAG (Retrieval Augmented Generation) y flujos de trabajo de prompt engineering.",
+                "location": "Remoto / Híbrido - Global",
+                "fullDescription": {
+                    "overview": "Como Ingeniero de IA Generativa, diseñarás, construirás y optimizarás aplicaciones basadas en modelos de lenguaje grandes (LLMs). Te especializarás en sistemas de Retrieval-Augmented Generation (RAG), prompt engineering e integración de IA generativa en flujos de trabajo reales.",
+                    "responsibilities": [
+                        "Desarrollar arquitecturas RAG combinando LLMs con bases de datos vectoriales (Pinecone, FAISS).",
+                        "Diseñar y optimizar prompts para mejorar las salidas de los modelos (prompt engineering).",
+                        "Integrar APIs de OpenAI, modelos de Hugging Face o despliegues propios de LLMs.",
+                        "Implementar memorias de conversación y encadenamientos dinámicos usando LangChain u otros frameworks.",
+                        "Evaluar, probar y mejorar las respuestas de los modelos generativos.",
+                        "Documentar librerías de prompts, pipelines y estrategias de optimización."
+                    ],
+                    "requirements": [
+                        "Más de 2 años trabajando con LLMs, modelos NLP o sistemas de IA Generativa.",
+                        "Experiencia práctica con OpenAI, Hugging Face, LangChain u otros frameworks.",
+                        "Sólido conocimiento de conceptos RAG y búsqueda vectorial.",
+                        "Familiaridad con herramientas como Pinecone, Weaviate o Chroma.",
+                        "Pensamiento creativo y habilidades de experimentación e iteración.",
+                        "Conocimientos en fine-tuning y métricas de evaluación de modelos generativos es un plus."
+                    ]
+                }
+            },
+            {
+                "id": "cv",
+                "title": "Ingeniero de Visión por Computadora",
+                "description": "Crea sistemas de visión inteligente usando OpenCV, TensorFlow y estrategias de despliegue en edge.",
+                "location": "Remoto / Híbrido - Global",
+                "fullDescription": {
+                    "overview": "Como Ingeniero de Visión por Computadora, desarrollarás sistemas de reconocimiento visual impulsados por IA para distintas industrias. Diseñarás y desplegarás soluciones para detección de objetos, seguimiento, segmentación y análisis de video.",
+                    "responsibilities": [
+                        "Diseñar y entrenar modelos de visión por computadora para clasificación, detección y segmentación.",
+                        "Implementar algoritmos tradicionales de visión usando OpenCV (extracción de características, tracking, OCR, etc.).",
+                        "Desplegar modelos de visión en la nube y en dispositivos edge (NVIDIA Jetson, Coral, móviles).",
+                        "Optimizar modelos para inferencia en tiempo real y alto desempeño en edge.",
+                        "Colaborar con equipos de software para integrar pipelines de visión en aplicaciones más amplias.",
+                        "Escribir código limpio, escalable y bien documentado para soluciones de visión."
+                    ],
+                    "requirements": [
+                        "Más de 2 años de experiencia en Visión por Computadora o áreas afines.",
+                        "Dominio de OpenCV, TensorFlow o PyTorch.",
+                        "Experiencia con herramientas de optimización de modelos (TensorRT, ONNX, pruning, quantization).",
+                        "Conocimiento en análisis de video, tracking de movimiento y procesamiento en tiempo real.",
+                        "Familiaridad con despliegue en edge y aceleradores de hardware (GPU, TPU).",
+                        "Fuertes habilidades analíticas y atención a los detalles."
+                    ]
+                }
+            }
+        ]
+    }
 }

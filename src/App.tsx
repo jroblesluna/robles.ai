@@ -5,6 +5,8 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
+import Careers from "@/pages/Careers";
+import Apply from "@/pages/Apply";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -24,6 +26,8 @@ function App() {
         <main className="flex-grow pt-[68px]">
           <Switch>
             <Route path="/" component={Home} />
+            <Route path="/careers" component={Careers} />
+            <Route path="/apply" component={Apply} />
             <Route component={NotFound} />
           </Switch>
         </main>

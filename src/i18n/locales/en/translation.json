@@ -1,9 +1,11 @@
 {
     "nav": {
+        "features": "Why Us?",
         "solutions": "Solutions",
         "caseStudies": "Case Studies",
         "customers": "Customers",
         "courses": "Courses",
+        "careers": "Careers",
         "about": "About",
         "contact": "Contact Us"
     },
@@ -458,6 +460,123 @@
                 "positionColor": "text-amber-600",
                 "bio": "Former professor with expertise in responsible AI development, ensuring ethical implementation of our solutions.",
                 "image": "sm.jpg"
+            }
+        ]
+    },
+    "careers": {
+        "title": "Join Our Team",
+        "subtitle": "Explore our open positions and be part of our innovation-driven culture.",
+        "apply": "Apply Now",
+        "responsibilities": "Responsibilities",
+        "requirements": "Requirements",
+        "name": "Name",
+        "email": "Email",
+        "phone": "Phone",
+        "uploadResume": "Upload Resume",
+        "message": "Message",
+        "messagePlaceholder": "Write your message here...",
+        "submit": "Submit Application",
+        "jobNotFound": "Job not found.",
+        "jobs": [
+            {
+                "id": "fullstack",
+                "title": "Full Stack Developer",
+                "description": "Develop end-to-end solutions using Python, React, Typescript, and AI integrations.",
+                "location": "Remote / Hybrid - Global",
+                "fullDescription": {
+                    "overview": "As a Full Stack Developer at Robles.AI, you will build scalable, high-performance web applications that integrate AI-powered services. You'll collaborate with data scientists, AI engineers, and designers to deliver intuitive, impactful products.",
+                    "responsibilities": [
+                        "Design, develop, and maintain full stack applications using React, Typescript, and Python.",
+                        "Integrate REST APIs, GraphQL endpoints, and AI model outputs into the frontend.",
+                        "Implement responsive user interfaces and ensure cross-device compatibility.",
+                        "Collaborate with AI teams to integrate machine learning models into production systems.",
+                        "Optimize application performance, scalability, and security.",
+                        "Participate in code reviews, architecture discussions, and agile sprint planning."
+                    ],
+                    "requirements": [
+                        "3+ years of experience as a Full Stack Developer.",
+                        "Proficiency in Python, React, and Typescript.",
+                        "Familiarity with RESTful APIs, GraphQL, and microservices architectures.",
+                        "Experience deploying applications with Docker or cloud-native platforms.",
+                        "Basic understanding of AI/ML concepts (bonus for OpenAI or Hugging Face experience).",
+                        "Excellent problem-solving and teamwork skills."
+                    ]
+                }
+            },
+            {
+                "id": "ml",
+                "title": "Machine Learning Engineer",
+                "description": "Design, train, and deploy Deep Learning models, specializing in neural network architectures.",
+                "location": "Remote / Hybrid - Global",
+                "fullDescription": {
+                    "overview": "As a Machine Learning Engineer, you will develop and deploy advanced Deep Learning models to solve complex challenges across computer vision, NLP, and predictive analytics. You'll work alongside our AI research and product teams to deliver production-ready models.",
+                    "responsibilities": [
+                        "Design and implement deep learning architectures for various applications.",
+                        "Train, validate, and fine-tune models using PyTorch and TensorFlow.",
+                        "Develop robust data pipelines for model training and evaluation.",
+                        "Monitor and optimize model performance in production.",
+                        "Document experiments, research findings, and best practices.",
+                        "Collaborate with software engineers to integrate models into production systems."
+                    ],
+                    "requirements": [
+                        "2+ years of experience in Machine Learning or Deep Learning.",
+                        "Strong understanding of neural network architectures (CNNs, RNNs, Transformers).",
+                        "Hands-on experience with PyTorch or TensorFlow.",
+                        "Experience with large datasets, data augmentation, and preprocessing techniques.",
+                        "Knowledge of MLOps is a plus (model serving, retraining loops).",
+                        "Strong foundation in linear algebra, probability, and optimization."
+                    ]
+                }
+            },
+            {
+                "id": "genai",
+                "title": "Generative AI Engineer",
+                "description": "Build and optimize RAG (Retrieval Augmented Generation) pipelines and prompt engineering workflows.",
+                "location": "Remote / Hybrid - Global",
+                "fullDescription": {
+                    "overview": "As a Generative AI Engineer, you will design, build, and optimize applications powered by large language models (LLMs). You'll specialize in Retrieval-Augmented Generation (RAG) systems, prompt engineering, and integrating generative AI into real-world workflows.",
+                    "responsibilities": [
+                        "Develop RAG architectures combining LLMs with vector databases (Pinecone, FAISS).",
+                        "Design and optimize prompts to enhance model outputs (prompt engineering).",
+                        "Integrate OpenAI APIs, Hugging Face models, or self-hosted LLMs.",
+                        "Implement conversation memory and dynamic chaining using LangChain or similar frameworks.",
+                        "Evaluate, test, and improve generative model responses.",
+                        "Document prompt libraries, pipelines, and optimization strategies."
+                    ],
+                    "requirements": [
+                        "2+ years working with LLMs, NLP models, or Generative AI systems.",
+                        "Hands-on experience with OpenAI, Hugging Face, LangChain, or similar.",
+                        "Strong understanding of RAG concepts and vector search.",
+                        "Familiarity with Pinecone, Weaviate, or Chroma.",
+                        "Creative thinking and strong experimentation skills.",
+                        "Experience with fine-tuning and evaluation metrics for generative models is a plus."
+                    ]
+                }
+            },
+            {
+                "id": "cv",
+                "title": "Computer Vision Engineer",
+                "description": "Create intelligent vision systems using OpenCV, TensorFlow, and edge deployment strategies.",
+                "location": "Remote / Hybrid - Global",
+                "fullDescription": {
+                    "overview": "As a Computer Vision Engineer, you will develop AI-powered visual recognition systems across industries. You'll design and deploy solutions for object detection, tracking, segmentation, and video analysis.",
+                    "responsibilities": [
+                        "Design and train computer vision models for classification, detection, and segmentation.",
+                        "Implement traditional vision algorithms using OpenCV (feature extraction, tracking, OCR, etc.).",
+                        "Deploy vision models to cloud and edge devices (NVIDIA Jetson, Coral, mobile).",
+                        "Optimize models for real-time inference and edge deployment.",
+                        "Collaborate with software teams to integrate vision pipelines into broader applications.",
+                        "Write clean, scalable, and well-documented vision system code."
+                    ],
+                    "requirements": [
+                        "2+ years of experience in Computer Vision or related fields.",
+                        "Proficiency with OpenCV, TensorFlow, or PyTorch.",
+                        "Experience with model optimization (TensorRT, ONNX, pruning, quantization).",
+                        "Knowledge of video analytics, motion tracking, and real-time processing.",
+                        "Familiarity with edge deployment and hardware acceleration (GPU, TPU).",
+                        "Strong analytical skills and attention to detail."
+                    ]
+                }
             }
         ]
     }

@@ -94,7 +94,7 @@ const Courses = () => {
   const coursesData = t("courses.items", { returnObjects: true }) as CourseCardProps[];
 
   return (
-    <section id="courses" className="py-16 bg-gray-50">
+    <section id="courses" className="py-16 bg-gray-50 scroll-mt-10">
       <motion.div
         className="container mx-auto px-6"
         variants={staggerContainer}
