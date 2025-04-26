@@ -1,43 +1,131 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
 import { insertContactSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
+import formidable, { File } from "formidable";
+import fs from "fs";
+import nodemailer from "nodemailer";
+import express from "express";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // API routes for contact form submissions
-  app.post("/api/contact", async (req: Request, res: Response) => {
-    try {
-      const validatedData = insertContactSchema.parse(req.body);
-      const submission = await storage.createContactSubmission(validatedData);
-      res.status(200).json({ success: true, data: submission });
-    } catch (error) {
-      if (error instanceof ZodError) {
-        const validationError = fromZodError(error);
-        res.status(400).json({ 
-          success: false, 
-          error: validationError.message 
+  app.use(express.json()); 
+  // 🚀 Contact form route - SEND EMAIL instead of storage
+  app.post("/api/contact", (req: Request, res: Response) => {
+    (async () => {
+      try {
+        const validatedData = insertContactSchema.parse(req.body);
+  
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+          },
         });
-      } else if (error instanceof Error) {
-        res.status(500).json({ 
-          success: false, 
-          error: "An unexpected error occurred" 
+  
+        await transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: process.env.EMAIL_TO,
+          subject: "New Contact Form Submission",
+          html: `
+            <p><strong>Name:</strong> ${validatedData.name}</p>
+            <p><strong>Email:</strong> ${validatedData.email}</p>
+            ${validatedData.company ? `<p><strong>Company:</strong> ${validatedData.company}</p>` : ''}
+            <p><strong>Subject:</strong> ${validatedData.subject}</p>
+            <p><strong>Subscribed to Newsletter:</strong> ${validatedData.newsletter ? 'Yes' : 'No'}</p>
+            <p><strong>Message:</strong></p>
+            <p>${validatedData.message}</p>
+          `,
         });
+  
+        console.log("✅ Contact email sent!");
+        res.status(200).json({ success: true, message: 'Contact form submitted successfully' });
+  
+      } catch (error) {
+        if (error instanceof ZodError) {
+          const validationError = fromZodError(error);
+          console.error("❌ Validation error:", validationError.message);
+          res.status(400).json({ success: false, error: validationError.message });
+        } else if (error instanceof Error) {
+          console.error("❌ Error sending contact email:", error);
+          res.status(500).json({ success: false, error: "An unexpected error occurred" });
+        }
       }
-    }
+    })(); // Ejecutar el async inmediatamente
+  });
+  // (Optional) 🚫 You could remove this GET if no longer fetching submissions
+  app.get("/api/contact", async (_req: Request, res: Response) => {
+    res.status(404).json({ success: false, error: "Not Implemented" });
   });
 
-  app.get("/api/contact", async (_req: Request, res: Response) => {
-    try {
-      const submissions = await storage.getContactSubmissions();
-      res.status(200).json({ success: true, data: submissions });
-    } catch (error) {
-      res.status(500).json({ 
-        success: false, 
-        error: "Failed to fetch contact submissions" 
-      });
-    }
+  // 🚀 Application form with file upload
+  app.post("/api/send-application", (req: Request, res: Response) => {
+    const form = formidable({
+      maxFileSize: 10 * 1024 * 1024,
+      multiples: false,
+      keepExtensions: true,
+    });
+
+    form.parse(req, async (err, fields, files) => {
+      if (err) {
+        console.error("❌ Error parsing form:", err);
+        return res.status(500).json({ success: false, message: 'Error parsing form data' });
+      }
+
+      console.log("✅ Form parsed for Application.");
+      const { name, email, phone, message, jobTitle } = fields;
+      const resumeFile = (files.resume as File[])[0];
+
+      if (!resumeFile || !name || !email || !jobTitle) {
+        return res.status(400).json({ success: false, message: 'Missing required fields' });
+      }
+
+      try {
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+          },
+        });
+
+        const resumeContent = fs.readFileSync(resumeFile.filepath);
+
+        await transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: process.env.EMAIL_TO,
+          subject: `New Application for ${jobTitle}`,
+          html: `
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Phone:</strong> ${phone || 'N/A'}</p>
+            <p><strong>Message:</strong> ${message || 'N/A'}</p>`,
+          attachments: [
+            {
+              filename: resumeFile.originalFilename || 'resume.pdf',
+              content: resumeContent,
+            },
+          ],
+        });
+
+        console.log("✅ Application email sent!");
+
+        fs.unlink(resumeFile.filepath, (unlinkErr) => {
+          if (unlinkErr) {
+            console.error("❌ Error deleting temp file:", unlinkErr);
+          } else {
+            console.log("🗑️ Temp file deleted successfully.");
+          }
+        });
+
+        return res.status(200).json({ success: true, message: 'Application sent successfully' });
+
+      } catch (error) {
+        console.error("❌ Error sending application email:", error);
+        return res.status(500).json({ success: false, message: 'Error sending email' });
+      }
+    });
   });
 
   const httpServer = createServer(app);

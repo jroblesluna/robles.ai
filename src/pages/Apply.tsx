@@ -72,7 +72,7 @@ const Apply = () => {
     data.append("resume", formData.resume);
 
     try {
-      const response = await fetch("https://apis.robles.ai/api/send-application", {
+      const response = await fetch("/api/send-application", {
         method: "POST",
         body: data,
       });
