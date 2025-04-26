@@ -9,6 +9,7 @@ import Careers from "@/pages/Careers";
 import Apply from "@/pages/Apply";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { initAnalytics } from "@/lib/analytics";
 
 function App() {
   const [location] = useLocation();
