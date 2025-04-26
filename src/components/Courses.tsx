@@ -2,6 +2,15 @@ import { motion } from "framer-motion";
 import { Clock, Video, ChevronRight, ArrowRight } from "lucide-react";
 import { fadeIn, staggerContainer } from "@/utils/animations";
 import { useTranslation } from "react-i18next";
+import { toast } from "@/hooks/use-toast"; // 👈 Importa el toast
+
+const handleEnrollClick = (status: any,message: any) => {
+  toast({
+    title: status,
+    description: message,
+    variant: "destructive",
+  });
+};
 
 interface CourseCardProps {
   image: string;
@@ -16,6 +25,9 @@ interface CourseCardProps {
   buttonBg: string;
   buttonHoverBg: string;
   index: number;
+  enrollText: string;
+  courseStatus: string;
+  courseMessage: string;
 }
 
 const CourseCard = ({
@@ -31,6 +43,9 @@ const CourseCard = ({
   buttonBg,
   buttonHoverBg,
   index,
+  enrollText,
+  courseStatus,
+  courseMessage,
 }: CourseCardProps) => (
   <motion.div
     variants={fadeIn}
@@ -77,13 +92,13 @@ const CourseCard = ({
             <span className="text-blue-600 font-semibold">{regularPrice}</span>
           )}
         </div>
-        <a
-          href="#"
-          className={`px-4 py-2 ${buttonBg} ${buttonHoverBg} text-white rounded-md transition-all duration-300 hover:-translate-y-1 hover:shadow-md flex items-center`}
-        >
-          Enroll
-          <ArrowRight className="h-4 w-4 ml-1" />
-        </a>
+        <button
+            onClick={() => handleEnrollClick(courseStatus, courseMessage)}
+            className={`px-4 py-2 ${buttonBg} ${buttonHoverBg} text-white rounded-md transition-all duration-300 hover:-translate-y-1 hover:shadow-md flex items-center`}
+          >
+            {enrollText}
+            <ArrowRight className="h-4 w-4 ml-1" />
+          </button>
       </div>
     </div>
   </motion.div>
@@ -92,7 +107,6 @@ const CourseCard = ({
 const Courses = () => {
   const { t } = useTranslation();
   const coursesData = t("courses.items", { returnObjects: true }) as CourseCardProps[];
-
   return (
     <section id="courses" className="py-16 bg-gray-50 scroll-mt-10">
       <motion.div
@@ -123,7 +137,7 @@ const Courses = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {coursesData.map((course, index) => (
-            <CourseCard key={index} {...course} index={index} />
+            <CourseCard key={index} {...course} index={index} enrollText={t("courses.enroll")} courseStatus={t("courses.status")} courseMessage={t("courses.statusMessage")} />
           ))}
         </div>
       </motion.div>

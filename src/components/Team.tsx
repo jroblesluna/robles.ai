@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
 import { fadeIn, staggerContainer } from "@/utils/animations";
 import { useTranslation } from "react-i18next";
+import { useLocation } from "wouter";
 
 interface TeamMemberProps {
   image: string;
@@ -43,6 +44,7 @@ const TeamMember = ({
 
 const Team = () => {
   const { t } = useTranslation();
+  const [, setLocation] = useLocation();
   const members = t("team.members", { returnObjects: true }) as TeamMemberProps[];
 
   return (
@@ -90,13 +92,13 @@ const Team = () => {
           custom={0.7}
           className="mt-16 text-center"
         >
-          <a 
-            href="#" 
+          <button
+            onClick={() => setLocation("/careers")}
             className="inline-flex items-center bg-gray-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-800 transition-all hover:-translate-y-1 hover:shadow-lg"
           >
             {t("team.join")}
             <ExternalLink className="ml-2 h-4 w-4" />
-          </a>
+          </button>
         </motion.div>
       </motion.div>
     </section>

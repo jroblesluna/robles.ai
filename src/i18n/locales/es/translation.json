@@ -1,6 +1,6 @@
 {
     "nav": {
-        "features": "¿Porqué Robles.AI?",
+        "features": "¿Porqué?",
         "solutions": "Soluciones",
         "caseStudies": "Casos de Éxito",
         "customers": "Clientes",
@@ -290,6 +290,9 @@
     "courses": {
         "title": "Educación y Capacitación en IA",
         "subtitle": "Mejora las capacidades de IA de tu equipo con nuestros cursos y talleres especializados.",
+        "enroll": "Inscríbete",
+        "status":"¡El Curso está lleno!",
+        "statusMessage":"Déjanos un mensaje para avisarte cuando se abran nuevos cupos.",
         "items": [
             {
                 "title": "Deep Learning con PyTorch",

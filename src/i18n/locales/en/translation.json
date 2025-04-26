@@ -290,6 +290,9 @@
     "courses": {
         "title": "AI Education & Training",
         "subtitle": "Enhance your team's AI capabilities with our specialized courses and workshops.",
+        "enroll": "Enroll",
+        "status":"Course is Full!",
+        "statusMessage":"Please leave a message so we can keep you updated when new slots open.",
         "items": [
             {
                 "title": "PyTorch Deep Learning",
@@ -301,6 +304,8 @@
                 "format": "Online",
                 "regularPrice": "$1,995",
                 "price": "$1,595",
+                "courseStatus": "Course is Full!",
+                "courseMessage": "Please leave a message so we can keep you updated when new slots open.",
                 "buttonBg": "bg-blue-500",
                 "buttonHoverBg": "hover:bg-blue-600"
             },

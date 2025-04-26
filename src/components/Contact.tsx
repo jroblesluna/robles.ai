@@ -59,7 +59,8 @@ const Contact = () => {
       await apiRequest("POST", "/api/contact", data);
       toast({
         title: t("contact.successTitle"),
-        description: t("contact.successMessage")
+        description: t("contact.successMessage"),
+        variant: "success"
       });
       form.reset();
     } catch (error) {
@@ -118,7 +119,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4 className="text-lg font-medium text-gray-900">{t("contact.email")}</h4>
-                  <p className="text-gray-600">info@robles.ai</p>
+                  <p className="text-gray-600">antonio@robles.ai</p>
                 </div>
               </div>
 
