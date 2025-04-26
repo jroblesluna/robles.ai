@@ -15,6 +15,11 @@ function App() {
   const [location] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // Initialize Analytics once when the app mounts
+  useEffect(() => {
+    initAnalytics(); // 👈 Llamada para inicializar
+  }, []); // 👈 Solo una vez al montar (array vacío)
+
   // Close mobile menu when location changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
