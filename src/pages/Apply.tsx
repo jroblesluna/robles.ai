@@ -1,19 +1,27 @@
-import { useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { staggerContainer, fadeIn } from "@/utils/animations";
 import { useTranslation } from "react-i18next";
+import { AnimatePresence } from "framer-motion";
+
+const initialFormData = {
+  name: "",
+  email: "",
+  phone: "",
+  message: "",
+  resume: null as File | null,
+};
 
 const Apply = () => {
+  console.log("Sending application...");
   const { t } = useTranslation();
   const [jobId, setJobId] = useState<string | null>(null);
-  const [sending, setSending] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    message: "",
-    resume: null as File | null,
-  });
+  const [formData, setFormData] = useState(initialFormData);
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -38,50 +46,56 @@ const Apply = () => {
   const job = jobs.find((j) => j.id === jobId);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFormData(prev => ({ ...prev, resume: e.target.files![0] }));
+    const { name, value, files } = e.target as HTMLInputElement;
+    if (files && files.length > 0) {
+      setFormData((prev) => ({ ...prev, resume: files[0] }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!formData.resume) {
-      alert("Please upload your resume!");
-      return;
-    }
+    if (!formData.resume) return;
 
-    const submission = new FormData();
-    submission.append("name", formData.name);
-    submission.append("email", formData.email);
-    submission.append("phone", formData.phone);
-    submission.append("message", formData.message);
-    submission.append("jobTitle", job?.title || "Unknown Job");
-    submission.append("resume", formData.resume);
+    setSubmitting(true);
+    setSuccess(false);
+    setError(false);
+
+    const data = new FormData();
+    data.append("name", formData.name);
+    data.append("email", formData.email);
+    data.append("phone", formData.phone);
+    data.append("message", formData.message);
+    data.append("jobTitle", job?.title || "");
+    data.append("resume", formData.resume);
 
     try {
-      setSending(true);
-      const response = await fetch("/api/send-application", {
+      const response = await fetch("https://apis.robles.ai/api/send-application", {
         method: "POST",
-        body: submission,
+        body: data,
       });
 
-      if (response.ok) {
-        alert("Application sent successfully!");
+      const result = await response.json();
+
+      if (response.ok && result.message === 'Application sent successfully') {
+        console.log("✅ SENT!");
+        setSuccess(true);
         setFormData({ name: "", email: "", phone: "", message: "", resume: null });
+        // 🔥 Limpia el input file manualmente
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
       } else {
-        alert("Failed to send application.");
+        console.error("❌ Unexpected server response:", result);
+        setError(true);
       }
-    } catch (error) {
-      console.error(error);
-      alert("An error occurred while sending application.");
+    } catch (err) {
+      console.error("❌ Network error:", err);
+      setError(true);
     } finally {
-      setSending(false);
+      setSubmitting(false);
     }
   };
 
@@ -136,75 +150,102 @@ const Apply = () => {
               </motion.div>
             )}
 
-            {/* Application Form */}
-            <motion.div
-              variants={fadeIn}
-              custom={0.4}
-              className="bg-white p-8 rounded-xl shadow-md w-full"
-            >
-              <form className="space-y-6" onSubmit={handleSubmit}>
-                <div>
-                  <label className="block mb-2 text-gray-700 font-medium">{t("careers.name")}</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-md p-3"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block mb-2 text-gray-700 font-medium">{t("careers.email")}</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-md p-3"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block mb-2 text-gray-700 font-medium">{t("careers.phone")}</label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-md p-3"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-2 text-gray-700 font-medium">{t("careers.uploadResume")}</label>
-                  <input
-                    type="file"
-                    accept=".pdf,.doc,.docx"
-                    onChange={handleFileChange}
-                    className="w-full"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block mb-2 text-gray-700 font-medium">{t("careers.message")}</label>
-                  <textarea
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-md p-3"
-                    rows={4}
-                    placeholder={t("careers.messagePlaceholder")}
-                  ></textarea>
-                </div>
-                <button
-                  type="submit"
-                  className="w-full px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-all duration-300"
-                  disabled={sending}
+
+            <AnimatePresence mode="wait">
+              {!success && (
+                <motion.div
+                  key="form"
+                  initial={{ opacity: 1, scale: 1 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.4 }}
+                  className="bg-white p-8 rounded-xl shadow-md w-full"
                 >
-                  {sending ? t("contact.sending") : t("careers.submit")}
-                </button>
-              </form>
-            </motion.div>
+                  <form onSubmit={handleSubmit} className="space-y-6" encType="multipart/form-data">
+                    <input type="hidden" name="jobTitle" value={job?.title || ""} />
+                    <div>
+                      <label className="block mb-2 text-gray-700 font-medium">{t("careers.name")}</label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        className="w-full border border-gray-300 rounded-md p-3"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block mb-2 text-gray-700 font-medium">{t("careers.email")}</label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className="w-full border border-gray-300 rounded-md p-3"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block mb-2 text-gray-700 font-medium">{t("careers.phone")}</label>
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        className="w-full border border-gray-300 rounded-md p-3"
+                      />
+                    </div>
+                    <div>
+                      <label className="block mb-2 text-gray-700 font-medium">{t("careers.uploadResume")}</label>
+                      <input
+                        type="file"
+                        name="resume"
+                        accept=".pdf,.doc,.docx"
+                        onChange={handleChange}
+                        ref={fileInputRef}
+                        className="w-full"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block mb-2 text-gray-700 font-medium">{t("careers.message")}</label>
+                      <textarea
+                        name="message"
+                        value={formData.message}
+                        onChange={handleChange}
+                        className="w-full border border-gray-300 rounded-md p-3"
+                        rows={4}
+                        placeholder={t("careers.messagePlaceholder")}
+                      ></textarea>
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className={`w-full px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-all duration-300 ${submitting ? "opacity-50 cursor-not-allowed" : ""
+                        }`}
+                    >
+                      {submitting ? t("contact.sending") : t("careers.submit")}
+                    </button>
+                    {error && (
+                      <p className="text-red-600 text-sm mt-4 text-center">{t("contact.errorMessage")}</p>
+                    )}
+                  </form>
+                </motion.div>
+              )}
+
+              {success && (
+                <motion.div
+                  key="success"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="bg-white p-8 rounded-xl shadow-md w-full text-center"
+                >
+                  <p className="text-green-600 text-lg">{t("contact.successMessage")}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </>
         ) : (
           <motion.div
