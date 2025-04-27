@@ -4,18 +4,26 @@ import { insertContactSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import formidable, { File } from "formidable";
-import fs from "fs";
 import nodemailer from "nodemailer";
 import express from "express";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url"; // <- Nuevo import
+import editorsData from "./data/editors.json"; // Importa el JSON directamente
+
+// Reconstruir __dirname compatible con ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  app.use(express.json()); 
+  app.use(express.json());
+
   // 🚀 Contact form route - SEND EMAIL instead of storage
   app.post("/api/contact", (req: Request, res: Response) => {
     (async () => {
       try {
         const validatedData = insertContactSchema.parse(req.body);
-  
+
         const transporter = nodemailer.createTransport({
           service: 'gmail',
           auth: {
@@ -23,7 +31,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             pass: process.env.EMAIL_PASS,
           },
         });
-  
+
         await transporter.sendMail({
           from: process.env.EMAIL_USER,
           to: process.env.EMAIL_TO,
@@ -38,10 +46,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             <p>${validatedData.message}</p>
           `,
         });
-  
+
         console.log("✅ Contact email sent!");
         res.status(200).json({ success: true, message: 'Contact form submitted successfully' });
-  
+
       } catch (error) {
         if (error instanceof ZodError) {
           const validationError = fromZodError(error);
@@ -54,6 +62,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     })(); // Ejecutar el async inmediatamente
   });
+
   // (Optional) 🚫 You could remove this GET if no longer fetching submissions
   app.get("/api/contact", async (_req: Request, res: Response) => {
     res.status(404).json({ success: false, error: "Not Implemented" });
@@ -126,6 +135,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ success: false, message: 'Error sending email' });
       }
     });
+  });
+
+  // 🚀 Blog routes
+  app.get("/api/blog", async (_req: Request, res: Response) => {
+    console.log("[DEBUG] Entrando a /api/blog");
+    try {
+      const postsPath = path.resolve(__dirname, "../posts");
+      const files = await fs.promises.readdir(postsPath);
+
+      const posts = await Promise.all(
+        files.map(async (file) => {
+          const data = await fs.promises.readFile(path.join(postsPath, file), "utf-8");
+          const json = JSON.parse(data);
+          return {
+            slug: json.slug,
+            date: json.date,
+            translations: json.translations
+          };
+        })
+      );
+
+      posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+      res.json(posts);
+    } catch (error) {
+      res.status(500).json({ success: false, error: "Error loading posts!!!" });
+    }
+  });
+
+  app.get("/api/blog/:slug", async (req: Request, res: Response) => {
+    try {
+      const { slug } = req.params;
+      const postPath = path.resolve(__dirname, "../posts", `${slug}.json`);
+      const data = await fs.promises.readFile(postPath, "utf-8");
+      const post = JSON.parse(data);
+      res.json(post);
+    } catch (error) {
+      res.status(404).json({ success: false, error: "Post not found" });
+    }
+  });
+
+  // 🚀 API para obtener los editores
+  app.get("/api/editors", (_req: Request, res: Response) => {
+    res.json(editorsData);
   });
 
   const httpServer = createServer(app);
