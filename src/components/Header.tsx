@@ -77,13 +77,16 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
           <button
             onClick={() => handleNavigation("/")}
             className="flex items-center space-x-3 focus:outline-none"
-          >{
-              /*
+          >
+
+            {
+              /*   
                 <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-violet-500 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-xl">R</span>
                 </div>
-              */
+             */
             }
+
             <img src="/favicon.svg" alt="Robles.AI Logo" className="w-10 h-10" />
 
             <span className="text-xl font-bold text-gray-900">
