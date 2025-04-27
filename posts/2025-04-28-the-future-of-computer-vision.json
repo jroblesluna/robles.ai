@@ -1,0 +1,72 @@
+{
+    "slug": "2025-04-28-the-future-of-computer-vision",
+    "date": "2025-04-28",
+    "image": "/images/blog/computer-vision.jpg",
+    "editorId": 4,
+    "categories": [
+        "Computer Vision",
+        "AI Trends",
+        "Technology"
+    ],
+    "keywords": [
+        "Computer Vision",
+        "AI",
+        "Deep Learning",
+        "2025 Trends",
+        "Automation"
+    ],
+    "translations": {
+        "en": {
+            "title": "The Future of Computer Vision",
+            "excerpt": "Discover how computer vision will revolutionize manufacturing, healthcare, and retail industries by 2025 and beyond.",
+            "content": [
+                {
+                    "heading": "Introduction",
+                    "body": "Computer vision is at the forefront of innovation, poised to redefine various sectors."
+                },
+                {
+                    "heading": "Key Trends",
+                    "body": "From edge computing to real-time analytics, major shifts are reshaping visual technologies."
+                },
+                {
+                    "heading": "Applications",
+                    "body": "Industries like healthcare, manufacturing, and retail are adopting computer vision at scale."
+                },
+                {
+                    "heading": "Challenges",
+                    "body": "Bias in datasets and regulatory hurdles are major obstacles to mainstream adoption."
+                },
+                {
+                    "heading": "Conclusion",
+                    "body": "As innovation accelerates, computer vision will become a standard tool in daily life."
+                }
+            ]
+        },
+        "es": {
+            "title": "El Futuro de la Visión por Computadora",
+            "excerpt": "Descubre cómo la visión por computadora revolucionará la manufactura, la salud y el comercio en 2025 y más allá.",
+            "content": [
+                {
+                    "heading": "Introducción",
+                    "body": "La visión por computadora está a la vanguardia de la innovación, lista para redefinir múltiples sectores."
+                },
+                {
+                    "heading": "Tendencias Clave",
+                    "body": "Desde la computación en el borde hasta el análisis en tiempo real, las tecnologías visuales están cambiando rápidamente."
+                },
+                {
+                    "heading": "Aplicaciones",
+                    "body": "Industrias como la salud, manufactura y comercio adoptan visión por computadora a gran escala."
+                },
+                {
+                    "heading": "Desafíos",
+                    "body": "El sesgo en los conjuntos de datos y las barreras regulatorias representan grandes desafíos."
+                },
+                {
+                    "heading": "Conclusión",
+                    "body": "A medida que la innovación se acelera, la visión por computadora se convertirá en una herramienta estándar en la vida diaria."
+                }
+            ]
+        }
+    }
+}
