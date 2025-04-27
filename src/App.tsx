@@ -28,19 +28,16 @@ function App() {
     setIsMobileMenuOpen(false);
   }, [location]);
 
-  const { i18n } = useTranslation(); // 👈 accede a i18n para saber el idioma
+  const { i18n } = useTranslation();
 
-  // Initialize Analytics once when the app mounts
   useEffect(() => {
     initAnalytics();
   }, []);
 
-  // Close mobile menu when location changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
 
-  // 👇 Nuevo efecto para actualizar dinámicamente el <html lang="">
   useEffect(() => {
     if (i18n.language) {
       document.documentElement.lang = i18n.language;
