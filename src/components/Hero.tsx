@@ -54,13 +54,13 @@ const Hero = () => {
             className="flex flex-col sm:flex-row justify-center gap-4"
           >
             <a 
-              href="#solutions" 
+              href="#features" 
               className="px-6 py-3 bg-white text-blue-700 font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
             >
               {t("hero.cta1")}
             </a>
             <a 
-              href="#contact" 
+              href="/blog" 
               className="px-6 py-3 bg-blue-500 text-white font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-white/20"
             >
               {t("hero.cta2")}

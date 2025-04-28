@@ -139,18 +139,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // 🚀 Blog routes
   app.get("/api/blog", async (_req: Request, res: Response) => {
-    console.log("[DEBUG] Entrando a /api/blog");
     try {
-      const postsPath = path.resolve(__dirname, "../posts");
+      const postsPath = path.resolve(__dirname, "./data/posts");
+      console.log("🚀 Posts path:", postsPath);
       const files = await fs.promises.readdir(postsPath);
+      console.log("🚀 Files in posts path:", files);
+
+      // 🔥 Filtrar solo archivos JSON válidos de posts
+      const postFiles = files.filter(file =>
+        file.endsWith('.json') &&
+        !file.startsWith('.') &&
+        !file.includes('sitemap')
+      );
 
       const posts = await Promise.all(
-        files.map(async (file) => {
+        postFiles.map(async (file) => {
           const data = await fs.promises.readFile(path.join(postsPath, file), "utf-8");
           const json = JSON.parse(data);
           return {
             slug: json.slug,
             date: json.date,
+            editorId: json.editorId,
             translations: json.translations
           };
         })
@@ -160,16 +169,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(posts);
     } catch (error) {
-      res.status(500).json({ success: false, error: "Error loading posts!!!" });
+      console.error("❌ Error loading posts:", error);
+      res.status(500).json({ success: false, error: "Error loading posts!" });
     }
   });
 
   app.get("/api/blog/:slug", async (req: Request, res: Response) => {
     try {
       const { slug } = req.params;
-      const postPath = path.resolve(__dirname, "../posts", `${slug}.json`);
+      const postPath = path.resolve(__dirname, "./data/posts", `${slug}.json`);
       const data = await fs.promises.readFile(postPath, "utf-8");
       const post = JSON.parse(data);
+      console.log("🚀 Post data:", post);
       res.json(post);
     } catch (error) {
       res.status(404).json({ success: false, error: "Post not found" });

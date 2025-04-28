@@ -28,7 +28,11 @@
                 "#3B82F6",
                 "#60A5FA",
                 "#93C5FD"
-            ]
+            ],
+            "min_temperature": 0.6,
+            "max_temperature": 0.75,
+            "min_top_p": 0.85,
+            "max_top_p": 0.95
         },
         {
             "id": 2,
@@ -58,7 +62,11 @@
                 "#4B5563",
                 "#6B7280",
                 "#9CA3AF"
-            ]
+            ],
+            "min_temperature": 0.4,
+            "max_temperature": 0.55,
+            "min_top_p": 0.8,
+            "max_top_p": 0.9
         },
         {
             "id": 3,
@@ -89,12 +97,15 @@
                 "#8B5CF6",
                 "#A78BFA",
                 "#C4B5FD"
-            ]
+            ],"min_temperature": 0.6,
+"max_temperature": 0.75,
+"min_top_p": 0.85,
+"max_top_p": 0.95
         },
         {
             "id": 4,
             "name": "Vision Perez",
-            "specialty": "Computer Vision and Imaging AI",
+            "specialty": "Computer Vision and AI",
             "systemPrompt": "You are Vision Perez, a vibrant 27-year-old visual technology journalist specializing in Computer Vision breakthroughs. You describe visuals vividly and often include fictional interview snippets.",
             "profile": {
                 "age": 27,
@@ -119,7 +130,11 @@
                 "#6366F1",
                 "#818CF8",
                 "#A5B4FC"
-            ]
+            ],
+            "min_temperature": 0.7,
+            "max_temperature": 0.85,
+            "min_top_p": 0.9,
+            "max_top_p": 1.0
         },
         {
             "id": 5,
@@ -149,7 +164,11 @@
                 "#10B981",
                 "#34D399",
                 "#6EE7B7"
-            ]
+            ],
+            "min_temperature": 0.6,
+            "max_temperature": 0.75,
+            "min_top_p": 0.85,
+            "max_top_p": 0.95
         },
         {
             "id": 6,
@@ -179,7 +198,11 @@
                 "#F59E0B",
                 "#FBBF24",
                 "#FCD34D"
-            ]
+            ],
+            "min_temperature": 0.4,
+            "max_temperature": 0.55,
+            "min_top_p": 0.8,
+            "max_top_p": 0.9
         },
         {
             "id": 7,
@@ -209,7 +232,11 @@
                 "#9333EA",
                 "#A855F7",
                 "#D8B4FE"
-            ]
+            ],
+            "min_temperature": 0.75,
+            "max_temperature": 0.9,
+            "min_top_p": 0.9,
+            "max_top_p": 1.0
         },
         {
             "id": 8,
@@ -239,7 +266,11 @@
                 "#F43F5E",
                 "#FB7185",
                 "#FDA4AF"
-            ]
+            ],
+            "min_temperature": 0.5,
+            "max_temperature": 0.65,
+            "min_top_p": 0.85,
+            "max_top_p": 0.95
         },
         {
             "id": 9,
@@ -269,7 +300,11 @@
                 "#EC4899",
                 "#F472B6",
                 "#F9A8D4"
-            ]
+            ],
+            "min_temperature": 0.7,
+            "max_temperature": 0.85,
+            "min_top_p": 0.9,
+            "max_top_p": 1.0
         },
         {
             "id": 10,
@@ -299,7 +334,11 @@
                 "#14B8A6",
                 "#2DD4BF",
                 "#5EEAD4"
-            ]
+            ],
+            "min_temperature": 0.6,
+            "max_temperature": 0.75,
+            "min_top_p": 0.85,
+            "max_top_p": 0.95
         },
         {
             "id": 11,
@@ -329,7 +368,11 @@
                 "#E879F9",
                 "#D946EF",
                 "#C084FC"
-            ]
+            ],
+            "min_temperature": 0.5,
+            "max_temperature": 0.7,
+            "min_top_p": 0.85,
+            "max_top_p": 0.95
         },
         {
             "id": 12,
@@ -358,7 +401,11 @@
                 "#6366F1",
                 "#818CF8",
                 "#A5B4FC"
-            ]
+            ],
+            "min_temperature": 0.7,
+            "max_temperature": 0.85,
+            "min_top_p": 0.9,
+            "max_top_p": 1.0
         },
         {
             "id": 13,
@@ -387,7 +434,11 @@
                 "#3B82F6",
                 "#60A5FA",
                 "#93C5FD"
-            ]
+            ],
+            "min_temperature": 0.6,
+            "max_temperature": 0.75,
+            "min_top_p": 0.85,
+            "max_top_p": 0.95
         },
         {
             "id": 14,
@@ -416,7 +467,11 @@
                 "#1E3A8A",
                 "#3B82F6",
                 "#60A5FA"
-            ]
+            ],
+            "min_temperature": 0.4,
+            "max_temperature": 0.55,
+            "min_top_p": 0.8,
+            "max_top_p": 0.9
         },
         {
             "id": 15,
@@ -446,7 +501,11 @@
                 "#8B5CF6",
                 "#A78BFA",
                 "#C4B5FD"
-            ]
+            ],
+            "min_temperature": 0.5,
+            "max_temperature": 0.7,
+            "min_top_p": 0.85,
+            "max_top_p": 0.95
         },
         {
             "id": 16,
@@ -475,7 +534,11 @@
                 "#10B981",
                 "#34D399",
                 "#6EE7B7"
-            ]
+            ],
+            "min_temperature": 0.6,
+            "max_temperature": 0.75,
+            "min_top_p": 0.85,
+            "max_top_p": 0.95
         },
         {
             "id": 17,
@@ -504,7 +567,11 @@
                 "#F59E0B",
                 "#FBBF24",
                 "#FCD34D"
-            ]
+            ],
+            "min_temperature": 0.75,
+            "max_temperature": 0.9,
+            "min_top_p": 0.9,
+            "max_top_p": 1.0
         },
         {
             "id": 18,
@@ -533,12 +600,16 @@
                 "#0EA5E9",
                 "#38BDF8",
                 "#7DD3FC"
-            ]
+            ],
+            "min_temperature": 0.5,
+            "max_temperature": 0.65,
+            "min_top_p": 0.85,
+            "max_top_p": 0.95
         },
         {
             "id": 19,
             "name": "Natalia Prism",
-            "specialty": "AR/VR and AI",
+            "specialty": "Augmented Reality, Virtual Reality and AI",
             "systemPrompt": "You are Natalia Prism, a 26-year-old enthusiast of immersive technologies. You infuse excitement into discussions about virtual experiences enhanced by AI.",
             "profile": {
                 "age": 26,
@@ -562,7 +633,11 @@
                 "#EC4899",
                 "#F472B6",
                 "#F9A8D4"
-            ]
+            ],
+            "min_temperature": 0.7,
+            "max_temperature": 0.85,
+            "min_top_p": 0.9,
+            "max_top_p": 1.0
         },
         {
             "id": 20,
@@ -591,7 +666,11 @@
                 "#EAB308",
                 "#FACC15",
                 "#FDE68A"
-            ]
+            ],
+            "min_temperature": 0.7,
+            "max_temperature": 0.85,
+            "min_top_p": 0.9,
+            "max_top_p": 1.0
         },
         {
             "id": 21,
@@ -620,7 +699,11 @@
                 "#F87171",
                 "#FB7185",
                 "#FCA5A5"
-            ]
+            ],
+            "min_temperature": 0.75,
+            "max_temperature": 0.9,
+            "min_top_p": 0.9,
+            "max_top_p": 1.0
         },
         {
             "id": 22,
@@ -650,7 +733,11 @@
                 "#06B6D4",
                 "#22D3EE",
                 "#67E8F9"
-            ]
+            ],
+            "min_temperature": 0.5,
+            "max_temperature": 0.65,
+            "min_top_p": 0.85,
+            "max_top_p": 0.95
         },
         {
             "id": 23,
@@ -680,7 +767,11 @@
                 "#22C55E",
                 "#4ADE80",
                 "#86EFAC"
-            ]
+            ],
+            "min_temperature": 0.6,
+            "max_temperature": 0.75,
+            "min_top_p": 0.85,
+            "max_top_p": 0.95
         },
         {
             "id": 24,
@@ -710,7 +801,11 @@
                 "#7C3AED",
                 "#8B5CF6",
                 "#A78BFA"
-            ]
+            ],
+            "min_temperature": 0.7,
+            "max_temperature": 0.85,
+            "min_top_p": 0.9,
+            "max_top_p": 1.0
         }
     ]
 }

@@ -32,7 +32,7 @@ const Footer = () => {
   const companyLinks = [
     { name: t("footer.company.about"), href: "#" },
     { name: t("footer.company.careers"), href: "#" },
-    { name: t("footer.company.blog"), href: "#" },
+    { name: t("footer.company.blog"), href: "/blog" },
     { name: t("footer.company.press"), href: "#" },
     { name: t("footer.company.contact"), href: "#contact" }
   ];
