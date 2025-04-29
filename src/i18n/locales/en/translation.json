@@ -2,11 +2,14 @@
     "nav": {
         "features": "Why Us?",
         "solutions": "Solutions",
-        "caseStudies": "Case Studies",
-        "customers": "Customers",
-        "courses": "Courses",
-        "careers": "Careers",
+        "company": "Company",
         "about": "About",
+        "careers": "Careers",
+        "customers": "Customers",
+        "resources": "Resources",
+        "caseStudies": "Case Studies",
+        "courses": "Courses",
+        "blog": "News Center",
         "contact": "Contact Us"
     },
     "hero": {
@@ -291,8 +294,8 @@
         "title": "AI Education & Training",
         "subtitle": "Enhance your team's AI capabilities with our specialized courses and workshops.",
         "enroll": "Enroll",
-        "status":"Course is Full!",
-        "statusMessage":"Please leave a message so we can keep you updated when new slots open.",
+        "status": "Course is Full!",
+        "statusMessage": "Please leave a message so we can keep you updated when new slots open.",
         "items": [
             {
                 "title": "PyTorch Deep Learning",

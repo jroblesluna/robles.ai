@@ -33,7 +33,7 @@ function generateDatePrefix(date: Date, editorId: number): string {
 }
 
 async function generateHistoricalPosts(targetDate?: string, targetEditorId?: number) {
-  const startDate = new Date('2025-04-02');
+  const startDate = new Date('2025-04-26');
   const today = new Date();
 
   const editorsPath = path.resolve(__dirname, '../../server/data/editors.json');

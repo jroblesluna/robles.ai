@@ -2,11 +2,14 @@
     "nav": {
         "features": "¿Porqué?",
         "solutions": "Soluciones",
-        "caseStudies": "Casos de Éxito",
-        "customers": "Clientes",
-        "courses": "Cursos",
-        "careers": "Carreras",
+        "company": "La Empresa",
         "about": "Nosotros",
+        "careers": "Carreras",
+        "customers": "Clientes",
+        "resources": "Resources",
+        "caseStudies": "Casos de Éxito",
+        "courses": "Cursos",
+        "blog": "Centro de Noticias",
         "contact": "Contáctanos"
     },
     "hero": {
@@ -291,8 +294,8 @@
         "title": "Educación y Capacitación en IA",
         "subtitle": "Mejora las capacidades de IA de tu equipo con nuestros cursos y talleres especializados.",
         "enroll": "Inscríbete",
-        "status":"¡El Curso está lleno!",
-        "statusMessage":"Déjanos un mensaje para avisarte cuando se abran nuevos cupos.",
+        "status": "¡El Curso está lleno!",
+        "statusMessage": "Déjanos un mensaje para avisarte cuando se abran nuevos cupos.",
         "items": [
             {
                 "title": "Deep Learning con PyTorch",

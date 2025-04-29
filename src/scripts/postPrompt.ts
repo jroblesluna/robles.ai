@@ -20,6 +20,8 @@ export function buildPostPrompt(editor: any, newsArticles: any[], recentTopics: 
     - If needed, add quotes from the article to give more depth and realism (e.g., "According to ..." or "As published in ...").
   
   - Only include articles in the "sources" field that were actually used or referenced during the article development.
+
+  - After the final section of the written post, an additional section must be added with the title customized to the topic like "How Robles.AI can help on ...", or "What we do in Robles.AI regarding... ", or a similar reference on how Robles.AI can contribute with a solution based on AI with its AI, Agentic AI, GenAI, Machine Learning, Deep Learning, Data Science, Neural Networks, Computer Vision, among others technologies it excels and a corresponding body which ends with a call to action like "Contact us to learn more about how we can help you with ..." or "Contact us to learn more about how we can help you with ..." or similar.
   
   - The post must follow this JSON schema:
   

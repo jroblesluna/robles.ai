@@ -1,0 +1,19 @@
+#!/bin/bash
+npx tsx src/scripts/generateHistoricalPosts.ts 2025-04-11 12
+npx tsx src/scripts/generateHistoricalPosts.ts 2025-04-11 13
+npx tsx src/scripts/generateHistoricalPosts.ts 2025-04-11 14
+npx tsx src/scripts/generateHistoricalPosts.ts 2025-04-11 15
+npx tsx src/scripts/generateHistoricalPosts.ts 2025-04-11 16
+npx tsx src/scripts/generateHistoricalPosts.ts 2025-04-11 17
+npx tsx src/scripts/generateHistoricalPosts.ts 2025-04-11 18
+npx tsx src/scripts/generateHistoricalPosts.ts 2025-04-11 19
+npx tsx src/scripts/generateHistoricalPosts.ts 2025-04-11 20
+npx tsx src/scripts/generateHistoricalPosts.ts 2025-04-11 21
+npx tsx src/scripts/generateHistoricalPosts.ts 2025-04-11 22
+npx tsx src/scripts/generateHistoricalPosts.ts 2025-04-11 23
+npx tsx src/scripts/generateHistoricalPosts.ts 2025-04-11 24
+npx tsx src/scripts/generateHistoricalPosts.ts 2025-04-20 20
+npx tsx src/scripts/generateHistoricalPosts.ts 2025-04-20 21
+npx tsx src/scripts/generateHistoricalPosts.ts 2025-04-20 22
+npx tsx src/scripts/generateHistoricalPosts.ts 2025-04-20 23
+npx tsx src/scripts/generateHistoricalPosts.ts 2025-04-20 24
