@@ -1,0 +1,108 @@
+{
+  "categories": [
+    "AI Technology",
+    "Robotics",
+    "Innovation"
+  ],
+  "keywords": [
+    "AI supercomputers",
+    "robotics",
+    "Nvidia",
+    "Kawasaki",
+    "Samsung Ballie"
+  ],
+  "translations": {
+    "en": {
+      "slug": "2025-04-14-01-00-00-the-rise-of-ai-and-robotics-in-modern-industry",
+      "title": "The Rise of AI and Robotics in Modern Industry",
+      "excerpt": "Exploring the latest advancements in AI and robotics, including Nvidia's new US factories and Kawasaki's innovative hydrogen-powered robot.",
+      "content": [
+        {
+          "heading": "Nvidia's Leap into American Manufacturing",
+          "body": "Nvidia's recent announcement to build AI supercomputers in the U.S. marks a significant shift in their manufacturing strategy. By collaborating with partners like TSMC and Foxconn, Nvidia is set to establish a robust AI infrastructure in America. This move not only aims to meet the growing demand for AI chips but also to strengthen the supply chain resilience. According to Jensen Huang, CEO of Nvidia, 'Adding American manufacturing helps us better meet the incredible and growing demand for AI chips and supercomputers.' This initiative is expected to create numerous jobs and bolster economic security, highlighting the strategic importance of local production in today's geopolitical climate."
+        },
+        {
+          "heading": "Kawasaki's CORLEO: A New Era in Off-Road Transportation",
+          "body": "Kawasaki's introduction of CORLEO, a hydrogen-powered, four-legged robot, presents a revolutionary approach to off-road transportation. Unlike traditional vehicles, CORLEO navigates rugged terrains with its robotic legs, drawing inspiration from the skeletal structure of lions. As reported by Fox News, this innovation combines sustainable energy with advanced robotics, offering an environmentally friendly alternative to conventional off-road vehicles. This development underscores a growing trend towards integrating AI and robotics in daily life, reshaping how we perceive transportation."
+        },
+        {
+          "heading": "Samsung Ballie: The Rolling AI Companion",
+          "body": "Samsung's Ballie, a rolling AI robot, is set to redefine smart home technology. With its ability to follow users around and project interfaces onto surfaces, Ballie offers a unique interactive experience. Partnering with Google Cloud to integrate Gemini AI, Samsung aims to enhance Ballie's capabilities beyond traditional smart devices. As Yanko Design notes, Ballie's multimodal AI can process various inputs, creating a comprehensive understanding of user needs. This innovation represents a shift towards more dynamic and responsive smart home solutions, paving the way for future developments in personal robotics."
+        },
+        {
+          "heading": "Open Source Robotics: Democratizing Technology",
+          "body": "The acquisition of Pollen Robotics by Hugging Face highlights the potential of open-source robotics. By making humanoid robots like Reachy 2 accessible, Hugging Face aims to democratize robotics technology. This approach mirrors the open-source software movement, offering affordable and customizable solutions to a broader audience. As Forbes reports, this could significantly impact global competitiveness, enabling more countries to participate in the robotics revolution. Such initiatives may lead to a future where robotics becomes a standard interface for AI, fostering innovation and collaboration across industries."
+        },
+        {
+          "heading": "How Robles.AI Can Help in the Robotics Revolution",
+          "body": "At Robles.AI, we specialize in leveraging AI and robotics to drive innovation and efficiency. Our expertise in machine learning, computer vision, and neural networks enables us to develop cutting-edge solutions tailored to your needs. Whether you're looking to integrate AI into your manufacturing processes or explore new robotics applications, our team is here to assist. Contact us to learn more about how we can help you stay ahead in the rapidly evolving world of AI and robotics."
+        }
+      ]
+    },
+    "es": {
+      "slug": "2025-04-14-01-00-00-el-auge-de-la-ia-y-la-robotica-en-la-industria-moderna",
+      "title": "El Auge de la IA y la Robótica en la Industria Moderna",
+      "excerpt": "Explorando los últimos avances en IA y robótica, incluyendo las nuevas fábricas de Nvidia en EE.UU. y el innovador robot impulsado por hidrógeno de Kawasaki.",
+      "content": [
+        {
+          "heading": "El Salto de Nvidia hacia la Manufactura Estadounidense",
+          "body": "El reciente anuncio de Nvidia de construir supercomputadoras de IA en EE.UU. marca un cambio significativo en su estrategia de manufactura. Al colaborar con socios como TSMC y Foxconn, Nvidia está preparada para establecer una infraestructura robusta de IA en América. Este movimiento no solo busca satisfacer la creciente demanda de chips de IA, sino también fortalecer la resiliencia de la cadena de suministro. Según Jensen Huang, CEO de Nvidia, 'Agregar manufactura estadounidense nos ayuda a satisfacer mejor la increíble y creciente demanda de chips y supercomputadoras de IA.' Esta iniciativa se espera que cree numerosos empleos y fortalezca la seguridad económica, destacando la importancia estratégica de la producción local en el clima geopolítico actual."
+        },
+        {
+          "heading": "Kawasaki's CORLEO: Una Nueva Era en el Transporte Todo Terreno",
+          "body": "La introducción de CORLEO por parte de Kawasaki, un robot de cuatro patas impulsado por hidrógeno, presenta un enfoque revolucionario para el transporte todo terreno. A diferencia de los vehículos tradicionales, CORLEO navega terrenos accidentados con sus patas robóticas, inspirándose en la estructura esquelética de los leones. Como informa Fox News, esta innovación combina energía sostenible con robótica avanzada, ofreciendo una alternativa ecológica a los vehículos todo terreno convencionales. Este desarrollo subraya una tendencia creciente hacia la integración de la IA y la robótica en la vida diaria, redefiniendo cómo percibimos el transporte."
+        },
+        {
+          "heading": "Samsung Ballie: El Compañero Rodante de IA",
+          "body": "Ballie de Samsung, un robot de IA rodante, está listo para redefinir la tecnología del hogar inteligente. Con su capacidad para seguir a los usuarios y proyectar interfaces en superficies, Ballie ofrece una experiencia interactiva única. Asociándose con Google Cloud para integrar Gemini AI, Samsung busca mejorar las capacidades de Ballie más allá de los dispositivos inteligentes tradicionales. Como señala Yanko Design, la IA multimodal de Ballie puede procesar diversas entradas, creando una comprensión integral de las necesidades del usuario. Esta innovación representa un cambio hacia soluciones de hogar inteligente más dinámicas y receptivas, allanando el camino para futuros desarrollos en robótica personal."
+        },
+        {
+          "heading": "Robótica de Código Abierto: Democratizando la Tecnología",
+          "body": "La adquisición de Pollen Robotics por Hugging Face destaca el potencial de la robótica de código abierto. Al hacer accesibles robots humanoides como Reachy 2, Hugging Face busca democratizar la tecnología robótica. Este enfoque refleja el movimiento de software de código abierto, ofreciendo soluciones asequibles y personalizables a un público más amplio. Como informa Forbes, esto podría impactar significativamente la competitividad global, permitiendo que más países participen en la revolución robótica. Tales iniciativas pueden conducir a un futuro donde la robótica se convierta en una interfaz estándar para la IA, fomentando la innovación y la colaboración en diversas industrias."
+        },
+        {
+          "heading": "Cómo Robles.AI Puede Ayudar en la Revolución Robótica",
+          "body": "En Robles.AI, nos especializamos en aprovechar la IA y la robótica para impulsar la innovación y la eficiencia. Nuestra experiencia en aprendizaje automático, visión por computadora y redes neuronales nos permite desarrollar soluciones de vanguardia adaptadas a sus necesidades. Ya sea que busque integrar IA en sus procesos de manufactura o explorar nuevas aplicaciones robóticas, nuestro equipo está aquí para ayudar. Contáctenos para obtener más información sobre cómo podemos ayudarlo a mantenerse a la vanguardia en el mundo de la IA y la robótica en rápida evolución."
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "articleId": 1,
+      "title": "Nvidia pledges to build its own factories in the U.S. for the first time to make AI supercomputers",
+      "url": "https://venturebeat.com/games/nvidia-pledges-to-build-its-own-factories-in-the-u-s-for-the-first-time-to-make-ai-supercomputers/",
+      "source": "VentureBeat",
+      "urlToImage": "https://venturebeat.com/wp-content/uploads/2025/04/NVIDIA-Endeavor-building-logo.jpg?w=1024?w=1200&strip=all"
+    },
+    {
+      "articleId": 2,
+      "title": "4-legged hydrogen-powered robot you can actually ride",
+      "url": "https://www.foxnews.com/tech/4-legged-hydrogen-powered-robot-you-can-actually-ride",
+      "source": "Fox News",
+      "urlToImage": "https://static.foxnews.com/foxnews.com/content/uploads/2025/04/1-four-legged-hydrogen-powered-robot-you-can-actually-ride.jpg"
+    },
+    {
+      "articleId": 4,
+      "title": "Samsung Ballie Is Finally Real—And Yes, It’s Following You This Summer",
+      "url": "https://www.yankodesign.com/2025/04/14/samsung-ballie-is-finally-real-and-yes-its-following-you-this-summer/",
+      "source": "Yanko Design",
+      "urlToImage": "https://www.yankodesign.com/images/design_news/2025/02/samsung-ballie-the-rolling-ai-robot-that-wants-to-run-your-home/Ballie-Greeting.jpg"
+    },
+    {
+      "articleId": 5,
+      "title": "Open Source Humanoid Robots That You Can 3D Print Yourself: Hugging Face Buys Pollen Robotics",
+      "url": "https://www.forbes.com/sites/johnkoetsier/2025/04/14/open-source-humanoid-robots-hugging-face-buys-pollen-robotics/",
+      "source": "Forbes",
+      "urlToImage": "https://imageio.forbes.com/specials-images/imageserve/67fd3a6a6d931b21384b7802/0x0.png?format=png&height=900&width=1600&fit=bounds"
+    }
+  ],
+  "editorId": 2,
+  "date": "2025-04-14-01-00-00",
+  "slug": "2025-04-14-01-00-00-the-rise-of-ai-and-robotics-in-modern-industry",
+  "stats": {
+    "prompt_tokens": 5233,
+    "completion_tokens": 1908,
+    "total_tokens": 7141
+  }
+}

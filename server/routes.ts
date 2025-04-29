@@ -138,36 +138,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // 🚀 Blog routes
-  app.get("/api/blog", async (_req: Request, res: Response) => {
+  // ✅ Update to `/api/blog` to support pagination and filtering
+  app.get("/api/blog", async (req: Request, res: Response) => {
     try {
-      const postsPath = path.resolve(__dirname, "./data/posts");
-      console.log("🚀 Posts path:", postsPath);
-      const files = await fs.promises.readdir(postsPath);
-      console.log("🚀 Files in posts path:", files);
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 9;
+      const editorId = req.query.editorId ? parseInt(req.query.editorId as string) : null;
+      const offset = (page - 1) * limit;
 
-      // 🔥 Filtrar solo archivos JSON válidos de posts
-      const postFiles = files.filter(file =>
-        file.endsWith('.json') &&
-        !file.startsWith('.') &&
-        !file.includes('sitemap')
-      );
+      const postsPath = path.resolve(__dirname, "./data/posts");
+      const files = await fs.promises.readdir(postsPath);
+
+      // Sort descending by filename (assumed ISO-like timestamp format)
+      const postFiles = files
+        .filter(file => file.endsWith('.json') && !file.startsWith('.') && !file.includes('sitemap'))
+        .sort((a, b) => b.localeCompare(a));
+
+      // Optional filter by editor
+      const matchedFiles: string[] = [];
+      for (const file of postFiles) {
+        if (matchedFiles.length >= offset + limit) break;
+        const fullPath = path.join(postsPath, file);
+        const data = await fs.promises.readFile(fullPath, 'utf-8');
+        const json = JSON.parse(data);
+        if (!editorId || json.editorId === editorId) matchedFiles.push(file);
+      }
+
+      const paginatedFiles = matchedFiles.slice(offset, offset + limit);
 
       const posts = await Promise.all(
-        postFiles.map(async (file) => {
+        paginatedFiles.map(async (file) => {
           const data = await fs.promises.readFile(path.join(postsPath, file), "utf-8");
           const json = JSON.parse(data);
           return {
             slug: json.slug,
             date: json.date,
             editorId: json.editorId,
-            translations: json.translations
+            translations: json.translations,
           };
         })
       );
 
-      posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-      res.json(posts);
+      res.json({ posts, total: matchedFiles.length });
     } catch (error) {
       console.error("❌ Error loading posts:", error);
       res.status(500).json({ success: false, error: "Error loading posts!" });
