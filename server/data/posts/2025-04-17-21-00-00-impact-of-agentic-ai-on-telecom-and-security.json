@@ -1,0 +1,92 @@
+{
+  "categories": [
+    "Telecommunications",
+    "Cybersecurity",
+    "AI Technology"
+  ],
+  "keywords": [
+    "Broadband Costs",
+    "Agentic AI",
+    "Security Operations",
+    "IIoT Security"
+  ],
+  "translations": {
+    "en": {
+      "slug": "2025-04-17-21-00-00-impact-of-agentic-ai-on-telecom-and-security",
+      "title": "The Impact of Agentic AI on Telecommunications and Security",
+      "excerpt": "Exploring how Agentic AI can transform telecommunications and cybersecurity landscapes by addressing rising broadband costs and enhancing security operations.",
+      "content": [
+        {
+          "heading": "Rising Broadband Costs and Its Impact on Consumers",
+          "body": "The cost of broadband internet has become a pressing issue for many consumers, as highlighted by a recent CNET survey. A staggering 63% of US adults reported paying more for their home internet last year, with an average increase of $195 compared to the previous year. Despite the rising costs, more than half of these consumers still experience unreliable connectivity. This scenario underscores the urgent need for more affordable and reliable internet solutions. The federal government's efforts to bridge the digital divide, with over $90 billion allocated since the COVID-19 pandemic, are facing scrutiny. The potential shift of funds from fiber internet to Elon Musk's Starlink, despite its high monthly cost, raises questions about accessibility. As Sean Gonsalvez from The Institute for Local Self-Reliance aptly puts it, \"If it's not affordable, it's not accessible.\" This highlights the necessity for innovative solutions that can provide both affordability and reliability."
+        },
+        {
+          "heading": "Agentic AI: A Game-Changer for Security Operations",
+          "body": "Security operations centers (SOCs) are inundated with alerts, leading to burnout and inefficiency among security teams. The traditional tiered model of detection and response is struggling to keep up with the volume of alerts, as reported by Forbes. Enter Agentic AI, a new class of artificial intelligence that promises to revolutionize security operations. Unlike traditional automation tools, Agentic AI is designed to operate autonomously, learning from historical context to make decisions that alleviate the burden on human analysts. This advancement could significantly reduce the gap between detection and action, providing a more resilient and efficient security framework. As Brian Murphy, CEO of ReliaQuest, notes, current SOAR solutions have fallen short of true automation, merely serving as ticket workflow distributors. Agentic AI, however, has the potential to dynamically ingest data and synthesize it to make real-time, transparent decisions, transforming the SOC landscape."
+        },
+        {
+          "heading": "Securing the Industrial Internet of Things (IIoT)",
+          "body": "The Industrial Internet of Things (IIoT) presents unique security challenges that require specialized solutions. In their book 'Hands-On Industrial Internet of Things,' Giacomo Veneri and Antonio Capasso delve into the intricacies of securing IIoT systems. They emphasize the importance of robust cybersecurity measures, such as firewall architectures, network segregation, and VLAN configurations, to protect IIoT infrastructures. The authors also highlight the significance of securing data flow from edge devices to cloud services, providing practical scenarios involving platforms like AWS IoT Edge and Azure IoT Edge. Their hands-on approach ensures that security professionals can apply these lessons directly, reinforcing technical concepts with real-world exercises. The book further explores the use of open-source technologies like Docker and InfluxDB for building secure IIoT platforms, offering valuable insights into mitigating supply-chain attacks and open-source vulnerabilities."
+        },
+        {
+          "heading": "How Robles.AI Can Help Transform Telecommunications and Security",
+          "body": "At Robles.AI, we specialize in leveraging cutting-edge technologies such as Agentic AI, machine learning, and data science to address complex challenges in telecommunications and cybersecurity. Our solutions are designed to optimize network performance, reduce costs, and enhance security operations. By harnessing the power of AI, we can provide innovative strategies to tackle rising broadband costs and improve the reliability of internet services. In the realm of security, our AI-driven tools offer dynamic and autonomous decision-making capabilities, empowering SOCs to operate more efficiently and effectively. Additionally, our expertise in IIoT security ensures robust protection for industrial systems, safeguarding critical infrastructures from evolving threats. Contact us to learn more about how we can help you transform your telecommunications and security landscapes."
+        }
+      ]
+    },
+    "es": {
+      "slug": "2025-04-17-21-00-00-impacto-de-la-ia-agentica-en-telecomunicaciones-y-seguridad",
+      "title": "El Impacto de la IA Agéntica en Telecomunicaciones y Seguridad",
+      "excerpt": "Explorando cómo la IA agéntica puede transformar los paisajes de telecomunicaciones y ciberseguridad al abordar el aumento de los costos de banda ancha y mejorar las operaciones de seguridad.",
+      "content": [
+        {
+          "heading": "Aumento de los Costos de Banda Ancha y su Impacto en los Consumidores",
+          "body": "El costo de la banda ancha se ha convertido en un problema acuciante para muchos consumidores, como lo destaca una reciente encuesta de CNET. Un asombroso 63% de los adultos en EE.UU. informó que pagó más por su internet doméstico el año pasado, con un aumento promedio de $195 en comparación con el año anterior. A pesar del aumento de costos, más de la mitad de estos consumidores aún experimentan conectividad poco confiable. Este escenario subraya la necesidad urgente de soluciones de internet más asequibles y confiables. Los esfuerzos del gobierno federal para cerrar la brecha digital, con más de $90 mil millones asignados desde la pandemia de COVID-19, están bajo escrutinio. El posible cambio de fondos de internet de fibra hacia Starlink de Elon Musk, a pesar de su alto costo mensual, plantea preguntas sobre la accesibilidad. Como bien dice Sean Gonsalvez del Instituto para la Autosuficiencia Local, \"Si no es asequible, no es accesible.\" Esto resalta la necesidad de soluciones innovadoras que puedan proporcionar tanto asequibilidad como confiabilidad."
+        },
+        {
+          "heading": "IA Agéntica: Un Cambio de Juego para las Operaciones de Seguridad",
+          "body": "Los centros de operaciones de seguridad (SOC) están inundados de alertas, lo que lleva al agotamiento y la ineficiencia entre los equipos de seguridad. El modelo tradicional escalonado de detección y respuesta está luchando por mantenerse al día con el volumen de alertas, como lo informa Forbes. Entra la IA agéntica, una nueva clase de inteligencia artificial que promete revolucionar las operaciones de seguridad. A diferencia de las herramientas de automatización tradicionales, la IA agéntica está diseñada para operar de manera autónoma, aprendiendo del contexto histórico para tomar decisiones que alivien la carga de los analistas humanos. Este avance podría reducir significativamente la brecha entre detección y acción, proporcionando un marco de seguridad más resiliente y eficiente. Como señala Brian Murphy, CEO de ReliaQuest, las soluciones SOAR actuales no han cumplido con la automatización verdadera, sirviendo meramente como distribuidores de flujo de trabajo de tickets. Sin embargo, la IA agéntica tiene el potencial de ingerir datos dinámicamente y sintetizarlos para tomar decisiones en tiempo real y transparentes, transformando el paisaje del SOC."
+        },
+        {
+          "heading": "Asegurando el Internet Industrial de las Cosas (IIoT)",
+          "body": "El Internet Industrial de las Cosas (IIoT) presenta desafíos de seguridad únicos que requieren soluciones especializadas. En su libro 'Hands-On Industrial Internet of Things', Giacomo Veneri y Antonio Capasso exploran las complejidades de asegurar los sistemas IIoT. Enfatizan la importancia de medidas robustas de ciberseguridad, como arquitecturas de firewall, segregación de redes y configuraciones VLAN, para proteger infraestructuras IIoT. Los autores también destacan la importancia de asegurar el flujo de datos desde los dispositivos de borde hasta los servicios en la nube, proporcionando escenarios prácticos que involucran plataformas como AWS IoT Edge y Azure IoT Edge. Su enfoque práctico asegura que los profesionales de seguridad puedan aplicar estas lecciones directamente, reforzando conceptos técnicos con ejercicios del mundo real. El libro también explora el uso de tecnologías de código abierto como Docker e InfluxDB para construir plataformas IIoT seguras, ofreciendo valiosas ideas para mitigar ataques a la cadena de suministro y vulnerabilidades de código abierto."
+        },
+        {
+          "heading": "Cómo Robles.AI Puede Ayudar a Transformar las Telecomunicaciones y la Seguridad",
+          "body": "En Robles.AI, nos especializamos en aprovechar tecnologías de vanguardia como la IA agéntica, el aprendizaje automático y la ciencia de datos para abordar desafíos complejos en telecomunicaciones y ciberseguridad. Nuestras soluciones están diseñadas para optimizar el rendimiento de la red, reducir costos y mejorar las operaciones de seguridad. Al aprovechar el poder de la IA, podemos proporcionar estrategias innovadoras para abordar el aumento de los costos de banda ancha y mejorar la fiabilidad de los servicios de internet. En el ámbito de la seguridad, nuestras herramientas impulsadas por IA ofrecen capacidades de toma de decisiones dinámicas y autónomas, empoderando a los SOC para operar de manera más eficiente y efectiva. Además, nuestra experiencia en seguridad IIoT asegura una protección robusta para los sistemas industriales, salvaguardando infraestructuras críticas de amenazas en evolución. Contáctenos para saber más sobre cómo podemos ayudarlo a transformar sus paisajes de telecomunicaciones y seguridad."
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "articleId": 1,
+      "title": "Broadband is Expensive. CNET Survey Finds 63% of Internet Users Are Paying More Than Before",
+      "url": "https://www.cnet.com/home/internet/broadband-is-expensive-cnet-survey-finds-63-of-internet-users-are-paying-more-than-before/",
+      "source": "CNET",
+      "urlToImage": "https://www.cnet.com/a/img/resize/43d488d97b5961b790b56b66fe830725bacd4d33/hub/2025/04/16/e4201cb7-5b6e-4f58-9787-fe40846ad486/broadband-survey-cnet-hero.png?auto=webp&fit=crop&height=675&width=1200"
+    },
+    {
+      "articleId": 2,
+      "title": "What Agentic AI Could Mean For Security Operations",
+      "url": "https://www.forbes.com/sites/tonybradley/2025/04/17/what-agentic-ai-could-mean-for-security-operations/",
+      "source": "Forbes",
+      "urlToImage": "https://imageio.forbes.com/specials-images/imageserve/6801878aeabb8cc1b3dee604/0x0.jpg?format=jpg&height=900&width=1600&fit=bounds"
+    },
+    {
+      "articleId": 3,
+      "title": "Review: Hands-On Industrial Internet of Things",
+      "url": "https://www.helpnetsecurity.com/2025/04/17/review-hands-on-industrial-internet-of-things/",
+      "source": "Help Net Security",
+      "urlToImage": "https://img.helpnetsecurity.com/wp-content/uploads/2025/03/30162041/book-industrial-iot-1500.webp"
+    }
+  ],
+  "editorId": 22,
+  "date": "2025-04-17-21-00-00",
+  "slug": "2025-04-17-21-00-00-impact-of-agentic-ai-on-telecom-and-security",
+  "stats": {
+    "prompt_tokens": 3070,
+    "completion_tokens": 2180,
+    "total_tokens": 5250
+  }
+}

@@ -35,12 +35,16 @@ export async function searchNews(query: string, date: string): Promise<ArticleRe
 
       // Extraer el contenido visible de la página:
       // Vamos a intentar extraer los <p> más importantes
-      const paragraphs = $('p')
+      let paragraphs = $('p')
         .map((_, p) => $(p).text())
         .get()
         .filter(text => text.length > 50) // evitar basura como "Accept Cookies"
         .slice(0, 10) // máximo 10 párrafos para no saturar
         .join('\n\n');
+
+      if (paragraphs.length > 10000) {
+        paragraphs = paragraphs.slice(0, 9997) + '...'; // Leave room for ellipsis
+      }
 
       liveContent = paragraphs || '';
     } catch (err) {
@@ -63,6 +67,5 @@ export async function searchNews(query: string, date: string): Promise<ArticleRe
     });
   }
 
-  console.log(`Fetched and scraped articles: ${JSON.stringify(results)}`);
   return results;
 }

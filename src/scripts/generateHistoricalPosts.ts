@@ -33,7 +33,7 @@ function generateDatePrefix(date: Date, editorId: number): string {
 }
 
 async function generateHistoricalPosts(targetDate?: string, targetEditorId?: number) {
-  const startDate = new Date('2025-04-26');
+  const startDate = new Date('2025-04-29');
   const today = new Date();
 
   const editorsPath = path.resolve(__dirname, '../../server/data/editors.json');
@@ -41,7 +41,10 @@ async function generateHistoricalPosts(targetDate?: string, targetEditorId?: num
   const editors = editorsData.editors;
 
   const datesToProcess: Date[] = [];
-
+  console.log(`🗓️ Parameters: `);
+  console.log(`- Target Date: ${targetDate || 'No date specified'}`);
+  console.log(`- Target Editor ID: ${targetEditorId || 'No editor specified'}`);
+  console.log(`- Start Date: ${startDate.toISOString().slice(0, 10)}`);
   if (targetDate) {
     datesToProcess.push(new Date(targetDate));
   } else {
@@ -64,14 +67,21 @@ async function generateHistoricalPosts(targetDate?: string, targetEditorId?: num
         console.warn(`⚠️ No news found for ${editor.name} on ${dateString}. Skipping.`);
         continue;
       }
-      const compactedNews = news.map(article => ({
-        articleId: article.articleId,
-        title: article.title,
-        source: article.source,
-        content: (article.liveContent && article.liveContent.length > article.content.length)
-          ? article.liveContent
-          : article.content
-      }));
+      const compactedNews = news.map(article => {
+        console.log('Processing article Title:', article.title); // Log the article being processed
+        console.log('Processing article URL:', article.url); // Log the article URL
+        console.log('Article Content:', article.content); // Log the length of the article content
+        console.log('Article Content length:', article.content.length); // Log the length of the article content
+        console.log('Article Live length:', article.liveContent.length); // Log the length of the article content
+        return {
+          articleId: article.articleId,
+          title: article.title,
+          source: article.source,
+          content: (article.liveContent && article.liveContent.length > article.content.length)
+            ? article.liveContent
+            : article.content
+        };
+      });
 
       const { systemPrompt, userPrompt } = buildPostPrompt(editor, compactedNews, recentTopics);
 
@@ -92,6 +102,53 @@ async function generateHistoricalPosts(targetDate?: string, targetEditorId?: num
           top_p,
           max_tokens: 15000,
         });
+        //Simulate response
+        /*
+        const response = {
+          choices: [
+            {
+              message: {
+                content: `{
+                  "translations": {
+                    "en": {
+                      "title": "Sample Title",
+                      "excerpt": "Sample Excerpt",
+                      "content": [
+                        { "heading": "Sample Heading", "body": "Sample Body" }
+                      ]
+                    },
+                    "es": {
+                      "title": "Título de muestra",
+                      "excerpt": "Extracto de muestra",
+                      "content": [
+                        { "heading": "Encabezado de muestra", "body": "Cuerpo de muestra" }
+                      ]
+                    }
+                  },
+                  "image": "https://example.com/image.jpg",
+                  "sources": [
+                    { "articleId": 1, "title": "Source Title", "source": "Source Name" }
+                  ],
+                  "translations": {
+                    "en": {
+                      "slug": "sample-slug"
+                    },
+                    "es": {
+                      "slug": "slug-de-muestra"
+                    }
+                  }
+                }`,
+                role: 'assistant'
+              },
+              finish_reason: 'stop'
+            }
+          ],
+          usage: {
+            prompt_tokens: 100,
+            completion_tokens: 200,
+            total_tokens: 300
+          }
+        };*/
 
         let content = response.choices[0]?.message?.content;
         if (!content) {

@@ -1,0 +1,101 @@
+{
+  "categories": [
+    "Cybersecurity",
+    "AI Technology",
+    "Agentic AI"
+  ],
+  "keywords": [
+    "Cybersecurity",
+    "Artificial Intelligence",
+    "Agentic AI",
+    "Generative AI",
+    "API Management"
+  ],
+  "translations": {
+    "en": {
+      "slug": "2025-04-17-17-00-00-agentic-ai-and-cybersecurity-evolution",
+      "title": "Agentic AI and the Evolution of Cybersecurity",
+      "excerpt": "Exploring the transformative impact of Agentic AI on cybersecurity operations and the importance of robust API management.",
+      "content": [
+        {
+          "heading": "The Rise of Agentic AI in Cybersecurity",
+          "body": "In recent years, the concept of Agentic AI has emerged as a significant development in the cybersecurity landscape. Unlike traditional AI systems, Agentic AI is designed to operate autonomously, making decisions based on historical data and environmental context. According to a Forbes article, this type of AI promises to alleviate the burden on security operations centers (SOCs) by reducing the volume of alerts that require human intervention. With SOCs facing an overwhelming number of alerts daily, the ability of Agentic AI to prioritize and act on threats without human oversight could be a game-changer."
+        },
+        {
+          "heading": "Challenges and Opportunities of API Management",
+          "body": "As organizations integrate more AI-driven solutions, the role of Application Programming Interfaces (APIs) becomes increasingly critical. An article from TechRadar highlights the risks associated with unmanaged API sprawl, which can lead to significant security vulnerabilities. Agentic AI systems rely heavily on APIs to connect with various enterprise systems, making effective API management essential. Without it, the proliferation of shadow and zombie APIs could expose organizations to potential breaches. Therefore, a robust API management strategy is crucial for harnessing the full potential of Agentic AI while maintaining security integrity."
+        },
+        {
+          "heading": "Balancing AI Innovation with Cybersecurity Fundamentals",
+          "body": "While AI technologies like Agentic AI and Generative AI offer new capabilities for cybersecurity, it's vital not to overlook the importance of fundamental security practices. As discussed in TechRadar's article, relying solely on AI-driven solutions without a strong security foundation can be risky. Organizations must continue to invest in traditional security measures such as threat intelligence and employee training. AI should complement these strategies, not replace them. By integrating AI with established security protocols, businesses can create a more resilient defense against emerging threats."
+        },
+        {
+          "heading": "Generative AI: A Double-Edged Sword in Cybersecurity",
+          "body": "Generative AI, a subset of AI known for creating new content, has proven to be both a boon and a bane in cybersecurity. As noted in both TechRadar articles, bad actors have leveraged Generative AI to craft more convincing phishing attacks, while cybersecurity professionals use it to enhance threat detection and response. This duality underscores the need for continuous innovation in security technologies. As AI evolves, so do the tactics of cybercriminals, necessitating a proactive approach to security that anticipates and counters these advancements."
+        },
+        {
+          "heading": "What We Do at Robles.AI Regarding AI and Cybersecurity",
+          "body": "At Robles.AI, we specialize in leveraging cutting-edge AI technologies, including Agentic AI and Generative AI, to enhance cybersecurity operations. Our solutions focus on integrating AI with traditional security measures to provide a comprehensive defense strategy. We offer advanced API management tools to mitigate the risks associated with API sprawl, ensuring that your systems remain secure and efficient. Contact us to learn more about how we can help you fortify your cybersecurity posture with the power of AI."
+        }
+      ]
+    },
+    "es": {
+      "slug": "2025-04-17-17-00-00-agentic-ai-y-la-evolucion-de-la-ciberseguridad",
+      "title": "Agentic AI y la Evolución de la Ciberseguridad",
+      "excerpt": "Explorando el impacto transformador del Agentic AI en las operaciones de ciberseguridad y la importancia de una gestión robusta de APIs.",
+      "content": [
+        {
+          "heading": "El Auge del Agentic AI en la Ciberseguridad",
+          "body": "En los últimos años, el concepto de Agentic AI ha surgido como un desarrollo significativo en el panorama de la ciberseguridad. A diferencia de los sistemas de IA tradicionales, el Agentic AI está diseñado para operar de manera autónoma, tomando decisiones basadas en datos históricos y el contexto ambiental. Según un artículo de Forbes, este tipo de IA promete aliviar la carga en los centros de operaciones de seguridad (SOC) al reducir el volumen de alertas que requieren intervención humana. Con los SOC enfrentando un número abrumador de alertas diarias, la capacidad del Agentic AI para priorizar y actuar sobre amenazas sin supervisión humana podría ser un cambio de juego."
+        },
+        {
+          "heading": "Desafíos y Oportunidades de la Gestión de APIs",
+          "body": "A medida que las organizaciones integran más soluciones impulsadas por IA, el papel de las Interfaces de Programación de Aplicaciones (APIs) se vuelve cada vez más crítico. Un artículo de TechRadar destaca los riesgos asociados con la proliferación no gestionada de APIs, que puede llevar a vulnerabilidades de seguridad significativas. Los sistemas de Agentic AI dependen en gran medida de las APIs para conectarse con varios sistemas empresariales, por lo que una gestión efectiva de APIs es esencial. Sin ella, la proliferación de APIs fantasma y zombi podría exponer a las organizaciones a posibles brechas. Por lo tanto, una estrategia robusta de gestión de APIs es crucial para aprovechar al máximo el potencial del Agentic AI mientras se mantiene la integridad de la seguridad."
+        },
+        {
+          "heading": "Equilibrando la Innovación de IA con los Fundamentos de la Ciberseguridad",
+          "body": "Si bien las tecnologías de IA como el Agentic AI y el Generative AI ofrecen nuevas capacidades para la ciberseguridad, es vital no pasar por alto la importancia de las prácticas de seguridad fundamentales. Como se discute en el artículo de TechRadar, confiar únicamente en soluciones impulsadas por IA sin una base de seguridad sólida puede ser arriesgado. Las organizaciones deben seguir invirtiendo en medidas de seguridad tradicionales como la inteligencia de amenazas y la capacitación de empleados. La IA debe complementar estas estrategias, no reemplazarlas. Al integrar la IA con protocolos de seguridad establecidos, las empresas pueden crear una defensa más resiliente contra las amenazas emergentes."
+        },
+        {
+          "heading": "Generative AI: Una Espada de Doble Filo en la Ciberseguridad",
+          "body": "El Generative AI, un subconjunto de IA conocido por crear nuevo contenido, ha demostrado ser tanto una bendición como una maldición en la ciberseguridad. Como se menciona en ambos artículos de TechRadar, los actores maliciosos han aprovechado el Generative AI para crear ataques de phishing más convincentes, mientras que los profesionales de ciberseguridad lo utilizan para mejorar la detección y respuesta a amenazas. Esta dualidad subraya la necesidad de una innovación continua en las tecnologías de seguridad. A medida que la IA evoluciona, también lo hacen las tácticas de los ciberdelincuentes, lo que requiere un enfoque proactivo de seguridad que anticipe y contrarreste estos avances."
+        },
+        {
+          "heading": "Lo que Hacemos en Robles.AI Respecto a la IA y la Ciberseguridad",
+          "body": "En Robles.AI, nos especializamos en aprovechar las tecnologías de IA más avanzadas, incluido el Agentic AI y el Generative AI, para mejorar las operaciones de ciberseguridad. Nuestras soluciones se centran en integrar la IA con medidas de seguridad tradicionales para proporcionar una estrategia de defensa integral. Ofrecemos herramientas avanzadas de gestión de APIs para mitigar los riesgos asociados con la proliferación de APIs, asegurando que sus sistemas permanezcan seguros y eficientes. Contáctenos para saber más sobre cómo podemos ayudarle a fortalecer su postura de ciberseguridad con el poder de la IA."
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "articleId": 2,
+      "title": "Rely on cybersecurity fundamentals, not LLMs, in the face of emerging threats",
+      "url": "https://www.techradar.com/pro/rely-on-cybersecurity-fundamentals-not-llms-in-the-face-of-emerging-threats",
+      "source": "TechRadar",
+      "urlToImage": "https://cdn.mos.cms.futurecdn.net/zjafjw6AeTXTuuLetiazgC.jpg"
+    },
+    {
+      "articleId": 4,
+      "title": "Drive agentic AI success with an integrated approach to API management",
+      "url": "https://www.techradar.com/pro/drive-agentic-ai-success-with-an-integrated-approach-to-api-management",
+      "source": "TechRadar",
+      "urlToImage": "https://cdn.mos.cms.futurecdn.net/jSV43D4km3vEGiaJ2umaFi.jpg"
+    },
+    {
+      "articleId": 5,
+      "title": "What Agentic AI Could Mean For Security Operations",
+      "url": "https://www.forbes.com/sites/tonybradley/2025/04/17/what-agentic-ai-could-mean-for-security-operations/",
+      "source": "Forbes",
+      "urlToImage": "https://imageio.forbes.com/specials-images/imageserve/6801878aeabb8cc1b3dee604/0x0.jpg?format=jpg&height=900&width=1600&fit=bounds"
+    }
+  ],
+  "editorId": 18,
+  "date": "2025-04-17-17-00-00",
+  "slug": "2025-04-17-17-00-00-agentic-ai-and-cybersecurity-evolution",
+  "stats": {
+    "prompt_tokens": 3740,
+    "completion_tokens": 1870,
+    "total_tokens": 5610
+  }
+}
