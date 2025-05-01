@@ -9,7 +9,8 @@
         "resources": "Resources",
         "caseStudies": "Case Studies",
         "courses": "Courses",
-        "blog": "News Center",
+        "blog": "AI News Center",
+        "language": "🌐 Language",
         "contact": "Contact Us"
     },
     "hero": {
@@ -442,14 +443,14 @@
         "join": "Join Our Team",
         "members": [
             {
-                "name": "Dr. Antonio Robles",
+                "name": "Antonio Robles",
                 "position": "Founder & CEO",
                 "positionColor": "text-blue-600",
-                "bio": "Former AI researcher with 15+ years of experience in developing machine learning applications for enterprise clients.",
+                "bio": "Data Scientist and researcher with 15+ years of experience in developing machine learning applications for enterprise clients.",
                 "image": "ar.jpg"
             },
             {
-                "name": "Dr. Jennifer Kim",
+                "name": "Jennifer Kim",
                 "position": "Chief Research Officer",
                 "positionColor": "text-emerald-600",
                 "bio": "Leading expert in computer vision with PhD from MIT and 20+ publications in top AI journals and conferences.",
@@ -463,7 +464,7 @@
                 "image": "mc.jpg"
             },
             {
-                "name": "Dr. Sophia Martinez",
+                "name": "Sophia Martinez",
                 "position": "Director of AI Ethics",
                 "positionColor": "text-amber-600",
                 "bio": "Former professor with expertise in responsible AI development, ensuring ethical implementation of our solutions.",

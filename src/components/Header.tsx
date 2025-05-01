@@ -13,6 +13,8 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const { i18n, t } = useTranslation();
   const [, setLocation] = useLocation();
+  const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
+  let hoverTimeout: NodeJS.Timeout;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,7 +23,15 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsMobileMenuOpen(false); // Cierra el menú móvil al entrar en vista escritorio
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   interface NavLink {
     id: string;
     label: string;
@@ -30,15 +40,15 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
   }
 
   const navLinks: NavLink[] = [
-    { id: "features", label: t("nav.features") },
-    { id: "solutions", label: t("nav.solutions") },
     {
       id: "company",
       label: t("nav.company"), // Nuevo agrupador "Company"
       children: [
+        { id: "features", label: t("nav.features") },
         { id: "about", label: t("nav.about") },
-        { id: "careers", href: "/careers", label: t("nav.careers") },
+        { id: "solutions", label: t("nav.solutions") },
         { id: "customers", label: t("nav.customers") },
+        { id: "careers", href: "/careers", label: t("nav.careers") },
       ],
     },
     {
@@ -48,6 +58,14 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
         { id: "case-studies", label: t("nav.caseStudies") },
         { id: "courses", label: t("nav.courses") },
         { id: "blog", href: "/blog", label: t("nav.blog") },
+      ],
+    },
+    {
+      id: "language",
+      label: t("nav.language"), // Nuevo agrupador "Language"
+      children: [
+        { id: "en", label: "🇺🇸 English" },
+        { id: "es", label: "🇪🇸 Español" },
       ],
     },
   ];
@@ -82,6 +100,17 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
     }
   };
 
+  const handleMouseEnter = (id: string) => {
+    clearTimeout(hoverTimeout); // cancela el cierre si regresa el mouse
+    setHoveredMenu(id);
+  };
+
+  const handleMouseLeave = () => {
+    hoverTimeout = setTimeout(() => {
+      setHoveredMenu(null);
+    }, 200); // da 200ms al usuario para bajar el mouse
+  };
+
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white ${isScrolled ? "shadow-sm" : ""}`}>
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
@@ -99,14 +128,19 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
         <nav className="hidden md:flex items-center space-x-6 lg:space-x-8">
           {navLinks.map((link) =>
             link.children ? (
-              <div key={link.id} className="relative group">
+              <div
+                key={link.id}
+                className="relative z-50"
+                onMouseEnter={() => handleMouseEnter(link.id)}
+                onMouseLeave={handleMouseLeave}
+              >
                 <button
                   className="flex items-center gap-1 text-gray-700 hover:text-blue-600 transition-colors whitespace-nowrap"
                 >
                   {link.label}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4 transition-transform group-hover:rotate-180"
+                    className={`h-4 w-4 transform transition-transform duration-300 ${hoveredMenu === link.id ? "rotate-180" : ""}`}
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -115,17 +149,28 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
                   </svg>
                 </button>
                 {/* Dropdown */}
-                <div className="absolute top-full left-0 mt-2 w-40 bg-white border rounded-md shadow-lg opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transform transition-all origin-top duration-200 z-50">
-                  {link.children.map((sublink) => (
-                    <button
-                      key={sublink.id}
-                      onClick={() => handleNavigation(sublink.href || sublink.id)}
-                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                    >
-                      {sublink.label}
-                    </button>
-                  ))}
+                <div
+                  className={`absolute top-full left-0 mt-2 w-40 bg-white border rounded-md shadow-lg transform origin-top transition-all duration-200 z-50 ${hoveredMenu === link.id
+                    ? "opacity-100 scale-100 pointer-events-auto"
+                    : "opacity-0 scale-95 pointer-events-none"
+                    }`}
+                >   {link.children.map((sublink) => (
+                  <button
+                    key={sublink.id}
+                    onClick={() =>
+                      link.id === "language"
+                        ? i18n.changeLanguage(sublink.id)
+                        : handleNavigation(sublink.href || sublink.id)
+                    }
+                    className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >
+                    {sublink.label}
+                  </button>
+
+
+                ))}
                 </div>
+
               </div>
             ) : (
               <button
@@ -137,15 +182,6 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
               </button>
             )
           )}
-          {/* Language selector */}
-          <div className="flex items-center space-x-2">
-            <button onClick={() => i18n.changeLanguage("es")} className="text-sm hover:text-blue-600">
-              🇪🇸 ES
-            </button>
-            <button onClick={() => i18n.changeLanguage("en")} className="text-sm hover:text-blue-600">
-              🇺🇸 EN
-            </button>
-          </div>
           {/* Contact Button */}
           <button
             onClick={() => handleNavigation("contact")}
@@ -226,10 +262,10 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
               {/* Idioma */}
               <div className="flex space-x-4 pt-6">
                 <button onClick={() => i18n.changeLanguage("es")} className="text-sm hover:text-blue-600">
-                  🇪🇸 ES
+                  🇪🇸 Español
                 </button>
                 <button onClick={() => i18n.changeLanguage("en")} className="text-sm hover:text-blue-600">
-                  🇺🇸 EN
+                  🇺🇸 English
                 </button>
               </div>
 

@@ -6,10 +6,11 @@
         "about": "Nosotros",
         "careers": "Carreras",
         "customers": "Clientes",
-        "resources": "Resources",
+        "resources": "Recursos",
         "caseStudies": "Casos de Éxito",
         "courses": "Cursos",
-        "blog": "Centro de Noticias",
+        "blog": "Centro de Noticias AI",
+        "language": "🌐 Idioma",
         "contact": "Contáctanos"
     },
     "hero": {
@@ -440,14 +441,14 @@
         "join": "Únete a nuestro equipo",
         "members": [
             {
-                "name": "Dr. Antonio Robles",
+                "name": "Antonio Robles",
                 "position": "Fundador y Director",
                 "positionColor": "text-blue-600",
-                "bio": "Ex investigador de IA con más de 15 años de experiencia desarrollando aplicaciones de aprendizaje automático para empresas.",
+                "bio": "Científico de Datos e Investigador de IA con más de 15 años de experiencia desarrollando aplicaciones de aprendizaje automático para empresas.",
                 "image": "ar.jpg"
             },
             {
-                "name": "Dra. Jennifer Kim",
+                "name": "Jennifer Kim",
                 "position": "Directora de Investigación",
                 "positionColor": "text-emerald-600",
                 "bio": "Experta en visión por computadora con doctorado del MIT y más de 20 publicaciones en conferencias y revistas top de IA.",
@@ -461,7 +462,7 @@
                 "image": "mc.jpg"
             },
             {
-                "name": "Dra. Sophia Martinez",
+                "name": "Sophia Martinez",
                 "position": "Directora de Ética en IA",
                 "positionColor": "text-amber-600",
                 "bio": "Ex profesora con experiencia en desarrollo responsable de IA, asegurando la implementación ética de nuestras soluciones.",

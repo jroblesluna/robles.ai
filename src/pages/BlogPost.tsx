@@ -105,7 +105,7 @@ export default function BlogPost() {
       {/* HERO */}
       <div className="relative w-full h-72 md:h-96 overflow-hidden">
         {(() => {
-          const heroImage = '/avatars/defaultPostHeader' + (editor ? `-${editor.id}` : '')+'.png';
+          const heroImage = '/avatars/defaultPostHeader' + (editor ? `-${editor.id}` : '') + '.png';
 
           return (
             <img
@@ -126,10 +126,19 @@ export default function BlogPost() {
       <div className="container mx-auto p-6 max-w-4xl">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between text-gray-500 text-sm mb-8">
           <div className="flex items-center gap-4">
+            
+            <img src={`/avatars/antonio-robles-headshot.png`} alt='Antonio Robles' className="w-14 h-14 rounded-full object-cover" />
+            <div className="text-left">
+              <p className="font-semibold text-gray-800">✍️ {i18n.language === "es"?"Publicado por":"Published By"}:</p>
+              <p className="font-semibold text-gray-800">Antonio Robles</p>
+              <p className="text-xs italic text-gray-400">We Build AI That Earns Trust.</p>
+            </div>
+            
             {editor && (
               <>
-                <img src={`/avatars/${editor.id}-headshot.png`} alt={editor.name} className="w-10 h-10 rounded-full object-cover" />
+                <img src={`/avatars/${editor.id}-headshot.png`} alt={editor.name} className="w-14 h-14 rounded-full object-cover" />
                 <div className="text-left">
+                  <p className="font-semibold text-gray-800">🤖 {i18n.language === "es"?"Asistente AI":"AI Assistant"}:</p>
                   <p className="font-semibold text-gray-800">{editor.name}</p>
                   <p className="text-xs italic text-gray-400">{editor.signature}</p>
                 </div>
