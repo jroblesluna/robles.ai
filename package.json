@@ -29,6 +29,7 @@
     "drizzle-orm": "^0.41.0",
     "drizzle-zod": "^0.7.1",
     "express": "^4.21.2",
+    "fast-xml-parser": "^5.2.1",
     "formidable": "^3.5.4",
     "framer-motion": "^12.6.2",
     "i18next": "^24.2.3",

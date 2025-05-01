@@ -6,7 +6,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export async function savePost(postJson: any, date: string) {
-  const folder = path.resolve(__dirname, `../../server/data/posts`);
+  const [year, month, day] = date.split("-");
+  const folder = path.resolve(__dirname, `../../server/data/posts/${year}/${month}/${day}`);
   await fs.mkdir(folder, { recursive: true });
   const filePath = path.join(folder, `${postJson.slug}.json`);
   await fs.writeFile(filePath, JSON.stringify(postJson, null, 2));

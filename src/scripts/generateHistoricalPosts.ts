@@ -33,7 +33,7 @@ function generateDatePrefix(date: Date, editorId: number): string {
 }
 
 async function generateHistoricalPosts(targetDate?: string, targetEditorId?: number) {
-  const startDate = new Date('2025-04-29');
+  const startDate = new Date('2025-04-30');
   const today = new Date();
 
   const editorsPath = path.resolve(__dirname, '../../server/data/editors.json');
@@ -192,7 +192,13 @@ async function generateHistoricalPosts(targetDate?: string, targetEditorId?: num
         };
 
         await savePost(post, dateString);
-        await updateSitemap(post.slug, dateString);
+        //await updateSitemap(post.slug, dateString);
+        for (const [lang, translation] of Object.entries(post.translations || {})) {
+          const t = translation as { slug?: string };
+          if (t?.slug) {
+            await updateSitemap(t.slug, dateString, lang);
+          }
+        }
 
         console.log(`✅ Post generated for ${editor.name} on ${datePrefix}`);
       } catch (error) {
