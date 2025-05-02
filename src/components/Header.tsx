@@ -225,49 +225,32 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
             >
               {navLinks.map((link) => (
                 <div key={link.id} className="w-full">
-                  {!link.children ? (
-                    <button
-                      onClick={() => {
-                        setIsMobileMenuOpen(false);
-                        handleNavigation(link.href || link.id);
-                      }}
-                      className="block w-full text-left text-base text-gray-800 hover:text-blue-600 py-2"
-                    >
+
+                  <div className="mt-2">
+                    <div className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2">
                       {link.label}
-                    </button>
-                  ) : (
-                    <div className="mt-2">
-                      <div className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2">
-                        {link.label}
-                      </div>
-                      <div className="flex flex-col space-y-2 pl-3">
-                        {link.children.map((child) => (
-                          <button
-                            key={child.id}
-                            onClick={() => {
-                              setIsMobileMenuOpen(false);
-                              handleNavigation(child.href || child.id);
-                            }}
-                            className="text-base text-gray-700 hover:text-blue-600 text-left"
-                          >
-                            {child.label}
-                          </button>
-                        ))}
-                      </div>
                     </div>
-                  )}
+                    <div className="flex flex-col space-y-2 pl-3">
+                      {link.children?.map((child) => (
+                        <button
+                          key={child.id}
+                          onClick={() => {
+                            setIsMobileMenuOpen(false);
+                            link.id === "language"
+                              ? i18n.changeLanguage(child.id)
+                              :
+                              handleNavigation(child.href || child.id);
+                          }}
+                          className="text-base text-gray-700 hover:text-blue-600 text-left"
+                        >
+                          {child.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                 </div>
               ))}
-
-              {/* Idioma */}
-              <div className="flex space-x-4 pt-6">
-                <button onClick={() => i18n.changeLanguage("es")} className="text-sm hover:text-blue-600">
-                  🇪🇸 Español
-                </button>
-                <button onClick={() => i18n.changeLanguage("en")} className="text-sm hover:text-blue-600">
-                  🇺🇸 English
-                </button>
-              </div>
 
               {/* Contacto */}
               <button
