@@ -32,8 +32,12 @@ function generateDatePrefix(date: Date, editorId: number): string {
   return `${year}-${month}-${day}-${hours}-${minutes}-${seconds}`;
 }
 
-async function generateHistoricalPosts(targetDate?: string, targetEditorId?: number) {
-  const startDate = new Date('2025-04-30');
+export async function generateHistoricalPosts(
+  targetDate?: string,
+  targetEditorId?: number,
+  startDateOpc: string = '2025-04-30'
+) {
+  const startDate = new Date(startDateOpc);
   const today = new Date();
 
   const editorsPath = path.resolve(__dirname, '../../server/data/editors.json');
@@ -45,6 +49,14 @@ async function generateHistoricalPosts(targetDate?: string, targetEditorId?: num
   console.log(`- Target Date: ${targetDate || 'No date specified'}`);
   console.log(`- Target Editor ID: ${targetEditorId || 'No editor specified'}`);
   console.log(`- Start Date: ${startDate.toISOString().slice(0, 10)}`);
+
+  // if (targetDate === startDateOpc) {
+  //   console.log(
+  //     `⚠️ Target date is the same as start date. No processing will be done. Skipping.`
+  //   );
+  //   return;
+  // }
+
   if (targetDate) {
     datesToProcess.push(new Date(targetDate));
   } else {
@@ -67,23 +79,29 @@ async function generateHistoricalPosts(targetDate?: string, targetEditorId?: num
         console.warn(`⚠️ No news found for ${editor.name} on ${dateString}. Skipping.`);
         continue;
       }
-      const compactedNews = news.map(article => {
-        console.log('Processing article Title:', article.title); // Log the article being processed
-        console.log('Processing article URL:', article.url); // Log the article URL
-        console.log('Article Content:', article.content); // Log the length of the article content
-        console.log('Article Content length:', article.content.length); // Log the length of the article content
-        console.log('Article Live length:', article.liveContent.length); // Log the length of the article content
+
+      const compactedNews = news.map((article) => {
+        // console.log('Processing article Title:', article.title); // Log the article being processed
+        // console.log('Processing article URL:', article.url); // Log the article URL
+        // console.log('Article Content:', article.content); // Log the length of the article content
+        // console.log('Article Content length:', article.content.length); // Log the length of the article content
+        // console.log('Article Live length:', article.liveContent.length); // Log the length of the article content
         return {
           articleId: article.articleId,
           title: article.title,
           source: article.source,
-          content: (article.liveContent && article.liveContent.length > article.content.length)
-            ? article.liveContent
-            : article.content
+          content:
+            article.liveContent && article.liveContent.length > article.content.length
+              ? article.liveContent
+              : article.content,
         };
       });
 
-      const { systemPrompt, userPrompt } = buildPostPrompt(editor, compactedNews, recentTopics);
+      const { systemPrompt, userPrompt } = buildPostPrompt(
+        editor,
+        compactedNews,
+        recentTopics
+      );
 
       const temperature = randomBetween(editor.min_temperature, editor.max_temperature);
       const top_p = randomBetween(editor.min_top_p, editor.max_top_p);
@@ -96,7 +114,7 @@ async function generateHistoricalPosts(targetDate?: string, targetEditorId?: num
           model: 'gpt-4o',
           messages: [
             { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt }
+            { role: 'user', content: userPrompt },
           ],
           temperature,
           top_p,
@@ -172,23 +190,25 @@ async function generateHistoricalPosts(targetDate?: string, targetEditorId?: num
         }
 
         if (Array.isArray(post.sources)) {
-          post.sources = post.sources.map((source: { articleId: number; title: string; source: string }) => {
-            const matchedArticle = news.find(a => a.articleId === source.articleId);
-            if (matchedArticle) {
-              return {
-                ...source,
-                url: matchedArticle.url,
-                urlToImage: matchedArticle.urlToImage
-              };
+          post.sources = post.sources.map(
+            (source: { articleId: number; title: string; source: string }) => {
+              const matchedArticle = news.find((a) => a.articleId === source.articleId);
+              if (matchedArticle) {
+                return {
+                  ...source,
+                  url: matchedArticle.url,
+                  urlToImage: matchedArticle.urlToImage,
+                };
+              }
+              return source;
             }
-            return source;
-          });
+          );
         }
 
         post.stats = {
           prompt_tokens: response.usage?.prompt_tokens || 0,
           completion_tokens: response.usage?.completion_tokens || 0,
-          total_tokens: response.usage?.total_tokens || 0
+          total_tokens: response.usage?.total_tokens || 0,
         };
 
         await savePost(post, dateString);
@@ -208,10 +228,10 @@ async function generateHistoricalPosts(targetDate?: string, targetEditorId?: num
   }
 }
 
-// Capturar argumentos
-const args = process.argv.slice(2);
-const targetDate = args[0];        // formato YYYY-MM-DD
-const targetEditorId = args[1] ? parseInt(args[1], 10) : undefined;
+// // Capturar argumentos
+// const args = process.argv.slice(2);
+// const targetDate = args[0]; // formato YYYY-MM-DD
+// const targetEditorId = args[1] ? parseInt(args[1], 10) : undefined;
 
-// Llamar función principal
-generateHistoricalPosts(targetDate, targetEditorId);
+// // Llamar función principal
+// generateHistoricalPosts(targetDate, targetEditorId);

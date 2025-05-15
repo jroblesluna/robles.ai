@@ -1,0 +1,107 @@
+{
+  "categories": [
+    "AI in Education",
+    "Technology in Business",
+    "Digital Transformation"
+  ],
+  "keywords": [
+    "AI literacy",
+    "shoppable advertising",
+    "enterprise technology",
+    "AI-powered learning"
+  ],
+  "translations": {
+    "en": {
+      "slug": "2025-04-30-02-00-00-ai-advancements-in-commerce-and-education",
+      "title": "AI Advancements in Commerce and Education",
+      "excerpt": "Exploring how AI is reshaping commerce through shoppable ads on CTV and influencing education with AI literacy tests.",
+      "content": [
+        {
+          "heading": "The Rise of Shoppable Advertising on CTV",
+          "body": "In the rapidly evolving digital landscape, shoppable advertising on Connected TV (CTV) is revolutionizing how consumers interact with brands. According to a report by Digiday, marketers are increasingly leveraging high-impact creatives and interactive ads to bridge the gap between viewing and purchasing. This seamless integration of commerce into entertainment platforms is transforming CTV from a mere brand awareness tool to a powerful driver of consumer action. Derek Gatts from Warner Bros. Discovery highlights that the current challenge for the market is to refine solutions that motivate viewers to act on what they see, emphasizing the potential of shoppable ads to redefine advertising strategies."
+        },
+        {
+          "heading": "AI Literacy: Preparing for the Future",
+          "body": "The OECD's announcement of a global AI literacy test for young people marks a significant step towards integrating AI competencies into education. As highlighted in Wordpress, this initiative aims to assess students' abilities to engage critically and ethically with AI tools, setting a new benchmark for digital education worldwide. The test, set for 2029, will not only define what AI literacy entails but also influence educational priorities globally. By blending media and AI literacy, the OECD faces the challenge of establishing a comprehensive framework that prepares students for a future where AI is ubiquitous in both personal and professional realms."
+        },
+        {
+          "heading": "Bridging the Communication Gap in Enterprises",
+          "body": "Within enterprises, the need for IT professionals to effectively communicate their value to non-technical stakeholders is becoming increasingly crucial. As Vmblog.com suggests, IT professionals can enhance their impact by framing their contributions in terms of outcomes rather than technical processes. By employing relatable analogies and crafting compelling narratives, IT teams can demystify complex concepts and align their work with the goals and priorities of their organizations. This approach not only fosters understanding and appreciation but also strengthens relationships across different departments, ultimately driving enterprise success."
+        },
+        {
+          "heading": "AI-Powered Education Platforms: A New Frontier",
+          "body": "The recent investment in Stimuler, an AI-powered English learning platform, underscores the potential of AI in transforming education. BusinessLine reports that Stimuler's voice-first AI tutor is designed to enhance English speaking skills for ESL learners, leveraging advanced speech analysis to provide personalized learning experiences. This approach reflects a broader trend where AI is being used to tailor educational content to individual needs, making learning more accessible and effective. As AI continues to evolve, platforms like Stimuler could become integral to language education, breaking down barriers and opening up new opportunities for learners worldwide."
+        },
+        {
+          "heading": "Robles.AI: Pioneering AI Solutions for Tomorrow",
+          "body": "At Robles.AI, we are committed to harnessing the power of AI to create innovative solutions that address the challenges of today and tomorrow. Whether it's enhancing commerce through shoppable ads or advancing education with AI literacy, our expertise in deep learning, machine learning, and data science positions us at the forefront of technological innovation. Our AI-driven platforms are designed to empower businesses and educational institutions alike, enabling them to navigate the complexities of the digital age with confidence. Contact us to learn more about how we can help you leverage AI for transformative growth."
+        }
+      ]
+    },
+    "es": {
+      "slug": "2025-04-30-02-00-00-avances-de-ia-en-comercio-y-educacion",
+      "title": "Avances de IA en Comercio y Educación",
+      "excerpt": "Explorando cómo la IA está transformando el comercio a través de anuncios comprables en CTV e influyendo en la educación con pruebas de alfabetización en IA.",
+      "content": [
+        {
+          "heading": "El Auge de la Publicidad Comprable en CTV",
+          "body": "En el paisaje digital en rápida evolución, la publicidad comprable en la Televisión Conectada (CTV) está revolucionando la forma en que los consumidores interactúan con las marcas. Según un informe de Digiday, los vendedores están aprovechando cada vez más las creatividades de alto impacto y los anuncios interactivos para cerrar la brecha entre la visualización y la compra. Esta integración sin fisuras del comercio en las plataformas de entretenimiento está transformando la CTV de una mera herramienta de conocimiento de marca a un potente impulsor de acción del consumidor. Derek Gatts de Warner Bros. Discovery destaca que el desafío actual para el mercado es perfeccionar soluciones que motiven a los espectadores a actuar sobre lo que ven, enfatizando el potencial de los anuncios comprables para redefinir las estrategias publicitarias."
+        },
+        {
+          "heading": "Alfabetización en IA: Preparando el Futuro",
+          "body": "El anuncio de la OCDE de una prueba global de alfabetización en IA para jóvenes marca un paso significativo hacia la integración de competencias de IA en la educación. Como se destaca en Wordpress, esta iniciativa tiene como objetivo evaluar las habilidades de los estudiantes para interactuar de manera crítica y ética con las herramientas de IA, estableciendo un nuevo estándar para la educación digital en todo el mundo. La prueba, programada para 2029, no solo definirá lo que implica la alfabetización en IA, sino que también influirá en las prioridades educativas a nivel mundial. Al combinar la alfabetización en medios y en IA, la OCDE enfrenta el desafío de establecer un marco integral que prepare a los estudiantes para un futuro donde la IA es omnipresente tanto en el ámbito personal como profesional."
+        },
+        {
+          "heading": "Cerrando la Brecha de Comunicación en Empresas",
+          "body": "Dentro de las empresas, la necesidad de que los profesionales de TI comuniquen eficazmente su valor a las partes interesadas no técnicas se está volviendo cada vez más crucial. Como sugiere Vmblog.com, los profesionales de TI pueden aumentar su impacto enmarcando sus contribuciones en términos de resultados en lugar de procesos técnicos. Al emplear analogías comprensibles y crear narrativas atractivas, los equipos de TI pueden desmitificar conceptos complejos y alinear su trabajo con los objetivos y prioridades de sus organizaciones. Este enfoque no solo fomenta la comprensión y la apreciación, sino que también fortalece las relaciones entre diferentes departamentos, impulsando en última instancia el éxito empresarial."
+        },
+        {
+          "heading": "Plataformas Educativas Impulsadas por IA: Una Nueva Frontera",
+          "body": "La reciente inversión en Stimuler, una plataforma de aprendizaje de inglés impulsada por IA, subraya el potencial de la IA en la transformación de la educación. BusinessLine informa que el tutor de IA de voz primero de Stimuler está diseñado para mejorar las habilidades de habla en inglés para estudiantes de ESL, aprovechando el análisis avanzado del habla para proporcionar experiencias de aprendizaje personalizadas. Este enfoque refleja una tendencia más amplia donde la IA se utiliza para adaptar el contenido educativo a las necesidades individuales, haciendo el aprendizaje más accesible y efectivo. A medida que la IA continúa evolucionando, plataformas como Stimuler podrían convertirse en parte integral de la educación lingüística, eliminando barreras y abriendo nuevas oportunidades para los estudiantes en todo el mundo."
+        },
+        {
+          "heading": "Robles.AI: Pioneros en Soluciones de IA para el Mañana",
+          "body": "En Robles.AI, estamos comprometidos a aprovechar el poder de la IA para crear soluciones innovadoras que aborden los desafíos de hoy y mañana. Ya sea mejorando el comercio a través de anuncios comprables o avanzando en la educación con la alfabetización en IA, nuestra experiencia en aprendizaje profundo, aprendizaje automático y ciencia de datos nos posiciona a la vanguardia de la innovación tecnológica. Nuestras plataformas impulsadas por IA están diseñadas para empoderar tanto a empresas como a instituciones educativas, permitiéndoles navegar con confianza las complejidades de la era digital. Contáctanos para saber más sobre cómo podemos ayudarte a aprovechar la IA para un crecimiento transformador."
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "articleId": 1,
+      "title": "The state of contextual commerce on CTV | How shoppable ads are changing the tactics for streaming TV",
+      "url": "http://digiday.com/sponsored/the-state-of-contextual-commerce-on-ctv/",
+      "source": "Digiday",
+      "urlToImage": "https://digiday.com/wp-content/uploads/sites/3/2024/04/Email-gatebanner-01.jpg"
+    },
+    {
+      "articleId": 3,
+      "title": "Bridging the Gap: How IT Professionals Can Showcase Their Value to Non-Technical Stakeholders",
+      "url": "https://vmblog.com:443/archive/2025/04/30/bridging-the-gap-how-it-professionals-can-showcase-their-value-to-non-technical-stakeholders.aspx",
+      "source": "Vmblog.com",
+      "urlToImage": null
+    },
+    {
+      "articleId": 4,
+      "title": "Performing AI literacy",
+      "url": "https://codeactsineducation.wordpress.com/2025/04/30/performing-ai-literacy/",
+      "source": "Wordpress.com",
+      "urlToImage": "https://codeactsineducation.wordpress.com/wp-content/uploads/2025/04/jess-bailey-l3n9q27zulw-unsplash.jpg"
+    },
+    {
+      "articleId": 5,
+      "title": "AI-powered English learning platform Stimuler raises $3.75 million led by Lightspeed, SWC Global",
+      "url": "https://www.thehindubusinessline.com/news/education/ai-powered-english-learning-platform-stimuler-raises-375-million-led-by-lightspeed-swc-global/article69505342.ece",
+      "source": "BusinessLine",
+      "urlToImage": "https://bl-i.thgim.com/public/todays-paper/tp-news/b3bwid/article69055404.ece/alternates/LANDSCAPE_1200/Rainmatter-eyesG57DQ2F9T.4.jpg.jpg"
+    }
+  ],
+  "editorId": 3,
+  "date": "2025-04-30-02-00-00",
+  "slug": "2025-04-30-02-00-00-ai-advancements-in-commerce-and-education",
+  "stats": {
+    "prompt_tokens": 4579,
+    "completion_tokens": 2099,
+    "total_tokens": 6678
+  }
+}
