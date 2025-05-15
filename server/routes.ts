@@ -127,7 +127,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.error('Target Editor ID is missing!');
           return;
         }
-        const targetDate = subtractOneDay(formattedDate);
+        const targetDate = subtractOneDay(formattedDate); // subtract one day from the current date
 
         console.log(
           '########################################################################################'
