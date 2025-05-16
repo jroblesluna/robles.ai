@@ -252,7 +252,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Sort descending by date string in slug (assumes same timestamp format)
       filtered.sort((a, b) => b.slug.localeCompare(a.slug));
       const paginated = filtered.slice(offset, offset + limit);
-      res.status(200).json({ success: true, data: paginated, editor: editorId });
+      res.status(200).json({ success: true, editor: editorId });
     } catch (err) {
       console.error('❌ Error loading nested posts:', err);
       res.status(500).json({ success: false, error: 'Failed to load posts' });
