@@ -84,12 +84,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.status(404).json({ success: false, error: 'Not Implemented' });
   });
 
-  app.get('/api/test', async (_req: Request, res: Response) => {
-    console.log('__dirname:', __dirname);
-    console.log('process.cwd():', process.cwd());
-    res.status(200).json({ success: true, error: 'api test' });
-  });
-
   const timeZone = 'America/Lima';
 
   async function getLastPostDateByEditor(editorId: number): Promise<string | null> {
@@ -113,7 +107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Cron job to call each hour
   cron.schedule(
-    '2 10 * * *',
+    '0 * * * *',
     async () => {
       try {
         // Get the current date/time in the target timezone
@@ -171,6 +165,98 @@ export async function registerRoutes(app: Express): Promise<Server> {
       timezone: timeZone,
     }
   );
+
+  app.get('/api/test2', async (req: Request, res: Response) => {
+    console.log('testing api 2:');
+    try {
+      // Get the current date/time in the target timezone
+      const zonedDateStr = new Date().toLocaleString('en-US', { timeZone });
+      const zonedDate = new Date(zonedDateStr);
+
+      // Format date components to "YYYY-MM-DD"
+      const year = zonedDate.getFullYear();
+      const month = String(zonedDate.getMonth() + 1).padStart(2, '0');
+      const day = String(zonedDate.getDate()).padStart(2, '0');
+      const formattedDate = `${year}-${month}-${day}`;
+
+      if (!formattedDate) {
+        console.error('Target Date is missing!');
+        return;
+      }
+
+      // Use the current hour as the editor ID (as per your logic)
+      const editorId = 1;
+
+      if (!editorId) {
+        console.error('Target Editor ID is missing!');
+        return;
+      }
+      const targetDate = subtractOneDay(formattedDate); // subtract one day from the current date
+
+      console.log(
+        '########################################################################################'
+      );
+      console.log(
+        `[CRON] Running task at ${zonedDateStr} for date ${targetDate} with editor ID ${editorId}`
+      );
+      console.log(
+        '########################################################################################'
+      );
+      // Fetch the last post date for the editor
+      const lastPostDate = await getLastPostDateByEditor(editorId);
+
+      if (lastPostDate) {
+        console.log(`Last post date for editor ${editorId} is: ${lastPostDate}`);
+
+        await generateHistoricalPosts(targetDate, editorId, addOneDay(lastPostDate));
+      } else {
+        // If no last post date, use one day before the current date
+        const previousDate = subtractOneDay(targetDate);
+        await generateHistoricalPosts(targetDate, editorId, previousDate);
+      }
+
+      console.log('[CRON] Scheduled task completed.');
+      res.status(200).json({ success: true, data: 'Task executed successfully' });
+    } catch (error) {
+      console.error('[CRON] Error executing scheduled task:', error);
+    }
+  });
+
+  app.get('/api/test', async (req: Request, res: Response) => {
+    console.log('testing api:');
+
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 9;
+      const editorId = 1;
+      const offset = (page - 1) * limit;
+
+      const postsRoot = path.resolve(__dirname, './data/posts');
+      const allFiles = await collectJsonFiles(postsRoot);
+
+      const filtered = [];
+      for (const file of allFiles) {
+        const content = await readFile(file, 'utf-8');
+        const json = JSON.parse(content);
+        if (!editorId || json.editorId === editorId) {
+          filtered.push({
+            slug: json.slug,
+            date: json.date,
+            editorId: json.editorId,
+            translations: json.translations,
+          });
+        }
+      }
+
+      // Sort descending by date string in slug (assumes same timestamp format)
+      filtered.sort((a, b) => b.slug.localeCompare(a.slug));
+      const paginated = filtered.slice(offset, offset + limit);
+      res.status(200).json({ success: true, data: paginated });
+    } catch (err) {
+      console.error('❌ Error loading nested posts:', err);
+      res.status(500).json({ success: false, error: 'Failed to load posts' });
+    }
+  });
 
   // 🚀 Application form with file upload
   app.post('/api/send-application', (req: Request, res: Response) => {
