@@ -9,8 +9,8 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { readdir, readFile, stat } from 'fs/promises';
-import { fileURLToPath } from 'url'; // <- Nuevo import
-import editorsData from './data/editors.json'; // Importa el JSON directamente
+import { fileURLToPath } from 'url';
+import editorsData from './data/editors.json';
 import { XMLBuilder } from 'fast-xml-parser';
 import cron from 'node-cron';
 import { generateHistoricalPosts } from '@/scripts/generateHistoricalPosts';
@@ -185,7 +185,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Use the current hour as the editor ID (as per your logic)
-      const editorId = 2;
+      const editorId = 3;
 
       if (!editorId) {
         console.error('Target Editor ID is missing!');
@@ -228,7 +228,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 9;
-      const editorId = 2;
+      const editorId = 3;
       const offset = (page - 1) * limit;
 
       const postsRoot = path.resolve(__dirname, './data/posts');

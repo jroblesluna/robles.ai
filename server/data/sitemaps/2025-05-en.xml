@@ -49,4 +49,19 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+  <url>
+    <loc>https://robles.ai/blog/2025-05-14-10-00-00-embracing-ai-and-emotional-intelligence-for-a-brighter-future?lang=en</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://robles.ai/blog/2025-05-14-01-00-00-the-future-of-robotics-and-ai-in-industry?lang=en</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://robles.ai/blog/2025-05-14-01-00-00-the-rise-of-vertical-robotics-and-ai-integration?lang=en</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>

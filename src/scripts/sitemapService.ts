@@ -7,7 +7,7 @@ import { promises as fsPromises } from 'fs';
 // const __dirname = path.dirname(__filename);
 
 export async function updateSitemap(slug: string, date: string, lang: string) {
-  const isProd = process.env.NODE_ENV === 'production';
+  // const isProd = process.env.NODE_ENV === 'production';
   // const sitemapFolder = isProd
   //   ? path.resolve(__dirname, "../data/sitemaps")
   //   : path.resolve(__dirname, "../../server/data/sitemaps");

@@ -40,7 +40,7 @@ export async function generateHistoricalPosts(
   const startDate = new Date(startDateOpc);
   const today = new Date();
 
-  const editorsPath = path.resolve(process.cwd(), 'server/data/editors.json'); // posible error
+  const editorsPath = path.resolve(process.cwd(), 'server/data/editors.json');
   const editorsData = JSON.parse(await fs.readFile(editorsPath, 'utf-8'));
   const editors = editorsData.editors;
 
