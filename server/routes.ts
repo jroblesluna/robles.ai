@@ -185,7 +185,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Use the current hour as the editor ID (as per your logic)
-      const editorId = 7;
+      const editorId = 3;
 
       if (!editorId) {
         console.error('Target Editor ID is missing!');
@@ -228,7 +228,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 9;
-      const editorId = 7;
+      const editorId = 3;
       //sa
       const offset = (page - 1) * limit;
 
@@ -358,6 +358,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const offset = (page - 1) * limit;
 
       const postsRoot = path.resolve(__dirname, './data/posts');
+      console.log('postsRoot:', postsRoot);
       const allFiles = await collectJsonFiles(postsRoot);
 
       const filtered = [];

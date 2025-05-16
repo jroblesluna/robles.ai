@@ -69,4 +69,14 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+  <url>
+    <loc>https://robles.ai/blog/2025-05-14-02-00-00-navegando-el-futuro-de-la-ia?lang=es</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://robles.ai/blog/2025-05-14-12-00-00-innovaciones-impulsadas-por-ia-impulsando-asia?lang=es</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>
