@@ -233,6 +233,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const offset = (page - 1) * limit;
 
       const postsRoot = path.resolve(__dirname, './data/posts');
+      console.log('postsRoot:', postsRoot);
       const allFiles = await collectJsonFiles(postsRoot);
 
       const filtered = [];
