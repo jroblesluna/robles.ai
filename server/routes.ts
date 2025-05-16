@@ -87,7 +87,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/test', async (_req: Request, res: Response) => {
     console.log('__dirname:', __dirname);
     console.log('process.cwd():', process.cwd());
-    res.status(200).json({ success: true, error: 'Not Implemented' });
+    res.status(200).json({ success: true, error: 'api test' });
   });
 
   const timeZone = 'America/Lima';
