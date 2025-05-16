@@ -113,7 +113,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Cron job to call each hour
   cron.schedule(
-    '30 9 * * *',
+    '38 9 * * *',
     async () => {
       try {
         // Get the current date/time in the target timezone

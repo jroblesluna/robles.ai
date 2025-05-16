@@ -39,10 +39,7 @@ export async function generateHistoricalPosts(
 ) {
   const startDate = new Date(startDateOpc);
   const today = new Date();
-  // C:\Users\Pc\Desktop\robles.ai\server\data\editors.json
-  // home/roblesai/htdocs/server/data/editors.json'
-  //C:\server\data\editors.json
-  // clear after testing
+
   const editorsPath = path.resolve(process.cwd(), 'server/data/editors.json'); // posible error
   const editorsData = JSON.parse(await fs.readFile(editorsPath, 'utf-8'));
   const editors = editorsData.editors;
