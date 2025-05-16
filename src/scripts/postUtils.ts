@@ -9,10 +9,8 @@ export async function savePost(postJson: any, date: string) {
   const [year, month, day] = date.split('-');
   // Save in production folder
   if (isProd) {
-    const prodFolder = path.resolve(
-      process.cwd(),
-      `dist/server/data/posts/${year}/${month}/${day}`
-    );
+    const prodFolder = path.resolve(process.cwd(), `dist/data/posts/${year}/${month}/${day}`);
+
     await fs.mkdir(prodFolder, { recursive: true });
     const prodFilePath = path.join(prodFolder, `${postJson.slug}.json`);
     await fs.writeFile(prodFilePath, JSON.stringify(postJson, null, 2));

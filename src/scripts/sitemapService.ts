@@ -3,15 +3,15 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 import { promises as fsPromises } from 'fs';
 
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export async function updateSitemap(slug: string, date: string, lang: string) {
-  // const isProd = process.env.NODE_ENV === 'production';
-  // const sitemapFolder = isProd
-  //   ? path.resolve(__dirname, "../data/sitemaps")
-  //   : path.resolve(__dirname, "../../server/data/sitemaps");
-  const sitemapFolder = path.resolve(process.cwd(), 'server/data/sitemaps');
+  const isProd = process.env.NODE_ENV === 'production';
+  const sitemapFolder = isProd
+    ? path.resolve(process.cwd(), 'dist/data/sitemaps')
+    : path.resolve(__dirname, '../../server/data/sitemaps');
+
   const yearMonth = date.slice(0, 7); // YYYY-MM
   const sitemapFile = path.join(sitemapFolder, `${yearMonth}-${lang}.xml`);
 
