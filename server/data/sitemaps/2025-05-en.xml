@@ -29,4 +29,19 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+  <url>
+    <loc>https://robles.ai/blog/2025-05-13-16-00-00-ai-and-human-creativity-a-new-harmony?lang=en</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://robles.ai/blog/2025-05-13-17-00-00-ai-revolutionizing-cybersecurity?lang=en</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://robles.ai/blog/2025-05-14-08-00-00-the-evolving-landscape-of-ai-and-broadcasting?lang=en</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>

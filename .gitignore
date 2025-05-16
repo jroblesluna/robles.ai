@@ -7,3 +7,5 @@ resources
 *.tar.gz
 push.sh
 .env
+server/data/posts
+server/data/sitemaps

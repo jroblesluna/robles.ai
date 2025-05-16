@@ -79,6 +79,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/contact', async (_req: Request, res: Response) => {
     res.status(404).json({ success: false, error: 'Not Implemented' });
   });
+
+  app.get('/api/contact', async (_req: Request, res: Response) => {
+    res.status(404).json({ success: false, error: 'Not Implemented' });
+  });
+
+  app.get('/api/test', async (_req: Request, res: Response) => {
+    console.log('__dirname:', __dirname);
+    console.log('process.cwd():', process.cwd());
+    res.status(200).json({ success: true, error: 'Not Implemented' });
+  });
+
   const timeZone = 'America/Lima';
 
   async function getLastPostDateByEditor(editorId: number): Promise<string | null> {
@@ -102,7 +113,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Cron job to call each hour
   cron.schedule(
-    '0 * * * *',
+    '30 9 * * *',
     async () => {
       try {
         // Get the current date/time in the target timezone

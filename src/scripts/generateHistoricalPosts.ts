@@ -11,8 +11,8 @@ import { updateSitemap } from './sitemapService';
 dotenv.config();
 
 // Necesario en ESM:
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -39,8 +39,11 @@ export async function generateHistoricalPosts(
 ) {
   const startDate = new Date(startDateOpc);
   const today = new Date();
-
-  const editorsPath = path.resolve(__dirname, '../../server/data/editors.json');
+  // C:\Users\Pc\Desktop\robles.ai\server\data\editors.json
+  // home/roblesai/htdocs/server/data/editors.json'
+  //C:\server\data\editors.json
+  // clear after testing
+  const editorsPath = path.resolve(process.cwd(), 'server/data/editors.json'); // posible error
   const editorsData = JSON.parse(await fs.readFile(editorsPath, 'utf-8'));
   const editors = editorsData.editors;
 
@@ -49,13 +52,6 @@ export async function generateHistoricalPosts(
   console.log(`- Target Date: ${targetDate || 'No date specified'}`);
   console.log(`- Target Editor ID: ${targetEditorId || 'No editor specified'}`);
   console.log(`- Start Date: ${startDate.toISOString().slice(0, 10)}`);
-
-  // if (targetDate === startDateOpc) {
-  //   console.log(
-  //     `⚠️ Target date is the same as start date. No processing will be done. Skipping.`
-  //   );
-  //   return;
-  // }
 
   if (targetDate) {
     datesToProcess.push(new Date(targetDate));
