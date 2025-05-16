@@ -14,11 +14,14 @@ export async function savePost(postJson: any, date: string) {
   console.log(`✅ Post saved: ${filePath}`);
   // Save in production folder
   if (isProd) {
-    const folder = path.resolve(process.cwd(), `server/data/posts/${year}/${month}/${day}`);
-    await fs.mkdir(folder, { recursive: true });
-    const filePath = path.join(folder, `${postJson.slug}.json`);
-    await fs.writeFile(filePath, JSON.stringify(postJson, null, 2));
-    console.log(`✅ Post producción saved: ${filePath}`);
+    const prodFolder = path.resolve(
+      process.cwd(),
+      `dist/server/data/posts/${year}/${month}/${day}`
+    );
+    await fs.mkdir(prodFolder, { recursive: true });
+    const prodFilePath = path.join(prodFolder, `${postJson.slug}.json`);
+    await fs.writeFile(prodFilePath, JSON.stringify(postJson, null, 2));
+    console.log(`✅ Post producción saved: ${prodFilePath}`);
   }
 }
 

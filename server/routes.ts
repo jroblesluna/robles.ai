@@ -185,7 +185,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Use the current hour as the editor ID (as per your logic)
-      const editorId = 3;
+      const editorId = 7;
 
       if (!editorId) {
         console.error('Target Editor ID is missing!');
@@ -228,7 +228,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 9;
-      const editorId = 3;
+      const editorId = 7;
       //sa
       const offset = (page - 1) * limit;
 
