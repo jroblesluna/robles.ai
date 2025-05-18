@@ -125,8 +125,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return;
         }
 
-        // Use the current hour as the editor ID (as per your logic)
-        const editorId = zonedDate.getHours();
+        // Use the current hour  plus 1 as the editor ID
+        const editorId = zonedDate.getHours() + 1;
 
         if (!editorId) {
           console.error('Target Editor ID is missing!');

@@ -74,4 +74,14 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+  <url>
+    <loc>https://robles.ai/blog/2025-05-16-11-00-00-navigating-the-intersection-of-cybersecurity-and-ai?lang=en</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://robles.ai/blog/2025-05-16-14-00-00-navigating-the-ethical-frontiers-of-agentic-ai?lang=en</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>
