@@ -19,86 +19,6 @@
         "cta1": "¿Porqué elegirnos?",
         "cta2": "Centro de Noticias IA"
     },
-    "features": {
-        "title": "¿Por qué elegir ",
-        "subtitle": "Combinamos experiencia en IA, machine learning y visión computacional para crear soluciones que impulsen el crecimiento de tu negocio.",
-        "items": {
-            "innovation": {
-                "title": "Impulsados por la innovación",
-                "description": "Aplicamos lo último en investigación de IA para ofrecer soluciones prácticas que le den a tu negocio una ventaja competitiva."
-            },
-            "ethics": {
-                "title": "Desarrollo ético",
-                "description": "Creamos soluciones con integridad, garantizando transparencia, equidad y respeto por tu privacidad."
-            },
-            "rapid": {
-                "title": "Implementación rápida",
-                "description": "Nuestro enfoque ágil permite pasar de la idea a la producción más rápido que los métodos tradicionales."
-            },
-            "expertise": {
-                "title": "Experiencia en la industria",
-                "description": "Nuestro equipo cuenta con experiencia profunda en salud, manufactura, finanzas y retail."
-            }
-        }
-    },
-    "solutions": {
-        "title": "Nuestras Soluciones de IA",
-        "subtitle": "Descubre cómo nuestra experiencia en IA, aprendizaje automático y visión computacional puede transformar tu negocio.",
-        "items": [
-            {
-                "id": 1,
-                "title": "Modelos de Aprendizaje Automático",
-                "description": "Soluciones personalizadas de machine learning para análisis predictivo, sistemas de recomendación y optimización de procesos.",
-                "icon": "Cpu",
-                "color": "text-blue-600",
-                "bgColor": "bg-blue-500",
-                "linkColor": "text-blue-600",
-                "linkHoverColor": "hover:text-blue-700",
-                "image": "ml.jpg",
-                "solutionCta": "Ver vídeo de ML",
-                "videoSrc": "https://www.youtube.com/embed/mWbxPRkfx74?autoplay=1&rel=0"
-            },
-            {
-                "id": 2,
-                "title": "Sistemas de Visión por Computadora",
-                "description": "Soluciones para análisis de imágenes y video, detección de objetos, reconocimiento facial y control visual de calidad.",
-                "icon": "Eye",
-                "color": "text-emerald-600",
-                "bgColor": "bg-emerald-500",
-                "linkColor": "text-emerald-600",
-                "linkHoverColor": "hover:text-emerald-700",
-                "image": "cv.jpg",
-                "solutionCta": "Ver vídeo de CV",
-                "videoSrc": "https://www.youtube.com/embed/wX7m1-gZOLA?autoplay=1&rel=0"
-            },
-            {
-                "id": 3,
-                "title": "Procesamiento de Lenguaje Natural",
-                "description": "Análisis de texto, detección de sentimiento y sistemas de IA conversacional para atención al cliente y análisis de contenido.",
-                "icon": "MessageSquare",
-                "color": "text-violet-600",
-                "bgColor": "bg-violet-500",
-                "linkColor": "text-violet-600",
-                "linkHoverColor": "hover:text-violet-700",
-                "image": "nlp.jpg",
-                "solutionCta": "Ver vídeo de NLP",
-                "videoSrc": "https://www.youtube.com/embed/wvrGQMqqJRM?autoplay=1&rel=0"
-            },
-            {
-                "id": 4,
-                "title": "Sistemas de Deep Learning",
-                "description": "Redes neuronales avanzadas para reconocimiento de patrones complejos, detección de anomalías y toma de decisiones autónoma.",
-                "icon": "BarChart3",
-                "color": "text-gray-600",
-                "bgColor": "bg-gray-700",
-                "linkColor": "text-gray-600",
-                "linkHoverColor": "hover:text-gray-800",
-                "image": "dl.jpg",
-                "solutionCta": "Ver vídeo de DL",
-                "videoSrc": "https://www.youtube.com/embed/AqUIzpd1vNg?autoplay=1&rel=0"
-            }
-        ]
-    },
     "caseStudies": {
         "title": "Casos de Éxito",
         "subtitle": "Descubre cómo hemos ayudado a empresas a resolver desafíos complejos con soluciones impulsadas por IA.",
@@ -205,89 +125,61 @@
             }
         ]
     },
-    "testimonials": {
-        "title": "Lo que dicen nuestros clientes",
-        "subtitle": "Escucha a las organizaciones que han transformado sus operaciones con nuestras soluciones de IA.",
+    "solutions": {
+        "title": "Nuestras Soluciones de IA",
+        "subtitle": "Descubre cómo nuestra experiencia en IA, aprendizaje automático y visión computacional puede transformar tu negocio.",
         "items": [
             {
-                "name": "Michael Rodriguez",
-                "position": "CTO",
-                "company": "TechVision Enterprises",
-                "location": "San Francisco, EE. UU.",
-                "imageSrc": "https://randomuser.me/api/portraits/men/32.jpg",
-                "text": "La solución de visión por computadora de Robles.AI revolucionó nuestro proceso de control de calidad. La experiencia del equipo en IA y aprendizaje automático nos permitió implementar un sistema que no solo mejoró la calidad del producto, sino que también generó importantes ahorros."
+                "id": 1,
+                "title": "Modelos de Aprendizaje Automático",
+                "description": "Soluciones personalizadas de machine learning para análisis predictivo, sistemas de recomendación y optimización de procesos.",
+                "icon": "Cpu",
+                "color": "text-blue-600",
+                "bgColor": "bg-blue-500",
+                "linkColor": "text-blue-600",
+                "linkHoverColor": "hover:text-blue-700",
+                "image": "ml.jpg",
+                "solutionCta": "Ver vídeo de ML",
+                "videoSrc": "https://www.youtube.com/embed/mWbxPRkfx74?autoplay=1&rel=0"
             },
             {
-                "name": "Sarah Chen",
-                "position": "Directora de Innovación",
-                "company": "HealthPlus",
-                "location": "Boston, EE. UU.",
-                "imageSrc": "https://randomuser.me/api/portraits/women/44.jpg",
-                "text": "La solución de análisis predictivo desarrollada por Robles.AI transformó nuestro enfoque en el cuidado del paciente. La precisión del modelo para predecir riesgos de reingreso nos permitió aplicar medidas preventivas y mejorar los resultados clínicos."
+                "id": 2,
+                "title": "Sistemas de Visión por Computadora",
+                "description": "Soluciones para análisis de imágenes y video, detección de objetos, reconocimiento facial y control visual de calidad.",
+                "icon": "Eye",
+                "color": "text-emerald-600",
+                "bgColor": "bg-emerald-500",
+                "linkColor": "text-emerald-600",
+                "linkHoverColor": "hover:text-emerald-700",
+                "image": "cv.jpg",
+                "solutionCta": "Ver vídeo de CV",
+                "videoSrc": "https://www.youtube.com/embed/wX7m1-gZOLA?autoplay=1&rel=0"
             },
             {
-                "name": "David Johnson",
-                "position": "VP de Operaciones",
-                "company": "RetailMax",
-                "location": "Chicago, EE. UU.",
-                "imageSrc": "https://randomuser.me/api/portraits/men/46.jpg",
-                "text": "La solución de PLN proporcionada por Robles.AI nos brindó información sin precedentes sobre la retroalimentación del cliente. Ahora entendemos mejor las tendencias de sentimiento y detectamos oportunidades de mejora ocultas anteriormente."
+                "id": 3,
+                "title": "Procesamiento de Lenguaje Natural",
+                "description": "Análisis de texto, detección de sentimiento y sistemas de IA conversacional para atención al cliente y análisis de contenido.",
+                "icon": "MessageSquare",
+                "color": "text-violet-600",
+                "bgColor": "bg-violet-500",
+                "linkColor": "text-violet-600",
+                "linkHoverColor": "hover:text-violet-700",
+                "image": "nlp.jpg",
+                "solutionCta": "Ver vídeo de NLP",
+                "videoSrc": "https://www.youtube.com/embed/wvrGQMqqJRM?autoplay=1&rel=0"
             },
             {
-                "name": "Jessica Martinez",
-                "position": "Jefa de Ciencia de Datos",
-                "company": "GlobalFinance",
-                "location": "Nueva York, EE. UU.",
-                "imageSrc": "https://randomuser.me/api/portraits/women/22.jpg",
-                "text": "Implementar el sistema de detección de fraude de Robles.AI fue un cambio radical para nuestra institución financiera. La precisión y velocidad del modelo redujo significativamente nuestra exposición al fraude."
-            },
-            {
-                "name": "Robert Kim",
-                "position": "Director de Manufactura",
-                "company": "NextGen Electronics",
-                "location": "Seúl, Corea del Sur",
-                "imageSrc": "https://randomuser.me/api/portraits/men/55.jpg",
-                "text": "El sistema de detección de defectos que implementamos con Robles.AI se ha pagado muchas veces. La eficiencia de nuestra línea de producción aumentó un 40%, manteniendo altos estándares de calidad."
-            },
-            {
-                "name": "Emily Walker",
-                "position": "Directora Digital",
-                "company": "Urban Logistics",
-                "location": "Austin, EE. UU.",
-                "imageSrc": "https://randomuser.me/api/portraits/women/33.jpg",
-                "text": "El algoritmo de optimización de rutas desarrollado por Robles.AI transformó nuestra logística. Redujimos costos de combustible en un 28% y mejoramos los tiempos de entrega en un 35%."
-            },
-            {
-                "name": "James Wilson",
-                "position": "Director de Investigación",
-                "company": "PharmaDev",
-                "location": "Londres, Reino Unido",
-                "imageSrc": "https://randomuser.me/api/portraits/men/62.jpg",
-                "text": "Los algoritmos de aprendizaje automático de Robles.AI nos ayudaron a identificar candidatos prometedores para nuevos medicamentos mucho más rápido. Su experiencia en IA y bioquímica fue clave para nuestro proceso de investigación."
-            },
-            {
-                "name": "Sophia Garcia",
-                "position": "Líder de Experiencia al Cliente",
-                "company": "TelecomOne",
-                "location": "Seattle, EE. UU.",
-                "imageSrc": "https://randomuser.me/api/portraits/women/29.jpg",
-                "text": "La implementación del sistema de IA conversacional de Robles.AI revolucionó nuestro servicio al cliente. Vimos una reducción del 60% en tiempos de espera y una mejora significativa en la satisfacción del cliente."
-            },
-            {
-                "name": "Daniel Lee",
-                "position": "Gerente de Seguridad",
-                "company": "SecureNet",
-                "location": "Toronto, Canadá",
-                "imageSrc": "https://randomuser.me/api/portraits/men/76.jpg",
-                "text": "El sistema de detección de anomalías de Robles.AI mejoró enormemente nuestra ciberseguridad. Detecta amenazas que nuestras soluciones anteriores pasaban por alto, permitiendo acciones proactivas."
-            },
-            {
-                "name": "Amanda Taylor",
-                "position": "VP de Producto",
-                "company": "SmartRetail",
-                "location": "Melbourne, Australia",
-                "imageSrc": "https://randomuser.me/api/portraits/women/57.jpg",
-                "text": "Implementar el sistema de recomendaciones de Robles.AI incrementó nuestro ticket promedio en un 32%. El equipo colaboró de cerca con nosotros para entender a nuestros clientes y optimizar el algoritmo."
+                "id": 4,
+                "title": "Sistemas de Deep Learning",
+                "description": "Redes neuronales avanzadas para reconocimiento de patrones complejos, detección de anomalías y toma de decisiones autónoma.",
+                "icon": "BarChart3",
+                "color": "text-gray-600",
+                "bgColor": "bg-gray-700",
+                "linkColor": "text-gray-600",
+                "linkHoverColor": "hover:text-gray-800",
+                "image": "dl.jpg",
+                "solutionCta": "Ver vídeo de DL",
+                "videoSrc": "https://www.youtube.com/embed/AqUIzpd1vNg?autoplay=1&rel=0"
             }
         ]
     },
@@ -378,6 +270,149 @@
             }
         ]
     },
+    "testimonials": {
+        "title": "Lo que dicen nuestros clientes",
+        "subtitle": "Escucha a las organizaciones que han transformado sus operaciones con nuestras soluciones de IA.",
+        "items": [
+            {
+                "name": "Michael Rodriguez",
+                "position": "CTO",
+                "company": "TechVision Enterprises",
+                "location": "San Francisco, EE. UU.",
+                "imageSrc": "https://randomuser.me/api/portraits/men/32.jpg",
+                "text": "La solución de visión por computadora de Robles.AI revolucionó nuestro proceso de control de calidad. La experiencia del equipo en IA y aprendizaje automático nos permitió implementar un sistema que no solo mejoró la calidad del producto, sino que también generó importantes ahorros."
+            },
+            {
+                "name": "Sarah Chen",
+                "position": "Directora de Innovación",
+                "company": "HealthPlus",
+                "location": "Boston, EE. UU.",
+                "imageSrc": "https://randomuser.me/api/portraits/women/44.jpg",
+                "text": "La solución de análisis predictivo desarrollada por Robles.AI transformó nuestro enfoque en el cuidado del paciente. La precisión del modelo para predecir riesgos de reingreso nos permitió aplicar medidas preventivas y mejorar los resultados clínicos."
+            },
+            {
+                "name": "David Johnson",
+                "position": "VP de Operaciones",
+                "company": "RetailMax",
+                "location": "Chicago, EE. UU.",
+                "imageSrc": "https://randomuser.me/api/portraits/men/46.jpg",
+                "text": "La solución de PLN proporcionada por Robles.AI nos brindó información sin precedentes sobre la retroalimentación del cliente. Ahora entendemos mejor las tendencias de sentimiento y detectamos oportunidades de mejora ocultas anteriormente."
+            },
+            {
+                "name": "Jessica Martinez",
+                "position": "Jefa de Ciencia de Datos",
+                "company": "GlobalFinance",
+                "location": "Nueva York, EE. UU.",
+                "imageSrc": "https://randomuser.me/api/portraits/women/22.jpg",
+                "text": "Implementar el sistema de detección de fraude de Robles.AI fue un cambio radical para nuestra institución financiera. La precisión y velocidad del modelo redujo significativamente nuestra exposición al fraude."
+            },
+            {
+                "name": "Robert Kim",
+                "position": "Director de Manufactura",
+                "company": "NextGen Electronics",
+                "location": "Seúl, Corea del Sur",
+                "imageSrc": "https://randomuser.me/api/portraits/men/55.jpg",
+                "text": "El sistema de detección de defectos que implementamos con Robles.AI se ha pagado muchas veces. La eficiencia de nuestra línea de producción aumentó un 40%, manteniendo altos estándares de calidad."
+            },
+            {
+                "name": "Emily Walker",
+                "position": "Directora Digital",
+                "company": "Urban Logistics",
+                "location": "Austin, EE. UU.",
+                "imageSrc": "https://randomuser.me/api/portraits/women/33.jpg",
+                "text": "El algoritmo de optimización de rutas desarrollado por Robles.AI transformó nuestra logística. Redujimos costos de combustible en un 28% y mejoramos los tiempos de entrega en un 35%."
+            },
+            {
+                "name": "James Wilson",
+                "position": "Director de Investigación",
+                "company": "PharmaDev",
+                "location": "Londres, Reino Unido",
+                "imageSrc": "https://randomuser.me/api/portraits/men/62.jpg",
+                "text": "Los algoritmos de aprendizaje automático de Robles.AI nos ayudaron a identificar candidatos prometedores para nuevos medicamentos mucho más rápido. Su experiencia en IA y bioquímica fue clave para nuestro proceso de investigación."
+            },
+            {
+                "name": "Sophia Garcia",
+                "position": "Líder de Experiencia al Cliente",
+                "company": "TelecomOne",
+                "location": "Seattle, EE. UU.",
+                "imageSrc": "https://randomuser.me/api/portraits/women/29.jpg",
+                "text": "La implementación del sistema de IA conversacional de Robles.AI revolucionó nuestro servicio al cliente. Vimos una reducción del 60% en tiempos de espera y una mejora significativa en la satisfacción del cliente."
+            },
+            {
+                "name": "Daniel Lee",
+                "position": "Gerente de Seguridad",
+                "company": "SecureNet",
+                "location": "Toronto, Canadá",
+                "imageSrc": "https://randomuser.me/api/portraits/men/76.jpg",
+                "text": "El sistema de detección de anomalías de Robles.AI mejoró enormemente nuestra ciberseguridad. Detecta amenazas que nuestras soluciones anteriores pasaban por alto, permitiendo acciones proactivas."
+            },
+            {
+                "name": "Amanda Taylor",
+                "position": "VP de Producto",
+                "company": "SmartRetail",
+                "location": "Melbourne, Australia",
+                "imageSrc": "https://randomuser.me/api/portraits/women/57.jpg",
+                "text": "Implementar el sistema de recomendaciones de Robles.AI incrementó nuestro ticket promedio en un 32%. El equipo colaboró de cerca con nosotros para entender a nuestros clientes y optimizar el algoritmo."
+            }
+        ]
+    },
+    "features": {
+        "title": "¿Por qué elegir ",
+        "subtitle": "Combinamos experiencia en IA, machine learning y visión computacional para crear soluciones que impulsen el crecimiento de tu negocio.",
+        "items": {
+            "innovation": {
+                "title": "Impulsados por la innovación",
+                "description": "Aplicamos lo último en investigación de IA para ofrecer soluciones prácticas que le den a tu negocio una ventaja competitiva."
+            },
+            "ethics": {
+                "title": "Desarrollo ético",
+                "description": "Creamos soluciones con integridad, garantizando transparencia, equidad y respeto por tu privacidad."
+            },
+            "rapid": {
+                "title": "Implementación rápida",
+                "description": "Nuestro enfoque ágil permite pasar de la idea a la producción más rápido que los métodos tradicionales."
+            },
+            "expertise": {
+                "title": "Experiencia en la industria",
+                "description": "Nuestro equipo cuenta con experiencia profunda en salud, manufactura, finanzas y retail."
+            }
+        }
+    },
+    "team": {
+        "title": "Conoce a nuestro equipo",
+        "subtitle": "Nuestros expertos combinan profundo conocimiento técnico con experiencia en la industria para ofrecer soluciones de IA de vanguardia.",
+        "join": "Únete a nuestro equipo",
+        "members": [
+            {
+                "name": "Antonio Robles",
+                "position": "Fundador y Director",
+                "positionColor": "text-blue-600",
+                "bio": "Científico de Datos e Investigador de IA con más de 15 años de experiencia desarrollando aplicaciones de aprendizaje automático para empresas.",
+                "image": "ar.jpg"
+            },
+            {
+                "name": "Jennifer Kim",
+                "position": "Directora de Investigación",
+                "positionColor": "text-emerald-600",
+                "bio": "Experta en visión por computadora con doctorado del MIT y más de 20 publicaciones en conferencias y revistas top de IA.",
+                "image": "jk.jpg"
+            },
+            {
+                "name": "Michael Chen",
+                "position": "Director de Tecnología",
+                "positionColor": "text-violet-600",
+                "bio": "Arquitecto de software con experiencia implementando sistemas escalables de IA para empresas de múltiples sectores.",
+                "image": "mc.jpg"
+            },
+            {
+                "name": "Sophia Martinez",
+                "position": "Directora de Ética en IA",
+                "positionColor": "text-amber-600",
+                "bio": "Ex profesora con experiencia en desarrollo responsable de IA, asegurando la implementación ética de nuestras soluciones.",
+                "image": "sm.jpg"
+            }
+        ]
+    },
     "contact": {
         "title": "Contáctanos",
         "subtitle": "¿Tienes preguntas sobre nuestras soluciones de IA? Escríbenos y nuestro equipo te responderá pronto.",
@@ -434,41 +469,6 @@
         "description": "Ofrecemos soluciones de IA de vanguardia que transforman negocios mediante innovación, ética y excelencia técnica.",
         "rights": "Todos los derechos reservados.",
         "tagline": "Robles.AI - Soluciones Robusta de Inteligencia Artificial"
-    },
-    "team": {
-        "title": "Conoce a nuestro equipo",
-        "subtitle": "Nuestros expertos combinan profundo conocimiento técnico con experiencia en la industria para ofrecer soluciones de IA de vanguardia.",
-        "join": "Únete a nuestro equipo",
-        "members": [
-            {
-                "name": "Antonio Robles",
-                "position": "Fundador y Director",
-                "positionColor": "text-blue-600",
-                "bio": "Científico de Datos e Investigador de IA con más de 15 años de experiencia desarrollando aplicaciones de aprendizaje automático para empresas.",
-                "image": "ar.jpg"
-            },
-            {
-                "name": "Jennifer Kim",
-                "position": "Directora de Investigación",
-                "positionColor": "text-emerald-600",
-                "bio": "Experta en visión por computadora con doctorado del MIT y más de 20 publicaciones en conferencias y revistas top de IA.",
-                "image": "jk.jpg"
-            },
-            {
-                "name": "Michael Chen",
-                "position": "Director de Tecnología",
-                "positionColor": "text-violet-600",
-                "bio": "Arquitecto de software con experiencia implementando sistemas escalables de IA para empresas de múltiples sectores.",
-                "image": "mc.jpg"
-            },
-            {
-                "name": "Sophia Martinez",
-                "position": "Directora de Ética en IA",
-                "positionColor": "text-amber-600",
-                "bio": "Ex profesora con experiencia en desarrollo responsable de IA, asegurando la implementación ética de nuestras soluciones.",
-                "image": "sm.jpg"
-            }
-        ]
     },
     "careers": {
         "title": "Únete a Nuestro Equipo",

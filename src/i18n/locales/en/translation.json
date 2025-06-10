@@ -19,86 +19,6 @@
         "cta1": "Why Choose Us?",
         "cta2": "AI News Center"
     },
-    "features": {
-        "title": "Why Choose ",
-        "subtitle": "We combine expertise in AI, machine learning, and computer vision to create solutions that drive business growth.",
-        "items": {
-            "innovation": {
-                "title": "Innovation-Driven",
-                "description": "Implementing cutting-edge AI research into practical solutions that give your business a competitive advantage."
-            },
-            "ethics": {
-                "title": "Ethically Developed",
-                "description": "We build AI with integrity, ensuring solutions that are fair, transparent, and designed with privacy in mind."
-            },
-            "rapid": {
-                "title": "Rapid Deployment",
-                "description": "Our streamlined approach delivers AI solutions from concept to production faster than traditional development methods."
-            },
-            "expertise": {
-                "title": "Industry Expertise",
-                "description": "Our team of AI specialists brings deep domain knowledge across healthcare, manufacturing, finance, and retail industries."
-            }
-        }
-    },
-    "solutions": {
-        "title": "Our AI Solutions",
-        "subtitle": "Discover how our expertise in AI, machine learning, and computer vision can transform your business operations.",
-        "items": [
-            {
-                "id": 1,
-                "title": "Machine Learning Models",
-                "description": "Custom machine learning solutions for predictive analytics, recommendation systems, and process optimization.",
-                "icon": "Cpu",
-                "color": "text-blue-600",
-                "bgColor": "bg-blue-500",
-                "linkColor": "text-blue-600",
-                "linkHoverColor": "hover:text-blue-700",
-                "image": "ml.jpg",
-                "solutionCta": "Watch ML Video",
-                "videoSrc": "https://www.youtube.com/embed/V76pXl6zgHM?autoplay=1&rel=0"
-            },
-            {
-                "id": 2,
-                "title": "Computer Vision Systems",
-                "description": "Image and video analysis solutions for object detection, facial recognition, and visual quality control.",
-                "icon": "Eye",
-                "color": "text-emerald-600",
-                "bgColor": "bg-emerald-500",
-                "linkColor": "text-emerald-600",
-                "linkHoverColor": "hover:text-emerald-700",
-                "image": "cv.jpg",
-                "solutionCta": "Watch CV Video",
-                "videoSrc": "https://www.youtube.com/embed/aUa3iJ4In2g?autoplay=1&rel=0"
-            },
-            {
-                "id": 3,
-                "title": "Natural Language Processing",
-                "description": "Text analysis, sentiment detection, and conversational AI systems for customer service and content analysis.",
-                "icon": "MessageSquare",
-                "color": "text-violet-600",
-                "bgColor": "bg-violet-500",
-                "linkColor": "text-violet-600",
-                "linkHoverColor": "hover:text-violet-700",
-                "image": "nlp.jpg",
-                "solutionCta": "Watch NLP Video",
-                "videoSrc": "https://www.youtube.com/embed/hXpTvMMrkXU?autoplay=1&rel=0"
-            },
-            {
-                "id": 4,
-                "title": "Deep Learning Systems",
-                "description": "Advanced neural networks for complex pattern recognition, anomaly detection, and autonomous decision-making.",
-                "icon": "BarChart3",
-                "color": "text-gray-600",
-                "bgColor": "bg-gray-700",
-                "linkColor": "text-gray-600",
-                "linkHoverColor": "hover:text-gray-800",
-                "image": "dl.jpg",
-                "solutionCta": "Watch DL Video",
-                "videoSrc": "https://www.youtube.com/embed/jH7UWhjrVuk?autoplay=1&rel=0"
-            }
-        ]
-    },
     "caseStudies": {
         "title": "Case Studies",
         "subtitle": "Explore how we've helped businesses solve complex challenges with AI-powered solutions.",
@@ -205,6 +125,151 @@
             }
         ]
     },
+    "solutions": {
+        "title": "Our AI Solutions",
+        "subtitle": "Discover how our expertise in AI, machine learning, and computer vision can transform your business operations.",
+        "items": [
+            {
+                "id": 1,
+                "title": "Machine Learning Models",
+                "description": "Custom machine learning solutions for predictive analytics, recommendation systems, and process optimization.",
+                "icon": "Cpu",
+                "color": "text-blue-600",
+                "bgColor": "bg-blue-500",
+                "linkColor": "text-blue-600",
+                "linkHoverColor": "hover:text-blue-700",
+                "image": "ml.jpg",
+                "solutionCta": "Watch ML Video",
+                "videoSrc": "https://www.youtube.com/embed/V76pXl6zgHM?autoplay=1&rel=0"
+            },
+            {
+                "id": 2,
+                "title": "Computer Vision Systems",
+                "description": "Image and video analysis solutions for object detection, facial recognition, and visual quality control.",
+                "icon": "Eye",
+                "color": "text-emerald-600",
+                "bgColor": "bg-emerald-500",
+                "linkColor": "text-emerald-600",
+                "linkHoverColor": "hover:text-emerald-700",
+                "image": "cv.jpg",
+                "solutionCta": "Watch CV Video",
+                "videoSrc": "https://www.youtube.com/embed/aUa3iJ4In2g?autoplay=1&rel=0"
+            },
+            {
+                "id": 3,
+                "title": "Natural Language Processing",
+                "description": "Text analysis, sentiment detection, and conversational AI systems for customer service and content analysis.",
+                "icon": "MessageSquare",
+                "color": "text-violet-600",
+                "bgColor": "bg-violet-500",
+                "linkColor": "text-violet-600",
+                "linkHoverColor": "hover:text-violet-700",
+                "image": "nlp.jpg",
+                "solutionCta": "Watch NLP Video",
+                "videoSrc": "https://www.youtube.com/embed/hXpTvMMrkXU?autoplay=1&rel=0"
+            },
+            {
+                "id": 4,
+                "title": "Deep Learning Systems",
+                "description": "Advanced neural networks for complex pattern recognition, anomaly detection, and autonomous decision-making.",
+                "icon": "BarChart3",
+                "color": "text-gray-600",
+                "bgColor": "bg-gray-700",
+                "linkColor": "text-gray-600",
+                "linkHoverColor": "hover:text-gray-800",
+                "image": "dl.jpg",
+                "solutionCta": "Watch DL Video",
+                "videoSrc": "https://www.youtube.com/embed/jH7UWhjrVuk?autoplay=1&rel=0"
+            }
+        ]
+    },
+    "courses": {
+        "title": "AI Education & Training",
+        "subtitle": "Enhance your team's AI capabilities with our specialized courses and workshops.",
+        "enroll": "Enroll",
+        "status": "Course is Full!",
+        "statusMessage": "Please leave a message so we can keep you updated when new slots open.",
+        "items": [
+            {
+                "title": "PyTorch Deep Learning",
+                "description": "Master deep learning with PyTorch, covering neural networks architecture, optimization techniques, and deployment strategies.",
+                "image": "https://images.unsplash.com/photo-1617854818583-09e7f077a156?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                "category": "PyTorch",
+                "level": "Intermediate",
+                "duration": "10 Weeks",
+                "format": "Online",
+                "regularPrice": "$1,995",
+                "price": "$1,595",
+                "buttonBg": "bg-blue-500",
+                "buttonHoverBg": "hover:bg-blue-600"
+            },
+            {
+                "title": "TensorFlow for Production",
+                "description": "Learn how to build, deploy, and maintain machine learning models in production environments using TensorFlow.",
+                "image": "https://images.unsplash.com/photo-1555949963-aa79dcee981c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                "category": "TensorFlow",
+                "level": "Advanced",
+                "duration": "12 Weeks",
+                "format": "Online",
+                "regularPrice": "$2,495",
+                "price": "$1,995",
+                "buttonBg": "bg-orange-500",
+                "buttonHoverBg": "hover:bg-orange-600"
+            },
+            {
+                "title": "Hugging Face Transformers",
+                "description": "Discover how to leverage pre-trained language models for NLP tasks using the Hugging Face ecosystem.",
+                "image": "https://images.unsplash.com/photo-1587620962725-abab7fe55159?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                "category": "Hugging Face",
+                "level": "Intermediate",
+                "duration": "8 Weeks",
+                "format": "Online",
+                "regularPrice": "$1,895",
+                "price": "$1,495",
+                "buttonBg": "bg-yellow-500",
+                "buttonHoverBg": "hover:bg-yellow-600"
+            },
+            {
+                "title": "LangChain Development",
+                "description": "Build powerful AI applications by chaining together language models, prompts, and external tools using LangChain.",
+                "image": "https://images.unsplash.com/photo-1531482615713-2afd69097998?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                "category": "LangChain",
+                "level": "Intermediate",
+                "duration": "6 Weeks",
+                "format": "Online",
+                "regularPrice": "$1,695",
+                "price": "$1,395",
+                "buttonBg": "bg-green-500",
+                "buttonHoverBg": "hover:bg-green-600"
+            },
+            {
+                "title": "Generative AI with OpenAI",
+                "description": "Learn how to use OpenAI's APIs to build generative AI applications for text, images, and more.",
+                "image": "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                "category": "Generative AI",
+                "level": "Beginner",
+                "duration": "8 Weeks",
+                "format": "Online",
+                "regularPrice": "$1,795",
+                "price": "$1,295",
+                "buttonBg": "bg-violet-500",
+                "buttonHoverBg": "hover:bg-violet-600"
+            },
+            {
+                "title": "Computer Vision with PyTorch",
+                "description": "Master object detection, image segmentation, and video analysis using PyTorch's vision libraries.",
+                "image": "https://images.unsplash.com/photo-1527430253228-e93688616381?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                "category": "PyTorch",
+                "level": "Advanced",
+                "duration": "12 Weeks",
+                "format": "Online",
+                "regularPrice": "$2,495",
+                "price": "$1,995",
+                "buttonBg": "bg-blue-500",
+                "buttonHoverBg": "hover:bg-blue-600"
+            }
+        ]
+    },
     "testimonials": {
         "title": "What Our Clients Say",
         "subtitle": "Hear from organizations that have transformed their operations with our AI solutions.",
@@ -291,92 +356,60 @@
             }
         ]
     },
-    "courses": {
-        "title": "AI Education & Training",
-        "subtitle": "Enhance your team's AI capabilities with our specialized courses and workshops.",
-        "enroll": "Enroll",
-        "status": "Course is Full!",
-        "statusMessage": "Please leave a message so we can keep you updated when new slots open.",
-        "items": [
+    "features": {
+        "title": "Why Choose ",
+        "subtitle": "We combine expertise in AI, machine learning, and computer vision to create solutions that drive business growth.",
+        "items": {
+            "innovation": {
+                "title": "Innovation-Driven",
+                "description": "Implementing cutting-edge AI research into practical solutions that give your business a competitive advantage."
+            },
+            "ethics": {
+                "title": "Ethically Developed",
+                "description": "We build AI with integrity, ensuring solutions that are fair, transparent, and designed with privacy in mind."
+            },
+            "rapid": {
+                "title": "Rapid Deployment",
+                "description": "Our streamlined approach delivers AI solutions from concept to production faster than traditional development methods."
+            },
+            "expertise": {
+                "title": "Industry Expertise",
+                "description": "Our team of AI specialists brings deep domain knowledge across healthcare, manufacturing, finance, and retail industries."
+            }
+        }
+    },
+    "team": {
+        "title": "Meet Our Team",
+        "subtitle": "Our experts combine deep technical knowledge with industry experience to deliver cutting-edge AI solutions.",
+        "join": "Join Our Team",
+        "members": [
             {
-                "title": "PyTorch Deep Learning",
-                "description": "Master deep learning with PyTorch, covering neural networks architecture, optimization techniques, and deployment strategies.",
-                "image": "https://images.unsplash.com/photo-1617854818583-09e7f077a156?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-                "category": "PyTorch",
-                "level": "Intermediate",
-                "duration": "10 Weeks",
-                "format": "Online",
-                "regularPrice": "$1,995",
-                "price": "$1,595",
-                "courseStatus": "Course is Full!",
-                "courseMessage": "Please leave a message so we can keep you updated when new slots open.",
-                "buttonBg": "bg-blue-500",
-                "buttonHoverBg": "hover:bg-blue-600"
+                "name": "Antonio Robles",
+                "position": "Founder & CEO",
+                "positionColor": "text-blue-600",
+                "bio": "Data Scientist and researcher with 15+ years of experience in developing machine learning applications for enterprise clients.",
+                "image": "ar.jpg"
             },
             {
-                "title": "TensorFlow for Production",
-                "description": "Learn how to build, deploy, and maintain machine learning models in production environments using TensorFlow.",
-                "image": "https://images.unsplash.com/photo-1555949963-aa79dcee981c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-                "category": "TensorFlow",
-                "level": "Advanced",
-                "duration": "12 Weeks",
-                "format": "Online",
-                "regularPrice": "$2,495",
-                "price": "$1,995",
-                "buttonBg": "bg-orange-500",
-                "buttonHoverBg": "hover:bg-orange-600"
+                "name": "Jennifer Kim",
+                "position": "Chief Research Officer",
+                "positionColor": "text-emerald-600",
+                "bio": "Leading expert in computer vision with PhD from MIT and 20+ publications in top AI journals and conferences.",
+                "image": "jk.jpg"
             },
             {
-                "title": "Hugging Face Transformers",
-                "description": "Discover how to leverage pre-trained language models for NLP tasks using the Hugging Face ecosystem.",
-                "image": "https://images.unsplash.com/photo-1587620962725-abab7fe55159?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-                "category": "Hugging Face",
-                "level": "Intermediate",
-                "duration": "8 Weeks",
-                "format": "Online",
-                "regularPrice": "$1,895",
-                "price": "$1,495",
-                "buttonBg": "bg-yellow-500",
-                "buttonHoverBg": "hover:bg-yellow-600"
+                "name": "Michael Chen",
+                "position": "Chief Technology Officer",
+                "positionColor": "text-violet-600",
+                "bio": "Software architect with expertise in implementing scalable AI systems for enterprise clients across industries.",
+                "image": "mc.jpg"
             },
             {
-                "title": "LangChain Development",
-                "description": "Build powerful AI applications by chaining together language models, prompts, and external tools using LangChain.",
-                "image": "https://images.unsplash.com/photo-1531482615713-2afd69097998?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-                "category": "LangChain",
-                "level": "Intermediate",
-                "duration": "6 Weeks",
-                "format": "Online",
-                "regularPrice": "$1,695",
-                "price": "$1,395",
-                "buttonBg": "bg-green-500",
-                "buttonHoverBg": "hover:bg-green-600"
-            },
-            {
-                "title": "Generative AI with OpenAI",
-                "description": "Learn how to use OpenAI's APIs to build generative AI applications for text, images, and more.",
-                "image": "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-                "category": "Generative AI",
-                "level": "Beginner",
-                "duration": "8 Weeks",
-                "format": "Online",
-                "regularPrice": "$1,795",
-                "price": "$1,295",
-                "buttonBg": "bg-violet-500",
-                "buttonHoverBg": "hover:bg-violet-600"
-            },
-            {
-                "title": "Computer Vision with PyTorch",
-                "description": "Master object detection, image segmentation, and video analysis using PyTorch's vision libraries.",
-                "image": "https://images.unsplash.com/photo-1527430253228-e93688616381?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-                "category": "PyTorch",
-                "level": "Advanced",
-                "duration": "12 Weeks",
-                "format": "Online",
-                "regularPrice": "$2,495",
-                "price": "$1,995",
-                "buttonBg": "bg-blue-500",
-                "buttonHoverBg": "hover:bg-blue-600"
+                "name": "Sophia Martinez",
+                "position": "Director of AI Ethics",
+                "positionColor": "text-amber-600",
+                "bio": "Former professor with expertise in responsible AI development, ensuring ethical implementation of our solutions.",
+                "image": "sm.jpg"
             }
         ]
     },
@@ -436,41 +469,6 @@
         "description": "Delivering cutting-edge AI solutions that transform businesses through innovation, ethics, and technical excellence.",
         "rights": "All rights reserved.",
         "tagline": "Robles.AI - Robust Artificial Intelligence Solutions"
-    },
-    "team": {
-        "title": "Meet Our Team",
-        "subtitle": "Our experts combine deep technical knowledge with industry experience to deliver cutting-edge AI solutions.",
-        "join": "Join Our Team",
-        "members": [
-            {
-                "name": "Antonio Robles",
-                "position": "Founder & CEO",
-                "positionColor": "text-blue-600",
-                "bio": "Data Scientist and researcher with 15+ years of experience in developing machine learning applications for enterprise clients.",
-                "image": "ar.jpg"
-            },
-            {
-                "name": "Jennifer Kim",
-                "position": "Chief Research Officer",
-                "positionColor": "text-emerald-600",
-                "bio": "Leading expert in computer vision with PhD from MIT and 20+ publications in top AI journals and conferences.",
-                "image": "jk.jpg"
-            },
-            {
-                "name": "Michael Chen",
-                "position": "Chief Technology Officer",
-                "positionColor": "text-violet-600",
-                "bio": "Software architect with expertise in implementing scalable AI systems for enterprise clients across industries.",
-                "image": "mc.jpg"
-            },
-            {
-                "name": "Sophia Martinez",
-                "position": "Director of AI Ethics",
-                "positionColor": "text-amber-600",
-                "bio": "Former professor with expertise in responsible AI development, ensuring ethical implementation of our solutions.",
-                "image": "sm.jpg"
-            }
-        ]
     },
     "careers": {
         "title": "Join Our Team",
