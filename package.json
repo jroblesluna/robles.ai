@@ -37,6 +37,7 @@
     "node-cron": "^4.0.5",
     "nodemailer": "^6.10.1",
     "openai": "^4.96.0",
+    "otpauth": "^9.4.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-facebook-pixel": "^1.0.4",
