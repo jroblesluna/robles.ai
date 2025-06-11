@@ -30,6 +30,7 @@ export default function TryIdentity() {
   const [payloadPreview, setPayloadPreview] = useState<any>(null);
   const [queryUrl, setQueryUrl] = useState<string | null>(null);
   const [queryResponse, setQueryResponse] = useState<any>(null);
+  const [modalImage, setModalImage] = useState<string | null>(null);
 
   const selfieInputRef = useRef<HTMLInputElement | null>(null);
   const documentInputRef = useRef<HTMLInputElement | null>(null);
@@ -118,6 +119,7 @@ export default function TryIdentity() {
     setPayloadPreview(null);
     setQueryUrl(null);
     setQueryResponse(null);
+    setModalImage(null);
 
     // Limpia el valor de los inputs de archivo
     if (selfieInputRef.current) selfieInputRef.current.value = "";
@@ -210,19 +212,19 @@ export default function TryIdentity() {
               <div>
                 <h3 className="font-medium mb-2">Imágenes del Proceso:</h3>
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="cursor-pointer" onClick={() => window.open(result.data.output.FaceImageCV2, '_blank')}>
+                  <div className="cursor-pointer" onClick={() => setModalImage(result.data.output.FaceImageCV2)}>
                     <img src={result.data.output.FaceImageCV2} alt="Rostro" className="w-full h-24 object-cover rounded" />
                     <p className="text-center mt-1">Rostro</p>
                   </div>
-                  <div className="cursor-pointer" onClick={() => window.open(result.data.output.CardImageCV2, '_blank')}>
+                  <div className="cursor-pointer" onClick={() => setModalImage(result.data.output.CardImageCV2)}>
                     <img src={result.data.output.CardImageCV2} alt="Documento" className="w-full h-24 object-cover rounded" />
                     <p className="text-center mt-1">Documento</p>
                   </div>
-                  <div className="cursor-pointer" onClick={() => window.open(result.data.output.FaceLandMarksImage, '_blank')}>
+                  <div className="cursor-pointer" onClick={() => setModalImage(result.data.output.FaceLandMarksImage)}>
                     <img src={result.data.output.FaceLandMarksImage} alt="Puntos Faciales" className="w-full h-24 object-cover rounded" />
                     <p className="text-center mt-1">Puntos Faciales</p>
                   </div>
-                  <div className="cursor-pointer" onClick={() => window.open(result.data.output.CardLandMarksImage, '_blank')}>
+                  <div className="cursor-pointer" onClick={() => setModalImage(result.data.output.CardLandMarksImage)}>
                     <img src={result.data.output.CardLandMarksImage} alt="Puntos Documento" className="w-full h-24 object-cover rounded" />
                     <p className="text-center mt-1">Puntos Documento</p>
                   </div>
@@ -230,6 +232,12 @@ export default function TryIdentity() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {modalImage && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setModalImage(null)}>
+          <img src={modalImage} alt="Modal" className="max-w-full max-h-full" />
         </div>
       )}
 
