@@ -7,6 +7,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Careers from "@/pages/Careers";
 import Apply from "@/pages/Apply";
+import TryIdentity from "@/pages/TryIdentity";
 import BlogList from "@/pages/BlogList";
 import BlogPost from "@/pages/BlogPost";
 import Header from "@/components/Header";
@@ -53,6 +54,7 @@ function App() {
             <Route path="/" component={Home} />
             <Route path="/careers" component={Careers} />
             <Route path="/apply" component={Apply} />
+            <Route path="/try-identity" component={TryIdentity} />
             <Route path="/blog" component={BlogList} />
             <Route path="/blog/:slug" component={BlogPost} />
             <Route component={NotFound} />

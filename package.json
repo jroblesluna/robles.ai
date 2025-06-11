@@ -28,6 +28,7 @@
     "drizzle-zod": "^0.7.1",
     "express": "^4.21.2",
     "fast-xml-parser": "^5.2.1",
+    "firebase": "^11.9.0",
     "formidable": "^3.5.4",
     "framer-motion": "^12.6.2",
     "i18next": "^24.2.3",
@@ -44,6 +45,7 @@
     "react-i18next": "^15.4.1",
     "sharp": "^0.34.1",
     "tailwind-merge": "^3.0.2",
+    "uuid": "^11.1.0",
     "vite": "^6.2.3",
     "wouter": "^3.6.0",
     "zod-validation-error": "^3.4.0"
