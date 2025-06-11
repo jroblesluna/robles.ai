@@ -20,7 +20,6 @@ export default function OTPGenerator() {
 
     const generateTotpInstance = (secretText: string) => {
         try {
-            console.log(secretText);
             return new OTPAuth.TOTP({
                 secret: OTPAuth.Secret.fromBase32(secretText.replace(/\s/g, '').toUpperCase()),
                 period: 30,
