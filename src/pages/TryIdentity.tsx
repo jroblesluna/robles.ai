@@ -188,52 +188,70 @@ export default function TryIdentity() {
           <h2 className="font-semibold mb-2">Resultado del Reconocimiento:</h2>
           <div className="space-y-2">
             <div>
-              <span className="font-medium">Estado: </span>
+              <span className="font-medium">Estado del proceso: </span>
+              <span className="capitalize">{result.status}</span>
+            </div>
+
+            <div>
+              <span className="font-medium">¿Proceso terminado correctamente?: </span>
               <span className={result.success ? "text-green-600" : "text-red-600"}>
-                {result.success ? "Verificación Exitosa" : "Verificación Fallida"}
+                {result.success
+                  ? "Sí"
+                  : "No"}
               </span>
             </div>
-            <div>
-              <span className="font-medium">Coincidencia Facial: </span>
-              <span className={result.data.output.result_match ? "text-green-600" : "text-red-600"}>
-                {result.data.output.result_match ? "Coincide" : "No Coincide"}
-              </span>
-            </div>
-            <div>
-              <span className="font-medium">Distancia Facial: </span>
-              <span>{(result.data.output.distance * 100).toFixed(2)}%</span>
-            </div>
+
+            {result.data?.output ? (
+              <>
+                <div>
+                  <span className="font-medium">Coincidencia Facial: </span>
+                  <span className={result.data.output.result_match ? "text-green-600" : "text-red-600"}>
+                    {result.data.output.result_match ? "Coincide" : "No Coincide"}
+                  </span>
+                </div>
+                <div>
+                  <span className="font-medium">Distancia Facial: </span>
+                  <span>{(result.data.output.distance * 100).toFixed(2)}%</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <h3 className="font-medium mb-2">Imágenes del Proceso:</h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="cursor-pointer" onClick={() => setModalImage(result.data.output.FaceImageCV2)}>
+                        <img src={result.data.output.FaceImageCV2} alt="Rostro" className="w-full h-24 object-cover rounded" />
+                        <p className="text-center mt-1">Rostro</p>
+                      </div>
+                      <div className="cursor-pointer" onClick={() => setModalImage(result.data.output.CardImageCV2)}>
+                        <img src={result.data.output.CardImageCV2} alt="Documento" className="w-full h-24 object-cover rounded" />
+                        <p className="text-center mt-1">Documento</p>
+                      </div>
+                      <div className="cursor-pointer" onClick={() => setModalImage(result.data.output.FaceLandMarksImage)}>
+                        <img src={result.data.output.FaceLandMarksImage} alt="Puntos Faciales" className="w-full h-24 object-cover rounded" />
+                        <p className="text-center mt-1">Puntos Faciales</p>
+                      </div>
+                      <div className="cursor-pointer" onClick={() => setModalImage(result.data.output.CardLandMarksImage)}>
+                        <img src={result.data.output.CardLandMarksImage} alt="Puntos Documento" className="w-full h-24 object-cover rounded" />
+                        <p className="text-center mt-1">Puntos Documento</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="text-yellow-600">
+                El resultado aún no contiene datos procesados. Vuelve a consultar en unos segundos.
+              </div>
+            )}
+
             <div>
               <span className="font-medium">Fecha de Verificación: </span>
               <span>{new Date(result.updated_at).toLocaleString()}</span>
             </div>
-
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <div>
-                <h3 className="font-medium mb-2">Imágenes del Proceso:</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="cursor-pointer" onClick={() => setModalImage(result.data.output.FaceImageCV2)}>
-                    <img src={result.data.output.FaceImageCV2} alt="Rostro" className="w-full h-24 object-cover rounded" />
-                    <p className="text-center mt-1">Rostro</p>
-                  </div>
-                  <div className="cursor-pointer" onClick={() => setModalImage(result.data.output.CardImageCV2)}>
-                    <img src={result.data.output.CardImageCV2} alt="Documento" className="w-full h-24 object-cover rounded" />
-                    <p className="text-center mt-1">Documento</p>
-                  </div>
-                  <div className="cursor-pointer" onClick={() => setModalImage(result.data.output.FaceLandMarksImage)}>
-                    <img src={result.data.output.FaceLandMarksImage} alt="Puntos Faciales" className="w-full h-24 object-cover rounded" />
-                    <p className="text-center mt-1">Puntos Faciales</p>
-                  </div>
-                  <div className="cursor-pointer" onClick={() => setModalImage(result.data.output.CardLandMarksImage)}>
-                    <img src={result.data.output.CardLandMarksImage} alt="Puntos Documento" className="w-full h-24 object-cover rounded" />
-                    <p className="text-center mt-1">Puntos Documento</p>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       )}
+
 
       {modalImage && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setModalImage(null)}>
