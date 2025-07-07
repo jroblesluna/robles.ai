@@ -387,15 +387,15 @@
                 "name": "Antonio Robles",
                 "position": "Founder & CEO",
                 "positionColor": "text-blue-600",
-                "bio": "Data Scientist and researcher with 15+ years of experience in developing machine learning applications for enterprise clients.",
+                "bio": "Data Scientist and researcher with 20+ years of experience in Software and New Technologies for Cybersecurity, Blockchain, IoT, AI and Machine Learning for enterprise industries.",
                 "image": "ar.jpg"
             },
             {
-                "name": "Jennifer Kim",
-                "position": "Chief Research Officer",
+                "name": "Enrique Mendo",
+                "position": "Chief Technology Officer",
                 "positionColor": "text-emerald-600",
-                "bio": "Leading expert in computer vision with PhD from MIT and 20+ publications in top AI journals and conferences.",
-                "image": "jk.jpg"
+                "bio": "Leading expert in Computer Vision with extensive experience in Generative AI, Machine Learning and Deep Learning from MIT and 20+ publications in top AI journals and conferences.",
+                "image": "em.jpg"
             },
             {
                 "name": "Michael Chen",
