@@ -394,7 +394,7 @@
                 "name": "Enrique Mendo",
                 "position": "Chief Technology Officer",
                 "positionColor": "text-emerald-600",
-                "bio": "Leading expert in Computer Vision with extensive experience in Generative AI, Machine Learning and Deep Learning from MIT and 20+ publications in top AI journals and conferences.",
+                "bio": "Leading expert in Computer Vision with extensive experience in Generative AI, Machine Learning and Deep Learning.",
                 "image": "em.jpg"
             },
             {
@@ -586,5 +586,41 @@
                 }
             }
         ]
+    },
+    "try-identity": {
+        "title": "Try Identity Verification API",
+        "webhook": "Generated Webhook",
+        "selfie": "Add a Face Image (Selfie)",
+        "document": "Add an ID Document Image (Passport, ID card, etc)",
+        "verify": "Verify Images",
+        "verify_processing": "Sending Images...",
+        "verify_sent": "Images Sent",
+        "log": "API Communication Log",
+        "status_label": "Analysis Status:",
+        "status_pending": "🟡 Pending",
+        "status_pending_description": "The request has been received and is waiting to be processed.",
+        "status_started": "🔵 In Progress",
+        "status_started_description": "The verification process has started.",
+        "status_failed": "🔴 Failed",
+        "status_failed_description": "The verification failed due to an error (e.g., unreadable image or no face detected).",
+        "status_partially_completed": "⚪️ Compared",
+        "status_partially_completed_description": "Images were compared successfully, but some data is still being uploaded.",
+        "status_completed_with_errors": "🟠 Completed with Errors",
+        "status_completed_with_errors_description": "The process finished, but some images or steps failed during upload or analysis.",
+        "status_completed": "🟢 Completed",
+        "status_completed_description": "The request was processed successfully and all data was uploaded.",
+        "results_label": "API Result Analysis",
+        "results_status": "Process Status",
+        "results_completed_ok": "Was the Process Completed Successfully?",
+        "results_completed_ok_yes": "Yes",
+        "results_completed_ok_no": "No",
+        "results_match": "Face Match",
+        "results_match_true": "Match",
+        "results_match_false": "No Match",
+        "results_distance": "Face Embedding Distance",
+        "results_images": "Process Images",
+        "results_created_at": "Created At",
+        "results_updated_at": "Updated At",
+        "reset": "Reset Process"
     }
 }

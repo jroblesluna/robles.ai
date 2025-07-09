@@ -391,11 +391,11 @@
                 "image": "ar.jpg"
             },
             {
-                "name": "Jennifer Kim",
+                "name": "Enrique Mendo",
                 "position": "Directora de Investigación",
                 "positionColor": "text-emerald-600",
-                "bio": "Experta en visión por computadora con doctorado del MIT y más de 20 publicaciones en conferencias y revistas top de IA.",
-                "image": "jk.jpg"
+                "bio": "Experto líder en visión por computadora con amplia experiencia en IA generativa, aprendizaje automático y aprendizaje profundo.",
+                "image": "em.jpg"
             },
             {
                 "name": "Michael Chen",
@@ -586,5 +586,41 @@
                 }
             }
         ]
+    },
+    "try-identity": {
+        "title": "Probar API de Verificación de Identidad",
+        "webhook": "Webhook Generado",
+        "selfie": "Agrega la Imagen de Rostro (Selfie)",
+        "document": "Agrega la Imagen de un Documento (DNI, Pasaporte, etc)",
+        "verify": "Verificar Imágenes",
+        "verify_processing": "Enviando Imágenes...",
+        "verify_sent": "Imágenes Enviadas",
+        "log": "Historial de Comunicaciones al API",
+        "status_label": "Estado del Analisis:",
+        "status_pending": "🟡 Pendiente",
+        "status_pending_description": "La solicitud ha sido recibida y está en espera de ser procesada.",
+        "status_started": "🔵 En proceso",
+        "status_started_description": "El proceso de verificación ha comenzado.",
+        "status_failed": "🔴 Fallido",
+        "status_failed_description": "La verificación falló por un error (por ejemplo, imagen no válida o rostro no detectado).",
+        "status_partially_completed": "⚪️ Comparado",
+        "status_partially_completed_description": "Las imágenes fueron comparadas exitosamente, pero algunos datos aún se están subiendo.",
+        "status_completed_with_errors": "🟠 Completado con errores",
+        "status_completed_with_errors_description": "El proceso finalizó, pero hubo errores al subir imágenes o durante el análisis.",
+        "status_completed": "🟢 Completado",
+        "status_completed_description": "La solicitud fue procesada exitosamente y todos los datos fueron subidos.",
+        "results_label": "Análisis de Resultados del API",
+        "results_status": "Estado del Proceso",
+        "results_completed_ok": "¿Proceso Terminado Correctamente?",
+        "results_completed_ok_yes": "Sí",
+        "results_completed_ok_no": "No",
+        "results_match": "Coincidencia Facial",
+        "results_match_true": "Coincide",
+        "results_match_false": "No coincide",
+        "results_distance": "Distancia de Puntos Faciales",
+        "results_images": "Imágenes del Proceso",
+        "results_created_at": "Fecha de Creación",
+        "results_updated_at": "Fecha de Actualización",
+        "reset": "Reiniciar Proceso"
     }
 }
