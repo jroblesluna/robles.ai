@@ -64,7 +64,7 @@ export default function TryIdentity() {
           clearInterval(interval);
         }
       } catch (err: any) {
-        toast({ title: t("Error"), description: err.message });
+        toast({ title: t("Error"), description: err.message, variant: "destructive" });
       }
     }, 3000);
 
@@ -116,7 +116,7 @@ export default function TryIdentity() {
       setSubmitted(true);
       setQueryHistory([{ url: VERIFY_ENDPOINT, response: data, key: uuidv4() }]);
 
-      toast({ title: t("try-identity.verify_sent"), description: `ID: ${data.data.id}` });
+      toast({ title: t("try-identity.verify_sent"), description: `ID: ${data.data.id}`, variant: "success" });
 
       fetch(`${BASE_API}/cron/verify-id`, {
         method: "POST",
@@ -124,7 +124,7 @@ export default function TryIdentity() {
         body: JSON.stringify({}),
       }).catch((err) => console.error("Error invoking /cron/verify-id:", err));
     } catch (err: any) {
-      toast({ title: t("Error"), description: err.message });
+      toast({ title: t("Error"), description: err.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -146,9 +146,13 @@ export default function TryIdentity() {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 mx-5 md:mx-10 lg:mx-15 xl:mx-20">
       <div className="space-y-4">
         <h1 className="text-2xl font-bold">{t("try-identity.title")}</h1>
+        <div className="text-justify">
+          <p className="text-sm text-gray-600">{t("try-identity.description")}</p>
+          <p className="text-sm text-gray-500 mt-2">{t("try-identity.instructions")}</p>
+        </div>
 
         <div>
           <h2 className="text-sm font-semibold">{t("try-identity.webhook")}</h2>

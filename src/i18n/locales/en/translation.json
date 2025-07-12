@@ -589,7 +589,9 @@
     },
     "try-identity": {
         "title": "Try Identity Verification API",
-        "webhook": "Generated Webhook",
+        "description": "Test our Identity Verification API with sample images. This tool allows you to verify a user's identity by analyzing images of their face and an identification document.",
+        "instructions": "To test the API, upload a face image (selfie) and an identification document image (DNI, passport, etc.). The API will compare the images and provide you with a detailed analysis of the process.",
+        "webhook": "Dummy Callback",
         "selfie": "Add a Face Image (Selfie)",
         "document": "Add an ID Document Image (Passport, ID card, etc)",
         "verify": "Verify Images",

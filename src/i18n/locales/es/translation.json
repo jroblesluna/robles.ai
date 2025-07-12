@@ -589,7 +589,9 @@
     },
     "try-identity": {
         "title": "Probar API de Verificación de Identidad",
-        "webhook": "Webhook Generado",
+        "description": "Prueba nuestra API de verificación de identidad con imágenes de ejemplo. Esta herramienta te permite verificar la identidad de un usuario mediante el análisis de imágenes de su rostro y un documento de identificación.",
+        "instructions": "Para probar la API, sube una imagen de rostro (selfie) y una imagen de un documento de identificación (DNI, pasaporte, etc.). La API comparará las imágenes y te proporcionará un análisis detallado del proceso.",
+        "webhook": "Callback Simulado",
         "selfie": "Agrega la Imagen de Rostro (Selfie)",
         "document": "Agrega la Imagen de un Documento (DNI, Pasaporte, etc)",
         "verify": "Verificar Imágenes",
