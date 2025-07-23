@@ -591,6 +591,7 @@
         "title": "Probar API de Verificación de Identidad",
         "description": "Prueba nuestra API de verificación de identidad con imágenes de ejemplo. Esta herramienta te permite verificar la identidad de un usuario mediante el análisis de imágenes de su rostro y un documento de identificación.",
         "instructions": "Para probar la API, sube una imagen de rostro (selfie) y una imagen de un documento de identificación (DNI, pasaporte, etc.). La API comparará las imágenes y te proporcionará un análisis detallado del proceso.",
+        "videoSrc": "https://youtube.com/embed/V76pXl6zgHM",
         "webhook": "Callback Simulado",
         "selfie": "Agrega la Imagen de Rostro (Selfie)",
         "document": "Agrega la Imagen de un Documento (DNI, Pasaporte, etc)",
@@ -624,5 +625,47 @@
         "results_created_at": "Fecha de Creación",
         "results_updated_at": "Fecha de Actualización",
         "reset": "Reiniciar Proceso"
+    },
+    "try-medical": {
+        "title": "Prueba la Demostración de IA Médica",
+        "description": "Selecciona el tipo de imagen médica que deseas analizar. Nuestra IA proporcionará información diagnóstica basada en tu modalidad y enfoque clínico seleccionados.",
+        "select_modality": "Seleccionar Modalidad de Imagen",
+        "select_modality_instruction": "Elige entre los tipos de imágenes médicas disponibles a continuación.",
+        "modalities": {
+            "xray": {
+                "title": "Radiografía",
+                "description": "Análisis radiográfico de tórax y huesos"
+            },
+            "ultrasound": {
+                "title": "Ultrasonido",
+                "description": "Imágenes tiroidea, mamaria y cardíaca"
+            },
+            "retina": {
+                "title": "Retina",
+                "description": "Análisis de imágenes de fondo de ojo"
+            },
+            "dermatology": {
+                "title": "Dermatología",
+                "description": "Detección de lesiones cutáneas"
+            },
+            "histopathology": {
+                "title": "Histopatología",
+                "description": "Detección de cáncer en tejidos"
+            }
+        },
+        "select": "Seleccionar {{modality}}",
+        "select_subtype": "Seleccionar Enfoque Clínico",
+        "upload_images": "Subir 1 o más imágenes médicas (JPG o PNG)",
+        "next": "Siguiente",
+        "analyze": "Ejecutar Análisis con IA",
+        "analyzing": "Analizando...",
+        "results": {
+            "title": "Resultados del Análisis",
+            "label": "Etiqueta",
+            "confidence": "Confianza",
+            "summary": "Resumen del Diagnóstico",
+            "start_new": "Iniciar Nuevo Caso"
+        },
+        "disclaimer": "⚠️ Esta demostración es solo para uso educativo y no es un dispositivo médico."
     }
 }

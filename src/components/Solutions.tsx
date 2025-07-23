@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Cpu, Eye, MessageSquare, BarChart3 } from "lucide-react";
 import { fadeIn, staggerContainer } from "@/utils/animations";
 import { useTranslation } from "react-i18next";
-
+import VideoModal from "@/components/VideoModal";
+/*
 const VideoModal = ({ videoSrc, onClose }: { videoSrc: string; onClose: () => void }) => {
   const backdropRef = useRef(null);
 
@@ -61,6 +62,7 @@ const VideoModal = ({ videoSrc, onClose }: { videoSrc: string; onClose: () => vo
     </AnimatePresence>
   );
 };
+*/
 type IconName = "Cpu" | "Eye" | "MessageSquare" | "BarChart3";
 
 interface SolutionCardProps {
@@ -131,15 +133,15 @@ const SolutionCard = ({
       >
         {solutionCta}
         <span className="ml-2 inline-flex items-center px-2 py-1 bg-red-600 text-white rounded-md shadow-md">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-3.5 w-3.5"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-    >
-      <path d="M8 5v14l11-7z" />
-    </svg>
-  </span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-3.5 w-3.5"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </span>
       </button>
     </div>
   </motion.div>

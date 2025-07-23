@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebaseConfig";
 import { AnimatePresence, motion, LayoutGroup } from "framer-motion";
+import VideoModal from "@/components/VideoModal";
 import { useTranslation } from "react-i18next";
 
 const getBaseApi = () => {
@@ -34,7 +35,16 @@ export default function TryIdentity() {
 
   const selfieInputRef = useRef<HTMLInputElement | null>(null);
   const documentInputRef = useRef<HTMLInputElement | null>(null);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [videoSrc, setVideoSrc] = useState<string | null>(null);
+  const [showVideo, setShowVideo] = useState(false);
+  
+  useEffect(() => {
+    const translatedSrc = t("try-identity.videoSrc");
+    if (translatedSrc && typeof translatedSrc === "string") {
+      setVideoSrc(translatedSrc);
+    }
+  }, [t, i18n.language]); // vuelve a ejecutar si cambia el idioma
 
   const STATUS_MAP: Record<string, { text: string; progress: number }> = {
     pending: { text: t("try-identity.status_pending"), progress: 20 },
@@ -283,6 +293,19 @@ export default function TryIdentity() {
           <img src={modalImage} alt="Modal" className="max-w-full max-h-full" />
         </div>
       )}
+
+      <Button
+        variant="link"
+        className="text-blue-600 underline text-sm mt-2"
+        onClick={() => setShowVideo(true)}
+      >
+        {t("try-identity.watch_demo")}
+      </Button>
+
+      {showVideo && videoSrc && (
+        <VideoModal videoSrc={videoSrc} onClose={() => setShowVideo(false)} />
+      )}
+
     </div>
   );
 }
