@@ -22,7 +22,8 @@ export const initI18n = async () => {
       }
     });
 };
-
-initI18n();
+//console.log("Index.ts: initI18n() called");
+//initI18n();
+//console.log("Index.ts: initI18n() finished");
 
 export default i18n;

@@ -15,6 +15,7 @@ import Footer from "@/components/Footer";
 import { initAnalytics } from "@/lib/analytics";
 import { useTranslation } from "react-i18next";
 import TryIdentity from "@/pages/TryIdentity";
+import TryRAG from "@/pages/TryRAG";
 import TryMedical from "@/pages/TryMedical";
 
 function App() {
@@ -57,6 +58,7 @@ function App() {
             <Route path="/careers" component={Careers} />
             <Route path="/apply" component={Apply} />
             <Route path="/try-identity" component={TryIdentity} />
+            <Route path="/try-rag" component={TryRAG} />
             <Route path="/try-medical" component={TryMedical} />
             <Route path="/otp" component={OTP} />
             <Route path="/blog" component={BlogList} />

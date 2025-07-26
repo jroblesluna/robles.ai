@@ -101,7 +101,7 @@
             {
                 "id": 4,
                 "title": "AI Chatbot for Customer Service Automation",
-                "description": "We built a generative AI assistant that handles 78% of customer inquiries without human intervention, improving response time by 85% and customer satisfaction by 32%.",
+                "description": "We built a generative AI assistant that handles 78% of customer inquiries without human intervention, improving response time by 85% and customer satisfaction by 92%.",
                 "image": "https://images.unsplash.com/photo-1559136555-9303baea8ebd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
                 "category": "Generative AI",
                 "categoryColor": "text-amber-700",
