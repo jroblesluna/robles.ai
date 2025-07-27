@@ -57,6 +57,13 @@ export default function TryRAG() {
 
   const handleUpload = async () => {
     if (!pdfFile) return;
+    setChunks([]);
+    setExtractedText("");
+    setQuery("");
+    setTopResults([]);
+    setRerankedResults([]);
+    setHfAnswer("");
+    setGptAnswer("");
     setLoading(1);
 
     try {
@@ -68,9 +75,11 @@ export default function TryRAG() {
         body: new URLSearchParams({ namespace: shortNamespace }),
       });
       const checkJson = await checkRes.json();
+      console.log("Namespace check response:", checkJson);
       setWasAlreadyIndexed(checkJson.data.exists);
 
       if (checkJson.data.exists) {
+        setChunkCount(checkJson.data.vector_count);
         setShowStep2(true);
         setStep(2);
         setLoading(null);
@@ -101,14 +110,21 @@ export default function TryRAG() {
 
   const handleEmbedAndIndex = async () => {
     if (!namespace) return;
+    setQuery("");
+    setTopResults([]);
+    setRerankedResults([]);
+    setHfAnswer("");
+    setGptAnswer("");
+
     setLoading(3);
 
-    const formData = new FormData();
-    formData.append("namespace", namespace);
+    //const formData = new FormData();
+    //formData.append("namespace", namespace);
 
     const res = await fetch(`${BASE_API}/rag/embed`, {
       method: "POST",
-      body: formData,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ namespace, chunks }),
     });
 
     const json = await res.json();
@@ -125,6 +141,10 @@ export default function TryRAG() {
 
   const handleQuery = async () => {
     if (!query || !namespace) return;
+    setTopResults([]);
+    setRerankedResults([]);
+    setHfAnswer("");
+    setGptAnswer("");
     setLoading(5);
     const formData = new FormData();
     formData.append("question", query);
@@ -143,17 +163,29 @@ export default function TryRAG() {
 
   const handleRerank = async () => {
     if (!namespace) return;
+    setRerankedResults([]);
+    setHfAnswer("");
+    setGptAnswer("");
     setLoading(7);
-    const formData = new FormData();
-    formData.append("question", query);
-    formData.append("namespace", namespace);
+    //const formData = new FormData();
+    //formData.append("question", query);
+    //formData.append("namespace", namespace);
 
     const res = await fetch(`${BASE_API}/rag/rerank`, {
       method: "POST",
-      body: formData,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: query, top_results: topResults }),
     });
 
     const json = await res.json();
+
+    console.log("Rerank response:", json);
+
+    if (!(json.status == "success") || !json.data?.reranked) {
+      alert("Error al hacer reranking");
+      setLoading(null);
+      return;
+    }
     setRerankedResults(json.data.reranked);
     setStep(8);
     setLoading(null);
@@ -161,14 +193,17 @@ export default function TryRAG() {
 
   const handleGenerateAnswers = async () => {
     if (!namespace) return;
+    setHfAnswer("");
+    setGptAnswer("");
     setLoading(9);
-    const formData = new FormData();
-    formData.append("question", query);
-    formData.append("namespace", namespace);
 
     const res = await fetch(`${BASE_API}/rag/generate`, {
       method: "POST",
-      body: formData,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        question: query,
+        reranked: rerankedResults,
+      }),
     });
 
     const json = await res.json();
@@ -209,10 +244,10 @@ export default function TryRAG() {
         {renderButton(handleUpload, "Extraer texto y generar chunks", 1, !pdfFile)}
         {step >= 2 && (
           <>
-            <Textarea className="text-sm mt-4" rows={4} value={extractedText} readOnly />
+            {extractedText && (<Textarea className="text-sm mt-4" rows={4} value={extractedText} readOnly />)}
             <p className="text-sm text-blue-700 mt-2">
               Chunks extraídos: <strong>{chunkCount ?? "¿?"}</strong>
-              {wasAlreadyIndexed && " — Archivo indexado en Pinecone."}
+              {wasAlreadyIndexed && " — Archivo ya está indexado en Pinecone."}
             </p>
           </>
         )}
@@ -222,8 +257,11 @@ export default function TryRAG() {
         <motion.section className="bg-green-50 rounded-xl p-6 shadow space-y-2">
           <h2 className="text-xl font-semibold text-green-700 mb-2">2️⃣ Embeddings y subida a Pinecone</h2>
           {!wasAlreadyIndexed
-            ? renderButton(handleEmbedAndIndex, "Generar embeddings y subir", 3)
-            : <p className="text-sm text-green-700 mt-2">Embeddings indexados en Pinecone. El índice contiene <strong>{chunkCount ?? "?"}</strong> vectores.</p>
+            ? <>
+              <p className="text-sm text-green-700 mt-2">Se enviarán <strong>{chunkCount ?? "?"}</strong> vectores a Pinecone usando el namespace <strong>{namespace}</strong>.</p>
+              {renderButton(handleEmbedAndIndex, "Generar embeddings y subir", 3)}
+            </>
+            : <p className="text-sm text-green-700 mt-2">Embeddings ya se encuentran indexados en Pinecone. El índice contiene <strong>{chunkCount ?? "?"}</strong> vectores.</p>
           }
           {wasAlreadyIndexed && renderButton(() => setStep(4), "Ir a consulta", 4)}
         </motion.section>
