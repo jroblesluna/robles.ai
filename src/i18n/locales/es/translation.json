@@ -592,7 +592,7 @@
         "description": "Prueba nuestra API de verificación de identidad con imágenes de ejemplo. Esta herramienta te permite verificar la identidad de un usuario mediante el análisis de imágenes de su rostro y un documento de identificación.",
         "instructions": "Para probar la API, sube una imagen de rostro (selfie) y una imagen de un documento de identificación (DNI, pasaporte, etc.). La API comparará las imágenes y te proporcionará un análisis detallado del proceso.",
         "watch_demo": "Ver demostración",
-        "videoSrc": "https://youtube.com/embed/Px2NqwcL5kw",
+        "videoSrc": "https://youtube.com/embed/pXTA4fu9xDc",
         "webhook": "Callback Simulado",
         "selfie": "Agrega la Imagen de Rostro (Selfie)",
         "document": "Agrega la Imagen de un Documento (DNI, Pasaporte, etc)",
