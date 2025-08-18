@@ -198,8 +198,8 @@
                 "level": "Intermedio",
                 "duration": "10 semanas",
                 "format": "En línea",
-                "regularPrice": "$1,995",
-                "price": "$1,595",
+                "regularPrice": "US$2,495",
+                "price": "US$1,995",
                 "buttonBg": "bg-blue-500",
                 "buttonHoverBg": "hover:bg-blue-600"
             },
@@ -211,8 +211,8 @@
                 "level": "Avanzado",
                 "duration": "12 semanas",
                 "format": "En línea",
-                "regularPrice": "$2,495",
-                "price": "$1,995",
+                "regularPrice": "US$2,995",
+                "price": "US$2,395",
                 "buttonBg": "bg-orange-500",
                 "buttonHoverBg": "hover:bg-orange-600"
             },
@@ -224,8 +224,8 @@
                 "level": "Intermedio",
                 "duration": "8 semanas",
                 "format": "En línea",
-                "regularPrice": "$1,895",
-                "price": "$1,495",
+                "regularPrice": "US$2,369",
+                "price": "US$1,895",
                 "buttonBg": "bg-yellow-500",
                 "buttonHoverBg": "hover:bg-yellow-600"
             },
@@ -237,8 +237,8 @@
                 "level": "Intermedio",
                 "duration": "6 semanas",
                 "format": "En línea",
-                "regularPrice": "$1,695",
-                "price": "$1,395",
+                "regularPrice": "US$2,115",
+                "price": "$US1,695",
                 "buttonBg": "bg-green-500",
                 "buttonHoverBg": "hover:bg-green-600"
             },
@@ -250,8 +250,8 @@
                 "level": "Principiante",
                 "duration": "8 semanas",
                 "format": "En línea",
-                "regularPrice": "$1,795",
-                "price": "$1,295",
+                "regularPrice": "US$2,245",
+                "price": "US$1,795",
                 "buttonBg": "bg-violet-500",
                 "buttonHoverBg": "hover:bg-violet-600"
             },
@@ -263,8 +263,8 @@
                 "level": "Avanzado",
                 "duration": "12 semanas",
                 "format": "En línea",
-                "regularPrice": "$2,495",
-                "price": "$1,995",
+                "regularPrice": "US$2,995",
+                "price": "US$2,395",
                 "buttonBg": "bg-blue-500",
                 "buttonHoverBg": "hover:bg-blue-600"
             }
