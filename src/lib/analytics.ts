@@ -10,24 +10,24 @@ const fbPixelId = import.meta.env.VITE_FACEBOOK_PIXEL_ID;
  */
 export const initAnalytics = () => {
   if (!import.meta.env.PROD) {
-    console.log("Analytics disabled in development");
+    console.log('Analytics disabled in development');
     return;
   }
 
   if (gaMeasurementId) {
     ReactGA.initialize(gaMeasurementId);
-    ReactGA.send({ hitType: "pageview", page: window.location.pathname });
-    console.log("✅ Google Analytics initialized");
+    ReactGA.send({ hitType: 'pageview', page: window.location.pathname });
+    console.log('✅ Google Analytics initialized');
   } else {
-    console.warn("⚠️ GA Measurement ID missing");
+    console.warn('⚠️ GA Measurement ID missing');
   }
 
   if (fbPixelId) {
     ReactPixel.init(fbPixelId);
     ReactPixel.pageView();
-    console.log("✅ Facebook Pixel initialized");
+    console.log('✅ Facebook Pixel initialized');
   } else {
-    console.warn("⚠️ Facebook Pixel ID missing");
+    console.warn('⚠️ Facebook Pixel ID missing');
   }
 };
 
@@ -40,5 +40,16 @@ export const trackEvent = (category: string, action: string, label?: string) => 
   }
   if (fbPixelId) {
     ReactPixel.track(action, { label });
+  }
+};
+
+export const trackPageView = (url: string): void => {
+  if (gaMeasurementId) {
+    ReactGA.send({ hitType: 'pageview', page: url });
+    console.log('📊 GA Pageview:', url);
+  }
+  if (fbPixelId) {
+    ReactPixel.pageView();
+    console.log('📊 FB Pageview:', url);
   }
 };

@@ -1,4 +1,5 @@
 #!/bin/bash
+#git reset --hard HEAD
 
 # Pull the latest changes and capture the output
 pull_output=$(git pull)
