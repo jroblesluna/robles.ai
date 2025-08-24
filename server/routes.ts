@@ -110,6 +110,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     '0 * * * *',
     async () => {
       try {
+        console.log('[CRON] Scheduled task started...');
+        //Printing if it's production or development
+        console.log(`Environment: ${process.env.NODE_ENV}`);
+        // Skip execution if in development mode
+        if (process.env.NODE_ENV == 'development') {
+          console.log('[CRON] Skipping task in development mode.');
+          return;
+        }
+
         // Get the current date/time in the target timezone
         const zonedDateStr = new Date().toLocaleString('en-US', { timeZone });
         const zonedDate = new Date(zonedDateStr);

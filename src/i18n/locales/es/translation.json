@@ -189,6 +189,7 @@
         "enroll": "Inscríbete",
         "status": "¡El Curso está lleno!",
         "statusMessage": "Déjanos un mensaje para avisarte cuando se abran nuevos cupos.",
+        "details": "Ver Detalles",
         "items": [
             {
                 "title": "Deep Learning con PyTorch",
@@ -198,8 +199,8 @@
                 "level": "Intermedio",
                 "duration": "10 semanas",
                 "format": "En línea",
-                "regularPrice": "US$2,495",
-                "price": "US$1,995",
+                "regularPrice": "US$ 2,495",
+                "price": "US$ 1,995",
                 "buttonBg": "bg-blue-500",
                 "buttonHoverBg": "hover:bg-blue-600"
             },
@@ -211,8 +212,8 @@
                 "level": "Avanzado",
                 "duration": "12 semanas",
                 "format": "En línea",
-                "regularPrice": "US$2,995",
-                "price": "US$2,395",
+                "regularPrice": "US$ 2,995",
+                "price": "US$ 2,395",
                 "buttonBg": "bg-orange-500",
                 "buttonHoverBg": "hover:bg-orange-600"
             },
@@ -224,8 +225,8 @@
                 "level": "Intermedio",
                 "duration": "8 semanas",
                 "format": "En línea",
-                "regularPrice": "US$2,369",
-                "price": "US$1,895",
+                "regularPrice": "US$ 2,369",
+                "price": "US$ 1,895",
                 "buttonBg": "bg-yellow-500",
                 "buttonHoverBg": "hover:bg-yellow-600"
             },
@@ -237,10 +238,246 @@
                 "level": "Intermedio",
                 "duration": "6 semanas",
                 "format": "En línea",
-                "regularPrice": "US$2,115",
+                "regularPrice": "US$ 2,115",
                 "price": "$US1,695",
                 "buttonBg": "bg-green-500",
-                "buttonHoverBg": "hover:bg-green-600"
+                "buttonHoverBg": "hover:bg-green-600",
+                "details": {
+                    "book": {
+                        "editorial": "O'Reilly Media",
+                        "title": "Aprendiendo LangChain",
+                        "subtitle": "Construyendo Aplicaciones de IA y LLM con LangChain y LangGraph.",
+                        "author": "Mayo Oshin, Nuno Campos",
+                        "date": "Febrero 2025"
+                    },
+                    "chapters": [
+                        {
+                            "title": "Fundamentos de LLM con LangChain",
+                            "sections": [
+                                "Configuración inicial con LangChain",
+                                "Uso de LLMs en LangChain",
+                                "Haciendo reutilizables los prompts de LLM",
+                                {
+                                    "section": "Obteniendo formatos específicos de los LLMs",
+                                    "subsections": [
+                                        "Salida en JSON",
+                                        "Otros formatos legibles por máquina con parsers de salida"
+                                    ]
+                                },
+                                {
+                                    "section": "Ensamblando las piezas de una aplicación LLM",
+                                    "subsections": [
+                                        "Usando la Interfaz Runnable",
+                                        "Composición Imperativa",
+                                        "Composición Declarativa"
+                                    ]
+                                },
+                                "Resumen"
+                            ]
+                        },
+                        {
+                            "title": "RAG Parte I: Indexando tus Datos",
+                            "sections": [
+                                "El objetivo: Seleccionar contexto relevante para los LLMs",
+                                {
+                                    "section": "Embeddings: Convirtiendo texto en números",
+                                    "subsections": [
+                                        "Embeddings antes de los LLMs",
+                                        "Embeddings basados en LLM",
+                                        "Explicación de embeddings semánticos"
+                                    ]
+                                },
+                                "Convirtiendo tus documentos en texto",
+                                "Dividiendo tu texto en fragmentos",
+                                "Generando embeddings de texto",
+                                {
+                                    "section": "Almacenando embeddings en un Vector Store",
+                                    "subsections": [
+                                        "Configuración con PGVector",
+                                        "Trabajando con Vector Stores"
+                                    ]
+                                },
+                                "Rastreando cambios en tus documentos",
+                                {
+                                    "section": "Optimización del indexado",
+                                    "subsections": [
+                                        "MultiVectorRetriever",
+                                        "RAPTOR: Procesamiento Abstractive Recursivo para Recuperación en Árbol",
+                                        "CoLBERT: Optimización de Embeddings"
+                                    ]
+                                },
+                                "Resumen"
+                            ]
+                        },
+                        {
+                            "title": "RAG Parte II: Chateando con tus Datos",
+                            "sections": [
+                                "Introducción a Retrieval-Augmented Generation",
+                                {
+                                    "section": "Recuperando documentos relevantes",
+                                    "subsections": [
+                                        "Generando predicciones de LLM usando documentos relevantes"
+                                    ]
+                                },
+                                {
+                                    "section": "Transformación de consultas",
+                                    "subsections": [
+                                        "Reescribir-Recuperar-Leer",
+                                        "Recuperación con múltiples consultas",
+                                        "RAG-Fusion",
+                                        "Embeddings de documentos hipotéticos"
+                                    ]
+                                },
+                                {
+                                    "section": "Enrutamiento de consultas",
+                                    "subsections": [
+                                        "Enrutamiento lógico",
+                                        "Enrutamiento semántico"
+                                    ]
+                                },
+                                {
+                                    "section": "Construcción de consultas",
+                                    "subsections": [
+                                        "Filtro de texto a metadatos",
+                                        "Texto a SQL"
+                                    ]
+                                },
+                                "Resumen"
+                            ]
+                        },
+                        {
+                            "title": "Usando LangGraph para Añadir Memoria a tu Chatbot",
+                            "sections": [
+                                "Construyendo un sistema de memoria de chatbot",
+                                "Introducción a LangGraph",
+                                "Creando un StateGraph",
+                                "Añadiendo memoria al StateGraph",
+                                {
+                                    "section": "Modificando el historial de chat",
+                                    "subsections": [
+                                        "Recortar mensajes",
+                                        "Filtrar mensajes",
+                                        "Unir mensajes consecutivos"
+                                    ]
+                                },
+                                "Resumen"
+                            ]
+                        },
+                        {
+                            "title": "Arquitecturas Cognitivas con LangGraph",
+                            "sections": [
+                                "Arquitectura #1: Llamada LLM",
+                                "Arquitectura #2: Chain",
+                                "Arquitectura #3: Router",
+                                "Resumen"
+                            ]
+                        },
+                        {
+                            "title": "Arquitectura de Agentes",
+                            "sections": [
+                                "El ciclo Plan-Do",
+                                "Construyendo un agente con LangGraph",
+                                "Llamando siempre a una herramienta primero",
+                                "Manejando múltiples herramientas",
+                                "Resumen"
+                            ]
+                        },
+                        {
+                            "title": "Agentes II",
+                            "sections": [
+                                "Reflexión",
+                                {
+                                    "section": "Subgrafos en LangGraph",
+                                    "subsections": [
+                                        "Llamando a un subgrafo directamente",
+                                        "Llamando a un subgrafo con una función"
+                                    ]
+                                },
+                                {
+                                    "section": "Arquitecturas multi-agente",
+                                    "subsections": [
+                                        "Arquitectura Supervisor"
+                                    ]
+                                },
+                                "Resumen"
+                            ]
+                        },
+                        {
+                            "title": "Patrones para Sacar lo Mejor de los LLMs",
+                            "sections": [
+                                {
+                                    "section": "Salida estructurada",
+                                    "subsections": [
+                                        "Salida intermedia",
+                                        "Streaming de salida LLM token por token",
+                                        "Modalidades con humano en el loop",
+                                        "Multitarea con LLMs"
+                                    ]
+                                },
+                                "Resumen"
+                            ]
+                        },
+                        {
+                            "title": "Despliegue: Lanzando tu Aplicación de IA en Producción",
+                            "sections": [
+                                {
+                                    "section": "Prerrequisitos",
+                                    "subsections": [
+                                        "Instalar dependencias",
+                                        "Modelo de lenguaje",
+                                        "Vector Store",
+                                        "API Backend",
+                                        "Crear cuenta en LangSmith"
+                                    ]
+                                },
+                                {
+                                    "section": "Entendiendo la API de LangGraph Platform",
+                                    "subsections": [
+                                        "Modelos de datos",
+                                        "Características"
+                                    ]
+                                },
+                                {
+                                    "section": "Desplegando tu aplicación en LangGraph Platform",
+                                    "subsections": [
+                                        "Crear una configuración de API LangGraph",
+                                        "Probar tu aplicación localmente",
+                                        "Desplegar desde la UI de LangSmith",
+                                        "Lanzar LangGraph Studio"
+                                    ]
+                                },
+                                "Seguridad",
+                                "Resumen"
+                            ]
+                        },
+                        {
+                            "title": "Pruebas: Evaluación, Monitoreo y Mejora Continua",
+                            "sections": [
+                                "Técnicas de testeo a lo largo del ciclo de desarrollo de apps LLM",
+                                "La etapa de diseño: RAG autocorrectivo",
+                                {
+                                    "section": "La etapa de preproducción",
+                                    "subsections": [
+                                        "Creación de datasets",
+                                        "Definición de criterios de evaluación",
+                                        "Pruebas de regresión",
+                                        "Evaluación del rendimiento de un agente de punta a punta"
+                                    ]
+                                },
+                                {
+                                    "section": "Producción",
+                                    "subsections": [
+                                        "Trazabilidad",
+                                        "Recolección de feedback en producción",
+                                        "Clasificación y etiquetado",
+                                        "Monitoreo y corrección de errores"
+                                    ]
+                                },
+                                "Resumen"
+                            ]
+                        }
+                    ]
+                }
             },
             {
                 "title": "IA Generativa con OpenAI",
@@ -250,8 +487,8 @@
                 "level": "Principiante",
                 "duration": "8 semanas",
                 "format": "En línea",
-                "regularPrice": "US$2,245",
-                "price": "US$1,795",
+                "regularPrice": "US$ 2,245",
+                "price": "US$ 1,795",
                 "buttonBg": "bg-violet-500",
                 "buttonHoverBg": "hover:bg-violet-600"
             },
@@ -263,8 +500,8 @@
                 "level": "Avanzado",
                 "duration": "12 semanas",
                 "format": "En línea",
-                "regularPrice": "US$2,995",
-                "price": "US$2,395",
+                "regularPrice": "US$ 2,995",
+                "price": "US$ 2,395",
                 "buttonBg": "bg-blue-500",
                 "buttonHoverBg": "hover:bg-blue-600"
             }
