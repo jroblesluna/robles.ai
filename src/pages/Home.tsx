@@ -39,9 +39,9 @@ const Home = () => {
   return (
     <>
       <Hero />
-      <CaseStudies />
       <Solutions />
       <Courses />
+      <CaseStudies />
       <Testimonials />
       <Features />
       <Team />

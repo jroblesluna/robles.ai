@@ -85,7 +85,7 @@ const iconAnimation = {
   hover: {
     scale: 1.2,
     rotate: 5,
-    transition: { duration: 0.3, type: "spring", stiffness: 200 },
+    transition: { duration: 0.3, type: "spring" as const, stiffness: 200 },
   },
 };
 
