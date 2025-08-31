@@ -1,169 +1,168 @@
-
 # Robles.AI – Website (Vite + React + Express)
 
-Sitio web público de **Robles.AI**, construido con **Vite + React (TypeScript)** en el frontend e **Express** como servidor de desarrollo/producción. Incluye internacionalización (**i18next**), componentes UI (Tailwind + shadcn), páginas de demo (RAG, Identity, LangChain, Medical), blog estático con posts en JSON y analítica opcional (GA4 + Facebook Pixel).
+Public website of **Robles.AI**, built with **Vite + React (TypeScript)** on the frontend and **Express** as the development/production server. It includes internationalization (**i18next**), UI components (Tailwind + shadcn), demo pages (RAG, Identity, LangChain, Medical), a static blog with JSON posts, and optional analytics (GA4 + Facebook Pixel).
 
 ---
 
-## 🚀 Características
-- **SPA con Vite + React** y rutas mediante **wouter**.
-- **Servidor Express** que sirve estáticos y, en desarrollo, integra el middleware de Vite.
-- **i18n** (en/es) con carga asíncrona de `translation.json` por locale.
-- **UI moderna** con Tailwind, framer-motion y componentes shadcn (botones, inputs, toasts).
-- **Páginas de demo**: `/try-identity`, `/try-rag`, `/try-langchain`, `/try-medical`.
-- **Blog estático**: secciones y posts en `server/data/posts/YYYY/MM/DD/*.json` con traducciones.
-- **Formularios** con validación (zod) y envío por correo vía **nodemailer** (en servidor).
-- **Analytics** opcional: GA4 y Facebook Pixel (activas solo en build de producción).
-- **Sitemaps** y archivos `robots.txt`, `sitemap.xml`, `static-pages.xml` en `public/`.
+## 🚀 Features
+- **SPA with Vite + React** and routing via **wouter**.
+- **Express server** serving static assets and integrating Vite middleware in development.
+- **i18n** (en/es) with asynchronous `translation.json` loading per locale.
+- **Modern UI** with Tailwind, framer-motion, and shadcn components (buttons, inputs, toasts).
+- **Demo pages**: `/try-identity`, `/try-rag`, `/try-langchain`, `/try-medical`.
+- **Static blog**: sections and posts in `server/data/posts/YYYY/MM/DD/*.json` with translations.
+- **Forms** with validation (zod) and email delivery via **nodemailer** (on server).
+- **Optional analytics**: GA4 and Facebook Pixel (active only in production build).
+- **Sitemaps** and files like `robots.txt`, `sitemap.xml`, `static-pages.xml` in `public/`.
 
 ---
 
-### Directorios clave
-- **src/**: componentes React, páginas, hooks, i18n, utilidades y estilos.
-- **server/**: Express (`index.ts`), rutas (`routes.ts`), integración con Vite (`vite.ts`) y datos (`data/`).
-- **public/**: assets estáticos públicos (robots, sitemaps).
-- **shared/**: tipos/esquemas compartidos entre cliente/servidor.
-- **tailwind.config.ts** y **postcss.config.js**: configuración de estilos.
-- **vite.config.ts**: config de bundling y plugins (React, SVGR).
+### Key Directories
+- **src/**: React components, pages, hooks, i18n, utilities, and styles.
+- **server/**: Express (`index.ts`), routes (`routes.ts`), Vite integration (`vite.ts`), and data (`data/`).
+- **public/**: public static assets (robots, sitemaps).
+- **shared/**: types/schemas shared between client/server.
+- **tailwind.config.ts** and **postcss.config.js**: styling configuration.
+- **vite.config.ts**: bundling and plugin config (React, SVGR).
 
 ---
 
-## ⚙️ Requisitos
-- **Node.js ≥ 20** (recomendado)
-- **pnpm / npm / yarn** (cualquiera; en ejemplos usaré npm)
+## ⚙️ Requirements
+- **Node.js ≥ 20** (recommended)
+- **pnpm / npm / yarn** (any; examples use npm)
 
 ---
 
 ## ▶️ Scripts (package.json)
-- `npm run dev` → inicia Express con `tsx watch server/index.ts` e integra Vite en modo desarrollo.
-- `npm run build` → compila el frontend (Vite) y bundlea el servidor (`esbuild`) a `dist/`.
-- `npm run postbuild` → copia `src/`, `shared/`, `public/` y `server/data/` a `dist/` (para servir estáticos/JSON).
-- `npm start` → ejecuta **producción**: `node dist/index.js`.
-- `npm run check` → `tsc` (chequeo de tipos).
-- `npm run db:push` → comandos de Drizzle (si usas base de datos).
+- `npm run dev` → start Express with `tsx watch server/index.ts` and integrate Vite in dev mode.
+- `npm run build` → compile frontend (Vite) and bundle server (`esbuild`) to `dist/`.
+- `npm run postbuild` → copy `src/`, `shared/`, `public/`, and `server/data/` to `dist/` (for serving static/JSON).
+- `npm start` → run **production**: `node dist/index.js`.
+- `npm run check` → `tsc` (type check).
+- `npm run db:push` → Drizzle commands (if database is used).
 
-> En desarrollo, accede típicamente vía `http://localhost:5173` (el puerto se puede ajustar con `PORT`).
+> In development, typically available at `http://localhost:5173` (port can be adjusted with `PORT`).
 
 ---
 
-## 🔧 Variables de entorno
-El servidor Express y el frontend usan variables de entorno. Crea un archivo `.env` en la raíz (no lo comitees):
+## 🔧 Environment Variables
+Both Express server and frontend use environment variables. Create a `.env` file in root (do not commit):
 
 ```
-# Servidor
+# Server
 PORT=5173
 HOST=0.0.0.0
 
-# Correo (formularios)
-EMAIL_HOST=smtp.tu_proveedor.com
+# Email (forms)
+EMAIL_HOST=smtp.your_provider.com
 EMAIL_PORT=587
-EMAIL_USER=tu_usuario
-EMAIL_PASS=tu_password
-EMAIL_TO=destino@dominio.com
+EMAIL_USER=your_user
+EMAIL_PASS=your_password
+EMAIL_TO=destination@domain.com
 
-# Analytics (solo producción)
+# Analytics (production only)
 VITE_GA_MEASUREMENT_ID=G-XXXXXXX
 VITE_FACEBOOK_PIXEL_ID=1234567890
 
-# Otros (si aplica)
+# Other (if applicable)
 NODE_ENV=development
 ```
 
-> **Frontend (Vite)** solo expone variables prefijadas con `VITE_`. Las demás se usan en el servidor.
+> **Frontend (Vite)** only exposes variables prefixed with `VITE_`. The rest are used on the server.
 
 ---
 
-## 🌍 Internacionalización (i18n)
-- Carpeta: `src/i18n/`  
-- Archivos: `locales/en/translation.json` y `locales/es/translation.json`  
-- Inicialización asíncrona en `src/i18n/index.ts` con `initI18n()` antes del render en `src/main.tsx`.
+## 🌍 Internationalization (i18n)
+- Folder: `src/i18n/`  
+- Files: `locales/en/translation.json` and `locales/es/translation.json`  
+- Async initialization in `src/i18n/index.ts` with `initI18n()` before rendering in `src/main.tsx`.
 
-Para agregar un idioma:
-1. Crea `src/i18n/locales/<lng>/translation.json`.
-2. Regístralo en `initI18n()`.
-3. Usa `useTranslation()` en componentes y claves como `t("hero.title")`.
-
----
-
-## 🧩 Componentes y Páginas
-- **Componentes** en `src/components/` (Header, Footer, Hero, Features, Solutions, Pricing, Contact, CaseStudies, Testimonials, Team, Newsletter, LanguageSwitcher, etc.).
-- **Páginas** en `src/pages/` (Home, Careers, Apply, OTP, BlogList, BlogPost, TryIdentity, TryLangChain, TryRAG, TryMedical, not-found).  
-- **Ruteo** con **wouter** definido en `src/App.tsx`.
-
-### Formularios
-- Validación con **zod** (y `@hookform/resolvers` / `react-hook-form` en cliente).
-- Envío por correo vía **nodemailer** en el servidor (`server/routes.ts`).  
-- Configura `EMAIL_*` en `.env`.
+To add a language:
+1. Create `src/i18n/locales/<lng>/translation.json`.
+2. Register it in `initI18n()`.
+3. Use `useTranslation()` in components and keys like `t("hero.title")`.
 
 ---
 
-## 📰 Blog estático
-- Ubicación: `server/data/posts/YYYY/MM/DD/*.json`
-- Estructura por post: categorías, keywords y `translations` (`en`, `es`) con `slug`, `title`, `excerpt`, `content`.
-- Los listados y el detalle del blog están en `src/pages/BlogList.tsx` y `src/pages/BlogPost.tsx`.
-- Sitemaps en `server/data/sitemaps/` y salida pública en `public/`.
+## 🧩 Components & Pages
+- **Components** in `src/components/` (Header, Footer, Hero, Features, Solutions, Pricing, Contact, CaseStudies, Testimonials, Team, Newsletter, LanguageSwitcher, etc.).
+- **Pages** in `src/pages/` (Home, Careers, Apply, OTP, BlogList, BlogPost, TryIdentity, TryLangChain, TryRAG, TryMedical, not-found).  
+- **Routing** with **wouter**, defined in `src/App.tsx`.
 
-> Puedes generar/actualizar posts programáticamente con los scripts en `src/scripts/` o tareas `cron` (ver `server/routes.ts`).
+### Forms
+- Validation with **zod** (and `@hookform/resolvers` / `react-hook-form` on client).
+- Email sending via **nodemailer** on server (`server/routes.ts`).  
+- Configure `EMAIL_*` in `.env`.
+
+---
+
+## 📰 Static Blog
+- Location: `server/data/posts/YYYY/MM/DD/*.json`
+- Post structure: categories, keywords, and `translations` (`en`, `es`) with `slug`, `title`, `excerpt`, `content`.
+- Blog listing and detail in `src/pages/BlogList.tsx` and `src/pages/BlogPost.tsx`.
+- Sitemaps in `server/data/sitemaps/` and public output in `public/`.
+
+> Posts can be generated/updated programmatically via scripts in `src/scripts/` or `cron` tasks (see `server/routes.ts`).
 
 ---
 
 ## 🧪 Demos (Try*)
-- **/try-identity**: front que sube archivo a **Firebase Storage** y golpea `https://identity-api.robles.ai` (o `http(s)://HOST:8080` en dev) para verificación. Ajusta la base de la API según entorno.
-- **/try-rag**, **/try-langchain**, **/try-medical**: UIs de ejemplo para consultas y visualización de resultados.
+- **/try-identity**: frontend uploads file to **Firebase Storage** and hits `https://identity-api.robles.ai` (or `http(s)://HOST:8080` in dev) for verification. Adjust API base according to environment.
+- **/try-rag**, **/try-langchain**, **/try-medical**: example UIs for queries and results.
 
-> **Firebase**: la configuración está en `src/lib/firebaseConfig.ts`. Recomendado mover claves a variables de entorno públicas `VITE_...` y configurar reglas seguras de Storage.
+> **Firebase**: config is in `src/lib/firebaseConfig.ts`. It’s recommended to move keys to public env variables `VITE_...` and configure secure Storage rules.
 
 ---
 
 ## 🎯 Analytics
-- Se inicializa solo en **producción** (build) mediante `src/lib/analytics.ts`.
-- Soporta **GA4** (`VITE_GA_MEASUREMENT_ID`) y **Facebook Pixel** (`VITE_FACEBOOK_PIXEL_ID`).
+- Initialized only in **production** (build) via `src/lib/analytics.ts`.
+- Supports **GA4** (`VITE_GA_MEASUREMENT_ID`) and **Facebook Pixel** (`VITE_FACEBOOK_PIXEL_ID`).
 
 ---
 
-## 🧰 Desarrollo local
+## 🧰 Local Development
 ```bash
-# 1) Instalar dependencias
+# 1) Install dependencies
 npm install
 
-# 2) Variables de entorno
-cp .env.example .env   # (si creas uno de ejemplo) y ajusta EMAIL_*, VITE_*
+# 2) Environment variables
+cp .env.example .env   # (if you create one) and adjust EMAIL_*, VITE_*
 
-# 3) Ejecutar entorno de desarrollo
+# 3) Run dev environment
 npm run dev
 
-# 4) Build de producción
+# 4) Production build
 npm run build
 npm start
 ```
 
-> En producción, Express sirve los estáticos desde `dist/public` y expone los endpoints definidos en `server/routes.ts` (contacto, sitemaps, cron, etc.).
+> In production, Express serves statics from `dist/public` and exposes endpoints defined in `server/routes.ts` (contact, sitemaps, cron, etc.).
 
 ---
 
-## 🏗️ Arquitectura en breve
-- **Cliente**: React + Vite + Tailwind + i18next + framer-motion + shadcn.
-- **Servidor**: Express con middlewares, logging de respuestas JSON y envío de correos.
-- **Build**: Vite para frontend, `esbuild` para server. Post-build copia recursos a `dist/`.
-- **Rutas**: wouter en cliente; endpoints de utilidades en `server/routes.ts`.
-- **Datos**: JSON de blog y sitemaps en `server/data/` copiados a `dist/` en el build.
+## 🏗️ Architecture at a Glance
+- **Client**: React + Vite + Tailwind + i18next + framer-motion + shadcn.
+- **Server**: Express with middlewares, JSON response logging, and email delivery.
+- **Build**: Vite for frontend, `esbuild` for server. Post-build copies resources into `dist/`.
+- **Routing**: wouter in client; utility endpoints in `server/routes.ts`.
+- **Data**: Blog JSON and sitemaps in `server/data/` copied to `dist/` on build.
 
 ---
 
-## 🔒 Seguridad y buenas prácticas
-- Mover credenciales (Firebase, correo) a `.env` con prefijo `VITE_` para el cliente cuando sea necesario y **no** comitearlas.
-- Habilitar CORS solo cuando corresponda.
-- Validar inputs con zod tanto en cliente como en servidor.
-- Revisar reglas de Firebase Storage para prevenir accesos no autorizados.
+## 🔒 Security & Best Practices
+- Move credentials (Firebase, email) to `.env` with `VITE_` prefix for client when needed, and **do not commit** them.
+- Enable CORS only when necessary.
+- Validate inputs with zod both on client and server.
+- Review Firebase Storage rules to prevent unauthorized access.
 
 ---
 
-## 📄 Licencia
+## 📄 License
 MIT © 2025 Robles.AI
 
 ---
 
-## 📬 Contacto
-- Web: https://robles.ai
+## 📬 Contact
+- Website: https://robles.ai
 - Email: antonio@robles.ai
-- Ubicación: Cupertino, CA
+- Location: Cupertino, CA
