@@ -17,8 +17,6 @@ async function ensureUrlInSitemap(slug: string, date: string, lang: string) {
     ? path.resolve(process.cwd(), 'dist/data/sitemaps')
     : path.resolve(__dirname, '../../server/data/sitemaps');
 
-  console.log(sitemapFolder);
-  exit;
   const yearMonth = date.slice(0, 7); // YYYY-MM
   const sitemapFile = path.join(sitemapFolder, `${yearMonth}-${lang}.xml`);
 
@@ -77,18 +75,22 @@ async function listFilesRecursive(dir: string, prefix = ''): Promise<void> {
     const fullPath = path.join(dir, entry.name);
 
     if (entry.isDirectory()) {
-      // console.log(`📂 ${prefix}${entry.name}/`);
       await listFilesRecursive(fullPath, `${prefix}${entry.name}/`);
     } else {
       const json_name = `${prefix}${entry.name}`;
-      const nameNews = path.parse(json_name).name;
+      const raw = await fs.promises.readFile(fullPath, 'utf-8');
+      const data = JSON.parse(raw);
       const match = json_name.match(/\d{4}-\d{2}-\d{2}/);
       const dateOnly = match ? match[0] : null;
-      const lenguages = ['es', 'en'];
-      const fullPathNews = `${URL_BASE}${nameNews}?lang=`;
-      for (const l of lenguages) {
-        console.log(fullPathNews + l);
-        await ensureUrlInSitemap(nameNews, dateOnly || '', l);
+      if (data.translations) {
+        for (const lang of Object.keys(data.translations)) {
+          const slug = data.translations[lang]?.slug;
+          if (slug) {
+            const fullPathNews = `${URL_BASE}${slug}?lang=${lang}`;
+            console.log(fullPathNews);
+            await ensureUrlInSitemap(slug, dateOnly || '', lang);
+          }
+        }
       }
     }
   }
