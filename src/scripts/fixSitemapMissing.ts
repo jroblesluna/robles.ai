@@ -82,7 +82,7 @@ async function listFilesRecursive(dir: string, prefix = ''): Promise<void> {
       const fullPathNews = `${URL_BASE}${nameNews}?lang=`;
       for (const l of lenguages) {
         console.log(fullPathNews + l);
-        await ensureUrlInSitemap(fullPathNews + l, dateOnly || '', l);
+        await ensureUrlInSitemap(nameNews, dateOnly || '', l);
       }
     }
   }
