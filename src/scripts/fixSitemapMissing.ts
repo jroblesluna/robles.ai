@@ -3,6 +3,8 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 import { promises as fsPromises } from 'fs';
 import { exit } from 'process';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -92,6 +94,6 @@ async function listFilesRecursive(dir: string, prefix = ''): Promise<void> {
   }
 }
 
-// listFilesRecursive(folderPostPath).catch((err) => {
-//   console.error('❌ Error al recorrer carpetas:', err);
-// });
+listFilesRecursive(folderPostPath).catch((err) => {
+  console.error('❌ Error al recorrer carpetas:', err);
+});
