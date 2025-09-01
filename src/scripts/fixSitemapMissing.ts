@@ -2,16 +2,21 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import { promises as fsPromises } from 'fs';
+import { exit } from 'process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const isProd = process.env.NODE_ENV == 'production';
+console.log(process.env.NODE_ENV);
+console.log(isProd);
 
 async function ensureUrlInSitemap(slug: string, date: string, lang: string) {
-  const isProd = process.env.NODE_ENV === 'production';
   const sitemapFolder = isProd
     ? path.resolve(process.cwd(), 'dist/data/sitemaps')
     : path.resolve(__dirname, '../../server/data/sitemaps');
 
+  console.log(sitemapFolder);
+  exit;
   const yearMonth = date.slice(0, 7); // YYYY-MM
   const sitemapFile = path.join(sitemapFolder, `${yearMonth}-${lang}.xml`);
 
@@ -57,7 +62,6 @@ async function ensureUrlInSitemap(slug: string, date: string, lang: string) {
   console.log(`✅ URL agregada y sitemap actualizado: ${sitemapFile}`);
 }
 
-const isProd = process.env.NODE_ENV === 'production';
 const URL_BASE = 'https://robles.ai/blog/';
 
 const folderPostPath = isProd
@@ -88,6 +92,6 @@ async function listFilesRecursive(dir: string, prefix = ''): Promise<void> {
   }
 }
 
-listFilesRecursive(folderPostPath).catch((err) => {
-  console.error('❌ Error al recorrer carpetas:', err);
-});
+// listFilesRecursive(folderPostPath).catch((err) => {
+//   console.error('❌ Error al recorrer carpetas:', err);
+// });
