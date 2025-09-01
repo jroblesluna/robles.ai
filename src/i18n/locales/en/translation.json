@@ -189,6 +189,7 @@
         "enroll": "Enroll",
         "status": "Course is Full!",
         "statusMessage": "Please leave a message so we can keep you updated when new slots open.",
+        "details": "View Details",
         "items": [
             {
                 "title": "PyTorch Deep Learning",
@@ -211,8 +212,8 @@
                 "level": "Advanced",
                 "duration": "12 Weeks",
                 "format": "Online",
-                "regularPrice": "US$2,495",
-                "price": "US$1,995",
+                "regularPrice": "US$ 2,495",
+                "price": "US$ 1,995",
                 "buttonBg": "bg-orange-500",
                 "buttonHoverBg": "hover:bg-orange-600"
             },
@@ -224,8 +225,8 @@
                 "level": "Intermediate",
                 "duration": "8 Weeks",
                 "format": "Online",
-                "regularPrice": "US$2,369",
-                "price": "US$1,895",
+                "regularPrice": "US$ 2,369",
+                "price": "US$ 1,895",
                 "buttonBg": "bg-yellow-500",
                 "buttonHoverBg": "hover:bg-yellow-600"
             },
@@ -237,10 +238,246 @@
                 "level": "Intermediate",
                 "duration": "6 Weeks",
                 "format": "Online",
-                "regularPrice": "US$2,115",
+                "regularPrice": "US$ 2,115",
                 "price": "$US1,695",
                 "buttonBg": "bg-green-500",
-                "buttonHoverBg": "hover:bg-green-600"
+                "buttonHoverBg": "hover:bg-green-600",
+                "details": {
+                    "book": {
+                        "editorial": "O'Reilly Media",
+                        "title": "Learning LangChain",
+                        "subtitle": "Building AI and LLM Applications with LangChain and LangGraph.",
+                        "author": "Mayo Oshin, Nuno Campos",
+                        "date": "February 2025"
+                    },
+                    "chapters": [
+                        {
+                            "title": "LLM Fundamentals With LangChain",
+                            "sections": [
+                                "Getting Set Up with LangChain",
+                                "Using LLMs in LangChain",
+                                "Making LLM Prompts Reusable",
+                                {
+                                    "section": "Getting Specific Formats out of LLMs",
+                                    "subsections": [
+                                        "JSON Output",
+                                        "Other Machine-Readable Formats with Output Parsers"
+                                    ]
+                                },
+                                {
+                                    "section": "Assembling the Many Pieces of an LLM Application",
+                                    "subsections": [
+                                        "Using the Runnable Interface",
+                                        "Imperative Composition",
+                                        "Declarative Composition"
+                                    ]
+                                },
+                                "Summary"
+                            ]
+                        },
+                        {
+                            "title": "RAG Part I: Indexing Your Data",
+                            "sections": [
+                                "The Goal: Picking Relevant Context for LLMs",
+                                {
+                                    "section": "Embeddings: Converting Text to Numbers",
+                                    "subsections": [
+                                        "Embeddings Before LLMs",
+                                        "LLM-Based Embeddings",
+                                        "Semantic Embeddings Explained"
+                                    ]
+                                },
+                                "Converting Your Documents into Text",
+                                "Splitting Your Text into Chunks",
+                                "Generating Text Embeddings",
+                                {
+                                    "section": "Storing Embeddings in a Vector Store",
+                                    "subsections": [
+                                        "Getting Set Up with PGVector",
+                                        "Working with Vector Stores"
+                                    ]
+                                },
+                                "Tracking Changes to Your Documents",
+                                {
+                                    "section": "Indexing Optimization",
+                                    "subsections": [
+                                        "MultiVectorRetriever",
+                                        "RAPTOR: Recursive Abstractive Processing for Tree-Organized Retrieval",
+                                        "CoLBERT: Optimizing Embeddings"
+                                    ]
+                                },
+                                "Summary"
+                            ]
+                        },
+                        {
+                            "title": "RAG Part II: Chatting With Your Data",
+                            "sections": [
+                                "Introducing Retrieval-Augmented Generation",
+                                {
+                                    "section": "Retrieving Relevant Documents",
+                                    "subsections": [
+                                        "Generating LLM Predictions Using Relevant Documents"
+                                    ]
+                                },
+                                {
+                                    "section": "Query Transformation",
+                                    "subsections": [
+                                        "Rewrite-Retrieve-Read",
+                                        "Multi-Query Retrieval",
+                                        "RAG-Fusion",
+                                        "Hypothetical Document Embeddings"
+                                    ]
+                                },
+                                {
+                                    "section": "Query Routing",
+                                    "subsections": [
+                                        "Logical Routing",
+                                        "Semantic Routing"
+                                    ]
+                                },
+                                {
+                                    "section": "Query Construction",
+                                    "subsections": [
+                                        "Text-to-Metadata Filter",
+                                        "Text-to-SQL"
+                                    ]
+                                },
+                                "Summary"
+                            ]
+                        },
+                        {
+                            "title": "Using LangGraph To Add Memory To Your Chatbot",
+                            "sections": [
+                                "Building a Chatbot Memory System",
+                                "Introducing LangGraph",
+                                "Creating a StateGraph",
+                                "Adding Memory to StateGraph",
+                                {
+                                    "section": "Modifying Chat History",
+                                    "subsections": [
+                                        "Trimming Messages",
+                                        "Filtering Messages",
+                                        "Merging Consecutive Messages"
+                                    ]
+                                },
+                                "Summary"
+                            ]
+                        },
+                        {
+                            "title": "Cognitive Architectures With LangGraph",
+                            "sections": [
+                                "Architecture #1: LLM Call",
+                                "Architecture #2: Chain",
+                                "Architecture #3: Router",
+                                "Summary"
+                            ]
+                        },
+                        {
+                            "title": "Agent Architecture",
+                            "sections": [
+                                "The Plan-Do Loop",
+                                "Building a LangGraph Agent",
+                                "Always Calling a Tool First",
+                                "Dealing with Many Tools",
+                                "Summary"
+                            ]
+                        },
+                        {
+                            "title": "Agents II",
+                            "sections": [
+                                "Reflection",
+                                {
+                                    "section": "Subgraphs in LangGraph",
+                                    "subsections": [
+                                        "Calling a Subgraph Directly",
+                                        "Calling a Subgraph with a Function"
+                                    ]
+                                },
+                                {
+                                    "section": "Multi-Agent Architectures",
+                                    "subsections": [
+                                        "Supervisor Architecture"
+                                    ]
+                                },
+                                "Summary"
+                            ]
+                        },
+                        {
+                            "title": "Patterns To Make The Most Of LLMs",
+                            "sections": [
+                                {
+                                    "section": "Structured Output",
+                                    "subsections": [
+                                        "Intermediate Output",
+                                        "Streaming LLM Output Token-by-Token",
+                                        "Human-in-the-Loop Modalities",
+                                        "Multitasking LLMs"
+                                    ]
+                                },
+                                "Summary"
+                            ]
+                        },
+                        {
+                            "title": "Deployment: Launching Your AI Application Into Production",
+                            "sections": [
+                                {
+                                    "section": "Prerequisites",
+                                    "subsections": [
+                                        "Install Dependencies",
+                                        "Large Language Model",
+                                        "Vector Store",
+                                        "Backend API",
+                                        "Create a LangSmith Account"
+                                    ]
+                                },
+                                {
+                                    "section": "Understanding the LangGraph Platform API",
+                                    "subsections": [
+                                        "Data Models",
+                                        "Features"
+                                    ]
+                                },
+                                {
+                                    "section": "Deploying Your AI Application on LangGraph Platform",
+                                    "subsections": [
+                                        "Create a LangGraph API Config",
+                                        "Test Your LangGraph App Locally",
+                                        "Deploy from the LangSmith UI",
+                                        "Launch LangGraph Studio"
+                                    ]
+                                },
+                                "Security",
+                                "Summary"
+                            ]
+                        },
+                        {
+                            "title": "Testing: Evaluation, Monitoring, And Continuous Improvement",
+                            "sections": [
+                                "Testing Techniques Across the LLM App Development Cycle",
+                                "The Design Stage: Self-Corrective RAG",
+                                {
+                                    "section": "The Preproduction Stage",
+                                    "subsections": [
+                                        "Creating Datasets",
+                                        "Defining Your Evaluation Criteria",
+                                        "Regression Testing",
+                                        "Evaluating an Agent's End-to-End Performance"
+                                    ]
+                                },
+                                {
+                                    "section": "Production",
+                                    "subsections": [
+                                        "Tracing",
+                                        "Collect Feedback in Production",
+                                        "Classification and Tagging",
+                                        "Monitoring and Fixing Errors"
+                                    ]
+                                },
+                                "Summary"
+                            ]
+                        }
+                    ]
+                }
             },
             {
                 "title": "Generative AI with OpenAI",
@@ -250,8 +487,8 @@
                 "level": "Beginner",
                 "duration": "8 Weeks",
                 "format": "Online",
-                "regularPrice": "US$2,245",
-                "price": "US$1,795",
+                "regularPrice": "US$ 2,245",
+                "price": "US$ 1,795",
                 "buttonBg": "bg-violet-500",
                 "buttonHoverBg": "hover:bg-violet-600"
             },
@@ -263,8 +500,8 @@
                 "level": "Advanced",
                 "duration": "12 Weeks",
                 "format": "Online",
-                "regularPrice": "US$2,995",
-                "price": "US$2,395",
+                "regularPrice": "US$ 2,995",
+                "price": "US$ 2,395",
                 "buttonBg": "bg-blue-500",
                 "buttonHoverBg": "hover:bg-blue-600"
             }
