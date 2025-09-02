@@ -98,11 +98,8 @@ export default function BlogPost() {
 
   useEffect(() => {
     if (!post) {
-      window.location.href = '/not-found'; // 👈 redirige a tu ruta 404
       return;
     }
-
-    // Genera URLs en ambos idiomas
 
     // Limpia versiones anteriores
     document
