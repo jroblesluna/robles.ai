@@ -77,6 +77,49 @@ export default function BlogPost() {
   const slug = params.slug;
 
   useEffect(() => {
+    if (!post) return;
+
+    // Genera URLs en ambos idiomas
+    const base = `https://robles.ai/blog/${post.slug}`;
+    const urls = {
+      en: `${base}?lang=en`,
+      es: `${base}?lang=es`,
+    };
+
+    // Limpia versiones anteriores
+    document
+      .querySelectorAll("link[rel='canonical'], link[rel='alternate']")
+      .forEach((el) => el.remove());
+
+    // Canonical dinámico según idioma activo
+    const canonical = document.createElement('link');
+    canonical.rel = 'canonical';
+    canonical.href = urls[i18n.language as 'en' | 'es'] || urls.en;
+    document.head.appendChild(canonical);
+
+    // Alternate en
+    const altEn = document.createElement('link');
+    altEn.rel = 'alternate';
+    altEn.hreflang = 'en';
+    altEn.href = urls.en;
+    document.head.appendChild(altEn);
+
+    // Alternate es
+    const altEs = document.createElement('link');
+    altEs.rel = 'alternate';
+    altEs.hreflang = 'es';
+    altEs.href = urls.es;
+    document.head.appendChild(altEs);
+
+    // x-default
+    const altDefault = document.createElement('link');
+    altDefault.rel = 'alternate';
+    altDefault.hreflang = 'x-default';
+    altDefault.href = urls.en; // o puedes usar la home en inglés como "default"
+    document.head.appendChild(altDefault);
+  }, [post, i18n.language]);
+
+  useEffect(() => {
     if (slug) {
       fetch(`/api/blog/${slug}`)
         .then((res) => res.json())
