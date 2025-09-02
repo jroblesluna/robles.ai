@@ -10,8 +10,18 @@ interface Post {
   categories: string[];
   keywords: string[];
   translations: {
-    en: { title: string; excerpt: string; content: { heading: string; body: string }[] };
-    es: { title: string; excerpt: string; content: { heading: string; body: string }[] };
+    en: {
+      slug: string;
+      title: string;
+      excerpt: string;
+      content: { heading: string; body: string }[];
+    };
+    es: {
+      slug: string;
+      title: string;
+      excerpt: string;
+      content: { heading: string; body: string }[];
+    };
   };
   sources: { title: string; url: string; source: string; urlToImage?: string }[];
   stats?: {
@@ -81,42 +91,43 @@ export default function BlogPost() {
 
     // Genera URLs en ambos idiomas
     const base = `https://robles.ai/blog/${post.slug}`;
-    const urls = {
-      en: `${base}?lang=en`,
-      es: `${base}?lang=es`,
-    };
 
     // Limpia versiones anteriores
     document
       .querySelectorAll("link[rel='canonical'], link[rel='alternate']")
       .forEach((el) => el.remove());
+    console.log(post);
+
+    let lenguage_page = post.translations.es?.slug == post.slug ? 'es' : 'en';
+    console.log(post.translations.es?.slug);
+    console.log(lenguage_page);
 
     // Canonical dinámico según idioma activo
     const canonical = document.createElement('link');
     canonical.rel = 'canonical';
-    canonical.href = urls[i18n.language as 'en' | 'es'] || urls.en;
+    canonical.href = `${base}?lang=${lenguage_page}`;
     document.head.appendChild(canonical);
 
     // Alternate en
     const altEn = document.createElement('link');
     altEn.rel = 'alternate';
     altEn.hreflang = 'en';
-    altEn.href = urls.en;
+    altEn.href = `https://robles.ai/blog/${post.translations.en?.slug}?lang=en`;
     document.head.appendChild(altEn);
 
     // Alternate es
     const altEs = document.createElement('link');
     altEs.rel = 'alternate';
     altEs.hreflang = 'es';
-    altEs.href = urls.es;
+    altEs.href = `https://robles.ai/blog/${post.translations.es?.slug}?lang=es`;
     document.head.appendChild(altEs);
 
-    // x-default
-    const altDefault = document.createElement('link');
-    altDefault.rel = 'alternate';
-    altDefault.hreflang = 'x-default';
-    altDefault.href = urls.en; // o puedes usar la home en inglés como "default"
-    document.head.appendChild(altDefault);
+    // // x-default
+    // const altDefault = document.createElement('link');
+    // altDefault.rel = 'alternate';
+    // altDefault.hreflang = 'x-default';
+    // altDefault.href = urls.en; // o puedes usar la home en inglés como "default"
+    // document.head.appendChild(altDefault);
   }, [post, i18n.language]);
 
   useEffect(() => {
