@@ -85,27 +85,36 @@ export default function BlogPost() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const params = useParams<{ slug: string }>();
   const slug = params.slug;
+  const [slugWeb, setSlugWeb] = useState('');
 
   useEffect(() => {
-    if (!post) return;
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      const pathname = url.pathname;
+      const parts = pathname.split('/');
+      setSlugWeb(parts.pop() || '');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!post) {
+      window.location.href = '/not-found'; // 👈 redirige a tu ruta 404
+      return;
+    }
 
     // Genera URLs en ambos idiomas
-    const base = `https://robles.ai/blog/${post.slug}`;
 
     // Limpia versiones anteriores
     document
       .querySelectorAll("link[rel='canonical'], link[rel='alternate']")
       .forEach((el) => el.remove());
-    console.log(post);
 
-    let lenguage_page = post.translations.es?.slug == post.slug ? 'es' : 'en';
-    console.log(post.translations.es?.slug);
-    console.log(lenguage_page);
+    let lenguage_page = post.translations.es?.slug == slugWeb ? 'es' : 'en';
 
     // Canonical dinámico según idioma activo
     const canonical = document.createElement('link');
     canonical.rel = 'canonical';
-    canonical.href = `${base}?lang=${lenguage_page}`;
+    canonical.href = `https://robles.ai/blog/${slugWeb}?lang=${lenguage_page}`;
     document.head.appendChild(canonical);
 
     // Alternate en
