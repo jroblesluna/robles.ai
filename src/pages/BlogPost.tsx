@@ -139,8 +139,20 @@ export default function BlogPost() {
   useEffect(() => {
     if (slug) {
       fetch(`/api/blog/${slug}`)
-        .then((res) => res.json())
-        .then((data) => setPost(data));
+        .then((res) => {
+          if (res.status === 404) {
+            window.location.href = '/not-found';
+            return null;
+          }
+          return res.json();
+        })
+        .then((data) => {
+          if (data) setPost(data);
+        })
+        .catch((err) => {
+          console.error('Error fetching post:', err);
+          window.location.href = '/not-found';
+        });
     }
     fetch('/api/editors')
       .then((res) => res.json())
@@ -156,7 +168,9 @@ export default function BlogPost() {
 
   if (!post) return <div className="p-6">Loading...</div>;
 
-  const translation = post.translations[i18n.language as 'en' | 'es'] || post.translations.en;
+  const translation =
+    post.translations[i18n.language as 'en' | 'es'] ||
+    (post.translations.es?.slug == slugWeb ? post.translations.es : post.translations.en);
   const editor = editors.find((e) => e.id === post.editorId);
 
   const postDate = extractDateTimeFromSlug(post.slug);
