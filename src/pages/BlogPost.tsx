@@ -1,3 +1,4 @@
+import { changeLanguage } from 'i18next';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'wouter';
@@ -80,6 +81,7 @@ function formatDateWithTimeZone(date: Date, language: 'en' | 'es'): string {
 
 export default function BlogPost() {
   const { i18n } = useTranslation();
+
   const [post, setPost] = useState<Post | null>(null);
   const [editors, setEditors] = useState<Editor[]>([]);
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -97,21 +99,30 @@ export default function BlogPost() {
   }, []);
 
   useEffect(() => {
-    if (!post) {
-      return;
+    const queryParams = new URLSearchParams(window.location.search);
+    const language = queryParams.get('lang');
+    if (language && (language == 'es' || language == 'en')) {
+      i18n.changeLanguage(language);
     }
+  }, []);
+
+  useEffect(() => {
+    if (!post) return;
 
     // Limpia versiones anteriores
     document
-      .querySelectorAll("link[rel='canonical'], link[rel='alternate']")
+      .querySelectorAll(
+        "link[rel='canonical'], link[rel='alternate'], meta[name='description']"
+      )
       .forEach((el) => el.remove());
 
-    let lenguage_page = post.translations.es?.slug == slugWeb ? 'es' : 'en';
+    // Detecta idioma
+    const language_page = post.translations.es?.slug === slugWeb ? 'es' : 'en';
 
     // Canonical dinámico según idioma activo
     const canonical = document.createElement('link');
     canonical.rel = 'canonical';
-    canonical.href = `https://robles.ai/blog/${slugWeb}?lang=${lenguage_page}`;
+    canonical.href = `https://robles.ai/blog/${slugWeb}?lang=${language_page}`;
     document.head.appendChild(canonical);
 
     // Alternate en
@@ -128,13 +139,17 @@ export default function BlogPost() {
     altEs.href = `https://robles.ai/blog/${post.translations.es?.slug}?lang=es`;
     document.head.appendChild(altEs);
 
-    // // x-default
-    // const altDefault = document.createElement('link');
-    // altDefault.rel = 'alternate';
-    // altDefault.hreflang = 'x-default';
-    // altDefault.href = urls.en; // o puedes usar la home en inglés como "default"
-    // document.head.appendChild(altDefault);
-  }, [post, i18n.language]);
+    // Cambiar el título según idioma
+    document.title =
+      language_page === 'es' ? post.translations.es?.title : post.translations.en?.title;
+
+    // Cambiar la meta descripción según idioma
+    const metaDescription = document.createElement('meta');
+    metaDescription.name = 'description';
+    metaDescription.content =
+      language_page === 'es' ? post.translations.es?.excerpt : post.translations.en?.excerpt;
+    document.head.appendChild(metaDescription);
+  }, [post, i18n.language, slugWeb]);
 
   useEffect(() => {
     if (slug) {
