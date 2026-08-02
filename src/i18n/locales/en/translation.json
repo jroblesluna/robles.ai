@@ -905,5 +905,101 @@
             "start_new": "Start New Case"
         },
         "disclaimer": "⚠️ This demo is for educational use only and not a medical device."
+    },
+    "landing": {
+        "hero": {
+            "title": "From Opportunity to Impact:",
+            "titleHighlight": "How We Bring AI to Your Operations",
+            "subtitle": "A proven process from real AI/ML transformation projects: we identify opportunities, prioritize them by real impact, and implement them in measurable stages — without risking operational stability.",
+            "cta": "Book Your Diagnosis"
+        },
+        "steps": {
+            "step1": { "title": "Diagnosis", "desc": "Survey of real processes and data" },
+            "step2": { "title": "Prioritization", "desc": "Impact, feasibility, and data dependencies" },
+            "step3": { "title": "Phased Roadmap", "desc": "Initiatives grouped by technical affinity" },
+            "step4": { "title": "Monitoring & Evaluation", "desc": "Real KPIs measured in production" }
+        },
+        "stats": {
+            "years": { "value": "10+", "label": "Years of Experience", "detail": "Company established since 2011, with discipline now applied to AI projects." },
+            "weeks": { "value": "2", "label": "Weeks of Diagnosis", "detail": "Prioritized action plan delivered before any major commitment." },
+            "stages": { "value": "4", "label": "Roadmap Stages", "detail": "Controlled progression that reduces risk and learning time in each phase." }
+        },
+        "howWeWork": {
+            "title": "How We Work: Four Steps to Real Impact",
+            "subtitle": "We prioritize initiatives that generate real operational and financial impact, without compromising your operational stability or forcing premature implementations.",
+            "step1Detail": "Interviews and review of real processes — not just what's documented — across all relevant business areas.",
+            "step2Detail": "Each opportunity is evaluated by impact, technical feasibility, and available data dependencies.",
+            "step3Detail": "Initiatives are grouped by technical affinity, reducing learning time and implementation risk.",
+            "step4Detail": "Formal window between stages: real KPIs are measured and the next stage is adjusted with concrete data.",
+            "quote": "The value isn't just in the list of initiatives, but in the sequencing logic: each stage reduces the risk and learning time of the next."
+        },
+        "principles": {
+            "title": "Sequencing Principles",
+            "subtitle": "Illustrative example of a phased roadmap structure.",
+            "p1": "Maximum impact in minimum time — we prioritize what generates the most value with the least technical complexity first.",
+            "p2": "Data source affinity — we group initiatives that share the same data origin.",
+            "p3": "Reusable architecture — connectors and guardrails validated in one stage remain available for subsequent stages.",
+            "p4": "Real feedback between stages — measured KPIs and concrete recommendations, not a generic review."
+        },
+        "services": {
+            "title": "Our Services",
+            "subtitle": "AI Diagnosis, process audits, assistants and chatbots, LLM integration, RAG knowledge bases, and predictive machine learning — each service designed to generate real operational and financial impact.",
+            "items": {
+                "diagnosis": { "title": "AI Diagnosis", "desc": "Prioritized opportunity map in 2 weeks." },
+                "audit": { "title": "Process Audit", "desc": "Technical review of where and how to automate with real data." },
+                "chatbots": { "title": "Assistants & Chatbots", "desc": "Internal or customer-facing queries, automated." },
+                "llm": { "title": "LLM Integration", "desc": "Language models connected to your current systems and workflows." },
+                "rag": { "title": "Knowledge Bases (RAG)", "desc": "Your internal information, queryable in natural language." },
+                "ml": { "title": "Predictive ML", "desc": "Forecasting, scoring, and prediction applied to your processes." }
+            }
+        },
+        "technologies": {
+            "title": "Technologies We Use, Explained Simply",
+            "subtitle": "We don't start from the trendy tool — we start from the functional need: we evaluate which combination best responds to your data, your systems, and your real operations.",
+            "items": {
+                "erp": { "title": "SAP / ERP Integration", "desc": "We connect AI directly to the system your business already uses, without duplicate data entry." },
+                "llm": { "title": "LLM — Language Models", "desc": "Understands natural language instructions and can answer queries, draft documents, or execute specific tasks." },
+                "rag": { "title": "RAG — Answers from Your Data", "desc": "Responds with your company's real, updated information — manuals, policies, internal documents." },
+                "ocr": { "title": "OCR — Automatic Document Reading", "desc": "Converts scanned invoices, receipts, or contracts into digital information ready to use." },
+                "apis": { "title": "APIs & Connectors", "desc": "The wiring that allows your systems to communicate and share information automatically." },
+                "cloud": { "title": "Cloud Architecture", "desc": "Cloud infrastructure that grows with your business, without relying on physical servers." },
+                "bi": { "title": "BI & Dashboards", "desc": "Visual dashboards that management can query in real time." },
+                "mlPredictive": { "title": "Predictive ML", "desc": "Models that learn from historical data to anticipate future behaviors." }
+            }
+        },
+        "experience": {
+            "title": "Track Record & Experience",
+            "subtitle": "We are a company with over a decade of formal track record (since 2011), with validated experience in banking and technology outsourcing — the same work discipline now applied to Artificial Intelligence projects.",
+            "latam": { "title": "LatAm ⇄ USA", "desc": "Cultural proximity and language in LatAm; standards and precision demanded by the US market." },
+            "data": { "title": "Data, Not Assumptions", "desc": "Each roadmap stage is adjusted with real KPIs measured in production." },
+            "sector": { "title": "Sector Experience", "desc": "Validated track record in banking and tech outsourcing, with rigor applied to AI projects." }
+        },
+        "diagnostico": {
+            "title": "Start with an AI Diagnosis",
+            "subtitle": "The simplest way to apply this methodology to your business: a structured diagnosis in 2 weeks that gives you a prioritized action plan, before any major implementation commitment.",
+            "timeline": {
+                "t1": { "title": "Week 1 — Survey", "desc": "Your current processes, data, and tools." },
+                "t2": { "title": "Week 1–2 — Analysis", "desc": "Opportunities prioritized by impact and effort." },
+                "t3": { "title": "Week 2 — Report", "desc": "Findings, risks, and prioritized roadmap." },
+                "t4": { "title": "Closing", "desc": "Live review session and next steps definition." }
+            },
+            "pricing": {
+                "label": "Investment",
+                "amount": "USD 1,500 – 3,000",
+                "detail": "Standard rate based on scope. Same rate in any country.",
+                "note": "Senior attention guaranteed — limited spots per quarter"
+            }
+        },
+        "cta": {
+            "title": "Book Your AI Diagnosis",
+            "subtitle": "Contact us today and take the first step toward an AI transformation based on real data, not assumptions.",
+            "email": "Email",
+            "phone": "Phone / WhatsApp",
+            "whatsappCta": "Book via WhatsApp"
+        },
+        "whatsapp": {
+            "greeting": "Hi! We're here to help you.",
+            "message": "Hello, I'm interested in an AI Diagnosis"
+        }
     }
 }

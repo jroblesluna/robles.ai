@@ -905,5 +905,101 @@
             "start_new": "Iniciar Nuevo Caso"
         },
         "disclaimer": "⚠️ Esta demostración es solo para uso educativo y no es un dispositivo médico."
+    },
+    "landing": {
+        "hero": {
+            "title": "De la Oportunidad al Impacto:",
+            "titleHighlight": "Cómo Llevamos la IA a tu Operación",
+            "subtitle": "Un proceso probado en proyectos reales de transformación con IA/ML: identificamos oportunidades, las priorizamos por impacto real y las implementamos en etapas medibles — sin arriesgar la estabilidad de tu operación.",
+            "cta": "Agenda tu Diagnóstico"
+        },
+        "steps": {
+            "step1": { "title": "Diagnóstico", "desc": "Relevamiento de procesos y datos reales" },
+            "step2": { "title": "Priorización", "desc": "Impacto, factibilidad y dependencia de datos" },
+            "step3": { "title": "Roadmap por Etapas", "desc": "Iniciativas agrupadas por afinidad técnica" },
+            "step4": { "title": "Monitoreo y Evaluación", "desc": "KPIs reales medidos en producción" }
+        },
+        "stats": {
+            "years": { "value": "10+", "label": "Años de trayectoria", "detail": "Compañía constituida desde 2011 con disciplina aplicada hoy a proyectos de IA." },
+            "weeks": { "value": "2", "label": "Semanas de diagnóstico", "detail": "Entrega de plan de acción priorizado antes de cualquier compromiso mayor." },
+            "stages": { "value": "4", "label": "Etapas del roadmap", "detail": "Progresión controlada que reduce riesgo y tiempo de aprendizaje en cada fase." }
+        },
+        "howWeWork": {
+            "title": "Cómo Trabajamos: Cuatro Pasos Hacia el Impacto Real",
+            "subtitle": "Priorizamos iniciativas que generan impacto operativo y financiero real, sin comprometer la estabilidad de tu operación ni forzar implementaciones prematuras.",
+            "step1Detail": "Entrevistas y revisión de procesos reales — no solo de lo documentado — en todas las áreas relevantes del negocio.",
+            "step2Detail": "Cada oportunidad se evalúa por impacto, factibilidad técnica y dependencia de datos disponibles.",
+            "step3Detail": "Las iniciativas se agrupan por afinidad técnica, reduciendo tiempo de aprendizaje y riesgo de implementación.",
+            "step4Detail": "Ventana formal entre etapas: se miden KPIs reales y se ajusta la siguiente etapa con datos concretos.",
+            "quote": "El valor no está solo en la lista de iniciativas, sino en la lógica de secuenciación: cada etapa reduce el riesgo y el tiempo de aprendizaje de la siguiente."
+        },
+        "principles": {
+            "title": "Principios de Secuenciación",
+            "subtitle": "Ejemplo ilustrativo de estructura de roadmap por etapas.",
+            "p1": "Mayor impacto en menor tiempo — priorizamos lo que genera más valor con menor complejidad técnica primero.",
+            "p2": "Afinidad de fuente de datos — agrupamos iniciativas que comparten el mismo origen de datos.",
+            "p3": "Arquitectura reutilizable — conectores y guardrails validados en una etapa quedan disponibles para las siguientes.",
+            "p4": "Retroalimentación real entre etapas — KPIs medidos y recomendaciones concretas, no una revisión genérica."
+        },
+        "services": {
+            "title": "Nuestros Servicios",
+            "subtitle": "Diagnóstico IA, auditoría de procesos, asistentes y chatbots, integración de LLM, bases de conocimiento RAG y machine learning predictivo — cada servicio diseñado para generar impacto operativo y financiero real.",
+            "items": {
+                "diagnosis": { "title": "Diagnóstico IA", "desc": "Mapa priorizado de oportunidades en 2 semanas." },
+                "audit": { "title": "Auditoría de Procesos", "desc": "Revisión técnica de dónde y cómo automatizar con datos reales." },
+                "chatbots": { "title": "Asistentes y Chatbots", "desc": "Atención y consultas internas o de clientes, automatizadas." },
+                "llm": { "title": "Integración de LLM", "desc": "Modelos de lenguaje conectados a tus sistemas y flujos actuales." },
+                "rag": { "title": "Bases de Conocimiento (RAG)", "desc": "Tu información interna, consultable en lenguaje natural." },
+                "ml": { "title": "Machine Learning Predictivo", "desc": "Forecasting, scoring y predicción aplicada a tus procesos." }
+            }
+        },
+        "technologies": {
+            "title": "Tecnologías que Usamos, Explicadas en Simple",
+            "subtitle": "No partimos de la herramienta de moda, sino de la necesidad funcional: evaluamos qué combinación responde mejor a tus datos, tus sistemas y tu operación real.",
+            "items": {
+                "erp": { "title": "Integración con SAP / ERP", "desc": "Conectamos la IA directamente con el sistema que ya usa el negocio, sin digitación duplicada." },
+                "llm": { "title": "LLM — Modelos de Lenguaje", "desc": "Entiende instrucciones en texto natural y puede responder consultas, redactar documentos o ejecutar tareas." },
+                "rag": { "title": "RAG — Respuestas basadas en tu información", "desc": "Responde con la información real y actualizada de tu empresa — manuales, políticas, documentos internos." },
+                "ocr": { "title": "OCR — Lectura automática de documentos", "desc": "Convierte facturas, boletas o contratos escaneados en información digital lista para usar." },
+                "apis": { "title": "APIs y Conectores", "desc": "Permite que tus sistemas se comuniquen entre sí y compartan información automáticamente." },
+                "cloud": { "title": "Cloud Architecture", "desc": "Infraestructura en la nube que crece junto con tu negocio, sin depender de servidores físicos." },
+                "bi": { "title": "BI y Dashboards", "desc": "Tableros visuales que la gerencia puede consultar en tiempo real." },
+                "mlPredictive": { "title": "Machine Learning Predictivo", "desc": "Modelos que aprenden de datos históricos para anticipar comportamientos futuros." }
+            }
+        },
+        "experience": {
+            "title": "Respaldo y Experiencia",
+            "subtitle": "Somos una compañía con más de una década de trayectoria formal (desde 2011), con experiencia validada en el sector bancario y de outsourcing tecnológico — la misma disciplina de trabajo aplicada ahora a proyectos de Inteligencia Artificial.",
+            "latam": { "title": "LatAm ⇄ USA", "desc": "Cercanía cultural e idioma en LatAm; estándares y precisión que exige el mercado de EE.UU." },
+            "data": { "title": "Datos, no supuestos", "desc": "Cada etapa del roadmap se ajusta con KPIs reales medidos en producción." },
+            "sector": { "title": "Experiencia sectorial", "desc": "Trayectoria validada en banca y outsourcing tecnológico, con rigor aplicado a proyectos de IA." }
+        },
+        "diagnostico": {
+            "title": "Empieza con un Diagnóstico IA",
+            "subtitle": "La forma más simple de aplicar esta metodología a tu negocio: un diagnóstico estructurado en 2 semanas que te da un plan de acción priorizado, antes de cualquier compromiso mayor.",
+            "timeline": {
+                "t1": { "title": "Semana 1 — Relevamiento", "desc": "Tus procesos, datos y herramientas actuales." },
+                "t2": { "title": "Semana 1–2 — Análisis", "desc": "Oportunidades priorizadas por impacto y esfuerzo." },
+                "t3": { "title": "Semana 2 — Informe", "desc": "Hallazgos, riesgos y hoja de ruta priorizada." },
+                "t4": { "title": "Cierre", "desc": "Sesión de revisión en vivo y definición de próximos pasos." }
+            },
+            "pricing": {
+                "label": "Inversión",
+                "amount": "USD 1,500 – 3,000",
+                "detail": "Tarifa estándar según alcance. Misma tarifa en cualquier país.",
+                "note": "Atención senior garantizada — cupo limitado por trimestre"
+            }
+        },
+        "cta": {
+            "title": "Agenda tu Diagnóstico IA",
+            "subtitle": "Contáctanos hoy y da el primer paso hacia una transformación con IA basada en datos reales, no en supuestos.",
+            "email": "Correo electrónico",
+            "phone": "Teléfono / WhatsApp",
+            "whatsappCta": "Agendar por WhatsApp"
+        },
+        "whatsapp": {
+            "greeting": "¡Hola! Estamos para ayudarte.",
+            "message": "Hola, me interesa un Diagnóstico IA"
+        }
     }
 }

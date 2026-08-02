@@ -18,6 +18,7 @@ import TryIdentity from '@/pages/TryIdentity';
 import TryLangChain from '@/pages/TryLangChain';
 import TryRAG from '@/pages/TryRAG';
 import TryMedical from '@/pages/TryMedical';
+import Landing from '@/pages/Landing';
 
 function App() {
   const [location] = useLocation(); // 👈 de wouter
@@ -62,6 +63,7 @@ function App() {
             <Route path="/try-langchain" component={TryLangChain} />
             <Route path="/try-rag" component={TryRAG} />
             <Route path="/try-medical" component={TryMedical} />
+            <Route path="/get-started" component={Landing} />
             <Route path="/otp" component={OTP} />
             <Route path="/blog" component={BlogList} />
             <Route path="/blog/:slug" component={BlogPost} />
