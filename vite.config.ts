@@ -21,8 +21,19 @@ export default defineConfig({
     include: ['react', 'react-dom', 'react/jsx-dev-runtime', 'react/jsx-runtime'], // Vite optimization
   },
   build: {
-    outDir: 'dist', // Explicit output directory
+    outDir: 'dist',
     emptyOutDir: true,
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'framer-motion'],
+          firebase: ['firebase/app', 'firebase/analytics', 'firebase/storage'],
+          ui: ['lucide-react', '@radix-ui/react-slot', '@radix-ui/react-label', '@radix-ui/react-toast'],
+          i18n: ['i18next', 'react-i18next', 'i18next-browser-languagedetector'],
+        },
+      },
+    },
   },
   resolve: {
     alias: {
