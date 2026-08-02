@@ -1,17 +1,39 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 
 const WHATSAPP_NUMBER = "14085900153";
 
+/**
+ * Returns a context-aware WhatsApp message and greeting based on the current route.
+ */
+function useWhatsAppContext() {
+  const { t } = useTranslation();
+  const [location] = useLocation();
+
+  // Determine key based on route
+  let contextKey = "default";
+  if (location === "/get-started") contextKey = "landing";
+  else if (location === "/") contextKey = "home";
+  else if (location.startsWith("/blog")) contextKey = "blog";
+  else if (location === "/careers" || location === "/apply") contextKey = "careers";
+  else if (location.startsWith("/try-")) contextKey = "demos";
+
+  const greeting = t(`whatsappWidget.${contextKey}.greeting`);
+  const message = t(`whatsappWidget.${contextKey}.message`);
+
+  return { greeting, message };
+}
+
 export default function WhatsAppBubble() {
   const { t } = useTranslation();
+  const { greeting, message } = useWhatsAppContext();
   const [showChat, setShowChat] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
-  const whatsappMessage = encodeURIComponent(t("landing.whatsapp.message"));
-  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`;
+  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 
   // Show chat popup after 10 seconds
   useEffect(() => {
@@ -30,9 +52,10 @@ export default function WhatsAppBubble() {
 
   const handleBubbleClick = () => {
     if (dismissed) {
-      // If user previously dismissed, re-show the chat popup
       setShowChat(true);
       setDismissed(false);
+    } else if (!showChat) {
+      setShowChat(true);
     }
   };
 
@@ -74,7 +97,7 @@ export default function WhatsAppBubble() {
             {/* Chat body */}
             <div className="p-4 bg-[#e5ddd5] min-h-[80px]">
               <div className="bg-white rounded-lg px-3 py-2 shadow-sm max-w-[85%] relative">
-                <p className="text-gray-800 text-sm">{t("landing.whatsapp.greeting")}</p>
+                <p className="text-gray-800 text-sm">{greeting}</p>
                 <span className="text-[10px] text-gray-400 float-right mt-1">
                   {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </span>
@@ -89,7 +112,7 @@ export default function WhatsAppBubble() {
                 rel="noopener noreferrer"
                 className="block w-full text-center bg-[#25d366] hover:bg-[#20bd5a] text-white font-medium text-sm py-2.5 rounded-lg transition-colors"
               >
-                {t("landing.cta.whatsappCta")}
+                {t("whatsappWidget.cta")}
               </a>
             </div>
           </motion.div>

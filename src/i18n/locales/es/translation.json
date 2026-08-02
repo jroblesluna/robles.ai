@@ -17,7 +17,8 @@
         "title": "Soluciones Robustas de Inteligencia Artificial",
         "subtitle": "Transforma tu negocio con tecnología de IA de vanguardia que ofrece resultados reales.",
         "cta1": "¿Porqué elegirnos?",
-        "cta2": "Centro de Noticias IA"
+        "cta2": "Centro de Noticias IA",
+        "cta3": "Empezar con IA en mi Empresa"
     },
     "caseStudies": {
         "title": "Casos de Éxito",
@@ -1000,6 +1001,33 @@
         "whatsapp": {
             "greeting": "¡Hola! Estamos para ayudarte.",
             "message": "Hola, me interesa un Diagnóstico IA"
+        }
+    },
+    "whatsappWidget": {
+        "cta": "Escríbenos",
+        "default": {
+            "greeting": "¡Hola! ¿En qué podemos ayudarte hoy?",
+            "message": "Hola, me gustaría saber más sobre Robles.AI"
+        },
+        "home": {
+            "greeting": "¡Hola! ¿Quieres saber cómo la IA puede transformar tu negocio?",
+            "message": "Hola, me interesan sus soluciones de IA"
+        },
+        "landing": {
+            "greeting": "¡Hola! Estamos para ayudarte a empezar con IA.",
+            "message": "Hola, me interesa un Diagnóstico IA"
+        },
+        "blog": {
+            "greeting": "¡Hola! ¿Tienes preguntas sobre lo que estás leyendo?",
+            "message": "Hola, tengo una consulta sobre uno de sus artículos"
+        },
+        "careers": {
+            "greeting": "¡Hola! ¿Te interesa unirte a nuestro equipo?",
+            "message": "Hola, me interesan las oportunidades laborales en Robles.AI"
+        },
+        "demos": {
+            "greeting": "¡Hola! ¿Necesitas ayuda con el demo o quieres saber más?",
+            "message": "Hola, acabo de probar uno de sus demos y me gustaría saber más"
         }
     }
 }

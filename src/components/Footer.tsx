@@ -22,26 +22,26 @@ const Footer = () => {
   const { t } = useTranslation();
 
   const solutionsLinks = [
-    { name: t("footer.solutions.ml"), href: "#" },
-    { name: t("footer.solutions.cv"), href: "#" },
-    { name: t("footer.solutions.nlp"), href: "#" },
-    { name: t("footer.solutions.dl"), href: "#" },
-    { name: t("footer.solutions.consulting"), href: "#" }
+    { name: t("footer.solutions.ml"), href: "/#solutions" },
+    { name: t("footer.solutions.cv"), href: "/#solutions" },
+    { name: t("footer.solutions.nlp"), href: "/#solutions" },
+    { name: t("footer.solutions.dl"), href: "/#solutions" },
+    { name: t("footer.solutions.consulting"), href: "/#solutions" }
   ];
 
   const companyLinks = [
-    { name: t("footer.company.about"), href: "#" },
-    { name: t("footer.company.careers"), href: "#" },
+    { name: t("footer.company.about"), href: "/#team" },
+    { name: t("footer.company.careers"), href: "/careers" },
     { name: t("footer.company.blog"), href: "/blog" },
-    { name: t("footer.company.press"), href: "#" },
-    { name: t("footer.company.contact"), href: "#contact" }
+    { name: t("footer.company.press"), href: "/#" },
+    { name: t("footer.company.contact"), href: "/#contact" }
   ];
 
   const legalLinks = [
-    { name: t("footer.legal.privacy"), href: "#" },
-    { name: t("footer.legal.terms"), href: "#" },
-    { name: t("footer.legal.cookies"), href: "#" },
-    { name: t("footer.legal.ethics"), href: "#" }
+    { name: t("footer.legal.privacy"), href: "/#" },
+    { name: t("footer.legal.terms"), href: "/#" },
+    { name: t("footer.legal.cookies"), href: "/#" },
+    { name: t("footer.legal.ethics"), href: "/#" }
   ];
 
   return (

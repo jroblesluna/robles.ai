@@ -19,6 +19,7 @@ import TryLangChain from '@/pages/TryLangChain';
 import TryRAG from '@/pages/TryRAG';
 import TryMedical from '@/pages/TryMedical';
 import Landing from '@/pages/Landing';
+import WhatsAppBubble from '@/components/WhatsAppBubble';
 
 function App() {
   const [location] = useLocation(); // 👈 de wouter
@@ -71,6 +72,7 @@ function App() {
           </Switch>
         </main>
         <Footer />
+        <WhatsAppBubble />
         <Toaster />
       </div>
     </QueryClientProvider>

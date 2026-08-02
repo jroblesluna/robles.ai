@@ -65,6 +65,12 @@ const Hero = () => {
             >
               {t("hero.cta2")}
             </a>
+            <a 
+              href="/get-started" 
+              className="px-4 py-2 mb-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+            >
+              {t("hero.cta3")}
+            </a>
           </motion.div>
         </div>
       </div>

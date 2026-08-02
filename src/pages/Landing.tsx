@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import WhatsAppBubble from "@/components/WhatsAppBubble";
 import {
   Brain,
   ClipboardCheck,
@@ -83,33 +82,47 @@ export default function DiagnosticoIA() {
           <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-blue-500 blur-[128px]" />
           <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-indigo-500 blur-[128px]" />
         </div>
-        <div className="relative max-w-5xl mx-auto px-6 text-center">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6"
+        <div className="relative max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="text-center lg:text-left">
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6"
+            >
+              {t("landing.hero.title")}{" "}
+              <span className="text-blue-400">{t("landing.hero.titleHighlight")}</span>
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-lg md:text-xl text-slate-300 max-w-xl mb-10"
+            >
+              {t("landing.hero.subtitle")}
+            </motion.p>
+            <motion.a
+              href="#contacto"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-colors"
+            >
+              {t("landing.hero.cta")} <ArrowRight className="w-5 h-5" />
+            </motion.a>
+          </div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="hidden lg:block"
           >
-            {t("landing.hero.title")}{" "}
-            <span className="text-blue-400">{t("landing.hero.titleHighlight")}</span>
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto mb-10"
-          >
-            {t("landing.hero.subtitle")}
-          </motion.p>
-          <motion.a
-            href="#contacto"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-colors"
-          >
-            {t("landing.hero.cta")} <ArrowRight className="w-5 h-5" />
-          </motion.a>
+            <img
+              src="/images/landing-hero.jpg"
+              alt="AI Technology"
+              className="rounded-2xl shadow-2xl border border-slate-700/50 w-full object-cover aspect-[4/3]"
+            />
+          </motion.div>
         </div>
       </section>
 
@@ -190,6 +203,19 @@ export default function DiagnosticoIA() {
           >
             {t("landing.howWeWork.subtitle")}
           </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="mb-12 rounded-2xl overflow-hidden border border-slate-700/50"
+          >
+            <img
+              src="/images/landing-teamwork.jpg"
+              alt="Team collaboration"
+              className="w-full h-64 md:h-80 object-cover"
+            />
+          </motion.div>
           <div className="space-y-6">
             {steps.map((step, i) => (
               <motion.div
@@ -330,6 +356,19 @@ export default function DiagnosticoIA() {
           >
             {t("landing.technologies.subtitle")}
           </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="mb-12 rounded-2xl overflow-hidden border border-slate-700/50"
+          >
+            <img
+              src="/images/landing-tech.jpg"
+              alt="Technology infrastructure"
+              className="w-full h-52 md:h-72 object-cover"
+            />
+          </motion.div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {technologies.map((tech, i) => (
               <motion.div
@@ -374,6 +413,19 @@ export default function DiagnosticoIA() {
           >
             {t("landing.experience.subtitle")}
           </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="mb-12 rounded-2xl overflow-hidden border border-slate-700/50"
+          >
+            <img
+              src="/images/landing-business.jpg"
+              alt="Business team"
+              className="w-full h-52 md:h-72 object-cover"
+            />
+          </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {experienceItems.map((item, i) => (
               <motion.div
@@ -496,13 +548,13 @@ export default function DiagnosticoIA() {
             className="flex flex-col sm:flex-row items-center justify-center gap-6"
           >
             <a
-              href="mailto:hello@robles.ai"
+              href="mailto:info@robles.ai"
               className="flex items-center gap-3 bg-slate-800 border border-slate-700 hover:border-blue-500/50 rounded-xl px-6 py-4 transition-colors"
             >
               <Mail className="w-5 h-5 text-blue-400" />
               <div className="text-left">
                 <div className="text-xs text-slate-400">{t("landing.cta.email")}</div>
-                <div className="font-medium">hello@robles.ai</div>
+                <div className="font-medium">info@robles.ai</div>
               </div>
             </a>
             <a
@@ -537,9 +589,6 @@ export default function DiagnosticoIA() {
           </motion.div>
         </div>
       </section>
-
-      {/* WhatsApp Floating Widget */}
-      <WhatsAppBubble />
     </div>
   );
 }

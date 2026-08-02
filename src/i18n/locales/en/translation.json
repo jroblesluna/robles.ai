@@ -17,7 +17,8 @@
         "title": "Robust Artificial Intelligence Solutions",
         "subtitle": "Transform your business with cutting-edge AI technology that delivers real-world results.",
         "cta1": "Why Choose Us?",
-        "cta2": "AI News Center"
+        "cta2": "AI News Center",
+        "cta3": "Get Started with AI in my Company"
     },
     "caseStudies": {
         "title": "Case Studies",
@@ -1000,6 +1001,33 @@
         "whatsapp": {
             "greeting": "Hi! We're here to help you.",
             "message": "Hello, I'm interested in an AI Diagnosis"
+        }
+    },
+    "whatsappWidget": {
+        "cta": "Chat with us",
+        "default": {
+            "greeting": "Hi! How can we help you today?",
+            "message": "Hello, I'd like to know more about Robles.AI"
+        },
+        "home": {
+            "greeting": "Hi! Want to learn how AI can transform your business?",
+            "message": "Hello, I'm interested in your AI solutions"
+        },
+        "landing": {
+            "greeting": "Hi! We're here to help you get started with AI.",
+            "message": "Hello, I'm interested in an AI Diagnosis"
+        },
+        "blog": {
+            "greeting": "Hi! Have questions about what you're reading?",
+            "message": "Hello, I have a question about one of your articles"
+        },
+        "careers": {
+            "greeting": "Hi! Interested in joining our team?",
+            "message": "Hello, I'm interested in career opportunities at Robles.AI"
+        },
+        "demos": {
+            "greeting": "Hi! Need help with the demo or want to learn more?",
+            "message": "Hello, I just tried one of your demos and I'd like to know more"
         }
     }
 }
