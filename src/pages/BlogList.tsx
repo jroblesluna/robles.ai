@@ -52,6 +52,7 @@ export default function BlogList() {
   const [editorFilter, setEditorFilter] = useState<number | null>(null);
   const observer = useRef<IntersectionObserver | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const lastPostRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -77,12 +78,14 @@ export default function BlogList() {
     const query = new URLSearchParams({ page: page.toString(), limit: '9' });
     if (editorFilter) query.append('editorId', editorFilter.toString());
 
+    setLoading(true);
     fetch(`/api/blog?${query.toString()}`)
       .then((res) => res.json())
       .then((data) => {
         setPosts((prev) => [...prev, ...data.posts]);
         setHasMore(data.posts.length > 0);
-      });
+      })
+      .finally(() => setLoading(false));
   }, [page, editorFilter]);
 
   function isColorLight(hex: string): boolean {
@@ -137,6 +140,27 @@ export default function BlogList() {
       </div>
 
       {/* POSTS */}
+      {posts.length === 0 && loading && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="rounded-lg border border-gray-100 shadow-md bg-white p-4 animate-pulse">
+              <div className="h-4 w-24 bg-gray-200 rounded mb-3" />
+              <div className="h-5 w-full bg-gray-200 rounded mb-2" />
+              <div className="h-5 w-3/4 bg-gray-200 rounded mb-4" />
+              <div className="h-3 w-full bg-gray-100 rounded mb-1" />
+              <div className="h-3 w-2/3 bg-gray-100 rounded mb-6" />
+              <div className="flex items-center gap-3 mt-auto">
+                <div className="w-10 h-10 bg-gray-200 rounded-full" />
+                <div>
+                  <div className="h-3 w-24 bg-gray-200 rounded mb-1" />
+                  <div className="h-3 w-16 bg-gray-100 rounded" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {posts.map((post, index) => {
           const translation =
@@ -193,6 +217,28 @@ export default function BlogList() {
           );
         })}
       </div>
+
+      {/* Loading indicator */}
+      {loading && (
+        <div className="flex justify-center items-center py-10">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-8 h-8 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
+            <span className="text-sm text-gray-500">
+              {i18n.language === 'es' ? 'Cargando más noticias...' : 'Loading more news...'}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* No more posts */}
+      {!hasMore && posts.length > 0 && !loading && (
+        <div className="text-center py-8">
+          <span className="text-sm text-gray-400">
+            {i18n.language === 'es' ? 'No hay más noticias' : 'No more news'}
+          </span>
+        </div>
+      )}
+
       {isModalOpen && (
         <div
           className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center"
