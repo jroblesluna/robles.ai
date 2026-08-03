@@ -20,6 +20,7 @@ import TryRAG from '@/pages/TryRAG';
 import TryMedical from '@/pages/TryMedical';
 import Landing from '@/pages/Landing';
 import WhatsAppBubble from '@/components/WhatsAppBubble';
+import { useSEO } from '@/hooks/useSEO';
 
 function App() {
   const [location] = useLocation(); // 👈 de wouter
@@ -30,6 +31,9 @@ function App() {
   useEffect(() => {
     initAnalytics();
   }, []);
+
+  // SEO: dynamic title and meta per route
+  useSEO();
 
   // Track page views on location change
   useEffect(() => {

@@ -1,4 +1,30 @@
 {
+    "seo": {
+        "home": {
+            "title": "Robles.AI | AI Diagnosis & Roadmap for Your Business",
+            "description": "AI diagnosis, prioritization, and implementation in measurable stages. AI services for businesses in LatAm and the United States."
+        },
+        "landing": {
+            "title": "Robles.AI | Get Started with AI — Diagnosis & Implementation",
+            "description": "A proven process for AI/ML transformation: we identify opportunities, prioritize by real impact, and implement in measurable stages."
+        },
+        "careers": {
+            "title": "Robles.AI | Careers — Join Our AI Team",
+            "description": "Explore open positions at Robles.AI. Join a team building AI solutions for businesses across LatAm and the US."
+        },
+        "apply": {
+            "title": "Robles.AI | Apply Now",
+            "description": "Submit your application to join the Robles.AI team."
+        },
+        "blog": {
+            "title": "Robles.AI | AI News Center",
+            "description": "Latest news, insights, and analysis on artificial intelligence, machine learning, and business transformation."
+        },
+        "demos": {
+            "title": "Robles.AI | AI Demos — Try Our Technology",
+            "description": "Try our AI demos: RAG pipelines, LLM integration, identity verification, and medical image analysis."
+        }
+    },
     "nav": {
         "features": "Why Us?",
         "solutions": "Solutions",
@@ -685,11 +711,12 @@
             "legal": "Legal"
         },
         "solutions": {
-            "ml": "Machine Learning",
-            "cv": "Computer Vision",
-            "nlp": "Natural Language Processing",
-            "dl": "Deep Learning",
-            "consulting": "AI Consulting"
+            "diagnosis": "AI Diagnosis",
+            "audit": "Process Audit",
+            "chatbots": "Assistants & Chatbots",
+            "llm": "LLM Integration",
+            "rag": "Knowledge Bases (RAG)",
+            "ml": "Predictive ML"
         },
         "company": {
             "about": "About Us",
@@ -704,7 +731,7 @@
             "cookies": "Cookie Policy",
             "ethics": "AI Ethics Statement"
         },
-        "description": "Delivering cutting-edge AI solutions that transform businesses through innovation, ethics, and technical excellence.",
+        "description": "AI diagnosis, roadmap, and implementation for businesses. From opportunity identification to measurable impact.",
         "rights": "All rights reserved.",
         "tagline": "Robles.AI - Robust Artificial Intelligence Solutions"
     },

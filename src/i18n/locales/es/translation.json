@@ -1,4 +1,30 @@
 {
+    "seo": {
+        "home": {
+            "title": "Robles.AI | Diagnóstico y Roadmap de IA para tu negocio",
+            "description": "Diagnóstico, priorización e implementación de Inteligencia Artificial en etapas medibles. Servicios de IA para empresas en LatAm y Estados Unidos."
+        },
+        "landing": {
+            "title": "Robles.AI | Empieza con IA — Diagnóstico e Implementación",
+            "description": "Un proceso probado de transformación con IA/ML: identificamos oportunidades, priorizamos por impacto real e implementamos en etapas medibles."
+        },
+        "careers": {
+            "title": "Robles.AI | Empleos — Únete a nuestro equipo de IA",
+            "description": "Explora vacantes en Robles.AI. Únete a un equipo que construye soluciones de IA para empresas en LatAm y EE.UU."
+        },
+        "apply": {
+            "title": "Robles.AI | Postular Ahora",
+            "description": "Envía tu postulación para unirte al equipo de Robles.AI."
+        },
+        "blog": {
+            "title": "Robles.AI | Centro de Noticias IA",
+            "description": "Últimas noticias, análisis e insights sobre inteligencia artificial, machine learning y transformación de negocios."
+        },
+        "demos": {
+            "title": "Robles.AI | Demos de IA — Prueba Nuestra Tecnología",
+            "description": "Prueba nuestros demos de IA: pipelines RAG, integración de LLM, verificación de identidad y análisis de imágenes médicas."
+        }
+    },
     "nav": {
         "features": "¿Porqué?",
         "solutions": "Soluciones",
@@ -685,11 +711,12 @@
             "legal": "Legal"
         },
         "solutions": {
-            "ml": "Aprendizaje Automático",
-            "cv": "Visión por Computadora",
-            "nlp": "Procesamiento de Lenguaje Natural",
-            "dl": "Aprendizaje Profundo",
-            "consulting": "Consultoría en IA"
+            "diagnosis": "Diagnóstico IA",
+            "audit": "Auditoría de Procesos",
+            "chatbots": "Asistentes y Chatbots",
+            "llm": "Integración de LLM",
+            "rag": "Bases de Conocimiento (RAG)",
+            "ml": "Machine Learning Predictivo"
         },
         "company": {
             "about": "Sobre Nosotros",
@@ -704,9 +731,9 @@
             "cookies": "Política de Cookies",
             "ethics": "Declaración Ética de IA"
         },
-        "description": "Ofrecemos soluciones de IA de vanguardia que transforman negocios mediante innovación, ética y excelencia técnica.",
+        "description": "Diagnóstico, roadmap e implementación de IA para empresas. De la identificación de oportunidades al impacto medible.",
         "rights": "Todos los derechos reservados.",
-        "tagline": "Robles.AI - Soluciones Robusta de Inteligencia Artificial"
+        "tagline": "Robles.AI - Soluciones Robustas de Inteligencia Artificial"
     },
     "careers": {
         "title": "Únete a Nuestro Equipo",
