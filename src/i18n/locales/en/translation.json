@@ -1001,6 +1001,27 @@
         "whatsapp": {
             "greeting": "Hi! We're here to help you.",
             "message": "Hello, I'm interested in an AI Diagnosis"
+        },
+        "whyNow": {
+            "title": "Why Now",
+            "s1": { "value": "83%", "desc": "of SMEs in Peru already declare themselves ready to adopt AI" },
+            "s2": { "value": "40–60%", "desc": "lower cost vs. a US-based consultancy, same standard" },
+            "s3": { "value": "73%", "desc": "of consulting clients prefer fixed pricing by outcome, not hourly" },
+            "s4": { "value": "18%", "desc": "year-over-year increase in AI talent rates in LatAm due to demand" }
+        },
+        "roadmapTable": {
+            "title": "Illustrative Roadmap Example",
+            "colStage": "Stage",
+            "colFocus": "Focus",
+            "colCriteria": "Prioritization Criteria",
+            "colImpact": "Impact",
+            "rows": {
+                "r1": { "focus": "Base architecture & integration with core systems", "criteria": "Mandatory starting point: validates connectors and guardrails", "impact": "High" },
+                "r2": { "focus": "Commercial & customer service automation", "criteria": "High impact, mature technology, low integration risk", "impact": "High" },
+                "r3": { "focus": "Document & financial automation", "criteria": "Data already available in core system", "impact": "High" },
+                "r4": { "focus": "Advanced analytics, corporate RAG & forecasting", "criteria": "Requires already consolidated data and integration layers", "impact": "Medium" }
+            },
+            "disclaimer": "Illustrative structure example, not tied to a specific client."
         }
     },
     "whatsappWidget": {

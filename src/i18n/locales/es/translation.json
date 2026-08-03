@@ -1001,6 +1001,27 @@
         "whatsapp": {
             "greeting": "¡Hola! Estamos para ayudarte.",
             "message": "Hola, me interesa un Diagnóstico IA"
+        },
+        "whyNow": {
+            "title": "Por Qué Ahora",
+            "s1": { "value": "83%", "desc": "de pymes en Perú ya se declaran listas para adoptar IA" },
+            "s2": { "value": "40–60%", "desc": "menor costo frente a una consultora en EE.UU., mismo estándar" },
+            "s3": { "value": "73%", "desc": "de clientes de consultoría prefiere precio fijo por resultado, no por hora" },
+            "s4": { "value": "18%", "desc": "de alza interanual en tarifas de talento IA en LatAm por exceso de demanda" }
+        },
+        "roadmapTable": {
+            "title": "Ejemplo Ilustrativo de un Roadmap",
+            "colStage": "Etapa",
+            "colFocus": "Enfoque",
+            "colCriteria": "Criterio de priorización",
+            "colImpact": "Impacto",
+            "rows": {
+                "r1": { "focus": "Arquitectura base e integración con sistemas centrales", "criteria": "Punto de partida obligatorio: valida conectores y guardrails", "impact": "Alto" },
+                "r2": { "focus": "Automatización comercial y de atención", "criteria": "Alto impacto, tecnología madura, bajo riesgo de integración", "impact": "Alto" },
+                "r3": { "focus": "Automatización documental y financiera", "criteria": "Datos ya disponibles en el sistema central", "impact": "Alto" },
+                "r4": { "focus": "Analítica avanzada, RAG corporativo y forecasting", "criteria": "Requiere las capas de datos e integración ya consolidadas", "impact": "Medio" }
+            },
+            "disclaimer": "Ejemplo ilustrativo de estructura, no vinculado a un cliente específico."
         }
     },
     "whatsappWidget": {
