@@ -1004,7 +1004,7 @@
         },
         "whyNow": {
             "title": "Por Qué Ahora",
-            "s1": { "value": "83%", "desc": "de pymes en Perú ya se declaran listas para adoptar IA" },
+            "s1": { "value": "83%", "desc": "de Pymes ya se declaran listas para adoptar IA" },
             "s2": { "value": "40–60%", "desc": "menor costo frente a una consultora en EE.UU., mismo estándar" },
             "s3": { "value": "73%", "desc": "de clientes de consultoría prefiere precio fijo por resultado, no por hora" },
             "s4": { "value": "18%", "desc": "de alza interanual en tarifas de talento IA en LatAm por exceso de demanda" }

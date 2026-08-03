@@ -1004,7 +1004,7 @@
         },
         "whyNow": {
             "title": "Why Now",
-            "s1": { "value": "83%", "desc": "of SMEs in Peru already declare themselves ready to adopt AI" },
+            "s1": { "value": "83%", "desc": "of SMEs already declare themselves ready to adopt AI" },
             "s2": { "value": "40–60%", "desc": "lower cost vs. a US-based consultancy, same standard" },
             "s3": { "value": "73%", "desc": "of consulting clients prefer fixed pricing by outcome, not hourly" },
             "s4": { "value": "18%", "desc": "year-over-year increase in AI talent rates in LatAm due to demand" }
