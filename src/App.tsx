@@ -21,11 +21,18 @@ import TryMedical from '@/pages/TryMedical';
 import Landing from '@/pages/Landing';
 import WhatsAppBubble from '@/components/WhatsAppBubble';
 import { useSEO } from '@/hooks/useSEO';
+import AdminPage from '@/pages/admin/AdminPage';
+import AdminLayout from '@/pages/admin/AdminLayout';
+import AdminSettings from '@/pages/admin/AdminSettings';
+import AdminDominicalList from '@/pages/admin/AdminDominicalList';
+import AdminDominicalDetail from '@/pages/admin/AdminDominicalDetail';
 
 function App() {
   const [location] = useLocation(); // 👈 de wouter
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { i18n } = useTranslation();
+
+  const isAdminRoute = location.startsWith('/admin');
 
   // Initialize Analytics once when the app mounts
   useEffect(() => {
@@ -52,6 +59,35 @@ function App() {
     }
   }, [i18n.language]);
 
+  // Admin routes — no Header, Footer, or WhatsAppBubble
+  if (isAdminRoute) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <Switch>
+          <Route path="/admin" component={AdminPage} />
+          <Route path="/admin/settings">
+            <AdminLayout>
+              <AdminSettings />
+            </AdminLayout>
+          </Route>
+          <Route path="/admin/dominical">
+            <AdminLayout>
+              <AdminDominicalList />
+            </AdminLayout>
+          </Route>
+          <Route path="/admin/dominical/:id">
+            <AdminLayout>
+              <AdminDominicalDetail />
+            </AdminLayout>
+          </Route>
+          <Route component={NotFound} />
+        </Switch>
+        <Toaster />
+      </QueryClientProvider>
+    );
+  }
+
+  // Public routes — with Header, Footer, and WhatsAppBubble
   return (
     <QueryClientProvider client={queryClient}>
       <div className="flex min-h-screen flex-col">

@@ -1,0 +1,188 @@
+import nodemailer from 'nodemailer';
+import OpenAI from 'openai';
+import db from '../db.js';
+import { getRecentPosts, getTopScoredPosts, type PostSummary, type ScoredPost } from '../services/dominicalScoring.js';
+
+/**
+ * Generates a LinkedIn post draft using GPT-4o.
+ * Format: attention hook → 1-2 opinion lines per selected news → closing with hashtags.
+ * Max 2800 chars, Spanish language, temperature 0.7.
+ */
+async function generateLinkedInPost(selectedPosts: ScoredPost[], apiKey: string): Promise<string> {
+  const openai = new OpenAI({ apiKey });
+
+  const newsList = selectedPosts
+    .map((p, i) => `${i + 1}. "${p.title}" (Score: ${p.score}/10 — ${p.reason})`)
+    .join('\n');
+
+  const systemPrompt = `Eres el redactor de "El Dominical IA", un newsletter semanal en LinkedIn para profesionales de tecnología y negocios en Latinoamérica. Tu estilo es informado, opinado, cercano y profesional. Escribes en español.`;
+
+  const userPrompt = `Escribe un post de LinkedIn en español para "El Dominical IA" de esta semana. Usa las siguientes noticias seleccionadas:
+
+${newsList}
+
+Formato del post:
+1. Gancho de atención (1-2 líneas que capten interés)
+2. Para cada noticia seleccionada: 1-2 líneas con tu opinión/análisis breve
+3. Cierre con reflexión y call-to-action (invitar a seguir, comentar)
+4. Hashtags relevantes al final (máximo 5)
+
+Reglas:
+- Máximo 2800 caracteres
+- Usa emojis con moderación (1-2 por sección)
+- Tono profesional pero cercano
+- No uses bullet points genéricos, cada opinión debe ser específica y valiosa
+- El post debe fluir como una narrativa, no como una lista
+
+Devuelve SOLO el texto del post, sin markdown ni explicaciones adicionales.`;
+
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o',
+    temperature: 0.7,
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt },
+    ],
+  });
+
+  const content = response.choices[0]?.message?.content;
+  if (!content) {
+    throw new Error('Empty response from GPT-4o post generation');
+  }
+
+  // Enforce max 2800 chars
+  return content.slice(0, 2800);
+}
+
+/**
+ * Sends notification email that the Dominical report is ready for review.
+ */
+async function sendNotificationEmail(selectedPosts: ScoredPost[]): Promise<void> {
+  const emailUser = process.env.EMAIL_USER;
+  const emailPass = process.env.EMAIL_PASS;
+
+  if (!emailUser || !emailPass) {
+    console.warn('⚠️ Email credentials not configured. Skipping notification.');
+    return;
+  }
+
+  // Get notification email from settings or fallback to EMAIL_TO env
+  const notificationRow = db.prepare('SELECT value FROM settings WHERE key = ?').get('notification_email') as
+    | { value: string | null }
+    | undefined;
+
+  const recipient = notificationRow?.value || process.env.EMAIL_TO;
+
+  if (!recipient) {
+    console.warn('⚠️ No notification email configured. Skipping notification.');
+    return;
+  }
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: emailUser,
+      pass: emailPass,
+    },
+  });
+
+  const newsTitles = selectedPosts.map((p) => `• ${p.title}`).join('\n');
+
+  const baseUrl = process.env.BASE_URL || 'https://robles.ai';
+
+  await transporter.sendMail({
+    from: emailUser,
+    to: recipient,
+    subject: 'Tu Dominical IA de esta semana está listo para revisión',
+    html: `
+      <h2>🗞️ El Dominical IA está listo</h2>
+      <p>Se ha generado un nuevo reporte semanal con las siguientes noticias seleccionadas:</p>
+      <ul>
+        ${selectedPosts.map((p) => `<li><strong>${p.title}</strong> (${p.score}/10)</li>`).join('\n        ')}
+      </ul>
+      <p>
+        <a href="${baseUrl}/admin/dominical" style="display:inline-block;padding:12px 24px;background:#2563eb;color:white;text-decoration:none;border-radius:6px;">
+          Revisar y editar
+        </a>
+      </p>
+      <p style="color:#666;font-size:12px;">Este email fue enviado automáticamente por El Dominical IA.</p>
+    `,
+  });
+
+  console.log('✅ Notification email sent to', recipient);
+}
+
+/**
+ * Main function: orchestrates the full Dominical IA weekly report generation.
+ *
+ * Steps:
+ * 1. Get all posts from the last 7 days
+ * 2. Score and select top N posts via GPT-4o
+ * 3. Generate LinkedIn post draft via GPT-4o
+ * 4. Insert report into dominical_reports table
+ * 5. Send notification email
+ */
+export async function generateDominicalReport(): Promise<{ reportId: number }> {
+  console.log('🗞️ Starting Dominical IA generation...');
+
+  // 1. Get all recent posts (last 7 days)
+  const allPosts = getRecentPosts(7);
+  console.log(`📰 Found ${allPosts.length} posts from the last 7 days`);
+
+  if (allPosts.length === 0) {
+    throw new Error('No posts found in the last 7 days. Cannot generate Dominical report.');
+  }
+
+  // 2. Score and select top N posts
+  const selectedPosts = await getTopScoredPosts();
+  console.log(`⭐ Selected ${selectedPosts.length} top posts`);
+
+  // 3. Generate LinkedIn post draft
+  const apiKeyRow = db.prepare('SELECT value FROM settings WHERE key = ?').get('openai_api_key') as
+    | { value: string | null }
+    | undefined;
+
+  const apiKey = apiKeyRow?.value || process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('OpenAI API key not configured. Set it in Admin Settings or as OPENAI_API_KEY env var.');
+  }
+
+  const postText = await generateLinkedInPost(selectedPosts, apiKey);
+  console.log(`✍️ Generated LinkedIn post (${postText.length} chars)`);
+
+  // 4. Calculate week_start and week_end
+  const now = new Date();
+  const weekEnd = now.toISOString().split('T')[0]; // Today (Saturday)
+  const weekStartDate = new Date(now);
+  weekStartDate.setDate(weekStartDate.getDate() - 6); // 7 days ago
+  const weekStart = weekStartDate.toISOString().split('T')[0];
+
+  // 5. Insert into dominical_reports
+  const stmt = db.prepare(`
+    INSERT INTO dominical_reports (week_start, week_end, selected_news, all_news, post_text, status, created_at)
+    VALUES (?, ?, ?, ?, ?, 'pending_review', ?)
+  `);
+
+  const result = stmt.run(
+    weekStart,
+    weekEnd,
+    JSON.stringify(selectedPosts),
+    JSON.stringify(allPosts),
+    postText,
+    new Date().toISOString()
+  );
+
+  const reportId = Number(result.lastInsertRowid);
+  console.log(`💾 Report saved with ID ${reportId} (status: pending_review)`);
+
+  // 6. Send notification email
+  try {
+    await sendNotificationEmail(selectedPosts);
+  } catch (emailError) {
+    console.error('⚠️ Failed to send notification email:', emailError);
+    // Don't fail the whole job for email issues
+  }
+
+  console.log('✅ Dominical IA generation complete!');
+  return { reportId };
+}

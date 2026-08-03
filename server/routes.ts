@@ -15,6 +15,9 @@ import { XMLBuilder } from 'fast-xml-parser';
 import cron from 'node-cron';
 import { generateHistoricalPosts } from '@/scripts/generateHistoricalPosts';
 import { addOneDay, subtractOneDay } from '@/utils/managmentDate';
+import adminRouter from './adminRoutes.js';
+import { generateDominicalReport } from './jobs/generateDominical.js';
+import { autoPublishDominical } from './jobs/autoPublishDominical.js';
 
 // Reconstruir __dirname compatible con ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -22,6 +25,9 @@ const __dirname = path.dirname(__filename);
 
 export async function registerRoutes(app: Express): Promise<Server> {
   app.use(express.json());
+
+  // Admin routes
+  app.use('/api/admin', adminRouter);
 
   // 🚀 Contact form route - SEND EMAIL instead of storage
   app.post('/api/contact', (req: Request, res: Response) => {
@@ -173,6 +179,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     {
       timezone: timeZone,
     }
+  );
+
+  // Saturday 12pm: Generate El Dominical IA weekly report
+  cron.schedule(
+    '0 12 * * 6',
+    async () => {
+      try {
+        console.log('[CRON] Starting Dominical IA generation...');
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[CRON] Skipping Dominical generation in development mode.');
+          return;
+        }
+        await generateDominicalReport();
+        console.log('[CRON] Dominical IA generation completed.');
+      } catch (error) {
+        console.error('[CRON] Error generating Dominical IA:', error);
+      }
+    },
+    { timezone: timeZone }
+  );
+
+  // Sunday 12pm: Auto-publish El Dominical IA to LinkedIn
+  cron.schedule(
+    '0 12 * * 0',
+    async () => {
+      try {
+        console.log('[CRON] Starting Dominical IA auto-publish...');
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[CRON] Skipping Dominical auto-publish in development mode.');
+          return;
+        }
+        await autoPublishDominical();
+        console.log('[CRON] Dominical IA auto-publish completed.');
+      } catch (error) {
+        console.error('[CRON] Error auto-publishing Dominical IA:', error);
+      }
+    },
+    { timezone: timeZone }
   );
 
   app.get('/api/test2', async (req: Request, res: Response) => {

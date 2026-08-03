@@ -1,0 +1,651 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1. Remove dead dependencies: uninstall `drizzle-orm`, `drizzle-zod`; delete `shared/schema.ts`; remove `db:push` script from package.json": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721805731
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721814693
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721939585
+      }
+    ],
+    "2. Install new dependencies: `better-sqlite3`, `@types/better-sqlite3`, `jsonwebtoken`, `@types/jsonwebtoken`, `bcrypt`, `@types/bcrypt`": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721805771
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721943283
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785722083229
+      }
+    ],
+    "3. Create `server/db.ts`: open/create SQLite DB at `server/data/dominical.db`, create tables (admin_users, settings, dominical_reports) with `CREATE TABLE IF NOT EXISTS`": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721805800
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785722086594
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785722176962
+      }
+    ],
+    "4. Add `server/data/dominical.db` to `.gitignore`": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721805837
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785722180225
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785722206152
+      }
+    ],
+    "5. Create `server/auth.ts`: `generateToken()`, `verifyToken()`, `requireAuth` middleware (reads cookie `admin_token`, verifies JWT, attaches user to req)": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721805874
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785722209391
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785722309181
+      }
+    ],
+    "6. Create `server/adminRoutes.ts` with initial endpoints: `GET /api/admin/status`, `POST /api/admin/setup`, `POST /api/admin/login`, `POST /api/admin/logout`, `GET /api/admin/me`": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721805901
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785722312811
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785722408124
+      }
+    ],
+    "7. Register admin routes in `server/routes.ts` (import and mount)": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721805927
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785722411998
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785722444196
+      }
+    ],
+    "8. Create frontend pages: `src/pages/admin/AdminSetup.tsx` (email + password + confirm), `src/pages/admin/AdminLogin.tsx` (email + password)": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721805957
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785722448610
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785722539892
+      }
+    ],
+    "9. Create `src/pages/admin/AdminLayout.tsx` (sidebar with nav links, wraps authenticated content)": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721805983
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785722544561
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785722634592
+      }
+    ],
+    "10. Create `src/pages/admin/AdminDashboard.tsx` (simple overview page)": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806011
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785722637824
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785722690150
+      }
+    ],
+    "11. Add routes in `App.tsx`: `/admin`, `/admin/settings`, `/admin/dominical`, `/admin/dominical/:id`": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806041
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785722694022
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785722850229
+      }
+    ],
+    "12. Build + verify all auth flows work end-to-end": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806067
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785722853809
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785723058883
+      }
+    ],
+    "13. Add endpoints to `server/adminRoutes.ts`: `GET /api/admin/settings` (returns all, masks secrets), `PUT /api/admin/settings` (batch update)": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806093
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785723062955
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785723133813
+      }
+    ],
+    "14. Add LinkedIn OAuth endpoints: `GET /api/admin/linkedin/auth-url`, `GET /api/admin/linkedin/callback`": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806124
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785723137652
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785723234362
+      }
+    ],
+    "15. Create `src/pages/admin/AdminSettings.tsx` with sections: LinkedIn, Image Provider, Dominical preferences, OpenAI key": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806150
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785723238192
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785723384603
+      }
+    ],
+    "16. Implement LinkedIn OAuth flow: generate auth URL → redirect → callback exchanges code → stores tokens": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806185
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785723389474
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785723501407
+      }
+    ],
+    "17. Build + verify settings save/load and LinkedIn connect works": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806222
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785723505832
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785723700016
+      }
+    ],
+    "18. Create `server/services/dominicalScoring.ts`: function that reads last 7 days of posts, sends to GPT-4o for scoring, returns sorted array with scores and reasons": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806249
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785723704706
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785723886543
+      }
+    ],
+    "19. Create `server/jobs/generateDominical.ts`: orchestrates scoring → post generation → DB insert → email notification": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806276
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785723890614
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785724019784
+      }
+    ],
+    "20. Create LinkedIn post generation prompt: takes selected news, generates Spanish post in Dominical IA format (hook + opinions + closing + hashtags)": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806302
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785724024351
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785724059492
+      }
+    ],
+    "21. Register Saturday cron in `server/routes.ts`: `cron.schedule('0 12 * * 6', ..., { timezone: 'America/Lima' })`": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806331
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785724063970
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785724124671
+      }
+    ],
+    "22. Add manual trigger endpoint: `POST /api/admin/dominical/generate`": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806359
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785724128556
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785724219606
+      }
+    ],
+    "23. Send notification email using existing nodemailer setup": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806385
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785724223711
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785724282593
+      }
+    ],
+    "24. Build + verify: trigger manually, check DB record created, email received": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806416
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785724287419
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785724459698
+      }
+    ],
+    "25. Add CRUD endpoints: `GET /api/admin/dominical` (list), `GET /api/admin/dominical/:id` (detail), `PUT /api/admin/dominical/:id` (update), `POST /api/admin/dominical/:id/cancel`": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806442
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785724464332
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785724606237
+      }
+    ],
+    "26. Create `src/pages/admin/AdminDominicalList.tsx`: table of reports with status badges, click to open detail": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806473
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785724611073
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785724726655
+      }
+    ],
+    "27. Create `src/pages/admin/AdminDominicalDetail.tsx`: split view (news list left, post editor right), image section, action buttons": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806505
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785724730680
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785724865751
+      }
+    ],
+    "28. Implement news selection UI: checkboxes on news items, highlight selected, show score/reason": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806533
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785724870098
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785724906119
+      }
+    ],
+    "29. Implement image section: upload file, paste URL input, \"Generate with AI\" button": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806565
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785724909932
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785725075384
+      }
+    ],
+    "30. Add `POST /api/admin/dominical/:id/generate-image` endpoint": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806602
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785725080086
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785725170475
+      }
+    ],
+    "31. Build + verify: can view, edit, save report; image upload/generation works": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806632
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785725174598
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785725419357
+      }
+    ],
+    "32. Create `server/services/linkedin.ts`: `publishPost(text, imageUrl?, accessToken)` using LinkedIn UGC Posts API, with token refresh logic": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806661
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785725427566
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785725684183
+      }
+    ],
+    "33. Create `server/services/imageGeneration.ts`: multi-provider switch (DALL-E 3, Stability AI, Replicate FLUX), generates image from news themes": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806695
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785725688197
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785725785101
+      }
+    ],
+    "34. Create `server/jobs/autoPublishDominical.ts`: Sunday 12pm logic (check status → publish or skip → update DB → notify on failure)": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806727
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785725789005
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785725902899
+      }
+    ],
+    "35. Register Sunday cron: `cron.schedule('0 12 * * 0', ..., { timezone: 'America/Lima' })`": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806761
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785725907597
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785725982242
+      }
+    ],
+    "36. Add `POST /api/admin/dominical/:id/publish` endpoint (manual publish button)": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806795
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785725986214
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785726107639
+      }
+    ],
+    "37. Implement token refresh flow: detect expired token → refresh → retry publish → if refresh fails → email admin": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806828
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785726111909
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785726189605
+      }
+    ],
+    "38. Build + verify full cycle: generate Saturday → review → auto-publish Sunday (or manual publish)": [
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785721806870
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785726193873
+      },
+      {
+        "executionId": "e61707c5-4b96-4690-9170-ca5582a40e71",
+        "chatSessionId": "sess_1fa8922c-a4ce-4572-bf51-fe41df7dfb65",
+        "timestamp": 1785726430818
+      }
+    ]
+  }
+}

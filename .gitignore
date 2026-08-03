@@ -13,3 +13,7 @@ server/data/sitemaps
 sitemaps
 
 /server/data/sitemaps/2025-05-es.xml
+
+# SQLite databases
+server/data/dominical.db
+server/data/*.db
