@@ -22,12 +22,12 @@ const Footer = () => {
   const { t } = useTranslation();
 
   const solutionsLinks = [
-    { name: t("footer.solutions.diagnosis"), href: "/get-started" },
-    { name: t("footer.solutions.audit"), href: "/get-started" },
-    { name: t("footer.solutions.chatbots"), href: "/get-started" },
-    { name: t("footer.solutions.llm"), href: "/get-started" },
-    { name: t("footer.solutions.rag"), href: "/get-started" },
-    { name: t("footer.solutions.ml"), href: "/get-started" }
+    { name: t("footer.solutions.diagnosis"), href: "/#solutions" },
+    { name: t("footer.solutions.audit"), href: "/#solutions" },
+    { name: t("footer.solutions.chatbots"), href: "/#solutions" },
+    { name: t("footer.solutions.llm"), href: "/#solutions" },
+    { name: t("footer.solutions.rag"), href: "/#solutions" },
+    { name: t("footer.solutions.ml"), href: "/#solutions" }
   ];
 
   const companyLinks = [
