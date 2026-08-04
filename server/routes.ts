@@ -227,8 +227,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     { timezone: timeZone }
   );
 
-  app.get('/api/test2', async (req: Request, res: Response) => {
-    console.log('testing api 2:');
+  app.get('/api/generate-posts', async (req: Request, res: Response) => {
+    console.log('[API] Manual post generation triggered');
     try {
       // Get the current date/time in the target timezone
       const zonedDateStr = new Date().toLocaleString('en-US', { timeZone });
@@ -246,7 +246,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Use the current hour as the editor ID (as per your logic)
-      const editorId = 12;
+      const editorId = req.query.editorId ? parseInt(req.query.editorId as string, 10) : 12;
 
       if (!editorId) {
         console.error('Target Editor ID is missing!');
