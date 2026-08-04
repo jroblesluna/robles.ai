@@ -7,9 +7,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 import { type Server } from "http";
 import viteConfig from "../vite.config";
-import { nanoid } from "nanoid";
+import { createMetaInjector } from "./seo/metaInjector.js";
+import type { SlugIndex } from "./seo/slugIndex.js";
 
 const viteLogger = createLogger();
+
+/** Shared slugIndex instance, initialized when the server starts. */
+let _slugIndex: SlugIndex | null = null;
+
+/** Returns the shared SlugIndex instance (available after setupVite or serveStatic). */
+export function getSlugIndex(): SlugIndex | null {
+  return _slugIndex;
+}
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
@@ -44,29 +53,18 @@ export async function setupVite(app: Express, server: Server) {
   });
 
   app.use(vite.middlewares);
-  app.use("*", async (req, res, next) => {
-    const url = req.originalUrl;
 
-    try {
-      const clientTemplate = path.resolve(
-        __dirname,
-        "..",
-        "index.html",
-      );
-
-      // always reload the index.html file from disk incase it changes
-      let template = await fs.promises.readFile(clientTemplate, "utf-8");
-      template = template.replace(
-        `src="/src/main.tsx"`,
-        `src="/src/main.tsx?v=${nanoid()}"`,
-      );
-      const page = await vite.transformIndexHtml(url, template);
-      res.status(200).set({ "Content-Type": "text/html" }).end(page);
-    } catch (e) {
-      vite.ssrFixStacktrace(e as Error);
-      next(e);
-    }
+  // MetaInjector middleware: injects SEO meta tags into HTML responses
+  const sourcePath = path.resolve(__dirname, "..", "index.html");
+  const distPath = path.resolve(__dirname, "../dist");
+  const { handler: metaInjector, slugIndex } = createMetaInjector({
+    mode: 'development',
+    distPath,
+    sourcePath,
+    viteTransform: (url: string, html: string) => vite.transformIndexHtml(url, html),
   });
+  _slugIndex = slugIndex;
+  app.use(metaInjector);
 }
 
 export function serveStatic(app: Express) {
@@ -80,8 +78,13 @@ export function serveStatic(app: Express) {
 
   app.use(express.static(distPath, { maxAge: "1y", immutable: true }));
 
-  // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
+  // MetaInjector middleware: injects SEO meta tags into HTML responses in production
+  const sourcePath = path.resolve(__dirname, "..", "index.html");
+  const { handler: metaInjector, slugIndex } = createMetaInjector({
+    mode: 'production',
+    distPath,
+    sourcePath,
   });
+  _slugIndex = slugIndex;
+  app.use(metaInjector);
 }

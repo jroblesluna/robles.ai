@@ -1,0 +1,558 @@
+{
+  "pbtResults": {
+    "2.2 Write property test for SlugIndex lookup consistency": {
+      "status": "passed",
+      "lastRunTimestamp": 1785810634049
+    },
+    "3.6 Write property test for canonical URL cleanliness": {
+      "status": "passed",
+      "lastRunTimestamp": 1785810748895
+    },
+    "3.4 Write property test for Open Graph completeness": {
+      "status": "passed",
+      "lastRunTimestamp": 1785810753480
+    },
+    "3.7 Write property test for hreflang symmetry": {
+      "status": "passed",
+      "lastRunTimestamp": 1785810765968
+    },
+    "3.3 Write property test for description truncation invariant": {
+      "status": "passed",
+      "lastRunTimestamp": 1785810793133
+    },
+    "3.5 Write property test for JSON-LD BlogPosting schema completeness": {
+      "status": "passed",
+      "lastRunTimestamp": 1785811023231
+    },
+    "4.2 Write property test for static page meta i18n resolution": {
+      "status": "passed",
+      "lastRunTimestamp": 1785811046808
+    },
+    "5.3 Write property test for blog meta injection round-trip": {
+      "status": "passed",
+      "lastRunTimestamp": 1785811290936
+    },
+    "5.2 Write property test for body content preservation": {
+      "status": "passed",
+      "lastRunTimestamp": 1785811301809
+    },
+    "5.4 Write property test for missing post passthrough": {
+      "status": "passed",
+      "lastRunTimestamp": 1785811304252
+    },
+    "8.4 Write property test for sitemap hreflang pairing": {
+      "status": "passed",
+      "lastRunTimestamp": 1785811894796
+    }
+  },
+  "executionHistory": {
+    "1.1 Install testing dependencies (vitest, fast-check) and create vitest config": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306294
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810313936
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810409334
+      }
+    ],
+    "1.2 Create shared interfaces and types in `server/seo/types.ts`": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306322
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810314785
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810410099
+      }
+    ],
+    "2.1 Create `server/seo/slugIndex.ts` with lazy-loading slug-to-file map": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306350
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810416838
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810519196
+      }
+    ],
+    "2.2 Write property test for SlugIndex lookup consistency": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306394
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810523067
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810645600
+      }
+    ],
+    "2.3 Write unit tests for SlugIndex": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306413
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810523772
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810646404
+      }
+    ],
+    "3.1 Create `server/seo/metaBuilders.ts` with `buildBlogMeta()` function": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306436
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810524644
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810647340
+      }
+    ],
+    "3.2 Implement `buildBlogJsonLd()` for BlogPosting and BreadcrumbList schemas": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306461
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810656343
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810813955
+      }
+    ],
+    "3.3 Write property test for description truncation invariant": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306487
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810656900
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810814913
+      }
+    ],
+    "3.4 Write property test for Open Graph completeness": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306504
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810657684
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810815494
+      }
+    ],
+    "3.5 Write property test for JSON-LD BlogPosting schema completeness": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306524
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810964103
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811107118
+      }
+    ],
+    "3.6 Write property test for canonical URL cleanliness": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306542
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810658430
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810816228
+      }
+    ],
+    "3.7 Write property test for hreflang symmetry": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306561
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810659251
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810817118
+      }
+    ],
+    "4.1 Add `buildStaticMeta()` and `buildHomeJsonLd()` to `server/seo/metaBuilders.ts`": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306580
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810831886
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810959807
+      }
+    ],
+    "4.2 Write property test for static page meta i18n resolution": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306604
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810964927
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811107833
+      }
+    ],
+    "5.1 Create `server/seo/htmlInjector.ts` with `injectMeta()` function": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306627
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810965825
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811108820
+      }
+    ],
+    "5.2 Write property test for body content preservation": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306643
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811112952
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811321753
+      }
+    ],
+    "5.3 Write property test for blog meta injection round-trip": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306662
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811113679
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811322486
+      }
+    ],
+    "5.4 Write property test for missing post passthrough": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306679
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811114466
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811323206
+      }
+    ],
+    "6. Checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306696
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811335843
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811497254
+      }
+    ],
+    "7.1 Create `server/seo/metaInjector.ts` with `createMetaInjector()` factory": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306714
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811336900
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811498347
+      }
+    ],
+    "7.2 Integrate MetaInjector into Express server": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306733
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811503251
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811720028
+      }
+    ],
+    "7.3 Write integration tests for MetaInjector middleware": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306753
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811504023
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811720803
+      }
+    ],
+    "8.1 Update `src/scripts/sitemapService.ts` to generate consolidated sitemaps with hreflang": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306770
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811504886
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811722020
+      }
+    ],
+    "8.2 Update sitemap index endpoint to list all monthly sitemaps": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306800
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811726692
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785812031653
+      }
+    ],
+    "8.3 Update cron job to register new posts in SlugIndex and consolidated sitemap": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306817
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811727585
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785812032502
+      }
+    ],
+    "8.4 Write property test for sitemap hreflang pairing": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306835
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811728418
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785812033332
+      }
+    ],
+    "9. Final checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810306852
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785812037830
+      },
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785812120245
+      }
+    ],
+    "1. Set up testing infrastructure and core interfaces": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810410154
+      }
+    ],
+    "2. Implement SlugIndex": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785810646439
+      }
+    ],
+    "3. Implement BlogMetaBuilder": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811107171
+      }
+    ],
+    "4. Implement StaticMetaBuilder": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811107881
+      }
+    ],
+    "5. Implement HtmlInjector": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811323230
+      }
+    ],
+    "7. Implement MetaInjector middleware": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785811720825
+      }
+    ],
+    "8. Enhance Sitemap Generator": [
+      {
+        "executionId": "2438fde4-401a-4dab-8e1c-396a333ac91f",
+        "chatSessionId": "sess_7e954a64-7a27-4c7b-b7f1-ebaeb13fc712",
+        "timestamp": 1785812033375
+      }
+    ]
+  }
+}

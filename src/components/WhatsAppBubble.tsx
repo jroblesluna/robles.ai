@@ -97,8 +97,15 @@ export default function WhatsAppBubble() {
             {/* Chat body */}
             <div className="p-4 bg-[#e5ddd5] min-h-[80px]">
               <div className="bg-white rounded-lg px-3 py-2 shadow-sm max-w-[85%] relative">
-                <p className="text-gray-800 text-sm">{greeting}</p>
-                <span className="text-[10px] text-gray-400 float-right mt-1">
+                <span className="text-gray-800 text-sm">
+                  {greeting}
+                  {/* Invisible spacer to reserve space for the timestamp */}
+                  <span className="inline-block w-[58px] h-[1px] opacity-0" aria-hidden="true">
+                    &nbsp;
+                  </span>
+                </span>
+                {/* Absolutely positioned timestamp at bottom-right */}
+                <span className="absolute bottom-1 right-2 text-[10px] text-gray-400 leading-none">
                   {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </span>
               </div>

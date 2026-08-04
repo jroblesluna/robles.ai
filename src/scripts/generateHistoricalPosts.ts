@@ -205,12 +205,9 @@ export async function generateHistoricalPosts(
         };
 
         await savePost(post, dateString);
-        //await updateSitemap(post.slug, dateString);
-        for (const [lang, translation] of Object.entries(post.translations || {})) {
-          const t = translation as { slug?: string };
-          if (t?.slug) {
-            await updateSitemap(t.slug, dateString, lang);
-          }
+        // Update consolidated sitemap with both EN and ES slugs
+        if (post.translations?.en?.slug && post.translations?.es?.slug) {
+          await updateSitemap(post.translations.en.slug, post.translations.es.slug, dateString);
         }
 
         console.log(`✅ Post generated for ${editor.name} on ${datePrefix}`);
