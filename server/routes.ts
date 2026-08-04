@@ -230,6 +230,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/generate-posts', async (req: Request, res: Response) => {
     console.log('[API] Manual post generation triggered');
     try {
+      const editorId = req.query.editorId ? parseInt(req.query.editorId as string, 10) : undefined;
+      const specificDate = req.query.date as string | undefined;
+
+      if (specificDate) {
+        // Direct mode: generate for a specific date, bypassing lastPostDate logic
+        console.log(`[API] Generating for specific date: ${specificDate}, editor: ${editorId || 'all'}`);
+        await generateHistoricalPosts(specificDate, editorId, specificDate);
+        console.log('[API] Specific date generation completed.');
+        res.status(200).json({ success: true, data: `Generated for ${specificDate}` });
+        return;
+      }
+
+      // Default mode: use lastPostDate catch-up logic
       // Get the current date/time in the target timezone
       const zonedDateStr = new Date().toLocaleString('en-US', { timeZone });
       const zonedDate = new Date(zonedDateStr);
@@ -240,46 +253,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const day = String(zonedDate.getDate()).padStart(2, '0');
       const formattedDate = `${year}-${month}-${day}`;
 
-      if (!formattedDate) {
-        console.error('Target Date is missing!');
-        return;
-      }
-
-      // Use the current hour as the editor ID (as per your logic)
-      const editorId = req.query.editorId ? parseInt(req.query.editorId as string, 10) : 12;
-
-      if (!editorId) {
-        console.error('Target Editor ID is missing!');
-        return;
-      }
-      const targetDate = subtractOneDay(formattedDate); // subtract one day from the current date
+      const resolvedEditorId = editorId || 12;
+      const targetDate = subtractOneDay(formattedDate);
 
       console.log(
         '########################################################################################'
       );
       console.log(
-        `[CRON] Running task at ${zonedDateStr} for date ${targetDate} with editor ID ${editorId}`
+        `[CRON] Running task at ${zonedDateStr} for date ${targetDate} with editor ID ${resolvedEditorId}`
       );
       console.log(
         '########################################################################################'
       );
-      // Fetch the last post date for the editor
-      const lastPostDate = await getLastPostDateByEditor(editorId);
+
+      const lastPostDate = await getLastPostDateByEditor(resolvedEditorId);
 
       if (lastPostDate) {
-        console.log(`Last post date for editor ${editorId} is: ${lastPostDate}`);
-
-        await generateHistoricalPosts(targetDate, editorId, addOneDay(lastPostDate));
+        console.log(`Last post date for editor ${resolvedEditorId} is: ${lastPostDate}`);
+        await generateHistoricalPosts(targetDate, resolvedEditorId, addOneDay(lastPostDate));
       } else {
-        // If no last post date, use one day before the current date
         const previousDate = subtractOneDay(targetDate);
-        await generateHistoricalPosts(targetDate, editorId, previousDate);
+        await generateHistoricalPosts(targetDate, resolvedEditorId, previousDate);
       }
 
       console.log('[CRON] Scheduled task completed.');
       res.status(200).json({ success: true, data: 'Task executed successfully' });
     } catch (error) {
-      console.error('[CRON] Error executing scheduled task:', error);
+      console.error('[API] Error executing generate-posts:', error);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      res.status(500).json({ success: false, error: message });
     }
   });
 
