@@ -2,11 +2,13 @@
 
 # Discard any local changes that might block the pull
 git reset --hard HEAD
-chmod +x pull.sh
 
 # Pull the latest changes and capture the output
 pull_output=$(git pull 2>&1)
 pull_exit_code=$?
+
+# Restore execute permission (git may not preserve it)
+chmod +x pull.sh
 
 # If git pull failed, abort
 if [ $pull_exit_code -ne 0 ]; then
