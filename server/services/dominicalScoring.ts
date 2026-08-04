@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Path to posts directory
-const POSTS_DIR = path.resolve(__dirname, '../data/posts');
+const POSTS_DIR = path.resolve(__dirname, './data/posts');
 
 export interface PostSummary {
   slug: string;

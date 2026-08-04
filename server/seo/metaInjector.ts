@@ -12,7 +12,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = join(__filename, '..');
 
 /** Path to the posts directory. */
-const POSTS_DIR = resolve(__dirname, '..', 'data', 'posts');
+const POSTS_DIR = resolve(__dirname, 'data', 'posts');
 
 /** Path to the editors JSON file. */
 const EDITORS_PATH = resolve(__dirname, '..', 'data', 'editors.json');
