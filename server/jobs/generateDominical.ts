@@ -12,7 +12,7 @@ async function generateLinkedInPost(selectedPosts: ScoredPost[], apiKey: string)
   const openai = new OpenAI({ apiKey });
 
   const newsList = selectedPosts
-    .map((p, i) => `${i + 1}. "${p.title}" (Score: ${p.score}/10 — ${p.reason})`)
+    .map((p, i) => `${i + 1}. "${p.title}" (Score: ${p.score}/10 — ${p.reason})\n   URL: https://robles.ai/blog/${p.slug}`)
     .join('\n');
 
   const systemPrompt = `Eres el redactor de "El Dominical IA", un newsletter semanal en LinkedIn para profesionales de tecnología y negocios en Latinoamérica. Tu estilo es informado, opinado, cercano y profesional. Escribes en español.`;
@@ -23,8 +23,8 @@ ${newsList}
 
 Formato del post:
 1. Gancho de atención (1-2 líneas que capten interés)
-2. Para cada noticia seleccionada: 1-2 líneas con tu opinión/análisis breve
-3. Cierre con reflexión y call-to-action (invitar a seguir, comentar)
+2. Para cada noticia seleccionada: 1-2 líneas con tu opinión/análisis breve, mencionando el enlace al artículo en robles.ai
+3. Cierre con reflexión y call-to-action (invitar a seguir, comentar, leer más en robles.ai)
 4. Hashtags relevantes al final (máximo 5)
 
 Reglas:
@@ -33,6 +33,7 @@ Reglas:
 - Tono profesional pero cercano
 - No uses bullet points genéricos, cada opinión debe ser específica y valiosa
 - El post debe fluir como una narrativa, no como una lista
+- INCLUYE los enlaces a cada artículo de robles.ai en el texto de forma natural
 
 Devuelve SOLO el texto del post, sin markdown ni explicaciones adicionales.`;
 

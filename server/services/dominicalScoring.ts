@@ -96,24 +96,47 @@ export async function scorePostsWithGPT(
     return [];
   }
 
+  // Pre-filter: limit to 30 posts for reliable GPT scoring
+  // Select diverse posts across dates and categories
+  let postsToScore = posts;
+  if (posts.length > 30) {
+    // Sort by date descending and take the most recent, ensuring category diversity
+    const sorted = [...posts].sort((a, b) => b.date.localeCompare(a.date));
+    const selected: PostSummary[] = [];
+    const seenCategories = new Set<string>();
+    
+    for (const post of sorted) {
+      const mainCategory = post.categories[0] || 'general';
+      if (!seenCategories.has(mainCategory) || selected.length < 30) {
+        selected.push(post);
+        seenCategories.add(mainCategory);
+      }
+      if (selected.length >= 30) break;
+    }
+    postsToScore = selected;
+  }
+
   const openai = new OpenAI({ apiKey });
 
   // Prepare post summaries for the prompt
-  const postList = posts.map((p, i) => (
+  const postList = postsToScore.map((p, i) => (
     `${i + 1}. [${p.date}] "${p.titleEs}" (EN: "${p.titleEn}")\n   Categories: ${p.categories.join(', ')}\n   Excerpt: ${p.excerpt}`
   )).join('\n\n');
 
   const systemPrompt = `You are a content curator for "El Dominical IA", a weekly LinkedIn newsletter targeting business professionals in Latin America. Your job is to score news articles based on their relevance, impact, and appeal for this audience.`;
 
-  const userPrompt = `Score these news articles for a LinkedIn post targeting business professionals in LatAm. Consider factors like business impact, innovation relevance, audience interest, and storytelling potential.
+  const userPrompt = `Score the following ${postsToScore.length} news articles for a LinkedIn post targeting business professionals in LatAm. Consider factors like business impact, innovation relevance, audience interest, and storytelling potential.
 
-Return a JSON array with objects containing: slug, score (1-10), reason (one line explaining the score).
+You MUST return a JSON object with a key "articles" containing an array of objects. Each object must have: slug (string), score (1-10 integer), reason (one line string).
+
+Example format:
+{"articles": [{"slug": "example-slug", "score": 8, "reason": "High relevance explanation"}]}
 
 Articles to score:
 
 ${postList}
 
-Return ONLY the JSON array, no markdown fences or additional text. Use the slug from each article.`;
+Return the JSON object with ALL ${postsToScore.length} articles scored.`;
 
   const response = await openai.chat.completions.create({
     model: 'gpt-4o',
@@ -172,7 +195,7 @@ Return ONLY the JSON array, no markdown fences or additional text. Use the slug 
 
   // Enrich with titles from our post data and sort by score descending
   const enriched: ScoredPost[] = scored.map((item) => {
-    const originalPost = posts.find((p) => p.slug === item.slug);
+    const originalPost = postsToScore.find((p) => p.slug === item.slug);
     return {
       slug: item.slug,
       title: originalPost?.titleEs || originalPost?.titleEn || item.slug,
