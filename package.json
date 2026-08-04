@@ -10,7 +10,8 @@
     "start": "NODE_ENV=production && node dist/index.js",
     "check": "tsc",
     "test": "vitest --run",
-    "fix-sitemap": "tsx src/scripts/fixSitemapMissing.ts"
+    "fix-sitemap": "tsx src/scripts/fixSitemapMissing.ts",
+    "cleanup-duplicates": "tsx src/scripts/cleanupDuplicates.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",
