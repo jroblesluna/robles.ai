@@ -136,18 +136,34 @@ Return ONLY the JSON array, no markdown fences or additional text. Use the slug 
 
   if (Array.isArray(parsed)) {
     scored = parsed;
-  } else if (parsed.articles && Array.isArray(parsed.articles)) {
-    scored = parsed.articles;
-  } else if (parsed.scores && Array.isArray(parsed.scores)) {
-    scored = parsed.scores;
-  } else {
-    // Try to find any array in the response object
-    const arrays = Object.values(parsed).filter(Array.isArray);
-    if (arrays.length > 0) {
-      scored = arrays[0] as ScoredPost[];
+  } else if (typeof parsed === 'object' && parsed !== null) {
+    // Search for any array in the response object (including nested)
+    let foundArray: any[] | null = null;
+    
+    const findArray = (obj: any): any[] | null => {
+      for (const value of Object.values(obj)) {
+        if (Array.isArray(value) && value.length > 0) {
+          return value;
+        }
+        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+          const nested = findArray(value);
+          if (nested) return nested;
+        }
+      }
+      return null;
+    };
+
+    foundArray = findArray(parsed);
+    
+    if (foundArray) {
+      scored = foundArray;
     } else {
+      console.error('❌ Unexpected GPT-4o response format. Raw response:', content.slice(0, 500));
       throw new Error('Unexpected GPT-4o response format: could not find scored articles array');
     }
+  } else {
+    console.error('❌ Unexpected GPT-4o response type:', typeof parsed, content.slice(0, 500));
+    throw new Error('Unexpected GPT-4o response format: could not find scored articles array');
   }
 
   // Enrich with titles from our post data and sort by score descending
