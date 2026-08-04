@@ -99,6 +99,8 @@ export default function AdminDominicalDetail() {
   const [imageUrl, setImageUrl] = useState("");
   const [imageUrlInput, setImageUrlInput] = useState("");
   const [generatingImage, setGeneratingImage] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
+  const [selectionChanged, setSelectionChanged] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -231,6 +233,35 @@ export default function AdminDominicalDetail() {
       }
       return next;
     });
+    setSelectionChanged(true);
+  };
+
+  const handleRegeneratePost = async () => {
+    if (!reportId) return;
+    try {
+      setRegenerating(true);
+      const res = await fetch(`/api/admin/dominical/${reportId}/regenerate-post`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ selected_slugs: Array.from(selectedSlugs) }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to regenerate");
+      }
+      const data = await res.json();
+      setPostText(data.post_text);
+      setSelectionChanged(false);
+      toast({ title: "Post regenerated with new selection" });
+    } catch (err) {
+      toast({
+        title: "Error regenerating post",
+        description: err instanceof Error ? err.message : "Unknown error",
+        variant: "destructive",
+      });
+    } finally {
+      setRegenerating(false);
+    }
   };
 
   const getScoredPost = (slug: string): ScoredPost | undefined => {
@@ -429,62 +460,101 @@ export default function AdminDominicalDetail() {
           <Label className="text-base font-semibold">
             News this week ({report.all_news.length})
           </Label>
+          {selectionChanged && !isReadOnly && (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handleRegeneratePost}
+              disabled={regenerating || selectedSlugs.size === 0}
+              className="gap-2"
+            >
+              {regenerating ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
+              Regenerate Post with selection ({selectedSlugs.size})
+            </Button>
+          )}
           <div className="max-h-[600px] overflow-y-auto space-y-2 rounded-lg border p-3">
             {report.all_news.length === 0 ? (
               <p className="text-sm text-muted-foreground py-4 text-center">
                 No news available
               </p>
             ) : (
-              report.all_news.map((news) => {
-                const scored = getScoredPost(news.slug);
-                const isSelected = selectedSlugs.has(news.slug);
+              (() => {
+                // Sort: selected first (by score desc), then unselected
+                const sorted = [...report.all_news].sort((a, b) => {
+                  const aSelected = selectedSlugs.has(a.slug);
+                  const bSelected = selectedSlugs.has(b.slug);
+                  if (aSelected && !bSelected) return -1;
+                  if (!aSelected && bSelected) return 1;
+                  // Within selected, sort by score descending
+                  if (aSelected && bSelected) {
+                    const aScore = getScoredPost(a.slug)?.score || 0;
+                    const bScore = getScoredPost(b.slug)?.score || 0;
+                    return bScore - aScore;
+                  }
+                  // Within unselected, sort by date descending
+                  return b.date.localeCompare(a.date);
+                });
 
-                return (
-                  <div
-                    key={news.slug}
-                    className={`rounded-md border p-3 transition-colors ${
-                      isSelected
-                        ? "bg-blue-50 border-blue-200"
-                        : "bg-white hover:bg-gray-50"
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => toggleNewsSelection(news.slug)}
-                        disabled={isReadOnly}
-                        className="mt-1 h-4 w-4 rounded border-gray-300"
-                        aria-label={`Select ${news.titleEs || news.titleEn}`}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium leading-tight">
-                          {news.titleEs || news.titleEn}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {formatDate(news.date)}
-                        </p>
-                        {scored && (
-                          <div className="flex items-center gap-2 mt-2">
-                            <Badge
-                              variant="secondary"
-                              className="text-xs"
-                            >
-                              Score: {scored.score}/10
-                            </Badge>
-                            <span className="text-xs text-muted-foreground truncate">
-                              {scored.reason}
-                            </span>
-                          </div>
+                return sorted.map((news) => {
+                  const scored = getScoredPost(news.slug);
+                  const isSelected = selectedSlugs.has(news.slug);
+
+                  return (
+                    <div
+                      key={news.slug}
+                      className={`rounded-md border p-3 transition-colors ${
+                        isSelected
+                          ? "bg-blue-50 border-blue-200"
+                          : "bg-white hover:bg-gray-50"
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleNewsSelection(news.slug)}
+                          disabled={isReadOnly}
+                          className="mt-1 h-4 w-4 rounded border-gray-300"
+                          aria-label={`Select ${news.titleEs || news.titleEn}`}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <a
+                            href={`https://robles.ai/blog/${news.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm font-medium leading-tight hover:text-blue-600 hover:underline"
+                          >
+                            {news.titleEs || news.titleEn}
+                          </a>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {formatDate(news.date)}
+                          </p>
+                          {scored && (
+                            <div className="flex items-center gap-2 mt-2">
+                              <Badge
+                                variant="secondary"
+                                className="text-xs"
+                              >
+                                Score: {scored.score}/10
+                              </Badge>
+                              <span className="text-xs text-muted-foreground truncate">
+                                {scored.reason}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        {isSelected && (
+                          <CheckCircle2 className="h-4 w-4 text-blue-600 shrink-0 mt-1" />
                         )}
                       </div>
-                      {isSelected && (
-                        <CheckCircle2 className="h-4 w-4 text-blue-600 shrink-0 mt-1" />
-                      )}
                     </div>
-                  </div>
-                );
-              })
+                  );
+                });
+              })()
             )}
           </div>
         </div>
