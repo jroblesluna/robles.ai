@@ -7,8 +7,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Ensure the data directory exists
-const dataDir = path.resolve(__dirname, './data');
+// Use server/data/ for the database — persists across builds (dist/ is regenerated each build)
+const dataDir = path.resolve(process.cwd(), 'server/data');
 fs.mkdirSync(dataDir, { recursive: true });
 
 // Open or create the SQLite database
