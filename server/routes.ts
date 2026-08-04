@@ -18,6 +18,7 @@ import { addOneDay, subtractOneDay } from '@/utils/managmentDate';
 import adminRouter from './adminRoutes.js';
 import { generateDominicalReport } from './jobs/generateDominical.js';
 import { autoPublishDominical } from './jobs/autoPublishDominical.js';
+import { getSlugIndex } from './vite.js';
 
 // Reconstruir __dirname compatible con ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -169,6 +170,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // If no last post date, use one day before the current date
           const previousDate = subtractOneDay(targetDate);
           await generateHistoricalPosts(targetDate, editorId, previousDate);
+        }
+
+        // Rebuild the SlugIndex so newly generated posts are immediately queryable
+        const slugIndex = getSlugIndex();
+        if (slugIndex) {
+          await slugIndex.rebuild();
+          console.log('[CRON] SlugIndex rebuilt with new posts.');
         }
 
         console.log('[CRON] Scheduled task completed.');
@@ -488,22 +496,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/sitemap.xml', async (_req: Request, res: Response) => {
     try {
       const sitemapFolder = path.resolve(__dirname, './data/sitemaps');
-      const sitemapFiles = await fs.promises.readdir(sitemapFolder);
+      const staticPagesPath = path.resolve(__dirname, '../public/static-pages.xml');
 
-      const sitemapUrls = [
-        'https://robles.ai/static-pages.xml',
-        ...sitemapFiles
-          .filter((f) => f.endsWith('.xml'))
-          .map((f) => `https://robles.ai/sitemaps/${f}`),
-      ];
+      // Build sitemap entries with lastmod from file modification dates
+      const sitemapEntries: { loc: string; lastmod: string }[] = [];
+
+      // Add static-pages.xml entry
+      try {
+        const staticStat = await fs.promises.stat(staticPagesPath);
+        sitemapEntries.push({
+          loc: 'https://robles.ai/static-pages.xml',
+          lastmod: staticStat.mtime.toISOString().split('T')[0],
+        });
+      } catch {
+        // If static-pages.xml doesn't exist, include without lastmod
+        sitemapEntries.push({
+          loc: 'https://robles.ai/static-pages.xml',
+          lastmod: new Date().toISOString().split('T')[0],
+        });
+      }
+
+      // Add monthly blog sitemaps
+      try {
+        const sitemapFiles = await fs.promises.readdir(sitemapFolder);
+        for (const f of sitemapFiles.filter((f) => f.endsWith('.xml'))) {
+          const filePath = path.join(sitemapFolder, f);
+          const fileStat = await fs.promises.stat(filePath);
+          sitemapEntries.push({
+            loc: `https://robles.ai/sitemaps/${f}`,
+            lastmod: fileStat.mtime.toISOString().split('T')[0],
+          });
+        }
+      } catch {
+        // If sitemaps folder doesn't exist yet, just serve with static-pages only
+      }
 
       const builder = new XMLBuilder({ ignoreAttributes: false, format: true });
       const sitemapIndex = {
         sitemapindex: {
           '@_xmlns': 'http://www.sitemaps.org/schemas/sitemap/0.9',
-          sitemap: sitemapUrls.map((url) => ({
-            loc: url,
-            // Optionally, add lastmod with fs.statSync if needed
+          sitemap: sitemapEntries.map((entry) => ({
+            loc: entry.loc,
+            lastmod: entry.lastmod,
           })),
         },
       };
