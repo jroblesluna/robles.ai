@@ -15,7 +15,7 @@ export function generateImagePrompt(newsThemes: string): string {
 }
 
 /**
- * Generates an image using OpenAI DALL-E 3.
+ * Generates an image using OpenAI gpt-image-1.
  * Returns the generated image URL.
  */
 export async function generateImageWithDallE(
@@ -25,15 +25,15 @@ export async function generateImageWithDallE(
   const openai = new OpenAI({ apiKey });
 
   const response = await openai.images.generate({
-    model: 'dall-e-3',
+    model: 'gpt-image-1',
     prompt,
     n: 1,
-    size: '1792x1024',
+    size: '1536x1024',
   });
 
   const imageUrl = response.data?.[0]?.url;
   if (!imageUrl) {
-    throw new Error('DALL-E 3 returned no image URL');
+    throw new Error('Image generation returned no image URL');
   }
 
   return imageUrl;

@@ -863,17 +863,17 @@ adminRouter.post('/dominical/:id/generate-image', requireAuth, async (req, res) 
       return;
     }
 
-    // 4. Call DALL-E 3 API
+    // 4. Call OpenAI Image Generation API
     const openai = new OpenAI({ apiKey });
 
     const prompt = `Professional LinkedIn cover image representing: ${themes}. Modern, clean, corporate style. Blue and purple tones. No text.`;
 
     const imageResponse = await openai.images.generate({
-      model: 'dall-e-3',
+      model: 'gpt-image-1',
       prompt,
       n: 1,
-      size: '1792x1024',
-      quality: 'standard',
+      size: '1536x1024',
+      quality: 'medium',
     });
 
     const imageUrl = imageResponse.data?.[0]?.url;
