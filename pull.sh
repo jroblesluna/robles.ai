@@ -2,6 +2,7 @@
 
 # Discard any local changes that might block the pull
 git reset --hard HEAD
+chmod +x pull.sh
 
 # Pull the latest changes and capture the output
 pull_output=$(git pull 2>&1)
