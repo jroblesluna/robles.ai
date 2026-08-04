@@ -137,29 +137,33 @@ Return ONLY the JSON array, no markdown fences or additional text. Use the slug 
   if (Array.isArray(parsed)) {
     scored = parsed;
   } else if (typeof parsed === 'object' && parsed !== null) {
-    // Search for any array in the response object (including nested)
-    let foundArray: any[] | null = null;
-    
-    const findArray = (obj: any): any[] | null => {
-      for (const value of Object.values(obj)) {
-        if (Array.isArray(value) && value.length > 0) {
-          return value;
-        }
-        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-          const nested = findArray(value);
-          if (nested) return nested;
-        }
-      }
-      return null;
-    };
-
-    foundArray = findArray(parsed);
-    
-    if (foundArray) {
-      scored = foundArray;
+    // Check if it's a single scored item (has slug, score, reason properties)
+    if ('slug' in parsed && 'score' in parsed) {
+      console.warn('⚠️ GPT-4o returned a single object instead of an array. Wrapping it.');
+      scored = [parsed as ScoredPost];
     } else {
-      console.error('❌ Unexpected GPT-4o response format. Raw response:', content.slice(0, 500));
-      throw new Error('Unexpected GPT-4o response format: could not find scored articles array');
+      // Search for any array in the response object (including nested)
+      const findArray = (obj: any): any[] | null => {
+        for (const value of Object.values(obj)) {
+          if (Array.isArray(value) && value.length > 0) {
+            return value;
+          }
+          if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+            const nested = findArray(value);
+            if (nested) return nested;
+          }
+        }
+        return null;
+      };
+
+      const foundArray = findArray(parsed);
+      
+      if (foundArray) {
+        scored = foundArray;
+      } else {
+        console.error('❌ Unexpected GPT-4o response format. Raw response:', content.slice(0, 500));
+        throw new Error('Unexpected GPT-4o response format: could not find scored articles array');
+      }
     }
   } else {
     console.error('❌ Unexpected GPT-4o response type:', typeof parsed, content.slice(0, 500));
