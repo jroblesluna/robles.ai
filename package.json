@@ -12,7 +12,8 @@
     "test": "vitest --run",
     "fix-sitemap": "tsx src/scripts/fixSitemapMissing.ts",
     "cleanup-duplicates": "tsx src/scripts/cleanupDuplicates.ts",
-    "detect-gaps": "tsx src/scripts/detectGaps.ts"
+    "detect-gaps": "tsx src/scripts/detectGaps.ts",
+    "fill-gaps": "tsx src/scripts/fillGaps.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",
