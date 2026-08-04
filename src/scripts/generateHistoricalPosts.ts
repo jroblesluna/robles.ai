@@ -20,6 +20,37 @@ function randomBetween(min: number, max: number): number {
   return Math.random() * (max - min) + min;
 }
 
+/**
+ * Check if a post already exists for a given date and editor.
+ * Looks for files matching the pattern YYYY-MM-DD-HH-00-00-* in the posts directory.
+ */
+async function postExistsForDateEditor(dateString: string, editorId: number): Promise<boolean> {
+  const [year, month, day] = dateString.split('-');
+  const hour = String((editorId - 1) % 24).padStart(2, '0');
+  const prefix = `${year}-${month}-${day}-${hour}-00-00-`;
+
+  const isProd = process.env.NODE_ENV === 'production';
+  const dirsToCheck = isProd
+    ? [
+        path.resolve(process.cwd(), `dist/data/posts/${year}/${month}/${day}`),
+        path.resolve(process.cwd(), `server/data/posts/${year}/${month}/${day}`),
+      ]
+    : [path.resolve(process.cwd(), `server/data/posts/${year}/${month}/${day}`)];
+
+  for (const dir of dirsToCheck) {
+    try {
+      const files = await fs.readdir(dir);
+      if (files.some((f) => f.startsWith(prefix) && f.endsWith('.json'))) {
+        return true;
+      }
+    } catch {
+      // Directory doesn't exist yet, no duplicates possible
+    }
+  }
+
+  return false;
+}
+
 function generateDatePrefix(date: Date, editorId: number): string {
   const clonedDate = new Date(date);
   clonedDate.setUTCHours((editorId - 1) % 24, 0, 0, 0);
@@ -65,6 +96,13 @@ export async function generateHistoricalPosts(
       : editors;
 
     for (const editor of editorsToProcess) {
+      // Skip if a post already exists for this date-editor combination
+      const alreadyExists = await postExistsForDateEditor(dateString, editor.id);
+      if (alreadyExists) {
+        console.log(`⏭️  Post already exists for ${editor.name} on ${dateString}. Skipping.`);
+        continue;
+      }
+
       const recentTopics = await listRecentTopics(dateString);
       const news = await searchNews(editor.specialty, dateString);
 
