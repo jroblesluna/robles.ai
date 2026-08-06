@@ -120,14 +120,14 @@ export async function scorePostsWithGPT(
 
   // Prepare post summaries for the prompt
   const postList = postsToScore.map((p, i) => (
-    `${i + 1}. [${p.date}] "${p.titleEs}" (EN: "${p.titleEn}")\n   Categories: ${p.categories.join(', ')}\n   Excerpt: ${p.excerpt}`
+    `${i + 1}. Slug: "${p.slug}"\n   [${p.date}] "${p.titleEs}" (EN: "${p.titleEn}")\n   Categories: ${p.categories.join(', ')}\n   Excerpt: ${p.excerpt}`
   )).join('\n\n');
 
   const systemPrompt = `You are a content curator for "El Dominical IA", a weekly LinkedIn newsletter targeting business professionals in Latin America. Your job is to score news articles based on their relevance, impact, and appeal for this audience.`;
 
   const userPrompt = `Score the following ${postsToScore.length} news articles for a LinkedIn post targeting business professionals in LatAm. Consider factors like business impact, innovation relevance, audience interest, and storytelling potential.
 
-You MUST return a JSON object with a key "articles" containing an array of objects. Each object must have: slug (string), score (1-10 integer), reason (one line string).
+You MUST return a JSON object with a key "articles" containing an array of objects. Each object must have: slug (string, use the EXACT slug provided for each article), score (1-10 integer), reason (one line string).
 
 Example format:
 {"articles": [{"slug": "example-slug", "score": 8, "reason": "High relevance explanation"}]}
