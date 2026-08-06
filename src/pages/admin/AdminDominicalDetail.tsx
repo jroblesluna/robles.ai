@@ -24,6 +24,8 @@ interface PostSummary {
   excerpt: string;
   date: string;
   categories: string[];
+  score?: number;
+  reason?: string;
 }
 
 interface ScoredPost {
@@ -72,7 +74,9 @@ const statusConfig: Record<string, { label: string; className: string }> = {
 };
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("es-PE", {
+  // Add T00:00:00 to prevent timezone offset issues
+  const date = new Date(iso + "T00:00:00");
+  return date.toLocaleDateString("es-PE", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -264,8 +268,14 @@ export default function AdminDominicalDetail() {
     }
   };
 
-  const getScoredPost = (slug: string): ScoredPost | undefined => {
-    return report?.selected_news.find((n) => n.slug === slug);
+  const getScoredPost = (slug: string): { score: number; reason: string } | undefined => {
+    // First check selected_news (has score/reason)
+    const selected = report?.selected_news.find((n) => n.slug === slug);
+    if (selected) return { score: selected.score, reason: selected.reason };
+    // Then check all_news (may have score from scoring)
+    const allNews = report?.all_news.find((n) => n.slug === slug);
+    if (allNews && allNews.score) return { score: allNews.score, reason: allNews.reason || '' };
+    return undefined;
   };
 
   const handleImageUrlCommit = () => {
@@ -489,14 +499,10 @@ export default function AdminDominicalDetail() {
                   const bSelected = selectedSlugs.has(b.slug);
                   if (aSelected && !bSelected) return -1;
                   if (!aSelected && bSelected) return 1;
-                  // Within selected, sort by score descending
-                  if (aSelected && bSelected) {
-                    const aScore = getScoredPost(a.slug)?.score || 0;
-                    const bScore = getScoredPost(b.slug)?.score || 0;
-                    return bScore - aScore;
-                  }
-                  // Within unselected, sort by date descending
-                  return b.date.localeCompare(a.date);
+                  // Within same group, sort by score descending
+                  const aScore = getScoredPost(a.slug)?.score || 0;
+                  const bScore = getScoredPost(b.slug)?.score || 0;
+                  return bScore - aScore;
                 });
 
                 return sorted.map((news) => {
@@ -539,7 +545,7 @@ export default function AdminDominicalDetail() {
                                 variant="secondary"
                                 className="text-xs"
                               >
-                                Score: {scored.score}/10
+                                {scored.score}/100
                               </Badge>
                               <span className="text-xs text-muted-foreground truncate">
                                 {scored.reason}

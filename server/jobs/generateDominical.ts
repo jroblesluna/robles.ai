@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import OpenAI from 'openai';
 import db from '../db.js';
-import { getRecentPosts, getTopScoredPosts, type PostSummary, type ScoredPost } from '../services/dominicalScoring.js';
+import { getRecentPosts, scorePostsWithGPT, type PostSummary, type ScoredPost } from '../services/dominicalScoring.js';
 
 /**
  * Generates a LinkedIn post draft using GPT-4o.
@@ -12,7 +12,7 @@ async function generateLinkedInPost(selectedPosts: ScoredPost[], apiKey: string)
   const openai = new OpenAI({ apiKey });
 
   const newsList = selectedPosts
-    .map((p, i) => `${i + 1}. "${p.title}" (Score: ${p.score}/10 — ${p.reason})\n   URL: https://robles.ai/blog/${p.slug}`)
+    .map((p, i) => `${i + 1}. "${p.title}" (Score: ${p.score}/100 — ${p.reason})\n   URL: https://robles.ai/blog/${p.slug}`)
     .join('\n');
 
   const systemPrompt = `Eres el redactor de "El Dominical IA", un newsletter semanal en LinkedIn para profesionales de tecnología y negocios en Latinoamérica. Tu estilo es informado, opinado, cercano y profesional. Escribes en español.`;
@@ -99,7 +99,7 @@ async function sendNotificationEmail(selectedPosts: ScoredPost[]): Promise<void>
       <h2>🗞️ El Dominical IA está listo</h2>
       <p>Se ha generado un nuevo reporte semanal con las siguientes noticias seleccionadas:</p>
       <ul>
-        ${selectedPosts.map((p) => `<li><strong>${p.title}</strong> (${p.score}/10)</li>`).join('\n        ')}
+        ${selectedPosts.map((p) => `<li><strong>${p.title}</strong> (${p.score}/100)</li>`).join('\n        ')}
       </ul>
       <p>
         <a href="${baseUrl}/admin/dominical" style="display:inline-block;padding:12px 24px;background:#2563eb;color:white;text-decoration:none;border-radius:6px;">
@@ -134,9 +134,27 @@ export async function generateDominicalReport(): Promise<{ reportId: number }> {
     throw new Error('No posts found in the last 7 days. Cannot generate Dominical report.');
   }
 
-  // 2. Score and select top N posts
-  const selectedPosts = await getTopScoredPosts();
-  console.log(`⭐ Selected ${selectedPosts.length} top posts`);
+  // 2. Score posts and select top N
+  // Get API key for scoring
+  const apiKeyRowForScoring = db.prepare('SELECT value FROM settings WHERE key = ?').get('openai_api_key') as
+    | { value: string | null }
+    | undefined;
+  const scoringApiKey = apiKeyRowForScoring?.value || process.env.OPENAI_API_KEY;
+  if (!scoringApiKey) {
+    throw new Error('OpenAI API key not configured.');
+  }
+
+  // Score all posts (returns all scored, sorted by score desc)
+  const allScoredPosts = await scorePostsWithGPT(allPosts, scoringApiKey);
+  console.log(`📊 Scored ${allScoredPosts.length} posts`);
+
+  // Select top N
+  const topNRow = db.prepare('SELECT value FROM settings WHERE key = ?').get('dominical_top_n') as
+    | { value: string | null }
+    | undefined;
+  const topN = topNRow?.value ? parseInt(topNRow.value, 10) : 5;
+  const selectedPosts = allScoredPosts.slice(0, topN);
+  console.log(`⭐ Selected top ${selectedPosts.length} posts`);
 
   // 3. Generate LinkedIn post draft
   const apiKeyRow = db.prepare('SELECT value FROM settings WHERE key = ?').get('openai_api_key') as
@@ -164,11 +182,21 @@ export async function generateDominicalReport(): Promise<{ reportId: number }> {
     VALUES (?, ?, ?, ?, ?, 'pending_review', ?)
   `);
 
+  // Store all_news with scores embedded (merge allPosts with scores)
+  const allNewsWithScores = allPosts.map((post) => {
+    const scored = allScoredPosts.find((s) => s.slug === post.slug);
+    return {
+      ...post,
+      score: scored?.score || 0,
+      reason: scored?.reason || '',
+    };
+  });
+
   const result = stmt.run(
     weekStart,
     weekEnd,
     JSON.stringify(selectedPosts),
-    JSON.stringify(allPosts),
+    JSON.stringify(allNewsWithScores),
     postText,
     new Date().toISOString()
   );

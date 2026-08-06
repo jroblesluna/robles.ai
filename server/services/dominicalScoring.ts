@@ -127,10 +127,10 @@ export async function scorePostsWithGPT(
 
   const userPrompt = `Score the following ${postsToScore.length} news articles for a LinkedIn post targeting business professionals in LatAm. Consider factors like business impact, innovation relevance, audience interest, and storytelling potential.
 
-You MUST return a JSON object with a key "articles" containing an array of objects. Each object must have: slug (string, use the EXACT slug provided for each article), score (1-10 integer), reason (one line string).
+You MUST return a JSON object with a key "articles" containing an array of objects. Each object must have: slug (string, use the EXACT slug provided for each article), score (1-100 integer), reason (one line string).
 
 Example format:
-{"articles": [{"slug": "example-slug", "score": 8, "reason": "High relevance explanation"}]}
+{"articles": [{"slug": "example-slug", "score": 85, "reason": "High relevance explanation"}]}
 
 Articles to score:
 
