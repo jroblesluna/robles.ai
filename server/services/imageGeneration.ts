@@ -16,7 +16,7 @@ export function generateImagePrompt(newsThemes: string): string {
 
 /**
  * Generates an image using OpenAI gpt-image-1.
- * Returns the generated image URL.
+ * Returns the generated image URL or saves to disk and returns path.
  */
 export async function generateImageWithDallE(
   prompt: string,
@@ -31,12 +31,17 @@ export async function generateImageWithDallE(
     size: '1536x1024',
   });
 
-  const imageUrl = response.data?.[0]?.url;
-  if (!imageUrl) {
-    throw new Error('Image generation returned no image URL');
-  }
+  const b64Data = response.data?.[0]?.b64_json;
+  const urlData = response.data?.[0]?.url;
 
-  return imageUrl;
+  if (urlData) {
+    return urlData;
+  } else if (b64Data) {
+    // Return as data URI
+    return `data:image/png;base64,${b64Data}`;
+  } else {
+    throw new Error('Image generation returned no image data');
+  }
 }
 
 /**

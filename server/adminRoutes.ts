@@ -877,9 +877,36 @@ adminRouter.post('/dominical/:id/generate-image', requireAuth, async (req, res) 
       quality: 'medium',
     });
 
-    const imageUrl = imageResponse.data?.[0]?.url;
-    if (!imageUrl) {
-      res.status(500).json({ error: 'Image generation failed: no URL returned from API' });
+    // gpt-image-1 returns b64_json, not a URL
+    const b64Data = imageResponse.data?.[0]?.b64_json;
+    const urlData = imageResponse.data?.[0]?.url;
+    
+    let imageUrl: string;
+    
+    if (urlData) {
+      // If URL is provided (future-proofing)
+      imageUrl = urlData;
+    } else if (b64Data) {
+      // Save base64 as a file in public/images and return the path
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      const filename = `dominical-${id}-${Date.now()}.png`;
+      const imagePath = path.default.resolve(process.cwd(), 'dist/public/images', filename);
+      
+      // Ensure directory exists
+      await fs.default.mkdir(path.default.dirname(imagePath), { recursive: true });
+      
+      // Write the image file
+      const buffer = Buffer.from(b64Data, 'base64');
+      await fs.default.writeFile(imagePath, buffer);
+      
+      // Also save to server/public for persistence across builds
+      const serverImagePath = path.default.resolve(process.cwd(), 'public/images', filename);
+      await fs.default.writeFile(serverImagePath, buffer);
+      
+      imageUrl = `/images/${filename}`;
+    } else {
+      res.status(500).json({ error: 'Image generation failed: no image data returned from API' });
       return;
     }
 
