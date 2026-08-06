@@ -4,8 +4,8 @@ import path from 'path';
 import type { ComposeSlideOptions, ComposeCoverOptions, ComposeCTAOptions } from './carouselTypes.js';
 
 const SLIDE_SIZE = 1080;
-const LOGO_SIZE = 50;
-const LOGO_TOP = 15;
+const LOGO_SIZE = 60;
+const LOGO_TOP = 10;
 const LOGO_LEFT = 20;
 const WHITE_BAND_HEIGHT = 80;
 
@@ -69,7 +69,7 @@ function wrapText(text: string, maxCharsPerLine: number, maxLines: number): stri
 /**
  * Generates the SVG overlay for an article slide with white band, gradient, title, and engagement phrase.
  */
-function buildArticleSvgOverlay(titleText: string, engagementPhrase?: string): Buffer {
+function buildArticleSvgOverlay(titleText: string, engagementPhrase?: string, categoryLabel?: string, phraseColor?: string): Buffer {
   const titleLines = wrapText(titleText, 40, 3);
   const titleFontSize = 36;
   const phraseFontSize = 30;
@@ -91,7 +91,13 @@ function buildArticleSvgOverlay(titleText: string, engagementPhrase?: string): B
   let phraseSvg = '';
   if (engagementPhrase) {
     const phraseY = titleStartY + titleLines.length * lineHeight + phraseLineHeight * 0.5;
-    phraseSvg = `    <text x="60" y="${phraseY}" font-family="Arial, Helvetica, sans-serif" font-size="${phraseFontSize}" font-style="italic" fill="#93c5fd">${escapeXml(engagementPhrase)}</text>\n`;
+    const pColor = phraseColor || '#93c5fd';
+    phraseSvg = `    <text x="60" y="${phraseY}" font-family="Arial, Helvetica, sans-serif" font-size="${phraseFontSize}" font-style="italic" fill="${pColor}">${escapeXml(engagementPhrase)}</text>\n`;
+  }
+
+  let categorySvg = '';
+  if (categoryLabel) {
+    categorySvg = `  <text x="${SLIDE_SIZE - 30}" y="${WHITE_BAND_HEIGHT / 2 + 7}" font-family="Arial, sans-serif" font-size="18" fill="#6B7280" text-anchor="end">${escapeXml(categoryLabel)}</text>\n`;
   }
 
   const svg = `<svg width="${SLIDE_SIZE}" height="${SLIDE_SIZE}" xmlns="http://www.w3.org/2000/svg">
@@ -102,8 +108,8 @@ function buildArticleSvgOverlay(titleText: string, engagementPhrase?: string): B
       <stop offset="100%" stop-color="rgba(0,0,0,0.7)" stop-opacity="0.7"/>
     </linearGradient>
   </defs>
-  <rect x="0" y="0" width="${SLIDE_SIZE}" height="${WHITE_BAND_HEIGHT}" fill="white"/>
-  <rect x="0" y="${gradientStart}" width="${SLIDE_SIZE}" height="${SLIDE_SIZE - gradientStart}" fill="url(#textGradient)"/>
+  <rect x="0" y="0" width="${SLIDE_SIZE}" height="${WHITE_BAND_HEIGHT}" fill="#F5F5F0"/>
+${categorySvg}  <rect x="0" y="${gradientStart}" width="${SLIDE_SIZE}" height="${SLIDE_SIZE - gradientStart}" fill="url(#textGradient)"/>
 ${titleSvgLines}${phraseSvg}</svg>`;
 
   return Buffer.from(svg);
@@ -115,10 +121,12 @@ ${titleSvgLines}${phraseSvg}</svg>`;
  */
 function buildCoverSvgOverlay(weekStart: string, weekEnd: string): Buffer {
   const titleFontSize = 56;
-  const dateFontSize = 20;
+  const dateFontSize = 22;
 
   // Center text vertically (slightly lower)
   const centerY = SLIDE_SIZE / 2 + 40;
+
+  const dateLabel = `Semana del ${weekStart} al ${weekEnd}`;
 
   const svg = `<svg width="${SLIDE_SIZE}" height="${SLIDE_SIZE}" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -129,8 +137,8 @@ function buildCoverSvgOverlay(weekStart: string, weekEnd: string): Buffer {
       <stop offset="100%" stop-color="rgba(0,0,0,0)" stop-opacity="0"/>
     </linearGradient>
   </defs>
-  <rect x="0" y="0" width="${SLIDE_SIZE}" height="${WHITE_BAND_HEIGHT}" fill="white"/>
-  <text x="${SLIDE_SIZE - 30}" y="${WHITE_BAND_HEIGHT / 2 + 7}" font-family="Arial, Helvetica, sans-serif" font-size="${dateFontSize}" fill="#374151" text-anchor="end">${escapeXml(weekStart)} — ${escapeXml(weekEnd)}</text>
+  <rect x="0" y="0" width="${SLIDE_SIZE}" height="${WHITE_BAND_HEIGHT}" fill="#F5F5F0"/>
+  <text x="${SLIDE_SIZE - 30}" y="${WHITE_BAND_HEIGHT / 2 + 7}" font-family="Arial, Helvetica, sans-serif" font-size="${dateFontSize}" fill="#4B5563" text-anchor="end">${escapeXml(dateLabel)}</text>
   <rect x="0" y="${centerY - 120}" width="${SLIDE_SIZE}" height="240" fill="url(#coverGradient)"/>
   <text x="${SLIDE_SIZE / 2}" y="${centerY}" font-family="Arial, Helvetica, sans-serif" font-size="${titleFontSize}" font-weight="bold" fill="white" text-anchor="middle">El Dominical IA</text>
 </svg>`;
@@ -171,7 +179,7 @@ function buildCtaSvgOverlay(ctaMessage: string): Buffer {
       <stop offset="100%" stop-color="rgba(0,0,0,0)" stop-opacity="0"/>
     </linearGradient>
   </defs>
-  <rect x="0" y="0" width="${SLIDE_SIZE}" height="${WHITE_BAND_HEIGHT}" fill="white"/>
+  <rect x="0" y="0" width="${SLIDE_SIZE}" height="${WHITE_BAND_HEIGHT}" fill="#F5F5F0"/>
   <rect x="0" y="${gradientTop}" width="${SLIDE_SIZE}" height="${gradientHeight}" fill="url(#ctaGradient)"/>
 ${ctaTextSvg}</svg>`;
 
@@ -195,7 +203,7 @@ export async function composeArticleSlide(options: ComposeSlideOptions): Promise
     .toBuffer();
 
   // Build SVG text overlay (includes white band)
-  const svgOverlay = buildArticleSvgOverlay(titleText, engagementPhrase);
+  const svgOverlay = buildArticleSvgOverlay(titleText, engagementPhrase, options.categoryLabel, options.phraseColor);
 
   // Composite all layers onto the background
   await sharp(backgroundImagePath)

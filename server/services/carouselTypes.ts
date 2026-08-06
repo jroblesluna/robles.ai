@@ -2,6 +2,67 @@
  * Shared TypeScript interfaces for the Dominical Carousel system.
  */
 
+/** Available color palettes for carousel generation */
+export type CarouselPalette = 'tech-blue' | 'emerald-green' | 'sunset-orange' | 'royal-purple' | 'midnight-teal';
+
+/** Palette configuration with colors for illustrations and text accents */
+export interface PaletteConfig {
+  name: string;
+  label: string;
+  /** Primary accent color for image generation prompts */
+  primaryAccent: string;
+  /** Secondary accent color */
+  secondaryAccent: string;
+  /** Background color description for image prompts */
+  backgroundDesc: string;
+  /** Hex color for engagement phrase text */
+  phraseColor: string;
+}
+
+/** All available palettes */
+export const PALETTE_CONFIGS: Record<CarouselPalette, PaletteConfig> = {
+  'tech-blue': {
+    name: 'tech-blue',
+    label: 'Tech Blue',
+    primaryAccent: 'electric cyan and bright blue',
+    secondaryAccent: 'white and light purple',
+    backgroundDesc: 'dark navy (#1a1a2e)',
+    phraseColor: '#93c5fd',
+  },
+  'emerald-green': {
+    name: 'emerald-green',
+    label: 'Emerald Green',
+    primaryAccent: 'emerald green and mint',
+    secondaryAccent: 'gold and white',
+    backgroundDesc: 'dark forest green (#0f2419)',
+    phraseColor: '#6ee7b7',
+  },
+  'sunset-orange': {
+    name: 'sunset-orange',
+    label: 'Sunset Orange',
+    primaryAccent: 'warm orange and coral',
+    secondaryAccent: 'golden yellow and cream',
+    backgroundDesc: 'dark burgundy (#1a0f0f)',
+    phraseColor: '#fdba74',
+  },
+  'royal-purple': {
+    name: 'royal-purple',
+    label: 'Royal Purple',
+    primaryAccent: 'royal purple and magenta',
+    secondaryAccent: 'pink and white',
+    backgroundDesc: 'deep indigo (#1a0a2e)',
+    phraseColor: '#c4b5fd',
+  },
+  'midnight-teal': {
+    name: 'midnight-teal',
+    label: 'Midnight Teal',
+    primaryAccent: 'teal and turquoise',
+    secondaryAccent: 'silver and light blue',
+    backgroundDesc: 'dark charcoal (#0f1a1a)',
+    phraseColor: '#5eead4',
+  },
+};
+
 /** Slide type literal union */
 export type SlideType = 'cover' | 'article' | 'cta';
 
@@ -47,6 +108,10 @@ export interface ComposeSlideOptions {
   engagementPhrase?: string;
   slideType: SlideType;
   outputPath: string;
+  /** Category label to show in the band (article slides) */
+  categoryLabel?: string;
+  /** Accent color for engagement phrase */
+  phraseColor?: string;
 }
 
 /** Options for composing the cover slide */

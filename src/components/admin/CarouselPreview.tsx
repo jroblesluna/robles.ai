@@ -59,6 +59,15 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [enlargedSlide, setEnlargedSlide] = useState<CarouselSlide | null>(null);
+  const [selectedPalette, setSelectedPalette] = useState<string>("tech-blue");
+
+  const palettes = [
+    { value: "tech-blue", label: "Tech Blue" },
+    { value: "emerald-green", label: "Emerald Green" },
+    { value: "sunset-orange", label: "Sunset Orange" },
+    { value: "royal-purple", label: "Royal Purple" },
+    { value: "midnight-teal", label: "Midnight Teal" },
+  ];
 
   const carouselQueryKey = [`/api/admin/dominical/${reportId}/carousel`];
 
@@ -80,7 +89,8 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
     mutationFn: async () => {
       const res = await apiRequest(
         "POST",
-        `/api/admin/dominical/${reportId}/generate-carousel`
+        `/api/admin/dominical/${reportId}/generate-carousel`,
+        { palette: selectedPalette }
       );
       return res.json();
     },
@@ -160,19 +170,30 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold">LinkedIn Carousel</h3>
-        <Button
-          size="sm"
-          onClick={() => generateMutation.mutate()}
-          disabled={generateMutation.isPending || isGenerating}
-          className="gap-2"
-        >
-          {generateMutation.isPending || isGenerating ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Sparkles className="h-4 w-4" />
-          )}
-          {hasSlides ? "Regenerate Carousel" : "Generate Carousel"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <select
+            value={selectedPalette}
+            onChange={(e) => setSelectedPalette(e.target.value)}
+            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+          >
+            {palettes.map((p) => (
+              <option key={p.value} value={p.value}>{p.label}</option>
+            ))}
+          </select>
+          <Button
+            size="sm"
+            onClick={() => generateMutation.mutate()}
+            disabled={generateMutation.isPending || isGenerating}
+            className="gap-2"
+          >
+            {generateMutation.isPending || isGenerating ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Sparkles className="h-4 w-4" />
+            )}
+            {hasSlides ? "Regenerate Carousel" : "Generate Carousel"}
+          </Button>
+        </div>
       </div>
 
       {/* Status indicator */}

@@ -987,6 +987,7 @@ adminRouter.post('/dominical/:id/generate-carousel', requireAuth, async (req, re
   try {
     const { id } = req.params;
     const reportId = Number(id);
+    const { palette } = req.body || {};
 
     // Validate report exists
     const report = db.prepare('SELECT id FROM dominical_reports WHERE id = ?').get(reportId) as
@@ -998,7 +999,7 @@ adminRouter.post('/dominical/:id/generate-carousel', requireAuth, async (req, re
       return;
     }
 
-    const result = await generateCarousel(reportId);
+    const result = await generateCarousel(reportId, palette);
     res.json(result);
   } catch (error: any) {
     console.error('Error generating carousel:', error);

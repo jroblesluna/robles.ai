@@ -2,6 +2,7 @@ import OpenAI from 'openai';
 import sharp from 'sharp';
 import fs from 'fs';
 import path from 'path';
+import type { PaletteConfig } from './carouselTypes.js';
 
 /**
  * Carousel-specific image generation service.
@@ -24,17 +25,21 @@ export function ensureBackgroundsDir(reportId: number): string {
  * Builds an image prompt from article title and categories for a conceptual background.
  * Generates vector/flat-design style illustrations that represent the article's topic.
  */
-export function buildArticleImagePrompt(articleTitle: string, categories: string[]): string {
+export function buildArticleImagePrompt(articleTitle: string, categories: string[], palette?: PaletteConfig): string {
   const categoryContext = categories.length > 0
     ? `Related domains: ${categories.join(', ')}.`
     : '';
+
+  const colorDesc = palette
+    ? `${palette.backgroundDesc} background with ${palette.primaryAccent} and ${palette.secondaryAccent} accent elements`
+    : 'dark navy/charcoal background (#1a1a2e) with vibrant accent colors (cyan, purple, teal, orange)';
 
   return (
     `Conceptual illustration for a LinkedIn carousel slide about: "${articleTitle}". ` +
     `${categoryContext} ` +
     `Style: clean flat-design vector illustration, modern and professional. ` +
     `Include recognizable visual metaphors and icons that represent the topic conceptually (e.g., if about autonomous vehicles show a stylized car with sensor lines, if about quantum computing show qubits and circuits, if about healthcare show medical symbols with data flows). ` +
-    `Color palette: dark navy/charcoal background (#1a1a2e) with vibrant accent colors (cyan, purple, teal, orange) for the illustrations. ` +
+    `Color palette: ${colorDesc}. ` +
     `No text, no letters, no words, no watermarks. ` +
     `No realistic human faces or photographs. Stylized silhouettes or icons are acceptable. ` +
     `Square format 1:1 ratio. ` +
@@ -51,9 +56,10 @@ export async function generateCarouselBackgroundImage(
   articleTitle: string,
   categories: string[],
   apiKey: string,
-  outputPath: string
+  outputPath: string,
+  palette?: PaletteConfig
 ): Promise<void> {
-  const prompt = buildArticleImagePrompt(articleTitle, categories);
+  const prompt = buildArticleImagePrompt(articleTitle, categories, palette);
   const imageBuffer = await callGptImage(prompt, apiKey);
   await resizeAndSave(imageBuffer, outputPath);
 }
@@ -64,13 +70,18 @@ export async function generateCarouselBackgroundImage(
  */
 export async function generateCoverBackground(
   apiKey: string,
-  outputPath: string
+  outputPath: string,
+  palette?: PaletteConfig
 ): Promise<void> {
+  const colorDesc = palette
+    ? `${palette.backgroundDesc} background with ${palette.primaryAccent} and ${palette.secondaryAccent} accent elements`
+    : 'dark navy background (#1a1a2e) with electric cyan, purple, and white accent elements';
+
   const prompt = (
     `Conceptual cover illustration for a weekly AI technology newsletter. ` +
     `Style: clean flat-design vector illustration with isometric perspective elements. ` +
     `Show a composition of technology icons: neural network nodes, data streams, a glowing brain, circuit board patterns, and connected devices — all arranged as a cohesive scene. ` +
-    `Color palette: dark navy background (#1a1a2e) with electric cyan, purple, and white accent elements. ` +
+    `Color palette: ${colorDesc}. ` +
     `No text, no letters, no words, no watermarks. ` +
     `No realistic human faces. ` +
     `Square format 1:1 ratio. ` +
@@ -86,13 +97,18 @@ export async function generateCoverBackground(
  */
 export async function generateCTABackground(
   apiKey: string,
-  outputPath: string
+  outputPath: string,
+  palette?: PaletteConfig
 ): Promise<void> {
+  const colorDesc = palette
+    ? `${palette.backgroundDesc} background with ${palette.primaryAccent} and ${palette.secondaryAccent} accent elements`
+    : 'dark navy background (#1a1a2e) with warm purple, gold/amber, and cyan accent elements';
+
   const prompt = (
     `Conceptual illustration for a LinkedIn carousel call-to-action slide about following and engaging with an AI community. ` +
     `Style: clean flat-design vector illustration. ` +
     `Show visual metaphors for connection and community: stylized notification bell, follow/subscribe icons, connected profile silhouettes, upward arrows suggesting growth, a "thumbs up" or heart icon. ` +
-    `Color palette: dark navy background (#1a1a2e) with warm purple, gold/amber, and cyan accent elements. ` +
+    `Color palette: ${colorDesc}. ` +
     `No text, no letters, no words, no watermarks. ` +
     `No realistic human faces. Stylized silhouettes are acceptable. ` +
     `Square format 1:1 ratio. ` +

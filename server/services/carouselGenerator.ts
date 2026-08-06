@@ -14,7 +14,10 @@ import type {
   SlideError,
   ArticleInput,
   SlideType,
+  CarouselPalette,
+  PaletteConfig,
 } from './carouselTypes.js';
+import { PALETTE_CONFIGS } from './carouselTypes.js';
 import fs from 'fs';
 
 /** CTA default message */
@@ -172,7 +175,7 @@ async function runWithConcurrency<T>(
  * Generates a full carousel for the given report.
  * Carousel structure: position 0 = cover, positions 1..N = articles, position N+1 = CTA.
  */
-export async function generateCarousel(reportId: number): Promise<CarouselGenerationResult> {
+export async function generateCarousel(reportId: number, palette?: CarouselPalette): Promise<CarouselGenerationResult> {
   // Concurrency guard
   assertNotGenerating(reportId);
 
@@ -180,6 +183,8 @@ export async function generateCarousel(reportId: number): Promise<CarouselGenera
   const report = fetchReport(reportId);
   const articles = report.articles;
   const totalSlides = articles.length + 2; // cover + articles + CTA
+
+  const paletteConfig: PaletteConfig | undefined = palette ? PALETTE_CONFIGS[palette] : undefined;
 
   const backgroundsDir = ensureBackgroundsDir(reportId);
   const compositesDir = ensureCompositesDir(reportId);
@@ -256,7 +261,7 @@ export async function generateCarousel(reportId: number): Promise<CarouselGenera
   // Cover background
   const coverBgPath = path.join(backgroundsDir, 'cover.png');
   bgTasks.push(async () => {
-    await generateCoverBackground(apiKey, coverBgPath);
+    await generateCoverBackground(apiKey, coverBgPath, paletteConfig);
     return { position: 0, path: coverBgPath };
   });
 
@@ -270,6 +275,7 @@ export async function generateCarousel(reportId: number): Promise<CarouselGenera
         article.categories || [],
         apiKey,
         bgPath,
+        paletteConfig,
       );
       return { position: i + 1, path: bgPath };
     });
@@ -278,7 +284,7 @@ export async function generateCarousel(reportId: number): Promise<CarouselGenera
   // CTA background
   const ctaBgPath = path.join(backgroundsDir, 'cta.png');
   bgTasks.push(async () => {
-    await generateCTABackground(apiKey, ctaBgPath);
+    await generateCTABackground(apiKey, ctaBgPath, paletteConfig);
     return { position: articles.length + 1, path: ctaBgPath };
   });
 
@@ -304,6 +310,7 @@ export async function generateCarousel(reportId: number): Promise<CarouselGenera
     compositesDir,
     weekStart: report.week_start,
     weekEnd: report.week_end,
+    paletteConfig,
   });
   slides.push(coverResult.slide);
   if (coverResult.error) errors.push(coverResult.error);
@@ -323,6 +330,8 @@ export async function generateCarousel(reportId: number): Promise<CarouselGenera
       compositesDir,
       weekStart: report.week_start,
       weekEnd: report.week_end,
+      categories: articles[i].categories || [],
+      paletteConfig,
     });
     slides.push(articleResult.slide);
     if (articleResult.error) errors.push(articleResult.error);
@@ -340,6 +349,7 @@ export async function generateCarousel(reportId: number): Promise<CarouselGenera
     compositesDir,
     weekStart: report.week_start,
     weekEnd: report.week_end,
+    paletteConfig,
   });
   slides.push(ctaResult.slide);
   if (ctaResult.error) errors.push(ctaResult.error);
@@ -361,8 +371,10 @@ async function composeSingleSlide(params: {
   compositesDir: string;
   weekStart: string;
   weekEnd: string;
+  categories?: string[];
+  paletteConfig?: PaletteConfig;
 }): Promise<{ slide: SlideResult; error?: SlideError }> {
-  const { reportId, position, slideType, articleSlug, titleText, engagementPhrase, bgPath, compositesDir, weekStart, weekEnd } = params;
+  const { reportId, position, slideType, articleSlug, titleText, engagementPhrase, bgPath, compositesDir, weekStart, weekEnd, categories, paletteConfig } = params;
 
   // If background generation failed, mark slide as failed
   if (!bgPath || !fs.existsSync(bgPath)) {
@@ -422,6 +434,8 @@ async function composeSingleSlide(params: {
           engagementPhrase: engagementPhrase || undefined,
           slideType: 'article',
           outputPath: compositePath,
+          categoryLabel: categories?.[0] || undefined,
+          phraseColor: paletteConfig?.phraseColor,
         });
         break;
 
@@ -493,7 +507,7 @@ async function composeSingleSlide(params: {
 /**
  * Regenerates only the specified slide for a report.
  */
-export async function regenerateSlide(reportId: number, position: number): Promise<SlideResult> {
+export async function regenerateSlide(reportId: number, position: number, palette?: CarouselPalette): Promise<SlideResult> {
   // Concurrency guard
   assertNotGenerating(reportId);
 
@@ -501,6 +515,8 @@ export async function regenerateSlide(reportId: number, position: number): Promi
   const report = fetchReport(reportId);
   const articles = report.articles;
   const totalSlides = articles.length + 2;
+
+  const paletteConfig: PaletteConfig | undefined = palette ? PALETTE_CONFIGS[palette] : undefined;
 
   if (position < 0 || position >= totalSlides) {
     const error = new Error(`Invalid slide position ${position}. Valid range: 0-${totalSlides - 1}`);
@@ -568,10 +584,10 @@ export async function regenerateSlide(reportId: number, position: number): Promi
   try {
     if (slideType === 'cover') {
       bgPath = path.join(backgroundsDir, 'cover.png');
-      await generateCoverBackground(apiKey, bgPath);
+      await generateCoverBackground(apiKey, bgPath, paletteConfig);
     } else if (slideType === 'cta') {
       bgPath = path.join(backgroundsDir, 'cta.png');
-      await generateCTABackground(apiKey, bgPath);
+      await generateCTABackground(apiKey, bgPath, paletteConfig);
     } else {
       const articleIndex = position - 1;
       bgPath = path.join(backgroundsDir, `slide-${position}.png`);
@@ -580,6 +596,7 @@ export async function regenerateSlide(reportId: number, position: number): Promi
         articles[articleIndex].categories || [],
         apiKey,
         bgPath,
+        paletteConfig,
       );
     }
   } catch (err: any) {
@@ -588,6 +605,7 @@ export async function regenerateSlide(reportId: number, position: number): Promi
   }
 
   // Compose the slide
+  const articleCategories = slideType === 'article' ? (articles[position - 1]?.categories || []) : undefined;
   const result = await composeSingleSlide({
     reportId,
     position,
@@ -599,6 +617,8 @@ export async function regenerateSlide(reportId: number, position: number): Promi
     compositesDir,
     weekStart: report.week_start,
     weekEnd: report.week_end,
+    categories: articleCategories,
+    paletteConfig,
   });
 
   return result.slide;

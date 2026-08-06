@@ -16,4 +16,4 @@ sitemaps
 
 # SQLite databases
 server/data/dominical.db
-server/data/*.db
+server/data/*.db*
