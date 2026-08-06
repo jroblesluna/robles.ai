@@ -21,21 +21,25 @@ export function ensureBackgroundsDir(reportId: number): string {
 }
 
 /**
- * Builds an image prompt from article title and categories for an abstract background.
+ * Builds an image prompt from article title and categories for a conceptual background.
+ * Generates vector/flat-design style illustrations that represent the article's topic.
  */
 export function buildArticleImagePrompt(articleTitle: string, categories: string[]): string {
   const categoryContext = categories.length > 0
-    ? `Themes: ${categories.join(', ')}.`
+    ? `Related domains: ${categories.join(', ')}.`
     : '';
 
   return (
-    `Abstract, visually striking background image for a LinkedIn carousel slide about: "${articleTitle}". ` +
+    `Conceptual illustration for a LinkedIn carousel slide about: "${articleTitle}". ` +
     `${categoryContext} ` +
-    `Style: modern, professional, abstract shapes and gradients. ` +
-    `Color palette: deep blues, purples, and teals with subtle glowing accents. ` +
-    `No text, no letters, no words. No people or faces. ` +
-    `Square format, suitable as a background for overlaying text later. ` +
-    `High contrast areas at the bottom third for text readability.`
+    `Style: clean flat-design vector illustration, modern and professional. ` +
+    `Include recognizable visual metaphors and icons that represent the topic conceptually (e.g., if about autonomous vehicles show a stylized car with sensor lines, if about quantum computing show qubits and circuits, if about healthcare show medical symbols with data flows). ` +
+    `Color palette: dark navy/charcoal background (#1a1a2e) with vibrant accent colors (cyan, purple, teal, orange) for the illustrations. ` +
+    `No text, no letters, no words, no watermarks. ` +
+    `No realistic human faces or photographs. Stylized silhouettes or icons are acceptable. ` +
+    `Square format 1:1 ratio. ` +
+    `Bottom third should be darker/emptier to allow text overlay with good readability. ` +
+    `Top two-thirds should contain the main conceptual illustration.`
   );
 }
 
@@ -55,20 +59,22 @@ export async function generateCarouselBackgroundImage(
 }
 
 /**
- * Generates an abstract branded cover background for the first slide.
+ * Generates a branded cover background for the first slide.
+ * Uses a conceptual tech/AI illustration style.
  */
 export async function generateCoverBackground(
   apiKey: string,
   outputPath: string
 ): Promise<void> {
   const prompt = (
-    `Abstract, elegant background for a LinkedIn carousel cover slide. ` +
-    `Theme: AI innovation, weekly technology digest. ` +
-    `Style: modern, professional, flowing abstract shapes with digital/neural network motifs. ` +
-    `Color palette: deep navy blue, electric purple, and cyan accents with soft gradients. ` +
-    `No text, no letters, no words. No people or faces. ` +
-    `Square format, suitable as a background for overlaying a logo and title text. ` +
-    `Slightly darker overall for text contrast.`
+    `Conceptual cover illustration for a weekly AI technology newsletter. ` +
+    `Style: clean flat-design vector illustration with isometric perspective elements. ` +
+    `Show a composition of technology icons: neural network nodes, data streams, a glowing brain, circuit board patterns, and connected devices — all arranged as a cohesive scene. ` +
+    `Color palette: dark navy background (#1a1a2e) with electric cyan, purple, and white accent elements. ` +
+    `No text, no letters, no words, no watermarks. ` +
+    `No realistic human faces. ` +
+    `Square format 1:1 ratio. ` +
+    `Center area should be slightly darker/emptier for overlaying a logo and title text.`
   );
 
   const imageBuffer = await callGptImage(prompt, apiKey);
@@ -76,19 +82,20 @@ export async function generateCoverBackground(
 }
 
 /**
- * Generates an abstract background for the CTA (call-to-action) slide.
+ * Generates a conceptual background for the CTA (call-to-action) slide.
  */
 export async function generateCTABackground(
   apiKey: string,
   outputPath: string
 ): Promise<void> {
   const prompt = (
-    `Abstract, inviting background for a LinkedIn carousel call-to-action slide. ` +
-    `Theme: connection, community, following, engagement. ` +
-    `Style: modern, professional, abstract shapes suggesting forward movement and connection. ` +
-    `Color palette: warm purples transitioning to vibrant blues with golden accent highlights. ` +
-    `No text, no letters, no words. No people or faces. ` +
-    `Square format, suitable as a background for overlaying a logo and CTA message. ` +
+    `Conceptual illustration for a LinkedIn carousel call-to-action slide about following and engaging with an AI community. ` +
+    `Style: clean flat-design vector illustration. ` +
+    `Show visual metaphors for connection and community: stylized notification bell, follow/subscribe icons, connected profile silhouettes, upward arrows suggesting growth, a "thumbs up" or heart icon. ` +
+    `Color palette: dark navy background (#1a1a2e) with warm purple, gold/amber, and cyan accent elements. ` +
+    `No text, no letters, no words, no watermarks. ` +
+    `No realistic human faces. Stylized silhouettes are acceptable. ` +
+    `Square format 1:1 ratio. ` +
     `Center area slightly darker for text readability.`
   );
 
