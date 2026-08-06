@@ -50,6 +50,24 @@ db.exec(`
     linkedin_post_id TEXT,
     error_log TEXT
   );
+
+  CREATE TABLE IF NOT EXISTS carousel_slides (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    report_id INTEGER NOT NULL,
+    position INTEGER NOT NULL,
+    slide_type TEXT NOT NULL CHECK(slide_type IN ('cover', 'article', 'cta')),
+    article_slug TEXT,
+    title_text TEXT NOT NULL,
+    engagement_phrase TEXT,
+    background_image_path TEXT,
+    composite_image_path TEXT,
+    status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'generating', 'generated', 'failed')),
+    error_message TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT,
+    FOREIGN KEY (report_id) REFERENCES dominical_reports(id),
+    UNIQUE(report_id, position)
+  );
 `);
 
 export default db;

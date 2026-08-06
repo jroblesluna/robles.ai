@@ -2,10 +2,15 @@ import { Router } from 'express';
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import OpenAI from 'openai';
+import path from 'path';
+import fs from 'fs';
 import db from './db.js';
 import { generateToken, verifyToken, requireAuth } from './auth.js';
 import { generateDominicalReport } from './jobs/generateDominical.js';
 import { publishPost } from './services/linkedin.js';
+import { generateCarousel, regenerateSlide } from './services/carouselGenerator.js';
+import { exportCarouselPdf } from './services/pdfExporter.js';
+import { composeArticleSlide } from './services/slideCompositor.js';
 
 const SALT_ROUNDS = 12;
 
@@ -967,6 +972,369 @@ adminRouter.post('/dominical/:id/publish', requireAuth, async (req, res) => {
     res.json({ success: true, linkedin_post_id: linkedinPostId });
   } catch (error) {
     console.error('Error publishing dominical report:', error);
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
+
+// --- Carousel Routes ---
+
+/**
+ * POST /api/admin/dominical/:id/generate-carousel
+ * Triggers full carousel generation for a report. Protected endpoint.
+ */
+adminRouter.post('/dominical/:id/generate-carousel', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const reportId = Number(id);
+
+    // Validate report exists
+    const report = db.prepare('SELECT id FROM dominical_reports WHERE id = ?').get(reportId) as
+      | { id: number }
+      | undefined;
+
+    if (!report) {
+      res.status(404).json({ error: 'Report not found' });
+      return;
+    }
+
+    const result = await generateCarousel(reportId);
+    res.json(result);
+  } catch (error: any) {
+    console.error('Error generating carousel:', error);
+    if (error.statusCode === 409) {
+      res.status(409).json({ error: error.message });
+      return;
+    }
+    if (error.statusCode === 404) {
+      res.status(404).json({ error: error.message });
+      return;
+    }
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
+
+/**
+ * POST /api/admin/dominical/:id/carousel/slides/:position/regenerate
+ * Regenerates a single slide at the specified position. Protected endpoint.
+ */
+adminRouter.post('/dominical/:id/carousel/slides/:position/regenerate', requireAuth, async (req, res) => {
+  try {
+    const { id, position } = req.params;
+    const reportId = Number(id);
+    const slidePosition = Number(position);
+
+    if (isNaN(slidePosition) || slidePosition < 0) {
+      res.status(400).json({ error: 'Invalid slide position' });
+      return;
+    }
+
+    // Validate report exists
+    const report = db.prepare('SELECT id FROM dominical_reports WHERE id = ?').get(reportId) as
+      | { id: number }
+      | undefined;
+
+    if (!report) {
+      res.status(404).json({ error: 'Report not found' });
+      return;
+    }
+
+    const result = await regenerateSlide(reportId, slidePosition);
+    res.json(result);
+  } catch (error: any) {
+    console.error('Error regenerating slide:', error);
+    if (error.statusCode === 409) {
+      res.status(409).json({ error: error.message });
+      return;
+    }
+    if (error.statusCode === 400) {
+      res.status(400).json({ error: error.message });
+      return;
+    }
+    if (error.statusCode === 404) {
+      res.status(404).json({ error: error.message });
+      return;
+    }
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
+
+/**
+ * PUT /api/admin/dominical/:id/carousel/slides/:position/text
+ * Updates slide text (titleText and/or engagementPhrase) and re-composes the slide.
+ * Protected endpoint.
+ */
+adminRouter.put('/dominical/:id/carousel/slides/:position/text', requireAuth, async (req, res) => {
+  try {
+    const { id, position } = req.params;
+    const reportId = Number(id);
+    const slidePosition = Number(position);
+
+    if (isNaN(slidePosition) || slidePosition < 0) {
+      res.status(400).json({ error: 'Invalid slide position' });
+      return;
+    }
+
+    const { titleText, engagementPhrase } = req.body;
+
+    if (titleText === undefined && engagementPhrase === undefined) {
+      res.status(400).json({ error: 'At least one of titleText or engagementPhrase must be provided' });
+      return;
+    }
+
+    // Get existing slide from DB
+    const slide = db.prepare(
+      'SELECT * FROM carousel_slides WHERE report_id = ? AND position = ?'
+    ).get(reportId, slidePosition) as
+      | {
+          id: number;
+          report_id: number;
+          position: number;
+          slide_type: string;
+          article_slug: string | null;
+          title_text: string;
+          engagement_phrase: string | null;
+          background_image_path: string | null;
+          composite_image_path: string | null;
+          status: string;
+          error_message: string | null;
+          created_at: string;
+          updated_at: string | null;
+        }
+      | undefined;
+
+    if (!slide) {
+      res.status(404).json({ error: 'Slide not found' });
+      return;
+    }
+
+    // Determine updated text values
+    const updatedTitle = titleText !== undefined ? titleText : slide.title_text;
+    const updatedPhrase = engagementPhrase !== undefined ? engagementPhrase : slide.engagement_phrase;
+
+    // Verify background image exists for re-composition
+    if (!slide.background_image_path || !fs.existsSync(slide.background_image_path)) {
+      res.status(400).json({ error: 'Background image not available for re-composition' });
+      return;
+    }
+
+    // Re-compose the slide using the existing background image
+    const compositePath = slide.composite_image_path || path.resolve(
+      process.cwd(),
+      'server/data/carousel',
+      String(reportId),
+      'composites',
+      `${String(slidePosition).padStart(2, '0')}-slide.png`
+    );
+
+    // Ensure composites directory exists
+    const compositesDir = path.dirname(compositePath);
+    fs.mkdirSync(compositesDir, { recursive: true });
+
+    const logoPath = path.resolve(process.cwd(), 'public/images/logo.png');
+
+    await composeArticleSlide({
+      backgroundImagePath: slide.background_image_path,
+      logoPath,
+      titleText: updatedTitle,
+      engagementPhrase: updatedPhrase || undefined,
+      slideType: slide.slide_type as 'cover' | 'article' | 'cta',
+      outputPath: compositePath,
+    });
+
+    // Update DB record
+    const now = new Date().toISOString();
+    db.prepare(
+      `UPDATE carousel_slides SET title_text = ?, engagement_phrase = ?, composite_image_path = ?, status = 'generated', error_message = NULL, updated_at = ? WHERE report_id = ? AND position = ?`
+    ).run(updatedTitle, updatedPhrase, compositePath, now, reportId, slidePosition);
+
+    res.json({
+      position: slidePosition,
+      type: slide.slide_type,
+      status: 'generated',
+      imagePath: compositePath,
+      articleSlug: slide.article_slug,
+      titleText: updatedTitle,
+      engagementPhrase: updatedPhrase,
+    });
+  } catch (error: any) {
+    console.error('Error updating slide text:', error);
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
+
+/**
+ * GET /api/admin/dominical/:id/carousel/pdf
+ * Returns the carousel as a downloadable PDF. Protected endpoint.
+ */
+adminRouter.get('/dominical/:id/carousel/pdf', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const reportId = Number(id);
+
+    // Validate report exists
+    const report = db.prepare('SELECT id FROM dominical_reports WHERE id = ?').get(reportId) as
+      | { id: number }
+      | undefined;
+
+    if (!report) {
+      res.status(404).json({ error: 'Report not found' });
+      return;
+    }
+
+    // Get all generated slides ordered by position
+    const slides = db.prepare(
+      'SELECT composite_image_path FROM carousel_slides WHERE report_id = ? AND status = ? ORDER BY position ASC'
+    ).all(reportId, 'generated') as Array<{ composite_image_path: string | null }>;
+
+    const slidePaths = slides
+      .map((s) => s.composite_image_path)
+      .filter((p): p is string => p !== null);
+
+    if (slidePaths.length === 0) {
+      res.status(400).json({ error: 'No valid slides available for PDF export' });
+      return;
+    }
+
+    const result = await exportCarouselPdf(reportId, slidePaths);
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="carousel-report-${reportId}.pdf"`);
+    res.send(result.pdfBuffer);
+  } catch (error: any) {
+    console.error('Error exporting carousel PDF:', error);
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
+
+/**
+ * GET /api/admin/dominical/:id/carousel/slides/:position/image
+ * Returns an individual slide PNG image. Protected endpoint.
+ */
+adminRouter.get('/dominical/:id/carousel/slides/:position/image', requireAuth, (req, res) => {
+  try {
+    const { id, position } = req.params;
+    const reportId = Number(id);
+    const slidePosition = Number(position);
+
+    if (isNaN(slidePosition) || slidePosition < 0) {
+      res.status(400).json({ error: 'Invalid slide position' });
+      return;
+    }
+
+    // Get the specific slide
+    const slide = db.prepare(
+      'SELECT composite_image_path, status FROM carousel_slides WHERE report_id = ? AND position = ?'
+    ).get(reportId, slidePosition) as
+      | { composite_image_path: string | null; status: string }
+      | undefined;
+
+    if (!slide) {
+      res.status(404).json({ error: 'Slide not found' });
+      return;
+    }
+
+    if (slide.status !== 'generated' || !slide.composite_image_path) {
+      res.status(400).json({ error: 'Slide image not available' });
+      return;
+    }
+
+    if (!fs.existsSync(slide.composite_image_path)) {
+      res.status(404).json({ error: 'Slide image file not found on disk' });
+      return;
+    }
+
+    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Content-Disposition', `inline; filename="slide-${slidePosition}.png"`);
+    const imageStream = fs.createReadStream(slide.composite_image_path);
+    imageStream.pipe(res);
+  } catch (error: any) {
+    console.error('Error serving slide image:', error);
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
+
+/**
+ * GET /api/admin/dominical/:id/carousel
+ * Returns carousel metadata/status JSON for a report. Protected endpoint.
+ */
+adminRouter.get('/dominical/:id/carousel', requireAuth, (req, res) => {
+  try {
+    const { id } = req.params;
+    const reportId = Number(id);
+
+    // Validate report exists
+    const report = db.prepare('SELECT id FROM dominical_reports WHERE id = ?').get(reportId) as
+      | { id: number }
+      | undefined;
+
+    if (!report) {
+      res.status(404).json({ error: 'Report not found' });
+      return;
+    }
+
+    // Get all slides for this report ordered by position
+    const slides = db.prepare(
+      `SELECT id, position, slide_type, article_slug, title_text, engagement_phrase,
+              background_image_path, composite_image_path, status, error_message, created_at, updated_at
+       FROM carousel_slides
+       WHERE report_id = ?
+       ORDER BY position ASC`
+    ).all(reportId) as Array<{
+      id: number;
+      position: number;
+      slide_type: string;
+      article_slug: string | null;
+      title_text: string;
+      engagement_phrase: string | null;
+      background_image_path: string | null;
+      composite_image_path: string | null;
+      status: string;
+      error_message: string | null;
+      created_at: string;
+      updated_at: string | null;
+    }>;
+
+    // Determine overall status
+    let overallStatus: string;
+    if (slides.length === 0) {
+      overallStatus = 'not_generated';
+    } else if (slides.some((s) => s.status === 'generating')) {
+      overallStatus = 'generating';
+    } else if (slides.every((s) => s.status === 'generated')) {
+      overallStatus = 'completed';
+    } else if (slides.some((s) => s.status === 'failed')) {
+      overallStatus = 'partial';
+    } else {
+      overallStatus = 'pending';
+    }
+
+    res.json({
+      reportId,
+      status: overallStatus,
+      slideCount: slides.length,
+      slides: slides.map((s) => ({
+        id: s.id,
+        position: s.position,
+        slideType: s.slide_type,
+        articleSlug: s.article_slug,
+        titleText: s.title_text,
+        engagementPhrase: s.engagement_phrase,
+        backgroundImagePath: s.background_image_path,
+        compositeImagePath: s.composite_image_path,
+        status: s.status,
+        errorMessage: s.error_message,
+        createdAt: s.created_at,
+        updatedAt: s.updated_at,
+      })),
+    });
+  } catch (error: any) {
+    console.error('Error fetching carousel metadata:', error);
     const message = error instanceof Error ? error.message : 'Unknown error';
     res.status(500).json({ error: message });
   }

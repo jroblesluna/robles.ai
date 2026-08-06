@@ -10,12 +10,16 @@ import {
   CheckCircle2,
   Upload,
   Sparkles,
+  FileDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import CarouselPreview from "@/components/admin/CarouselPreview";
+import SlideEditor from "@/components/admin/SlideEditor";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ScoreBreakdown {
   novelty: number;
@@ -114,6 +118,17 @@ export default function AdminDominicalDetail() {
   const [generatingImage, setGeneratingImage] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
   const [selectionChanged, setSelectionChanged] = useState(false);
+
+  // Slide editor state
+  const [editingSlide, setEditingSlide] = useState<{
+    position: number;
+    titleText: string;
+    engagementPhrase: string | null;
+    slideType: "cover" | "article" | "cta";
+    status: string;
+  } | null>(null);
+
+  const queryClient = useQueryClient();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -350,6 +365,32 @@ export default function AdminDominicalDetail() {
       });
     } finally {
       setGeneratingImage(false);
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!reportId) return;
+    try {
+      const res = await fetch(`/api/admin/dominical/${reportId}/carousel/pdf`);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to download PDF");
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `carousel-report-${reportId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      toast({
+        title: "Error downloading PDF",
+        description: err instanceof Error ? err.message : "Unknown error",
+        variant: "destructive",
+      });
     }
   };
 
@@ -718,6 +759,50 @@ export default function AdminDominicalDetail() {
           </div>
         </div>
       </div>
+
+      {/* Carousel section */}
+      <div className="space-y-4 border-t pt-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">LinkedIn Carousel</h2>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDownloadPdf}
+            className="gap-2"
+          >
+            <FileDown className="h-4 w-4" />
+            Download PDF
+          </Button>
+        </div>
+        <CarouselPreview
+          reportId={Number(reportId)}
+          onEditSlide={(slide) =>
+            setEditingSlide({
+              position: slide.position,
+              titleText: slide.titleText,
+              engagementPhrase: slide.engagementPhrase,
+              slideType: slide.slideType,
+              status: slide.status,
+            })
+          }
+        />
+      </div>
+
+      {/* Slide editor modal */}
+      {editingSlide && (
+        <SlideEditor
+          reportId={Number(reportId)}
+          slide={editingSlide}
+          isOpen={!!editingSlide}
+          onClose={() => setEditingSlide(null)}
+          onUpdated={() => {
+            setEditingSlide(null);
+            queryClient.invalidateQueries({
+              queryKey: [`/api/admin/dominical/${reportId}/carousel`],
+            });
+          }}
+        />
+      )}
     </div>
   );
 }

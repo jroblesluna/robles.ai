@@ -1,0 +1,544 @@
+{
+  "pbtResults": {
+    "3.3 Write property test for file path association": {
+      "status": "passed",
+      "lastRunTimestamp": 1786052226048
+    },
+    "2.2 Write property test for engagement phrase length constraint": {
+      "status": "passed",
+      "lastRunTimestamp": 1786052239485
+    },
+    "3.2 Write property test for image dimensions": {
+      "status": "passed",
+      "lastRunTimestamp": 1786052263223
+    },
+    "4.2 Write property test for background preservation on text-only changes": {
+      "status": "passed",
+      "lastRunTimestamp": 1786052442544
+    },
+    "6.2 Write property test for carousel structural ordering": {
+      "status": "passed",
+      "lastRunTimestamp": 1786052609270
+    },
+    "6.5 Write property test for carousel metadata round-trip": {
+      "status": "passed",
+      "lastRunTimestamp": 1786052630232
+    },
+    "6.3 Write property test for slide generation independence": {
+      "status": "passed",
+      "lastRunTimestamp": 1786052678521
+    },
+    "6.4 Write property test for slide regeneration isolation": {
+      "status": "passed",
+      "lastRunTimestamp": 1786052680864
+    },
+    "7.2 Write property test for PDF page count": {
+      "status": "passed",
+      "lastRunTimestamp": 1786052787126
+    },
+    "7.3 Write property test for PDF graceful degradation": {
+      "status": "passed",
+      "lastRunTimestamp": 1786052835106
+    }
+  },
+  "executionHistory": {
+    "1.1 Create the `carousel_slides` table in the SQLite database": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051918830
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051926607
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051994869
+      }
+    ],
+    "1.2 Define shared TypeScript interfaces for carousel types": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051918867
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051927275
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051995645
+      }
+    ],
+    "2.1 Implement the EngagementPhraseService": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051918918
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052003047
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052126944
+      }
+    ],
+    "2.2 Write property test for engagement phrase length constraint": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051918945
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052135454
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052337339
+      }
+    ],
+    "2.3 Write unit tests for EngagementPhraseService": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051918967
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052136335
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052338235
+      }
+    ],
+    "3.1 Implement carousel-specific image generation": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051918991
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052003821
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052127680
+      }
+    ],
+    "3.2 Write property test for image dimensions": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051919012
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052136964
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052339163
+      }
+    ],
+    "3.3 Write property test for file path association": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051919033
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052137683
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052339939
+      }
+    ],
+    "4.1 Implement the SlideCompositor with SVG text overlay": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051919054
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052138518
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052341909
+      }
+    ],
+    "4.2 Write property test for background preservation on text-only changes": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051919074
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052349414
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052522287
+      }
+    ],
+    "5. Checkpoint - Core services complete": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051919093
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786053533116
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786053536900
+      }
+    ],
+    "6.1 Implement the CarouselGenerator orchestration service": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051919113
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052350181
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052521336
+      }
+    ],
+    "6.2 Write property test for carousel structural ordering": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051919137
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052532833
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052713622
+      }
+    ],
+    "6.3 Write property test for slide generation independence": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051919162
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052533599
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052714309
+      }
+    ],
+    "6.4 Write property test for slide regeneration isolation": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051919181
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052534374
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052714992
+      }
+    ],
+    "6.5 Write property test for carousel metadata round-trip": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051919199
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052535113
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052715727
+      }
+    ],
+    "7.1 Implement the PdfExporter service": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051919218
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052535897
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052716769
+      }
+    ],
+    "7.2 Write property test for PDF page count": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051919237
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052725175
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052891918
+      }
+    ],
+    "7.3 Write property test for PDF graceful degradation": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051919258
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052725777
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052892645
+      }
+    ],
+    "8.1 Implement carousel API routes in adminRoutes.ts": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051919276
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052726631
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052893477
+      }
+    ],
+    "8.2 Write unit tests for carousel API endpoints": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051919294
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052901309
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786053147427
+      }
+    ],
+    "9. Checkpoint - Backend complete": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051919313
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786053540815
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786053544432
+      }
+    ],
+    "10.1 Create the CarouselPreview component": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051919333
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052901985
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786053146512
+      }
+    ],
+    "10.2 Create the SlideEditor component": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051919354
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052902780
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786053145763
+      }
+    ],
+    "10.3 Integrate carousel UI into AdminDominicalDetail page": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051919378
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786053156122
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786053524702
+      }
+    ],
+    "11. Final checkpoint - Full integration": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051919424
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786053547805
+      },
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786053551785
+      }
+    ],
+    "1. Database schema and shared types": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786051995693
+      }
+    ],
+    "2. Engagement phrase generation service": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052338287
+      }
+    ],
+    "3. Background image generation for carousel slides": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052339978
+      }
+    ],
+    "4. Slide compositor service": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052522345
+      }
+    ],
+    "6. Carousel generator orchestrator": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052715772
+      }
+    ],
+    "7. PDF export service": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786052892679
+      }
+    ],
+    "8. API endpoints": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786053147461
+      }
+    ],
+    "10. Frontend carousel preview component": [
+      {
+        "executionId": "d676aaec-19a7-42ee-b2b4-885e4d4abeb9",
+        "chatSessionId": "sess_3d300977-059a-48cb-a8f4-b8a8504f4dad",
+        "timestamp": 1786053524789
+      }
+    ]
+  }
+}
