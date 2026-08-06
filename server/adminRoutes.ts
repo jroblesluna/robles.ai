@@ -891,7 +891,7 @@ adminRouter.post('/dominical/:id/generate-image', requireAuth, async (req, res) 
       const fs = await import('fs/promises');
       const path = await import('path');
       const filename = `dominical-${id}-${Date.now()}.png`;
-      const imagePath = path.default.resolve(process.cwd(), 'dist/public/images', filename);
+      const imagePath = path.default.resolve(process.cwd(), 'dist/images', filename);
       
       // Ensure directory exists
       await fs.default.mkdir(path.default.dirname(imagePath), { recursive: true });
@@ -900,8 +900,9 @@ adminRouter.post('/dominical/:id/generate-image', requireAuth, async (req, res) 
       const buffer = Buffer.from(b64Data, 'base64');
       await fs.default.writeFile(imagePath, buffer);
       
-      // Also save to server/public for persistence across builds
+      // Also save to public/images for persistence across builds (postbuild copies public/ to dist/)
       const serverImagePath = path.default.resolve(process.cwd(), 'public/images', filename);
+      await fs.default.mkdir(path.default.dirname(serverImagePath), { recursive: true });
       await fs.default.writeFile(serverImagePath, buffer);
       
       imageUrl = `/images/${filename}`;
