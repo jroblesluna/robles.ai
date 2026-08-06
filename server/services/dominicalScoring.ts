@@ -20,10 +20,18 @@ export interface PostSummary {
   categories: string[];
 }
 
+export interface ScoreBreakdown {
+  novelty: number;        // 1-100: How new/disruptive is the news?
+  peopleImpact: number;   // 1-100: Does it affect work, skills, or life of professionals?
+  economicImpact: number; // 1-100: Relevance for businesses, industries, markets in LatAm?
+  narrativePotential: number; // 1-100: How well can it be told as a LinkedIn story?
+}
+
 export interface ScoredPost {
   slug: string;
   title: string;
-  score: number;
+  scores: ScoreBreakdown;
+  weightedScore: number;
   reason: string;
 }
 
@@ -125,12 +133,21 @@ export async function scorePostsWithGPT(
 
   const systemPrompt = `You are a content curator for "El Dominical IA", a weekly LinkedIn newsletter targeting business professionals in Latin America. Your job is to score news articles based on their relevance, impact, and appeal for this audience.`;
 
-  const userPrompt = `Score the following ${postsToScore.length} news articles for a LinkedIn post targeting business professionals in LatAm. Consider factors like business impact, innovation relevance, audience interest, and storytelling potential.
+  const userPrompt = `Score the following ${postsToScore.length} news articles for a weekly LinkedIn newsletter targeting business professionals in Latin America.
 
-You MUST return a JSON object with a key "articles" containing an array of objects. Each object must have: slug (string, use the EXACT slug provided for each article), score (1-100 integer), reason (one line string).
+Score each article on 4 dimensions (1-100 each):
+- novelty: How new, fresh, or disruptive is this news?
+- peopleImpact: Does it affect the work, skills, or daily life of tech/business professionals?
+- economicImpact: Is it relevant for businesses, industries, or markets in Latin America?
+- narrativePotential: How well can this story be told in a compelling LinkedIn post?
+
+You MUST return a JSON object with a key "articles" containing an array of objects. Each object must have:
+- slug (string, use the EXACT slug provided for each article)
+- scores (object with: novelty, peopleImpact, economicImpact, narrativePotential — all integers 1-100)
+- reason (one line string summarizing why this article is relevant)
 
 Example format:
-{"articles": [{"slug": "example-slug", "score": 85, "reason": "High relevance explanation"}]}
+{"articles": [{"slug": "2026-08-03-00-00-00-example-slug", "scores": {"novelty": 85, "peopleImpact": 70, "economicImpact": 90, "narrativePotential": 75}, "reason": "High relevance explanation"}]}
 
 Articles to score:
 
@@ -193,19 +210,51 @@ Return the JSON object with ALL ${postsToScore.length} articles scored.`;
     throw new Error('Unexpected GPT-4o response format: could not find scored articles array');
   }
 
-  // Enrich with titles from our post data and sort by score descending
-  const enriched: ScoredPost[] = scored.map((item) => {
+  // Weights for final score calculation
+  const WEIGHTS = {
+    novelty: 0.30,
+    peopleImpact: 0.25,
+    economicImpact: 0.25,
+    narrativePotential: 0.20,
+  };
+
+  // Enrich with titles and calculate weighted scores
+  const enriched: ScoredPost[] = scored.map((item: any) => {
     const originalPost = postsToScore.find((p) => p.slug === item.slug);
+    
+    // Handle both old format (flat score) and new format (scores object)
+    let scores: ScoreBreakdown;
+    if (item.scores && typeof item.scores === 'object') {
+      scores = {
+        novelty: Number(item.scores.novelty) || 50,
+        peopleImpact: Number(item.scores.peopleImpact) || 50,
+        economicImpact: Number(item.scores.economicImpact) || 50,
+        narrativePotential: Number(item.scores.narrativePotential) || 50,
+      };
+    } else {
+      // Fallback for old format: distribute single score across dimensions
+      const s = Number(item.score) || 50;
+      scores = { novelty: s, peopleImpact: s, economicImpact: s, narrativePotential: s };
+    }
+
+    const weightedScore = Math.round(
+      scores.novelty * WEIGHTS.novelty +
+      scores.peopleImpact * WEIGHTS.peopleImpact +
+      scores.economicImpact * WEIGHTS.economicImpact +
+      scores.narrativePotential * WEIGHTS.narrativePotential
+    );
+
     return {
       slug: item.slug,
       title: originalPost?.titleEs || originalPost?.titleEn || item.slug,
-      score: Number(item.score) || 0,
+      scores,
+      weightedScore,
       reason: item.reason || '',
     };
   });
 
-  // Sort by score descending
-  enriched.sort((a, b) => b.score - a.score);
+  // Sort by weighted score descending
+  enriched.sort((a, b) => b.weightedScore - a.weightedScore);
 
   return enriched;
 }

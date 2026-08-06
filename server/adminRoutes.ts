@@ -695,7 +695,7 @@ adminRouter.post('/dominical/:id/regenerate-post', requireAuth, async (req, res)
     }
 
     // Get previously scored news for score/reason data
-    let scoredNews: Array<{ slug: string; title: string; score: number; reason: string }> = [];
+    let scoredNews: Array<{ slug: string; title: string; scores?: { novelty: number; peopleImpact: number; economicImpact: number; narrativePotential: number }; weightedScore?: number; score?: number; reason: string }> = [];
     if (existing.selected_news) {
       try { scoredNews = JSON.parse(existing.selected_news); } catch { scoredNews = []; }
     }
@@ -707,7 +707,8 @@ adminRouter.post('/dominical/:id/regenerate-post', requireAuth, async (req, res)
       return {
         slug,
         title: scored?.title || news?.titleEs || news?.titleEn || slug,
-        score: scored?.score || 7,
+        scores: scored?.scores || { novelty: 50, peopleImpact: 50, economicImpact: 50, narrativePotential: 50 },
+        weightedScore: scored?.weightedScore || scored?.score || 50,
         reason: scored?.reason || 'Manually selected by editor',
       };
     });
@@ -727,7 +728,7 @@ adminRouter.post('/dominical/:id/regenerate-post', requireAuth, async (req, res)
     const openai = new OpenAI({ apiKey });
 
     const newsList = selectedPosts
-      .map((p, i) => `${i + 1}. "${p.title}" (Score: ${p.score}/10 — ${p.reason})\n   URL: https://robles.ai/blog/${p.slug}`)
+      .map((p, i) => `${i + 1}. "${p.title}" (Score: ${p.weightedScore}/100 — ${p.reason})\n   URL: https://robles.ai/blog/${p.slug}`)
       .join('\n');
 
     const systemPrompt = `Eres el redactor de "El Dominical IA", un newsletter semanal en LinkedIn para profesionales de tecnología y negocios en Latinoamérica. Tu estilo es informado, opinado, cercano y profesional. Escribes en español.`;

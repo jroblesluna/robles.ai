@@ -17,6 +17,13 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 
+interface ScoreBreakdown {
+  novelty: number;
+  peopleImpact: number;
+  economicImpact: number;
+  narrativePotential: number;
+}
+
 interface PostSummary {
   slug: string;
   titleEn: string;
@@ -24,14 +31,16 @@ interface PostSummary {
   excerpt: string;
   date: string;
   categories: string[];
-  score?: number;
+  scores?: ScoreBreakdown;
+  weightedScore?: number;
   reason?: string;
 }
 
 interface ScoredPost {
   slug: string;
   title: string;
-  score: number;
+  scores: ScoreBreakdown;
+  weightedScore: number;
   reason: string;
 }
 
@@ -268,13 +277,11 @@ export default function AdminDominicalDetail() {
     }
   };
 
-  const getScoredPost = (slug: string): { score: number; reason: string } | undefined => {
-    // First check selected_news (has score/reason)
+  const getScoredPost = (slug: string): { scores?: ScoreBreakdown; weightedScore: number; reason: string } | undefined => {
     const selected = report?.selected_news.find((n) => n.slug === slug);
-    if (selected) return { score: selected.score, reason: selected.reason };
-    // Then check all_news (may have score from scoring)
+    if (selected) return { scores: selected.scores, weightedScore: selected.weightedScore, reason: selected.reason };
     const allNews = report?.all_news.find((n) => n.slug === slug);
-    if (allNews && allNews.score) return { score: allNews.score, reason: allNews.reason || '' };
+    if (allNews && allNews.weightedScore) return { scores: allNews.scores, weightedScore: allNews.weightedScore, reason: allNews.reason || '' };
     return undefined;
   };
 
@@ -500,8 +507,8 @@ export default function AdminDominicalDetail() {
                   if (aSelected && !bSelected) return -1;
                   if (!aSelected && bSelected) return 1;
                   // Within same group, sort by score descending
-                  const aScore = getScoredPost(a.slug)?.score || 0;
-                  const bScore = getScoredPost(b.slug)?.score || 0;
+                  const aScore = getScoredPost(a.slug)?.weightedScore || 0;
+                  const bScore = getScoredPost(b.slug)?.weightedScore || 0;
                   return bScore - aScore;
                 });
 
@@ -540,16 +547,40 @@ export default function AdminDominicalDetail() {
                             {formatDate(news.date)}
                           </p>
                           {scored && (
-                            <div className="flex items-center gap-2 mt-2">
-                              <Badge
-                                variant="secondary"
-                                className="text-xs"
-                              >
-                                {scored.score}/100
-                              </Badge>
-                              <span className="text-xs text-muted-foreground truncate">
-                                {scored.reason}
-                              </span>
+                            <div className="mt-2 space-y-1">
+                              <div className="flex items-center gap-2">
+                                <Badge
+                                  variant="secondary"
+                                  className={`text-xs font-bold ${
+                                    scored.weightedScore >= 80
+                                      ? "bg-green-100 text-green-800"
+                                      : scored.weightedScore >= 60
+                                        ? "bg-yellow-100 text-yellow-800"
+                                        : "bg-gray-100 text-gray-600"
+                                  }`}
+                                >
+                                  {scored.weightedScore}/100
+                                </Badge>
+                                <span className="text-xs text-muted-foreground truncate">
+                                  {scored.reason}
+                                </span>
+                              </div>
+                              {scored.scores && (
+                                <div className="flex gap-1 flex-wrap">
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">
+                                    Nov: {scored.scores.novelty}
+                                  </span>
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-50 text-purple-700">
+                                    Pers: {scored.scores.peopleImpact}
+                                  </span>
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700">
+                                    Econ: {scored.scores.economicImpact}
+                                  </span>
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700">
+                                    Narr: {scored.scores.narrativePotential}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>

@@ -12,7 +12,7 @@ async function generateLinkedInPost(selectedPosts: ScoredPost[], apiKey: string)
   const openai = new OpenAI({ apiKey });
 
   const newsList = selectedPosts
-    .map((p, i) => `${i + 1}. "${p.title}" (Score: ${p.score}/100 — ${p.reason})\n   URL: https://robles.ai/blog/${p.slug}`)
+    .map((p, i) => `${i + 1}. "${p.title}" (Score: ${p.weightedScore}/100 — ${p.reason})\n   URL: https://robles.ai/blog/${p.slug}`)
     .join('\n');
 
   const systemPrompt = `Eres el redactor de "El Dominical IA", un newsletter semanal en LinkedIn para profesionales de tecnología y negocios en Latinoamérica. Tu estilo es informado, opinado, cercano y profesional. Escribes en español.`;
@@ -99,7 +99,7 @@ async function sendNotificationEmail(selectedPosts: ScoredPost[]): Promise<void>
       <h2>🗞️ El Dominical IA está listo</h2>
       <p>Se ha generado un nuevo reporte semanal con las siguientes noticias seleccionadas:</p>
       <ul>
-        ${selectedPosts.map((p) => `<li><strong>${p.title}</strong> (${p.score}/100)</li>`).join('\n        ')}
+        ${selectedPosts.map((p) => `<li><strong>${p.title}</strong> (${p.weightedScore}/100)</li>`).join('\n        ')}
       </ul>
       <p>
         <a href="${baseUrl}/admin/dominical" style="display:inline-block;padding:12px 24px;background:#2563eb;color:white;text-decoration:none;border-radius:6px;">
@@ -187,7 +187,8 @@ export async function generateDominicalReport(): Promise<{ reportId: number }> {
     const scored = allScoredPosts.find((s) => s.slug === post.slug);
     return {
       ...post,
-      score: scored?.score || 0,
+      scores: scored?.scores || null,
+      weightedScore: scored?.weightedScore || 0,
       reason: scored?.reason || '',
     };
   });
