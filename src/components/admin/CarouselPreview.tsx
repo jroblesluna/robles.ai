@@ -403,7 +403,8 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
               {!isFirstSlide() && (
                 <button
                   type="button"
-                  className="absolute left-0 top-0 bottom-0 w-16 z-10 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/20 transition-colors cursor-pointer rounded-l-lg"
+                  className="absolute left-0 top-0 bottom-0 w-20 z-10 flex items-center justify-start pl-3 text-white/70 hover:text-white transition-colors cursor-pointer rounded-l-lg"
+                  style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.4), transparent)' }}
                   onClick={(e) => { e.stopPropagation(); navigateSlide('prev'); }}
                   aria-label="Previous slide"
                 >
@@ -414,7 +415,8 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
               {!isLastSlide() && (
                 <button
                   type="button"
-                  className="absolute right-0 top-0 bottom-0 w-16 z-10 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/20 transition-colors cursor-pointer rounded-r-lg"
+                  className="absolute right-0 top-0 bottom-0 w-20 z-10 flex items-center justify-end pr-3 text-white/70 hover:text-white transition-colors cursor-pointer rounded-r-lg"
+                  style={{ background: 'linear-gradient(to left, rgba(0,0,0,0.4), transparent)' }}
                   onClick={(e) => { e.stopPropagation(); navigateSlide('next'); }}
                   aria-label="Next slide"
                 >
