@@ -71,16 +71,16 @@ async function generateLinkedInPost(selectedPosts: ScoredPost[], apiKey: string)
     })
     .join('\n\n');
 
-  const systemPrompt = `Eres el redactor de "El Dominical IA", un newsletter semanal en LinkedIn para profesionales de tecnología y negocios en Latinoamérica. Tu estilo es informado, opinado, cercano y profesional. Escribes en español.`;
+  const systemPrompt = `Eres el redactor de "El Dominical IA", un newsletter semanal publicado en LinkedIn por la cuenta de Robles.AI. Escribes en primera persona del plural ("nuestro", "exploramos", "vemos") porque los artículos son propios de robles.ai. Tu estilo es informado, opinado, cercano y profesional. Escribes en español.`;
 
   const userPrompt = `Escribe un post de LinkedIn en español para "El Dominical IA" de esta semana. Usa las siguientes noticias seleccionadas:
 
 ${newsList}
 
 Formato del post:
-1. Gancho de atención (1-2 líneas que capten interés)
-2. Para cada noticia seleccionada: 1-2 líneas con tu opinión/análisis breve, mencionando el enlace al artículo en robles.ai
-3. Cierre con reflexión y call-to-action (invitar a seguir, comentar, leer más en robles.ai)
+1. Presentación breve: "Aquí el resumen de nuestro Dominical IA con las noticias más relevantes de esta semana" o similar (1-2 líneas con gancho)
+2. Para cada noticia seleccionada: 1-2 líneas con opinión/análisis usando primera persona plural ("en nuestro artículo exploramos...", "como vemos en...", "analizamos cómo...")
+3. Cierre con reflexión y call-to-action: "Síguenos para más insights cada semana" (NO "sigue al Dominical" porque se publica desde nuestra cuenta)
 4. Hashtags relevantes al final (máximo 5)
 
 Reglas:
@@ -92,6 +92,9 @@ Reglas:
 - Cada mención a un artículo debe incluir al menos UN dato específico (nombre de empresa, cifra, tecnología concreta, caso de uso real)
 - El post debe fluir como una narrativa, no como una lista
 - INCLUYE los enlaces a cada artículo de robles.ai en el texto de forma natural
+- VOZ: Escribe en primera persona del plural. Los artículos son NUESTROS. NO digas "según el artículo de Robles AI" ni "el artículo menciona" — di "en nuestro artículo exploramos", "como analizamos en", "vemos que", etc.
+- PRESENTACIÓN: El post es "El Dominical IA" publicado por Robles.AI. Preséntalo como tal al inicio.
+- CTA: Usa "síguenos" (no "sigue a El Dominical"). Se publica desde la cuenta de Robles.AI.
 
 Devuelve SOLO el texto del post, sin markdown ni explicaciones adicionales.`;
 
