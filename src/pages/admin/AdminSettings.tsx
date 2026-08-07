@@ -346,20 +346,27 @@ export default function AdminSettings() {
                 <Input
                   id="meta_app_id"
                   type="text"
-                  placeholder={metaStatus.meta_app_id ? "••••••• (configured)" : "Enter Meta App ID"}
+                  placeholder={metaStatus.meta_app_id ? "Currently configured — paste new value to replace" : "Enter Meta App ID"}
                   value={metaCredentials.meta_app_id}
                   onChange={(e) => updateMetaCredential("meta_app_id", e.target.value)}
                 />
+                {metaStatus.meta_app_id && !metaCredentials.meta_app_id && (
+                  <p className="text-xs text-green-600">✓ Saved. Leave blank to keep current value.</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="meta_app_secret">App Secret</Label>
                 <Input
                   id="meta_app_secret"
-                  type="password"
-                  placeholder={metaStatus.meta_app_secret ? "••••••• (configured)" : "Enter App Secret"}
+                  type="text"
+                  placeholder={metaStatus.meta_app_secret ? "Currently configured — paste new value to replace" : "Enter App Secret"}
                   value={metaCredentials.meta_app_secret}
                   onChange={(e) => updateMetaCredential("meta_app_secret", e.target.value)}
+                  className="font-mono text-xs"
                 />
+                {metaStatus.meta_app_secret && !metaCredentials.meta_app_secret && (
+                  <p className="text-xs text-green-600">✓ Saved. Leave blank to keep current value.</p>
+                )}
               </div>
             </div>
           </div>
@@ -373,20 +380,27 @@ export default function AdminSettings() {
                 <Input
                   id="instagram_business_account_id"
                   type="text"
-                  placeholder={metaStatus.instagram_business_account_id ? "••••••• (configured)" : "Enter Business Account ID"}
+                  placeholder={metaStatus.instagram_business_account_id ? "Currently configured — paste new value to replace" : "Enter Business Account ID"}
                   value={metaCredentials.instagram_business_account_id}
                   onChange={(e) => updateMetaCredential("instagram_business_account_id", e.target.value)}
                 />
+                {metaStatus.instagram_business_account_id && !metaCredentials.instagram_business_account_id && (
+                  <p className="text-xs text-green-600">✓ Saved. Leave blank to keep current value.</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="instagram_access_token">Access Token</Label>
                 <Input
                   id="instagram_access_token"
-                  type="password"
-                  placeholder={metaStatus.instagram_access_token ? "••••••• (configured)" : "Enter Access Token"}
+                  type="text"
+                  placeholder={metaStatus.instagram_access_token ? "Currently configured — paste new value to replace" : "Enter Access Token"}
                   value={metaCredentials.instagram_access_token}
                   onChange={(e) => updateMetaCredential("instagram_access_token", e.target.value)}
+                  className="font-mono text-xs"
                 />
+                {metaStatus.instagram_access_token && !metaCredentials.instagram_access_token && (
+                  <p className="text-xs text-green-600">✓ Saved. Leave blank to keep current value.</p>
+                )}
               </div>
             </div>
           </div>
@@ -400,20 +414,27 @@ export default function AdminSettings() {
                 <Input
                   id="facebook_page_id"
                   type="text"
-                  placeholder={metaStatus.facebook_page_id ? "••••••• (configured)" : "Enter Page ID"}
+                  placeholder={metaStatus.facebook_page_id ? "Currently configured — paste new value to replace" : "Enter Page ID"}
                   value={metaCredentials.facebook_page_id}
                   onChange={(e) => updateMetaCredential("facebook_page_id", e.target.value)}
                 />
+                {metaStatus.facebook_page_id && !metaCredentials.facebook_page_id && (
+                  <p className="text-xs text-green-600">✓ Saved. Leave blank to keep current value.</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="facebook_page_access_token">Page Access Token</Label>
                 <Input
                   id="facebook_page_access_token"
-                  type="password"
-                  placeholder={metaStatus.facebook_page_access_token ? "••••••• (configured)" : "Enter Page Access Token"}
+                  type="text"
+                  placeholder={metaStatus.facebook_page_access_token ? "Currently configured — paste new value to replace" : "Enter Page Access Token"}
                   value={metaCredentials.facebook_page_access_token}
                   onChange={(e) => updateMetaCredential("facebook_page_access_token", e.target.value)}
+                  className="font-mono text-xs"
                 />
+                {metaStatus.facebook_page_access_token && !metaCredentials.facebook_page_access_token && (
+                  <p className="text-xs text-green-600">✓ Saved. Leave blank to keep current value.</p>
+                )}
               </div>
             </div>
           </div>
