@@ -2,7 +2,6 @@ import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { up as migration001 } from './migrations/001_platform_publish_status.js';
 
 // Reconstruct __dirname for ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -69,9 +68,21 @@ db.exec(`
     FOREIGN KEY (report_id) REFERENCES dominical_reports(id),
     UNIQUE(report_id, position)
   );
-`);
 
-// Run migrations
-migration001(db);
+  CREATE TABLE IF NOT EXISTS platform_publish_status (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    report_id INTEGER NOT NULL,
+    platform TEXT NOT NULL CHECK(platform IN ('linkedin', 'instagram', 'facebook')),
+    status TEXT NOT NULL DEFAULT 'not_published'
+      CHECK(status IN ('not_published', 'publishing', 'published', 'failed')),
+    platform_post_id TEXT,
+    error_message TEXT,
+    published_at TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT,
+    FOREIGN KEY (report_id) REFERENCES dominical_reports(id),
+    UNIQUE(report_id, platform)
+  );
+`);
 
 export default db;
