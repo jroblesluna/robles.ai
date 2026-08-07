@@ -970,10 +970,6 @@ adminRouter.post('/dominical/:id/publish', requireAuth, async (req, res) => {
     }
 
     // Validate it can be published
-    if (report.status === 'published') {
-      res.status(400).json({ error: 'Report already published' });
-      return;
-    }
     if (report.status === 'cancelled') {
       res.status(400).json({ error: 'Report is cancelled' });
       return;

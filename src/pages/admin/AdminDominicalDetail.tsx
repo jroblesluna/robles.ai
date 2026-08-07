@@ -224,8 +224,11 @@ export default function AdminDominicalDetail() {
 
   const handlePublish = async () => {
     if (!reportId) return;
+    const isRepublishing = report?.status === "published";
     const confirmed = window.confirm(
-      "Are you sure you want to publish this report to LinkedIn?"
+      isRepublishing
+        ? "This report was already published. Are you sure you want to republish to LinkedIn?"
+        : "Are you sure you want to publish this report to LinkedIn?"
     );
     if (!confirmed) return;
 
@@ -435,7 +438,8 @@ export default function AdminDominicalDetail() {
     className: "bg-gray-100 text-gray-800 border-gray-200",
   };
 
-  const isReadOnly = report.status === "cancelled" || report.status === "published";
+  const isReadOnly = report.status === "cancelled";
+  const isPublished = report.status === "published";
 
   return (
     <div className="space-y-6">
@@ -484,7 +488,7 @@ export default function AdminDominicalDetail() {
             variant="outline"
             size="sm"
             onClick={handlePublish}
-            disabled={publishing || isReadOnly || !postText}
+            disabled={publishing || report.status === "cancelled" || !postText}
             className="gap-2"
           >
             {publishing ? (
@@ -492,7 +496,7 @@ export default function AdminDominicalDetail() {
             ) : (
               <Linkedin className="h-4 w-4" />
             )}
-            Send to LinkedIn
+            {isPublished ? "Republish" : "Send to LinkedIn"}
           </Button>
           <Button
             variant="destructive"
