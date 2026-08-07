@@ -21,7 +21,7 @@ publicRouter.get('/slides/:reportId/:position', (req, res) => {
       return;
     }
 
-    if (isNaN(numPosition) || numPosition < 1) {
+    if (isNaN(numPosition) || numPosition < 0) {
       res.status(400).json({ error: 'Invalid slide position' });
       return;
     }

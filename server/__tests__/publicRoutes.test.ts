@@ -68,13 +68,26 @@ describe('Public Slides Endpoint', () => {
       expect(res.body.error).toBe('Invalid slide position');
     });
 
-    it('returns 400 for position less than 1', async () => {
+    it('returns 400 for negative position', async () => {
       const res = await request(app)
-        .get('/api/public/slides/1/0')
+        .get('/api/public/slides/1/-1')
         .send();
 
       expect(res.status).toBe(400);
       expect(res.body.error).toBe('Invalid slide position');
+    });
+
+    it('accepts position 0 as valid (0-based indexing)', async () => {
+      mockGet.mockReturnValueOnce({
+        composite_image_path: '/path/to/slide.png',
+        status: 'generated',
+      });
+
+      const res = await request(app)
+        .get('/api/public/slides/1/0')
+        .send();
+
+      expect(res.status).toBe(200);
     });
 
     it('returns 404 when slide does not exist in DB', async () => {
