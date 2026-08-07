@@ -164,10 +164,24 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
     const currentIndex = generatedSlides.findIndex(s => s.id === enlargedSlide.id);
     if (currentIndex === -1) return;
 
-    const newIndex = direction === 'prev'
-      ? (currentIndex - 1 + generatedSlides.length) % generatedSlides.length
-      : (currentIndex + 1) % generatedSlides.length;
-    setEnlargedSlide(generatedSlides[newIndex]);
+    if (direction === 'prev' && currentIndex > 0) {
+      setEnlargedSlide(generatedSlides[currentIndex - 1]);
+    } else if (direction === 'next' && currentIndex < generatedSlides.length - 1) {
+      setEnlargedSlide(generatedSlides[currentIndex + 1]);
+    }
+  };
+
+  const isFirstSlide = () => {
+    if (!enlargedSlide || !carousel) return true;
+    const generatedSlides = carousel.slides.filter(s => s.status === 'generated');
+    return generatedSlides.findIndex(s => s.id === enlargedSlide.id) === 0;
+  };
+
+  const isLastSlide = () => {
+    if (!enlargedSlide || !carousel) return true;
+    const generatedSlides = carousel.slides.filter(s => s.status === 'generated');
+    const currentIndex = generatedSlides.findIndex(s => s.id === enlargedSlide.id);
+    return currentIndex === generatedSlides.length - 1;
   };
 
   if (isLoading) {
@@ -382,26 +396,28 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
             >
               <X className="h-6 w-6" />
             </Button>
-            {/* Left arrow */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-white hover:bg-white/20 h-12 w-12"
-              onClick={(e) => { e.stopPropagation(); navigateSlide('prev'); }}
-              aria-label="Previous slide"
-            >
-              <ChevronLeft className="h-8 w-8" />
-            </Button>
-            {/* Right arrow */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-10 text-white hover:bg-white/20 h-12 w-12"
-              onClick={(e) => { e.stopPropagation(); navigateSlide('next'); }}
-              aria-label="Next slide"
-            >
-              <ChevronRight className="h-8 w-8" />
-            </Button>
+            {/* Left arrow - full height, hidden on first slide */}
+            {!isFirstSlide() && (
+              <button
+                type="button"
+                className="absolute left-0 top-0 bottom-0 w-16 z-10 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/20 transition-colors cursor-pointer rounded-l-lg"
+                onClick={(e) => { e.stopPropagation(); navigateSlide('prev'); }}
+                aria-label="Previous slide"
+              >
+                <ChevronLeft className="h-10 w-10" />
+              </button>
+            )}
+            {/* Right arrow - full height, hidden on last slide */}
+            {!isLastSlide() && (
+              <button
+                type="button"
+                className="absolute right-0 top-0 bottom-0 w-16 z-10 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/20 transition-colors cursor-pointer rounded-r-lg"
+                onClick={(e) => { e.stopPropagation(); navigateSlide('next'); }}
+                aria-label="Next slide"
+              >
+                <ChevronRight className="h-10 w-10" />
+              </button>
+            )}
             <img
               src={getSlideImageUrl(enlargedSlide)!}
               alt={getSlideLabel(enlargedSlide)}
