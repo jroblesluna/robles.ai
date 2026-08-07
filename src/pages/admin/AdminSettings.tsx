@@ -11,12 +11,29 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { Linkedin, Save, CheckCircle2, Loader2 } from "lucide-react";
+import { Linkedin, Save, CheckCircle2, Loader2, XCircle, Camera, ShieldCheck } from "lucide-react";
 
 export default function AdminSettings() {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  // Meta credentials state
+  const [metaCredentials, setMetaCredentials] = useState({
+    meta_app_id: "",
+    meta_app_secret: "",
+    instagram_business_account_id: "",
+    instagram_access_token: "",
+    facebook_page_id: "",
+    facebook_page_access_token: "",
+  });
+  const [metaStatus, setMetaStatus] = useState<Record<string, boolean>>({});
+  const [metaSaving, setMetaSaving] = useState(false);
+  const [metaValidating, setMetaValidating] = useState(false);
+  const [metaValidationResults, setMetaValidationResults] = useState<{
+    instagram?: { valid: boolean; error?: string };
+    facebook?: { valid: boolean; error?: string };
+  } | null>(null);
 
   // Check for linkedin=connected query param
   useEffect(() => {
@@ -51,6 +68,22 @@ export default function AdminSettings() {
     };
 
     loadSettings();
+  }, []);
+
+  // Load Meta credential status on mount
+  useEffect(() => {
+    const loadMetaStatus = async () => {
+      try {
+        const res = await fetch("/api/admin/settings/meta");
+        if (!res.ok) throw new Error("Failed to load Meta status");
+        const data = await res.json();
+        setMetaStatus(data);
+      } catch {
+        // Silently fail — status indicators just won't show
+      }
+    };
+
+    loadMetaStatus();
   }, []);
 
   const updateSetting = (key: string, value: string) => {
@@ -96,6 +129,90 @@ export default function AdminSettings() {
           "Failed to start LinkedIn connection. Make sure client_id and client_secret are saved.",
         variant: "destructive",
       });
+    }
+  };
+
+  const updateMetaCredential = (key: string, value: string) => {
+    setMetaCredentials((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleSaveMetaCredentials = async () => {
+    setMetaSaving(true);
+    try {
+      const res = await fetch("/api/admin/settings/meta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(metaCredentials),
+      });
+
+      if (!res.ok) throw new Error("Failed to save Meta credentials");
+
+      toast({
+        title: "Meta credentials saved",
+        description: "Your Meta credentials have been updated successfully.",
+      });
+
+      // Refresh status
+      const statusRes = await fetch("/api/admin/settings/meta");
+      if (statusRes.ok) {
+        const data = await statusRes.json();
+        setMetaStatus(data);
+      }
+
+      // Clear the form fields (credentials are stored server-side)
+      setMetaCredentials({
+        meta_app_id: "",
+        meta_app_secret: "",
+        instagram_business_account_id: "",
+        instagram_access_token: "",
+        facebook_page_id: "",
+        facebook_page_access_token: "",
+      });
+    } catch {
+      toast({
+        title: "Error",
+        description: "Failed to save Meta credentials.",
+        variant: "destructive",
+      });
+    } finally {
+      setMetaSaving(false);
+    }
+  };
+
+  const handleValidateMetaCredentials = async () => {
+    setMetaValidating(true);
+    setMetaValidationResults(null);
+    try {
+      const res = await fetch("/api/admin/settings/meta/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!res.ok) throw new Error("Failed to validate credentials");
+
+      const data = await res.json();
+      setMetaValidationResults(data);
+
+      if (data.instagram?.valid && data.facebook?.valid) {
+        toast({
+          title: "Credentials valid",
+          description: "All Meta credentials are working correctly.",
+        });
+      } else {
+        toast({
+          title: "Validation issues found",
+          description: "Some credentials failed validation. See details below.",
+          variant: "destructive",
+        });
+      }
+    } catch {
+      toast({
+        title: "Error",
+        description: "Failed to validate Meta credentials. Make sure credentials are saved first.",
+        variant: "destructive",
+      });
+    } finally {
+      setMetaValidating(false);
     }
   };
 
@@ -177,6 +294,175 @@ export default function AdminSettings() {
               Connect LinkedIn
             </Button>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Meta (Instagram & Facebook) Integration */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Camera className="h-5 w-5" />
+            Meta (Instagram &amp; Facebook)
+          </CardTitle>
+          <CardDescription>
+            Configure credentials for publishing to Instagram and Facebook via Meta Graph API.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Status indicators */}
+          <div className="flex flex-wrap gap-3">
+            {[
+              { key: "meta_app_id", label: "App ID" },
+              { key: "meta_app_secret", label: "App Secret" },
+              { key: "instagram_business_account_id", label: "IG Account" },
+              { key: "instagram_access_token", label: "IG Token" },
+              { key: "facebook_page_id", label: "FB Page ID" },
+              { key: "facebook_page_access_token", label: "FB Token" },
+            ].map(({ key, label }) => (
+              <div
+                key={key}
+                className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
+                  metaStatus[key]
+                    ? "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300"
+                    : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
+                }`}
+              >
+                {metaStatus[key] ? (
+                  <CheckCircle2 className="h-3 w-3" />
+                ) : (
+                  <XCircle className="h-3 w-3" />
+                )}
+                {label}
+              </div>
+            ))}
+          </div>
+
+          {/* App Credentials */}
+          <div className="space-y-3">
+            <h4 className="text-sm font-medium text-muted-foreground">App Credentials</h4>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="meta_app_id">Meta App ID</Label>
+                <Input
+                  id="meta_app_id"
+                  type="text"
+                  placeholder={metaStatus.meta_app_id ? "••••••• (configured)" : "Enter Meta App ID"}
+                  value={metaCredentials.meta_app_id}
+                  onChange={(e) => updateMetaCredential("meta_app_id", e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="meta_app_secret">App Secret</Label>
+                <Input
+                  id="meta_app_secret"
+                  type="password"
+                  placeholder={metaStatus.meta_app_secret ? "••••••• (configured)" : "Enter App Secret"}
+                  value={metaCredentials.meta_app_secret}
+                  onChange={(e) => updateMetaCredential("meta_app_secret", e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Instagram Credentials */}
+          <div className="space-y-3">
+            <h4 className="text-sm font-medium text-muted-foreground">Instagram</h4>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="instagram_business_account_id">Business Account ID</Label>
+                <Input
+                  id="instagram_business_account_id"
+                  type="text"
+                  placeholder={metaStatus.instagram_business_account_id ? "••••••• (configured)" : "Enter Business Account ID"}
+                  value={metaCredentials.instagram_business_account_id}
+                  onChange={(e) => updateMetaCredential("instagram_business_account_id", e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="instagram_access_token">Access Token</Label>
+                <Input
+                  id="instagram_access_token"
+                  type="password"
+                  placeholder={metaStatus.instagram_access_token ? "••••••• (configured)" : "Enter Access Token"}
+                  value={metaCredentials.instagram_access_token}
+                  onChange={(e) => updateMetaCredential("instagram_access_token", e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Facebook Credentials */}
+          <div className="space-y-3">
+            <h4 className="text-sm font-medium text-muted-foreground">Facebook</h4>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="facebook_page_id">Page ID</Label>
+                <Input
+                  id="facebook_page_id"
+                  type="text"
+                  placeholder={metaStatus.facebook_page_id ? "••••••• (configured)" : "Enter Page ID"}
+                  value={metaCredentials.facebook_page_id}
+                  onChange={(e) => updateMetaCredential("facebook_page_id", e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="facebook_page_access_token">Page Access Token</Label>
+                <Input
+                  id="facebook_page_access_token"
+                  type="password"
+                  placeholder={metaStatus.facebook_page_access_token ? "••••••• (configured)" : "Enter Page Access Token"}
+                  value={metaCredentials.facebook_page_access_token}
+                  onChange={(e) => updateMetaCredential("facebook_page_access_token", e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Validation Results */}
+          {metaValidationResults && (
+            <div className="space-y-2 rounded-md border p-3">
+              <div className="flex items-center gap-2 text-sm">
+                {metaValidationResults.instagram?.valid ? (
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                ) : (
+                  <XCircle className="h-4 w-4 text-red-600" />
+                )}
+                <span className={metaValidationResults.instagram?.valid ? "text-green-700" : "text-red-700"}>
+                  Instagram: {metaValidationResults.instagram?.valid ? "Connected" : metaValidationResults.instagram?.error || "Invalid credentials"}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                {metaValidationResults.facebook?.valid ? (
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                ) : (
+                  <XCircle className="h-4 w-4 text-red-600" />
+                )}
+                <span className={metaValidationResults.facebook?.valid ? "text-green-700" : "text-red-700"}>
+                  Facebook: {metaValidationResults.facebook?.valid ? "Connected" : metaValidationResults.facebook?.error || "Invalid credentials"}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex gap-3">
+            <Button onClick={handleSaveMetaCredentials} disabled={metaSaving} variant="default">
+              {metaSaving ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="mr-2 h-4 w-4" />
+              )}
+              {metaSaving ? "Saving..." : "Save Credentials"}
+            </Button>
+            <Button onClick={handleValidateMetaCredentials} disabled={metaValidating} variant="outline">
+              {metaValidating ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <ShieldCheck className="mr-2 h-4 w-4" />
+              )}
+              {metaValidating ? "Validating..." : "Validate Credentials"}
+            </Button>
+          </div>
         </CardContent>
       </Card>
 

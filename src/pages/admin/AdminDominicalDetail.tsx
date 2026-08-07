@@ -3,7 +3,6 @@ import { useLocation, useRoute } from "wouter";
 import {
   ArrowLeft,
   Save,
-  Linkedin,
   XCircle,
   Loader2,
   Image as ImageIcon,
@@ -19,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import CarouselPreview from "@/components/admin/CarouselPreview";
 import SlideEditor from "@/components/admin/SlideEditor";
+import PlatformPublishStatus from "@/components/admin/PlatformPublishStatus";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface ScoreBreakdown {
@@ -106,7 +106,6 @@ export default function AdminDominicalDetail() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [cancelling, setCancelling] = useState(false);
-  const [publishing, setPublishing] = useState(false);
 
   // Editable state
   const [postText, setPostText] = useState("");
@@ -219,38 +218,6 @@ export default function AdminDominicalDetail() {
       });
     } finally {
       setCancelling(false);
-    }
-  };
-
-  const handlePublish = async () => {
-    if (!reportId) return;
-    const isRepublishing = report?.status === "published";
-    const confirmed = window.confirm(
-      isRepublishing
-        ? "This report was already published. Are you sure you want to republish to LinkedIn?"
-        : "Are you sure you want to publish this report to LinkedIn?"
-    );
-    if (!confirmed) return;
-
-    try {
-      setPublishing(true);
-      const res = await fetch(`/api/admin/dominical/${reportId}/publish`, {
-        method: "POST",
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to publish");
-      }
-      toast({ title: "Published to LinkedIn successfully" });
-      await fetchReport();
-    } catch (err) {
-      toast({
-        title: "Error publishing to LinkedIn",
-        description: err instanceof Error ? err.message : "Unknown error",
-        variant: "destructive",
-      });
-    } finally {
-      setPublishing(false);
     }
   };
 
@@ -439,7 +406,6 @@ export default function AdminDominicalDetail() {
   };
 
   const isReadOnly = report.status === "cancelled";
-  const isPublished = report.status === "published";
 
   return (
     <div className="space-y-6">
@@ -483,20 +449,6 @@ export default function AdminDominicalDetail() {
               <Save className="h-4 w-4" />
             )}
             Save
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handlePublish}
-            disabled={publishing || report.status === "cancelled" || !postText}
-            className="gap-2"
-          >
-            {publishing ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Linkedin className="h-4 w-4" />
-            )}
-            {isPublished ? "Republish" : "Send to LinkedIn"}
           </Button>
           <Button
             variant="destructive"
@@ -791,6 +743,13 @@ export default function AdminDominicalDetail() {
           }
         />
       </div>
+
+      {/* Platform Publishing Status */}
+      {!isReadOnly && (
+        <div className="border-t pt-6">
+          <PlatformPublishStatus reportId={report.id} />
+        </div>
+      )}
 
       {/* Slide editor modal */}
       {editingSlide && (

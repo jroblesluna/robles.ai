@@ -2,6 +2,7 @@ import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { up as migration001 } from './migrations/001_platform_publish_status.js';
 
 // Reconstruct __dirname for ESM
 const __filename = fileURLToPath(import.meta.url);

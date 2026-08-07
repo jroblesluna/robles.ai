@@ -16,6 +16,7 @@ import cron from 'node-cron';
 import { generateHistoricalPosts } from '@/scripts/generateHistoricalPosts';
 import { addOneDay, subtractOneDay } from '@/utils/managmentDate';
 import adminRouter from './adminRoutes.js';
+import publicRouter from './publicRoutes.js';
 import { generateDominicalReport } from './jobs/generateDominical.js';
 import { autoPublishDominical } from './jobs/autoPublishDominical.js';
 import { getSlugIndex } from './vite.js';
@@ -29,6 +30,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Admin routes
   app.use('/api/admin', adminRouter);
+
+  // Public routes (no auth — Meta servers need to access slide images)
+  app.use('/api/public', publicRouter);
 
   // 🚀 Contact form route - SEND EMAIL instead of storage
   app.post('/api/contact', (req: Request, res: Response) => {

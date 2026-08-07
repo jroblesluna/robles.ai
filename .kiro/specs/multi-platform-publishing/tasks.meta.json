@@ -1,0 +1,542 @@
+{
+  "pbtResults": {
+    "1.3 Write property test for platform status initialization": {
+      "status": "passed",
+      "lastRunTimestamp": 1786084111553
+    },
+    "2.2 Write property test for text truncation": {
+      "status": "passed",
+      "lastRunTimestamp": 1786084272617
+    },
+    "2.4 Write property test for format selection by slide count": {
+      "status": "passed",
+      "lastRunTimestamp": 1786084293508
+    },
+    "2.3 Write property test for hashtag and mention preservation": {
+      "status": "passed",
+      "lastRunTimestamp": 1786084520841
+    },
+    "4.3 Write property test for publish operation isolation": {
+      "status": "passed",
+      "lastRunTimestamp": 1786084772013
+    },
+    "4.4 Write property test for post ID storage on success": {
+      "status": "passed",
+      "lastRunTimestamp": 1786084801323
+    },
+    "7.3 Write property test for auto-publish platform selection": {
+      "status": "passed",
+      "lastRunTimestamp": 1786085698306
+    }
+  },
+  "executionHistory": {
+    "1.1 Create the `platform_publish_status` table and run data migration": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083783618
+      },
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083793081
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083903748
+      }
+    ],
+    "1.2 Define shared platform types and adapter interface": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083783667
+      },
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083793881
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083904396
+      }
+    ],
+    "1.3 Write property test for platform status initialization": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083783697
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083922967
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786084200418
+      }
+    ],
+    "2.1 Implement content formatter module": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083783725
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083923901
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786084201128
+      }
+    ],
+    "2.2 Write property test for text truncation": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083783773
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786084205733
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786084661127
+      }
+    ],
+    "2.3 Write property test for hashtag and mention preservation": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083783817
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786084206430
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786084661791
+      }
+    ],
+    "2.4 Write property test for format selection by slide count": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083783865
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786084207304
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786084662530
+      }
+    ],
+    "3. Checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083783910
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786086360225
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786086611635
+      }
+    ],
+    "4.1 Implement the PublishingEngine class": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083783951
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786084208058
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786084663232
+      }
+    ],
+    "4.2 Refactor existing LinkedIn service into adapter pattern": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083783999
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786084677362
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786084921498
+      }
+    ],
+    "4.3 Write property test for publish operation isolation": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083784044
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786084678161
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786084922364
+      }
+    ],
+    "4.4 Write property test for post ID storage on success": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083784086
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786084678918
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786084923151
+      }
+    ],
+    "5.1 Implement Instagram adapter": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083784127
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786084932708
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786085202965
+      }
+    ],
+    "5.2 Implement Facebook adapter": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083784167
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786084933471
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786085203562
+      }
+    ],
+    "5.3 Create public slides endpoint for Meta API access": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083784205
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786084934136
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786085204432
+      }
+    ],
+    "5.4 Write unit tests for Instagram adapter": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083784240
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786085212395
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786085584705
+      }
+    ],
+    "5.5 Write unit tests for Facebook adapter": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083784279
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786085213066
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786085585202
+      }
+    ],
+    "6. Checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083784349
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786086620659
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786086624495
+      }
+    ],
+    "7.1 Add platform publishing API routes": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083784381
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786085213869
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786085586173
+      }
+    ],
+    "7.2 Integrate PublishingEngine with auto-publish job": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083784414
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786085594846
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786085809305
+      }
+    ],
+    "7.3 Write property test for auto-publish platform selection": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083784448
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786085595645
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786085808448
+      }
+    ],
+    "8.1 Add Meta credential settings endpoints": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083784480
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786085596299
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786085810031
+      }
+    ],
+    "8.2 Add Meta credentials section to AdminSettings page": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083784511
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786085819395
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786086019435
+      }
+    ],
+    "9.1 Create PlatformPublishStatus component": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083784545
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786085820223
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786086018552
+      }
+    ],
+    "9.2 Integrate PlatformPublishStatus into AdminDominicalDetail page": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083784680
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786086028209
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786086349620
+      }
+    ],
+    "9.3 Write unit tests for PlatformPublishStatus component": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083784710
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786086028984
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786086350496
+      }
+    ],
+    "10. Final checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "92789322-3fc2-45c9-847c-c3d7842c5edc",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786083784741
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786086628502
+      },
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786086871970
+      }
+    ],
+    "1. Data layer and platform types": [
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786084200453
+      }
+    ],
+    "2. Content formatter (pure logic layer)": [
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786084662558
+      }
+    ],
+    "4. Publishing engine and LinkedIn adapter refactor": [
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786084923188
+      }
+    ],
+    "5. Instagram and Facebook adapters": [
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786085585226
+      }
+    ],
+    "7. API endpoints and auto-publish integration": [
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786085809329
+      }
+    ],
+    "8. Platform credential management (Settings UI + backend)": [
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786086019469
+      }
+    ],
+    "9. Admin UI for multi-platform publishing": [
+      {
+        "executionId": "a9de9b69-3f72-4603-8ee8-ccbdd404548a",
+        "chatSessionId": "sess_1f4f90e6-e080-480e-ad6c-c997df54c9ad",
+        "timestamp": 1786086350525
+      }
+    ]
+  }
+}

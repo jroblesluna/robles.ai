@@ -11,6 +11,11 @@ import { publishPost, publishPostWithDocument } from './services/linkedin.js';
 import { generateCarousel, regenerateSlide } from './services/carouselGenerator.js';
 import { exportCarouselPdf } from './services/pdfExporter.js';
 import { composeArticleSlide } from './services/slideCompositor.js';
+import { PublishingEngine } from './services/platforms/publishingEngine.js';
+import { LinkedInAdapter } from './services/platforms/linkedinAdapter.js';
+import { InstagramAdapter } from './services/platforms/instagramAdapter.js';
+import { FacebookAdapter } from './services/platforms/facebookAdapter.js';
+import type { PlatformName, PlatformAdapter } from './services/platforms/types.js';
 
 const SALT_ROUNDS = 12;
 
@@ -22,6 +27,17 @@ const COOKIE_OPTIONS = {
 };
 
 const adminRouter = Router();
+
+// --- Platform Publishing Engine (singleton) ---
+const VALID_PLATFORMS: PlatformName[] = ['linkedin', 'instagram', 'facebook'];
+
+const platformAdapters = new Map<PlatformName, PlatformAdapter>([
+  ['linkedin', new LinkedInAdapter()],
+  ['instagram', new InstagramAdapter()],
+  ['facebook', new FacebookAdapter()],
+]);
+
+const publishingEngine = new PublishingEngine(db, platformAdapters);
 
 /**
  * GET /api/admin/status
@@ -1414,6 +1430,172 @@ adminRouter.get('/dominical/:id/carousel', requireAuth, (req, res) => {
     const message = error instanceof Error ? error.message : 'Unknown error';
     res.status(500).json({ error: message });
   }
+});
+
+// --- Platform Publishing Routes ---
+
+/**
+ * GET /api/admin/dominical/:id/publish-status
+ * Returns all platform publish statuses for a report.
+ */
+adminRouter.get('/dominical/:id/publish-status', requireAuth, (req, res) => {
+  try {
+    const reportId = Number(req.params.id);
+    const statuses = publishingEngine.getStatuses(reportId);
+    res.json(statuses);
+  } catch (error) {
+    console.error('Error fetching publish statuses:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * POST /api/admin/dominical/:id/publish/:platform
+ * Triggers publish to a specific platform. Validates platform name.
+ */
+adminRouter.post('/dominical/:id/publish/:platform', requireAuth, (req, res) => {
+  (async () => {
+    try {
+      const reportId = Number(req.params.id);
+      const platform = req.params.platform as string;
+
+      // Validate platform name
+      if (!VALID_PLATFORMS.includes(platform as PlatformName)) {
+        res.status(400).json({ error: `Invalid platform: "${platform}". Must be one of: ${VALID_PLATFORMS.join(', ')}` });
+        return;
+      }
+
+      const result = await publishingEngine.publishToPlatform(reportId, platform as PlatformName);
+      res.json(result);
+    } catch (error) {
+      console.error('Error publishing to platform:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  })();
+});
+
+/**
+ * POST /api/admin/dominical/:id/publish-all
+ * Triggers publish to all eligible platforms.
+ */
+adminRouter.post('/dominical/:id/publish-all', requireAuth, (req, res) => {
+  (async () => {
+    try {
+      const reportId = Number(req.params.id);
+      const results = await publishingEngine.publishToAll(reportId);
+
+      // Convert Map to plain object for JSON serialization
+      const resultsObj: Record<string, { success: boolean; platformPostId?: string; error?: string }> = {};
+      results.forEach((result, platform) => {
+        resultsObj[platform] = result;
+      });
+
+      res.json(resultsObj);
+    } catch (error) {
+      console.error('Error publishing to all platforms:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  })();
+});
+
+// --- Meta (Instagram & Facebook) Credential Settings ---
+
+/** All Meta credential keys and whether they contain secrets */
+const META_CREDENTIAL_KEYS: Array<{ key: string; secret: boolean }> = [
+  { key: 'meta_app_id', secret: false },
+  { key: 'meta_app_secret', secret: true },
+  { key: 'instagram_business_account_id', secret: false },
+  { key: 'instagram_access_token', secret: true },
+  { key: 'facebook_page_id', secret: false },
+  { key: 'facebook_page_access_token', secret: true },
+];
+
+/**
+ * POST /api/admin/settings/meta
+ * Save Meta/Facebook/Instagram credentials.
+ * Only updates fields that are provided (non-null, non-empty).
+ */
+adminRouter.post('/settings/meta', requireAuth, (req, res) => {
+  try {
+    const body = req.body as Record<string, string | null | undefined>;
+
+    if (!body || typeof body !== 'object') {
+      res.status(400).json({ error: 'Request body must be an object' });
+      return;
+    }
+
+    const now = new Date().toISOString();
+    const upsert = db.prepare(
+      'INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?, ?, ?)'
+    );
+
+    const updateCredentials = db.transaction(() => {
+      for (const { key } of META_CREDENTIAL_KEYS) {
+        const value = body[key];
+        // Only update if provided and not empty
+        if (value && typeof value === 'string' && value.trim().length > 0) {
+          upsert.run(key, value.trim(), now);
+        }
+      }
+    });
+
+    updateCredentials();
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error saving Meta credentials:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * GET /api/admin/settings/meta
+ * Retrieve Meta credential configuration status.
+ * Returns a boolean per key indicating whether it's configured, without exposing secret values.
+ */
+adminRouter.get('/settings/meta', requireAuth, (_req, res) => {
+  try {
+    const status: Record<string, boolean> = {};
+
+    for (const { key } of META_CREDENTIAL_KEYS) {
+      const row = db.prepare('SELECT value FROM settings WHERE key = ?').get(key) as
+        | { value: string | null }
+        | undefined;
+      status[key] = Boolean(row?.value && row.value.trim().length > 0);
+    }
+
+    res.json(status);
+  } catch (error) {
+    console.error('Error fetching Meta credential status:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * POST /api/admin/settings/meta/validate
+ * Validate Meta credentials by calling the Instagram and Facebook adapter validateCredentials methods.
+ * Returns per-platform validation result.
+ */
+adminRouter.post('/settings/meta/validate', requireAuth, (req, res) => {
+  (async () => {
+    try {
+      const instagramAdapter = platformAdapters.get('instagram') as InstagramAdapter;
+      const facebookAdapter = platformAdapters.get('facebook') as FacebookAdapter;
+
+      const [instagramResult, facebookResult] = await Promise.all([
+        instagramAdapter.validateCredentials(),
+        facebookAdapter.validateCredentials(),
+      ]);
+
+      res.json({
+        instagram: instagramResult,
+        facebook: facebookResult,
+      });
+    } catch (error) {
+      console.error('Error validating Meta credentials:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  })();
 });
 
 export default adminRouter;
