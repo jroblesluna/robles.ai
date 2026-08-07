@@ -176,8 +176,8 @@ export const IMAGE_STYLE_CONFIGS: Record<CarouselImageStyle, ImageStyleConfig> =
   'cinematic-scene': {
     name: 'cinematic-scene',
     label: 'Cinematic Scene',
-    stylePrompt: 'photorealistic cinematic scene, dramatic lighting, shallow depth of field, high production value like a movie still or concept art',
-    constraints: 'No human faces visible (show from behind, silhouettes, or cropped). Environments and objects only. Moody atmospheric lighting.',
+    stylePrompt: 'photorealistic cinematic scene, dramatic but natural lighting, high production value like a movie still or concept art, rich colors, well-lit environment',
+    constraints: 'Human faces may appear naturally (profile, three-quarter view, or front-facing) — do not always show people from behind. Vary the composition. Use bright, natural lighting. Avoid dark moody blue tones. Environments and objects can be the focus when appropriate.',
   },
   'data-viz': {
     name: 'data-viz',
