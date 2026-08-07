@@ -412,10 +412,10 @@ export default function PlatformPublishStatus({
                     {statusData.status === "published" && (
                       <Button
                         size="sm"
-                        variant="ghost"
+                        variant="outline"
                         onClick={() => resetMutation.mutate(platform)}
                         disabled={resetMutation.isPending}
-                        className="gap-1.5 text-muted-foreground hover:text-foreground"
+                        className="gap-1.5"
                         title="Reset to republish with updated content"
                       >
                         <RefreshCw className="h-3.5 w-3.5" />
