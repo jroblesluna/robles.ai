@@ -64,9 +64,9 @@ export const PALETTE_CONFIGS: Record<CarouselPalette, PaletteConfig> = {
   'natural': {
     name: 'natural',
     label: 'Natural',
-    primaryAccent: 'natural realistic colors appropriate to the scene',
-    secondaryAccent: 'warm and cool earth tones, soft highlights',
-    backgroundDesc: 'natural lighting with realistic colors (no forced artificial color scheme — let the scene dictate its own palette)',
+    primaryAccent: 'varied realistic colors as they appear in real life — blues, greens, whites, metals, warm and cool tones mixed naturally',
+    secondaryAccent: 'multiple colors appropriate to the real-world subject matter, NOT monochromatic',
+    backgroundDesc: 'realistic environment with natural varied lighting (daylight, office light, or ambient light as appropriate). IMPORTANT: use diverse realistic colors — avoid monochromatic sepia/golden/amber color grading. The scene should look like a real photograph with full color spectrum',
     phraseColor: '#e2e8f0',
   },
 };
