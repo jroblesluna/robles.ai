@@ -166,6 +166,20 @@ export default function PlatformPublishStatus({
       );
       return res.json();
     },
+    onMutate: async (platform: PlatformName) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: statusQueryKey });
+
+      // Optimistically update the status to "publishing"
+      queryClient.setQueryData<PlatformPublishStatusData[]>(statusQueryKey, (old) => {
+        if (!old) return old;
+        return old.map((s) =>
+          s.platform === platform
+            ? { ...s, status: "publishing" as PlatformStatus, errorMessage: null }
+            : s
+        );
+      });
+    },
     onSuccess: (_data, platform) => {
       queryClient.refetchQueries({ queryKey: statusQueryKey });
       toast({ title: `Publishing to ${platformConfig[platform].label} started` });
@@ -188,6 +202,20 @@ export default function PlatformPublishStatus({
         `/api/admin/dominical/${reportId}/publish-all`
       );
       return res.json();
+    },
+    onMutate: async () => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: statusQueryKey });
+
+      // Optimistically update all eligible platforms to "publishing"
+      queryClient.setQueryData<PlatformPublishStatusData[]>(statusQueryKey, (old) => {
+        if (!old) return old;
+        return old.map((s) =>
+          s.status === "not_published" || s.status === "failed"
+            ? { ...s, status: "publishing" as PlatformStatus, errorMessage: null }
+            : s
+        );
+      });
     },
     onSuccess: () => {
       queryClient.refetchQueries({ queryKey: statusQueryKey });
