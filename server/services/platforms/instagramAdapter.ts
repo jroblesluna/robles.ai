@@ -212,6 +212,38 @@ async function publishContainer(
 }
 
 /**
+ * Waits for a media container to be ready for publishing.
+ * Polls the container status every 3 seconds, up to maxAttempts times.
+ * Instagram containers go through: IN_PROGRESS → FINISHED (ready to publish)
+ */
+async function waitForContainerReady(
+  igUserId: string,
+  accessToken: string,
+  containerId: string,
+  maxAttempts: number = 10
+): Promise<void> {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const url = `${GRAPH_API_BASE}/${containerId}?fields=status_code&access_token=${accessToken}`;
+    const response = await fetch(url);
+
+    if (response.ok) {
+      const data = (await response.json()) as { status_code?: string };
+      if (data.status_code === 'FINISHED') {
+        return; // Ready to publish
+      }
+      if (data.status_code === 'ERROR') {
+        throw new Error(`Instagram container ${containerId} failed processing`);
+      }
+    }
+
+    // Wait 3 seconds before checking again
+    await new Promise(resolve => setTimeout(resolve, 3000));
+  }
+
+  throw new Error(`Instagram container ${containerId} not ready after ${maxAttempts * 3} seconds`);
+}
+
+/**
  * Instagram adapter implementing the PlatformAdapter interface.
  * Supports carousel posts (2-10 images) and single-image posts.
  * Implements token refresh retry on 401/403 errors.
@@ -321,6 +353,9 @@ export class InstagramAdapter implements PlatformAdapter {
       // Step 2: Create carousel container
       const carouselId = await createCarouselContainer(igUserId, accessToken, childrenIds, text);
 
+      // Step 2.5: Wait for container to be ready
+      await waitForContainerReady(igUserId, accessToken, carouselId);
+
       // Step 3: Publish the carousel
       const mediaId = await publishContainer(igUserId, accessToken, carouselId);
       return mediaId;
@@ -330,6 +365,7 @@ export class InstagramAdapter implements PlatformAdapter {
     const singleImageUrl = slideImageUrls[0] || coverImageUrl;
     if (singleImageUrl) {
       const containerId = await createSingleImageContainer(igUserId, accessToken, singleImageUrl, text);
+      await waitForContainerReady(igUserId, accessToken, containerId);
       const mediaId = await publishContainer(igUserId, accessToken, containerId);
       return mediaId;
     }
