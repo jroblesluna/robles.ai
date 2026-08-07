@@ -106,11 +106,11 @@ function buildArticleArtSvg(titleText: string, engagementPhrase?: string, phrase
   const lineHeight = titleFontSize * 1.3;
   const phraseLineHeight = phraseFontSize * 1.3;
 
-  // Gradient starts at 50% of art height
-  const gradientStart = Math.round(ART_HEIGHT * 0.50);
+  // Gradient starts at 60% of art height
+  const gradientStart = Math.round(ART_HEIGHT * 0.60);
 
-  // Title text starts at ~75% of ART_HEIGHT
-  const titleStartY = Math.round(ART_HEIGHT * 0.75);
+  // Title text starts at ~83% of ART_HEIGHT
+  const titleStartY = Math.round(ART_HEIGHT * 0.83);
 
   let titleSvgLines = '';
   titleLines.forEach((line, i) => {
@@ -150,23 +150,25 @@ ${titleSvgLines}${phraseSvg}</svg>`;
 function buildCoverArtSvg(): Buffer {
   const titleFontSize = 56;
 
-  // Center text vertically in the art area
-  const centerY = ART_HEIGHT / 2 + 20;
+  // Position title in the lower area (same zone as article titles)
+  const titleY = Math.round(ART_HEIGHT * 0.85);
+
+  // Gradient starts at 60% to match article slides
+  const gradientStart = Math.round(ART_HEIGHT * 0.60);
 
   const svg = `<svg width="${SLIDE_SIZE}" height="${ART_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="coverGradient" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="rgba(0,0,0,0)" stop-opacity="0"/>
-      <stop offset="30%" stop-color="rgba(0,0,0,0.5)" stop-opacity="0.5"/>
-      <stop offset="70%" stop-color="rgba(0,0,0,0.5)" stop-opacity="0.5"/>
-      <stop offset="100%" stop-color="rgba(0,0,0,0)" stop-opacity="0"/>
+      <stop offset="40%" stop-color="rgba(0,0,0,0.7)" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0.7)" stop-opacity="0.7"/>
     </linearGradient>
     <filter id="textShadow" x="-10%" y="-10%" width="120%" height="120%">
       <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="rgba(0,0,0,0.85)" flood-opacity="0.85"/>
     </filter>
   </defs>
-  <rect x="0" y="${centerY - 120}" width="${SLIDE_SIZE}" height="240" fill="url(#coverGradient)"/>
-  <text x="${SLIDE_SIZE / 2}" y="${centerY}" font-family="Arial, Helvetica, sans-serif" font-size="${titleFontSize}" font-weight="bold" fill="white" text-anchor="middle" filter="url(#textShadow)" letter-spacing="1.5">El Dominical IA</text>
+  <rect x="0" y="${gradientStart}" width="${SLIDE_SIZE}" height="${ART_HEIGHT - gradientStart}" fill="url(#coverGradient)"/>
+  <text x="${SLIDE_SIZE / 2}" y="${titleY}" font-family="Arial, Helvetica, sans-serif" font-size="${titleFontSize}" font-weight="bold" fill="white" text-anchor="middle" filter="url(#textShadow)" letter-spacing="1.5">El Dominical IA</text>
 </svg>`;
 
   return Buffer.from(svg);
@@ -178,14 +180,15 @@ function buildCoverArtSvg(): Buffer {
  */
 function buildCtaArtSvg(ctaMessage: string): Buffer {
   const ctaFontSize = 38;
-  // Position CTA text in middle of art area
-  const centerY = ART_HEIGHT * 0.5;
 
   // Wrap CTA message for longer texts
   const ctaLines = wrapText(ctaMessage, 32, 3);
   const lineHeight = ctaFontSize * 1.4;
-  const totalTextHeight = ctaLines.length * lineHeight;
-  const startY = centerY - totalTextHeight / 2;
+
+  // Position CTA text in the lower area (same zone as article/cover titles)
+  // Last line should end around 90% of art height
+  const lastLineY = Math.round(ART_HEIGHT * 0.88);
+  const startY = lastLineY - (ctaLines.length - 1) * lineHeight;
 
   let ctaTextSvg = '';
   ctaLines.forEach((line, i) => {
@@ -193,23 +196,21 @@ function buildCtaArtSvg(ctaMessage: string): Buffer {
     ctaTextSvg += `  <text x="${SLIDE_SIZE / 2}" y="${y}" font-family="Arial, Helvetica, sans-serif" font-size="${ctaFontSize}" font-weight="bold" fill="white" text-anchor="middle" filter="url(#textShadow)" letter-spacing="1">${escapeXml(line)}</text>\n`;
   });
 
-  // Gradient backdrop for CTA text area
-  const gradientTop = Math.round(centerY - 140);
-  const gradientHeight = 280;
+  // Gradient starts at 60% to match other slides
+  const gradientStart = Math.round(ART_HEIGHT * 0.60);
 
   const svg = `<svg width="${SLIDE_SIZE}" height="${ART_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="ctaGradient" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="rgba(0,0,0,0)" stop-opacity="0"/>
-      <stop offset="30%" stop-color="rgba(0,0,0,0.6)" stop-opacity="0.6"/>
-      <stop offset="70%" stop-color="rgba(0,0,0,0.6)" stop-opacity="0.6"/>
-      <stop offset="100%" stop-color="rgba(0,0,0,0)" stop-opacity="0"/>
+      <stop offset="40%" stop-color="rgba(0,0,0,0.7)" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0.7)" stop-opacity="0.7"/>
     </linearGradient>
     <filter id="textShadow" x="-10%" y="-10%" width="120%" height="120%">
       <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="rgba(0,0,0,0.85)" flood-opacity="0.85"/>
     </filter>
   </defs>
-  <rect x="0" y="${gradientTop}" width="${SLIDE_SIZE}" height="${gradientHeight}" fill="url(#ctaGradient)"/>
+  <rect x="0" y="${gradientStart}" width="${SLIDE_SIZE}" height="${ART_HEIGHT - gradientStart}" fill="url(#ctaGradient)"/>
 ${ctaTextSvg}</svg>`;
 
   return Buffer.from(svg);
