@@ -7,6 +7,19 @@ const GRAPH_API_BASE = 'https://graph.facebook.com/v21.0';
 const MAX_CAROUSEL_IMAGES = 10;
 
 /**
+ * Format caption text for Instagram to preserve line breaks.
+ * Instagram strips multiple newlines. The trick is to use a zero-width space
+ * or a single period on "blank" lines to force the line break to be preserved.
+ * We replace double newlines (\n\n) with \n⠀\n (using a Braille blank character U+2800)
+ * which Instagram renders as a blank line.
+ */
+function formatCaptionForInstagram(text: string): string {
+  // Replace empty lines (double newlines) with newline + braille blank + newline
+  // The braille blank (⠀) is invisible but prevents Instagram from collapsing the line
+  return text.replace(/\n\n/g, '\n\u2800\n');
+}
+
+/**
  * Helper to read a setting from the database.
  */
 function getSetting(key: string): string | null {
@@ -284,7 +297,8 @@ export class InstagramAdapter implements PlatformAdapter {
    * Attempt to publish based on the request content.
    */
   private async attemptPublish(request: PublishRequest): Promise<string> {
-    const { text, slideImageUrls, coverImageUrl } = request;
+    const { text: rawText, slideImageUrls, coverImageUrl } = request;
+    const text = formatCaptionForInstagram(rawText);
 
     const igUserId = getSetting('instagram_business_account_id');
     const accessToken = getSetting('instagram_access_token');
