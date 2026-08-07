@@ -396,33 +396,36 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
             >
               <X className="h-6 w-6" />
             </Button>
-            {/* Left arrow - full height, hidden on first slide */}
-            {!isFirstSlide() && (
-              <button
-                type="button"
-                className="absolute left-0 top-0 bottom-0 w-16 z-10 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/20 transition-colors cursor-pointer rounded-l-lg"
-                onClick={(e) => { e.stopPropagation(); navigateSlide('prev'); }}
-                aria-label="Previous slide"
-              >
-                <ChevronLeft className="h-10 w-10" />
-              </button>
-            )}
-            {/* Right arrow - full height, hidden on last slide */}
-            {!isLastSlide() && (
-              <button
-                type="button"
-                className="absolute right-0 top-0 bottom-0 w-16 z-10 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/20 transition-colors cursor-pointer rounded-r-lg"
-                onClick={(e) => { e.stopPropagation(); navigateSlide('next'); }}
-                aria-label="Next slide"
-              >
-                <ChevronRight className="h-10 w-10" />
-              </button>
-            )}
-            <img
-              src={getSlideImageUrl(enlargedSlide)!}
-              alt={getSlideLabel(enlargedSlide)}
-              className="max-w-full max-h-[85vh] rounded-lg shadow-2xl"
-            />
+            {/* Image container with navigation arrows */}
+            <div className="relative">
+              {/* Left arrow - full height of image, hidden on first slide */}
+              {!isFirstSlide() && (
+                <button
+                  type="button"
+                  className="absolute left-0 top-0 bottom-0 w-16 z-10 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/20 transition-colors cursor-pointer rounded-l-lg"
+                  onClick={(e) => { e.stopPropagation(); navigateSlide('prev'); }}
+                  aria-label="Previous slide"
+                >
+                  <ChevronLeft className="h-10 w-10" />
+                </button>
+              )}
+              {/* Right arrow - full height of image, hidden on last slide */}
+              {!isLastSlide() && (
+                <button
+                  type="button"
+                  className="absolute right-0 top-0 bottom-0 w-16 z-10 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/20 transition-colors cursor-pointer rounded-r-lg"
+                  onClick={(e) => { e.stopPropagation(); navigateSlide('next'); }}
+                  aria-label="Next slide"
+                >
+                  <ChevronRight className="h-10 w-10" />
+                </button>
+              )}
+              <img
+                src={getSlideImageUrl(enlargedSlide)!}
+                alt={getSlideLabel(enlargedSlide)}
+                className="max-w-full max-h-[85vh] rounded-lg shadow-2xl"
+              />
+            </div>
             <div className="mt-3 flex items-center justify-between">
               <span className="text-white text-sm">
                 #{enlargedSlide.position} — {enlargedSlide.slideType} — {enlargedSlide.titleText}
