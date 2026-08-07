@@ -5,16 +5,17 @@ import db from './db.js';
 const publicRouter = Router();
 
 /**
- * GET /api/public/slides/:reportId/:position
  * Serves carousel slide images as publicly accessible URLs.
- * This endpoint does NOT require auth — Meta servers need to cURL these
+ * This handler does NOT require auth — Meta servers need to cURL these
  * images during Instagram/Facebook carousel creation.
  */
-publicRouter.get('/slides/:reportId/:position', (req, res) => {
+function serveSlideImage(req: any, res: any) {
   try {
     const { reportId, position } = req.params;
     const numReportId = Number(reportId);
-    const numPosition = Number(position);
+    // Strip .png suffix if present (e.g. "0.png" → "0")
+    const cleanPosition = String(position).replace(/\.png$/i, '');
+    const numPosition = Number(cleanPosition);
 
     if (isNaN(numReportId) || numReportId < 1) {
       res.status(400).json({ error: 'Invalid report ID' });
@@ -59,6 +60,12 @@ publicRouter.get('/slides/:reportId/:position', (req, res) => {
     console.error('Error serving public slide image:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
-});
+}
+
+// Original route (backward compat)
+publicRouter.get('/slides/:reportId/:position', serveSlideImage);
+
+// Route with .png extension for Instagram/Meta Graph API compatibility
+publicRouter.get('/slides/:reportId/:position.png', serveSlideImage);
 
 export default publicRouter;

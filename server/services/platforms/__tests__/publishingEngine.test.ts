@@ -233,8 +233,8 @@ describe('PublishingEngine.publishToPlatform', () => {
     expect(request.reportId).toBe(reportId);
     expect(request.text).toBe('Test post content #AI @robles');
     expect(request.slideImageUrls).toHaveLength(4);
-    expect(request.slideImageUrls[0]).toBe('https://robles.ai/api/public/slides/6/1');
-    expect(request.slideImageUrls[3]).toBe('https://robles.ai/api/public/slides/6/4');
+    expect(request.slideImageUrls[0]).toBe('https://robles.ai/api/public/slides/6/1.png');
+    expect(request.slideImageUrls[3]).toBe('https://robles.ai/api/public/slides/6/4.png');
     expect(request.coverImageUrl).toBe('https://robles.ai/images/cover.jpg');
   });
 });

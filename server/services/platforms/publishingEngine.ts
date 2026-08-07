@@ -204,7 +204,7 @@ export class PublishingEngine {
 
     // Construct publicly accessible URLs for each slide
     const slideImageUrls = slides.map(
-      slide => `${this.baseUrl}/api/public/slides/${reportId}/${slide.position}`
+      slide => `${this.baseUrl}/api/public/slides/${reportId}/${slide.position}.png`
     );
 
     // Cover image URL (fallback)
