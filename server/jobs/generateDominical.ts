@@ -1,7 +1,60 @@
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import nodemailer from 'nodemailer';
 import OpenAI from 'openai';
 import db from '../db.js';
 import { getRecentPosts, scorePostsWithGPT, type PostSummary, type ScoredPost } from '../services/dominicalScoring.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+/**
+ * Loads the excerpt and first content sections for a given article slug.
+ * Returns a brief summary with specific details (companies, figures, quotes).
+ */
+function getArticleContentSummary(slug: string): string {
+  // Slug format: YYYY-MM-DD-HH-mm-ss-rest-of-slug
+  const match = slug.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) return '';
+
+  const [, year, month, day] = match;
+  const postsDir = path.resolve(__dirname, '../data/posts');
+  const dayDir = path.join(postsDir, year, month, day);
+
+  if (!fs.existsSync(dayDir)) return '';
+
+  // Find the JSON file matching this slug
+  const files = fs.readdirSync(dayDir).filter(f => f.endsWith('.json'));
+  const matchingFile = files.find(f => {
+    try {
+      const content = JSON.parse(fs.readFileSync(path.join(dayDir, f), 'utf-8'));
+      return content.translations?.en?.slug === slug || content.translations?.es?.slug === slug;
+    } catch { return false; }
+  });
+
+  if (!matchingFile) return '';
+
+  try {
+    const content = JSON.parse(fs.readFileSync(path.join(dayDir, matchingFile), 'utf-8'));
+    const esTranslation = content.translations?.es;
+    const enTranslation = content.translations?.en;
+    const translation = esTranslation || enTranslation;
+    if (!translation) return '';
+
+    const excerpt = translation.excerpt || '';
+    // Get first 2 content sections for specific details
+    const sections = (translation.content || []).slice(0, 2);
+    const sectionBodies = sections
+      .map((s: { body: string }) => s.body)
+      .join(' ')
+      .slice(0, 800); // Limit to 800 chars to fit in prompt
+
+    return `Excerpt: ${excerpt}\n   Key details: ${sectionBodies}`;
+  } catch {
+    return '';
+  }
+}
 
 /**
  * Generates a LinkedIn post draft using GPT-4o.
@@ -12,8 +65,11 @@ async function generateLinkedInPost(selectedPosts: ScoredPost[], apiKey: string)
   const openai = new OpenAI({ apiKey });
 
   const newsList = selectedPosts
-    .map((p, i) => `${i + 1}. "${p.title}" (Score: ${p.weightedScore}/100 — ${p.reason})\n   URL: https://robles.ai/blog/${p.slug}`)
-    .join('\n');
+    .map((p, i) => {
+      const contentSummary = getArticleContentSummary(p.slug);
+      return `${i + 1}. "${p.title}" (Score: ${p.weightedScore}/100 — ${p.reason})\n   URL: https://robles.ai/blog/${p.slug}\n   ${contentSummary}`;
+    })
+    .join('\n\n');
 
   const systemPrompt = `Eres el redactor de "El Dominical IA", un newsletter semanal en LinkedIn para profesionales de tecnología y negocios en Latinoamérica. Tu estilo es informado, opinado, cercano y profesional. Escribes en español.`;
 
@@ -32,6 +88,8 @@ Reglas:
 - Usa emojis con moderación (1-2 por sección)
 - Tono profesional pero cercano
 - No uses bullet points genéricos, cada opinión debe ser específica y valiosa
+- OBLIGATORIO: Menciona datos concretos de cada artículo (empresas, cifras, hallazgos, nombres, tecnologías específicas). NO escribas resúmenes vagos como "promete revolucionar" o "podría redefinir". Cita hechos reales del contenido proporcionado.
+- Cada mención a un artículo debe incluir al menos UN dato específico (nombre de empresa, cifra, tecnología concreta, caso de uso real)
 - El post debe fluir como una narrativa, no como una lista
 - INCLUYE los enlaces a cada artículo de robles.ai en el texto de forma natural
 
