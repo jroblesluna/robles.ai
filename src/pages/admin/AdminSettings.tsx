@@ -157,14 +157,19 @@ export default function AdminSettings() {
           </div>
 
           {linkedinConnected ? (
-            <div className="flex items-center gap-2 rounded-md bg-green-50 p-3 text-sm text-green-700 dark:bg-green-950 dark:text-green-300">
-              <CheckCircle2 className="h-4 w-4" />
-              <span>
-                LinkedIn connected
-                {settings.linkedin_token_expires_at && (
-                  <> &middot; Expires: {new Date(settings.linkedin_token_expires_at).toLocaleDateString()}</>
-                )}
-              </span>
+            <div className="flex items-center justify-between gap-2 rounded-md bg-green-50 p-3 text-sm text-green-700 dark:bg-green-950 dark:text-green-300">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4" />
+                <span>
+                  LinkedIn connected
+                  {settings.linkedin_token_expires_at && (
+                    <> &middot; Expires: {new Date(settings.linkedin_token_expires_at).toLocaleDateString()}</>
+                  )}
+                </span>
+              </div>
+              <Button onClick={handleConnectLinkedIn} variant="ghost" size="sm" className="text-green-700 hover:text-green-900 hover:bg-green-100">
+                Reconnect
+              </Button>
             </div>
           ) : (
             <Button onClick={handleConnectLinkedIn} variant="outline">
