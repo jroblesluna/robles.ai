@@ -4,11 +4,12 @@ import path from 'path';
 import type { ComposeSlideOptions, ComposeCoverOptions, ComposeCTAOptions } from './carouselTypes.js';
 
 const SLIDE_SIZE = 1080;
-const LOGO_WIDTH = 200;
-const LOGO_HEIGHT = 80;
+const LOGO_WIDTH = 180;
+const LOGO_HEIGHT = 50;
 const LOGO_TOP = 10;
 const LOGO_LEFT = 15;
-const WHITE_BAND_HEIGHT = 100;
+const WHITE_BAND_HEIGHT = 70;
+const ART_HEIGHT = SLIDE_SIZE - WHITE_BAND_HEIGHT; // 1010px
 
 /**
  * Escapes special characters for safe embedding in SVG/XML content.
@@ -68,20 +69,32 @@ function wrapText(text: string, maxCharsPerLine: number, maxLines: number): stri
 }
 
 /**
- * Generates the SVG overlay for an article slide with white band, gradient, title, and engagement phrase.
+ * Builds a small SVG for the band area text (category label or date).
+ * This SVG is sized to the full slide width but only WHITE_BAND_HEIGHT tall.
  */
-function buildArticleSvgOverlay(titleText: string, engagementPhrase?: string, categoryLabel?: string, phraseColor?: string): Buffer {
+function buildBandTextSvg(rightText?: string): Buffer {
+  const svg = `<svg width="${SLIDE_SIZE}" height="${WHITE_BAND_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
+  ${rightText ? `<text x="${SLIDE_SIZE - 25}" y="${WHITE_BAND_HEIGHT / 2 + 6}" font-family="Arial, sans-serif" font-size="18" fill="#6B7280" text-anchor="end">${escapeXml(rightText)}</text>` : ''}
+</svg>`;
+  return Buffer.from(svg);
+}
+
+/**
+ * Generates the SVG overlay for the art area of an article slide.
+ * Contains the gradient and title/engagement text. Sized to ART_HEIGHT (1010px).
+ */
+function buildArticleArtSvg(titleText: string, engagementPhrase?: string, phraseColor?: string): Buffer {
   const titleLines = wrapText(titleText, 40, 3);
   const titleFontSize = 36;
   const phraseFontSize = 30;
   const lineHeight = titleFontSize * 1.3;
   const phraseLineHeight = phraseFontSize * 1.3;
 
-  // Gradient starts at 55% of slide height
-  const gradientStart = Math.round(SLIDE_SIZE * 0.55);
+  // Gradient starts at 50% of art height
+  const gradientStart = Math.round(ART_HEIGHT * 0.50);
 
-  // Title text starts at 78% of slide height
-  const titleStartY = Math.round(SLIDE_SIZE * 0.78);
+  // Title text starts at ~75% of ART_HEIGHT
+  const titleStartY = Math.round(ART_HEIGHT * 0.75);
 
   let titleSvgLines = '';
   titleLines.forEach((line, i) => {
@@ -96,12 +109,7 @@ function buildArticleSvgOverlay(titleText: string, engagementPhrase?: string, ca
     phraseSvg = `    <text x="60" y="${phraseY}" font-family="Arial, Helvetica, sans-serif" font-size="${phraseFontSize}" font-style="italic" fill="${pColor}">${escapeXml(engagementPhrase)}</text>\n`;
   }
 
-  let categorySvg = '';
-  if (categoryLabel) {
-    categorySvg = `  <text x="${SLIDE_SIZE - 30}" y="${WHITE_BAND_HEIGHT / 2 + 7}" font-family="Arial, sans-serif" font-size="18" fill="#6B7280" text-anchor="end">${escapeXml(categoryLabel)}</text>\n`;
-  }
-
-  const svg = `<svg width="${SLIDE_SIZE}" height="${SLIDE_SIZE}" xmlns="http://www.w3.org/2000/svg">
+  const svg = `<svg width="${SLIDE_SIZE}" height="${ART_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="textGradient" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="rgba(0,0,0,0)" stop-opacity="0"/>
@@ -109,27 +117,24 @@ function buildArticleSvgOverlay(titleText: string, engagementPhrase?: string, ca
       <stop offset="100%" stop-color="rgba(0,0,0,0.7)" stop-opacity="0.7"/>
     </linearGradient>
   </defs>
-  <rect x="0" y="0" width="${SLIDE_SIZE}" height="${WHITE_BAND_HEIGHT}" fill="#F5F5F0"/>
-${categorySvg}  <rect x="0" y="${gradientStart}" width="${SLIDE_SIZE}" height="${SLIDE_SIZE - gradientStart}" fill="url(#textGradient)"/>
+  <rect x="0" y="${gradientStart}" width="${SLIDE_SIZE}" height="${ART_HEIGHT - gradientStart}" fill="url(#textGradient)"/>
 ${titleSvgLines}${phraseSvg}</svg>`;
 
   return Buffer.from(svg);
 }
 
 /**
- * Generates the SVG overlay for the cover slide with white band (logo left, date right)
- * and "El Dominical IA" title centered in the middle.
+ * Generates the SVG overlay for the art area of the cover slide.
+ * Contains the gradient backdrop and "El Dominical IA" centered title.
+ * Sized to ART_HEIGHT (1010px).
  */
-function buildCoverSvgOverlay(weekStart: string, weekEnd: string): Buffer {
+function buildCoverArtSvg(): Buffer {
   const titleFontSize = 56;
-  const dateFontSize = 22;
 
-  // Center text vertically (slightly lower)
-  const centerY = SLIDE_SIZE / 2 + 40;
+  // Center text vertically in the art area
+  const centerY = ART_HEIGHT / 2 + 20;
 
-  const dateLabel = `Semana del ${weekStart} al ${weekEnd}`;
-
-  const svg = `<svg width="${SLIDE_SIZE}" height="${SLIDE_SIZE}" xmlns="http://www.w3.org/2000/svg">
+  const svg = `<svg width="${SLIDE_SIZE}" height="${ART_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="coverGradient" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="rgba(0,0,0,0)" stop-opacity="0"/>
@@ -138,8 +143,6 @@ function buildCoverSvgOverlay(weekStart: string, weekEnd: string): Buffer {
       <stop offset="100%" stop-color="rgba(0,0,0,0)" stop-opacity="0"/>
     </linearGradient>
   </defs>
-  <rect x="0" y="0" width="${SLIDE_SIZE}" height="${WHITE_BAND_HEIGHT}" fill="#F5F5F0"/>
-  <text x="${SLIDE_SIZE - 30}" y="${WHITE_BAND_HEIGHT / 2 + 7}" font-family="Arial, Helvetica, sans-serif" font-size="${dateFontSize}" fill="#4B5563" text-anchor="end">${escapeXml(dateLabel)}</text>
   <rect x="0" y="${centerY - 120}" width="${SLIDE_SIZE}" height="240" fill="url(#coverGradient)"/>
   <text x="${SLIDE_SIZE / 2}" y="${centerY}" font-family="Arial, Helvetica, sans-serif" font-size="${titleFontSize}" font-weight="bold" fill="white" text-anchor="middle">El Dominical IA</text>
 </svg>`;
@@ -148,12 +151,13 @@ function buildCoverSvgOverlay(weekStart: string, weekEnd: string): Buffer {
 }
 
 /**
- * Generates the SVG overlay for the CTA slide with white band and call-to-action message.
+ * Generates the SVG overlay for the art area of the CTA slide.
+ * Contains gradient backdrop and call-to-action text. Sized to ART_HEIGHT (1010px).
  */
-function buildCtaSvgOverlay(ctaMessage: string): Buffer {
+function buildCtaArtSvg(ctaMessage: string): Buffer {
   const ctaFontSize = 38;
-  // Position CTA text in middle-lower area
-  const centerY = SLIDE_SIZE * 0.6;
+  // Position CTA text in middle of art area
+  const centerY = ART_HEIGHT * 0.5;
 
   // Wrap CTA message for longer texts
   const ctaLines = wrapText(ctaMessage, 32, 3);
@@ -171,7 +175,7 @@ function buildCtaSvgOverlay(ctaMessage: string): Buffer {
   const gradientTop = Math.round(centerY - 140);
   const gradientHeight = 280;
 
-  const svg = `<svg width="${SLIDE_SIZE}" height="${SLIDE_SIZE}" xmlns="http://www.w3.org/2000/svg">
+  const svg = `<svg width="${SLIDE_SIZE}" height="${ART_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="ctaGradient" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="rgba(0,0,0,0)" stop-opacity="0"/>
@@ -180,7 +184,6 @@ function buildCtaSvgOverlay(ctaMessage: string): Buffer {
       <stop offset="100%" stop-color="rgba(0,0,0,0)" stop-opacity="0"/>
     </linearGradient>
   </defs>
-  <rect x="0" y="0" width="${SLIDE_SIZE}" height="${WHITE_BAND_HEIGHT}" fill="#F5F5F0"/>
   <rect x="0" y="${gradientTop}" width="${SLIDE_SIZE}" height="${gradientHeight}" fill="url(#ctaGradient)"/>
 ${ctaTextSvg}</svg>`;
 
@@ -188,7 +191,10 @@ ${ctaTextSvg}</svg>`;
 }
 
 /**
- * Composes an article slide by overlaying the white band, logo, and SVG text on the background image.
+ * Composes an article slide:
+ * 1. Pearl/white band at top (70px) with logo and category text
+ * 2. Background art below the band (1080x1010), cropped to fit
+ * 3. Gradient + title overlay on the art area
  */
 export async function composeArticleSlide(options: ComposeSlideOptions): Promise<void> {
   const { backgroundImagePath, logoPath, titleText, engagementPhrase, outputPath } = options;
@@ -197,36 +203,53 @@ export async function composeArticleSlide(options: ComposeSlideOptions): Promise
   const outputDir = path.dirname(outputPath);
   fs.mkdirSync(outputDir, { recursive: true });
 
-  // Resize logo to fit within band (width-based, maintain aspect ratio)
+  // Resize logo to fit within band
   const logoBuffer = await sharp(logoPath)
     .resize(LOGO_WIDTH, LOGO_HEIGHT, { fit: 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .png()
     .toBuffer();
 
-  // Build SVG text overlay (includes white band)
-  const svgOverlay = buildArticleSvgOverlay(titleText, engagementPhrase, options.categoryLabel, options.phraseColor);
+  // Resize and crop background to fit the art area (1080x1010)
+  const artBuffer = await sharp(backgroundImagePath)
+    .resize(SLIDE_SIZE, ART_HEIGHT, { fit: 'cover' })
+    .png()
+    .toBuffer();
 
-  // Composite all layers onto the background
-  await sharp(backgroundImagePath)
-    .resize(SLIDE_SIZE, SLIDE_SIZE, { fit: 'cover' })
+  // Build SVG overlay for art area (gradient + title text)
+  const svgOverlay = buildArticleArtSvg(titleText, engagementPhrase, options.phraseColor);
+
+  // Build band text SVG (category label)
+  const bandTextSvg = buildBandTextSvg(options.categoryLabel);
+
+  // Create the full canvas:
+  // - Background is the pearl/white color (fills band area)
+  // - Art placed below the band
+  // - SVG overlay on the art area
+  // - Logo in the band
+  // - Band text (category) in the band
+  await sharp({
+    create: {
+      width: SLIDE_SIZE,
+      height: SLIDE_SIZE,
+      channels: 4,
+      background: { r: 245, g: 245, b: 240, alpha: 255 },
+    },
+  })
     .composite([
-      {
-        input: svgOverlay,
-        top: 0,
-        left: 0,
-      },
-      {
-        input: logoBuffer,
-        top: LOGO_TOP,
-        left: LOGO_LEFT,
-      },
+      { input: artBuffer, top: WHITE_BAND_HEIGHT, left: 0 },
+      { input: svgOverlay, top: WHITE_BAND_HEIGHT, left: 0 },
+      { input: logoBuffer, top: LOGO_TOP, left: LOGO_LEFT },
+      { input: bandTextSvg, top: 0, left: 0 },
     ])
     .png()
     .toFile(outputPath);
 }
 
 /**
- * Composes the cover slide with white band (logo left, date right) and "El Dominical IA" title centered.
+ * Composes the cover slide:
+ * 1. Pearl/white band at top (70px) with logo and date range
+ * 2. Background art below the band (1080x1010)
+ * 3. "El Dominical IA" title centered on art area
  */
 export async function composeCoverSlide(options: ComposeCoverOptions): Promise<void> {
   const { backgroundImagePath, logoPath, weekStart, weekEnd, outputPath } = options;
@@ -235,36 +258,49 @@ export async function composeCoverSlide(options: ComposeCoverOptions): Promise<v
   const outputDir = path.dirname(outputPath);
   fs.mkdirSync(outputDir, { recursive: true });
 
-  // Resize logo to fit within band (width-based, maintain aspect ratio)
+  // Resize logo to fit within band
   const logoBuffer = await sharp(logoPath)
     .resize(LOGO_WIDTH, LOGO_HEIGHT, { fit: 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .png()
     .toBuffer();
 
-  // Build cover SVG overlay (includes white band with date)
-  const svgOverlay = buildCoverSvgOverlay(weekStart, weekEnd);
+  // Resize and crop background to fit the art area (1080x1010)
+  const artBuffer = await sharp(backgroundImagePath)
+    .resize(SLIDE_SIZE, ART_HEIGHT, { fit: 'cover' })
+    .png()
+    .toBuffer();
 
-  // Composite all layers onto the background
-  await sharp(backgroundImagePath)
-    .resize(SLIDE_SIZE, SLIDE_SIZE, { fit: 'cover' })
+  // Build cover art SVG overlay (gradient + title)
+  const svgOverlay = buildCoverArtSvg();
+
+  // Build band text SVG (date range)
+  const dateLabel = `Semana del ${weekStart} al ${weekEnd}`;
+  const bandTextSvg = buildBandTextSvg(dateLabel);
+
+  // Create the full canvas
+  await sharp({
+    create: {
+      width: SLIDE_SIZE,
+      height: SLIDE_SIZE,
+      channels: 4,
+      background: { r: 245, g: 245, b: 240, alpha: 255 },
+    },
+  })
     .composite([
-      {
-        input: svgOverlay,
-        top: 0,
-        left: 0,
-      },
-      {
-        input: logoBuffer,
-        top: LOGO_TOP,
-        left: LOGO_LEFT,
-      },
+      { input: artBuffer, top: WHITE_BAND_HEIGHT, left: 0 },
+      { input: svgOverlay, top: WHITE_BAND_HEIGHT, left: 0 },
+      { input: logoBuffer, top: LOGO_TOP, left: LOGO_LEFT },
+      { input: bandTextSvg, top: 0, left: 0 },
     ])
     .png()
     .toFile(outputPath);
 }
 
 /**
- * Composes the CTA slide with white band, logo, and call-to-action message.
+ * Composes the CTA slide:
+ * 1. Pearl/white band at top (70px) with logo
+ * 2. Background art below the band (1080x1010)
+ * 3. CTA message centered on art area
  */
 export async function composeCTASlide(options: ComposeCTAOptions): Promise<void> {
   const { backgroundImagePath, logoPath, ctaMessage, outputPath } = options;
@@ -273,29 +309,38 @@ export async function composeCTASlide(options: ComposeCTAOptions): Promise<void>
   const outputDir = path.dirname(outputPath);
   fs.mkdirSync(outputDir, { recursive: true });
 
-  // Resize logo to fit within band (width-based, maintain aspect ratio)
+  // Resize logo to fit within band
   const logoBuffer = await sharp(logoPath)
     .resize(LOGO_WIDTH, LOGO_HEIGHT, { fit: 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .png()
     .toBuffer();
 
-  // Build CTA SVG overlay (includes white band)
-  const svgOverlay = buildCtaSvgOverlay(ctaMessage);
+  // Resize and crop background to fit the art area (1080x1010)
+  const artBuffer = await sharp(backgroundImagePath)
+    .resize(SLIDE_SIZE, ART_HEIGHT, { fit: 'cover' })
+    .png()
+    .toBuffer();
 
-  // Composite all layers onto the background
-  await sharp(backgroundImagePath)
-    .resize(SLIDE_SIZE, SLIDE_SIZE, { fit: 'cover' })
+  // Build CTA art SVG overlay (gradient + CTA text)
+  const svgOverlay = buildCtaArtSvg(ctaMessage);
+
+  // Build band text SVG (no text for CTA, just empty band)
+  const bandTextSvg = buildBandTextSvg();
+
+  // Create the full canvas
+  await sharp({
+    create: {
+      width: SLIDE_SIZE,
+      height: SLIDE_SIZE,
+      channels: 4,
+      background: { r: 245, g: 245, b: 240, alpha: 255 },
+    },
+  })
     .composite([
-      {
-        input: svgOverlay,
-        top: 0,
-        left: 0,
-      },
-      {
-        input: logoBuffer,
-        top: LOGO_TOP,
-        left: LOGO_LEFT,
-      },
+      { input: artBuffer, top: WHITE_BAND_HEIGHT, left: 0 },
+      { input: svgOverlay, top: WHITE_BAND_HEIGHT, left: 0 },
+      { input: logoBuffer, top: LOGO_TOP, left: LOGO_LEFT },
+      { input: bandTextSvg, top: 0, left: 0 },
     ])
     .png()
     .toFile(outputPath);
