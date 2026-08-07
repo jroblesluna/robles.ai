@@ -194,6 +194,28 @@ export default function PlatformPublishStatus({
     },
   });
 
+  // Reset platform status mutation (for republish)
+  const resetMutation = useMutation({
+    mutationFn: async (platform: PlatformName) => {
+      const res = await apiRequest(
+        "POST",
+        `/api/admin/dominical/${reportId}/publish/${platform}/reset`
+      );
+      return res.json();
+    },
+    onSuccess: (_data, platform) => {
+      queryClient.refetchQueries({ queryKey: statusQueryKey });
+      toast({ title: `${platformConfig[platform].label} reset — ready to republish` });
+    },
+    onError: (err: Error, platform) => {
+      toast({
+        title: `Error resetting ${platformConfig[platform].label}`,
+        description: err.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   // Publish to all platforms mutation
   const publishAllMutation = useMutation({
     mutationFn: async () => {
@@ -388,10 +410,17 @@ export default function PlatformPublishStatus({
                       </Button>
                     )}
                     {statusData.status === "published" && (
-                      <span className="text-xs text-green-600 font-medium">
-                        <CheckCircle2 className="h-4 w-4 inline mr-1" />
-                        Done
-                      </span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => resetMutation.mutate(platform)}
+                        disabled={resetMutation.isPending}
+                        className="gap-1.5 text-muted-foreground hover:text-foreground"
+                        title="Reset to republish with updated content"
+                      >
+                        <RefreshCw className="h-3.5 w-3.5" />
+                        Republish
+                      </Button>
                     )}
                   </div>
                 </div>

@@ -1743,6 +1743,34 @@ adminRouter.post('/dominical/:id/publish-all', requireAuth, (req, res) => {
   })();
 });
 
+/**
+ * POST /api/admin/dominical/:id/publish/:platform/reset
+ * Reset a platform's publish status back to 'not_published' to allow republishing.
+ */
+adminRouter.post('/dominical/:id/publish/:platform/reset', requireAuth, (req, res) => {
+  try {
+    const reportId = Number(req.params.id);
+    const platform = req.params.platform as string;
+
+    if (!VALID_PLATFORMS.includes(platform as PlatformName)) {
+      res.status(400).json({ error: `Invalid platform: "${platform}"` });
+      return;
+    }
+
+    const now = new Date().toISOString();
+    db.prepare(`
+      UPDATE platform_publish_status
+      SET status = 'not_published', platform_post_id = NULL, error_message = NULL, published_at = NULL, updated_at = ?
+      WHERE report_id = ? AND platform = ?
+    `).run(now, reportId, platform);
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error resetting platform status:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // --- Meta (Instagram & Facebook) Credential Settings ---
 
 /** All Meta credential keys and whether they contain secrets */
