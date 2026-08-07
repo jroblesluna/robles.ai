@@ -35,6 +35,7 @@ describe('Property 3: Post ID Storage on Success', () => {
         week_start TEXT NOT NULL,
         week_end TEXT NOT NULL,
         post_text TEXT,
+        post_text_instagram TEXT,
         image_url TEXT,
         status TEXT DEFAULT 'pending_review',
         created_at TEXT NOT NULL

@@ -7,6 +7,7 @@ export type PlatformStatus = 'not_published' | 'publishing' | 'published' | 'fai
 export interface PublishRequest {
   reportId: number;
   text: string;
+  postTextInstagram?: string | null;  // Instagram-specific caption (≤2200 chars)
   slideImageUrls: string[];  // Publicly accessible URLs for each slide PNG
   coverImageUrl?: string;    // Fallback cover image
   pdfBuffer?: Buffer;        // Pre-generated PDF (for LinkedIn)

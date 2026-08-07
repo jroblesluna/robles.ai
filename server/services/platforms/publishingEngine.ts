@@ -2,6 +2,7 @@
 
 import type Database from 'better-sqlite3';
 import type { PlatformName, PlatformStatus, PlatformAdapter, PublishRequest, PublishResult } from './types.js';
+import { formatForPlatform } from './contentFormatter.js';
 
 export interface PlatformPublishStatus {
   reportId: number;
@@ -106,8 +107,28 @@ export class PublishingEngine {
     this.updateStatus(reportId, platform, 'publishing', null, null);
 
     try {
-      // Build the PublishRequest from the report data
-      const request = this.buildPublishRequest(reportId);
+      // Build the raw PublishRequest from the report data
+      const rawRequest = this.buildPublishRequest(reportId);
+
+      // Use platform-specific text if available
+      if (platform === 'instagram' && rawRequest.postTextInstagram) {
+        rawRequest.text = rawRequest.postTextInstagram;
+      }
+
+      // Format content for the specific platform (truncates text, selects media type)
+      const formatted = formatForPlatform(
+        platform,
+        rawRequest.text,
+        rawRequest.slideImageUrls,
+        rawRequest.pdfBuffer,
+        rawRequest.coverImageUrl
+      );
+
+      // Build the final request with formatted text
+      const request: PublishRequest = {
+        ...rawRequest,
+        text: formatted.text,
+      };
 
       // Call the adapter
       const result = await adapter.publish(request);
@@ -184,8 +205,8 @@ export class PublishingEngine {
   private buildPublishRequest(reportId: number): PublishRequest {
     // Fetch report data
     const report = this.db.prepare(
-      'SELECT id, post_text, image_url FROM dominical_reports WHERE id = ?'
-    ).get(reportId) as { id: number; post_text: string | null; image_url: string | null } | undefined;
+      'SELECT id, post_text, post_text_instagram, image_url FROM dominical_reports WHERE id = ?'
+    ).get(reportId) as { id: number; post_text: string | null; post_text_instagram: string | null; image_url: string | null } | undefined;
 
     if (!report) {
       throw new Error(`Report not found: ${reportId}`);
@@ -215,6 +236,7 @@ export class PublishingEngine {
     return {
       reportId,
       text: report.post_text,
+      postTextInstagram: report.post_text_instagram,
       slideImageUrls,
       coverImageUrl,
     };

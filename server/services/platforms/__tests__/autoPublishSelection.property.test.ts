@@ -17,6 +17,7 @@ function createTestDb(): InstanceType<typeof Database> {
       week_start TEXT,
       week_end TEXT,
       post_text TEXT,
+      post_text_instagram TEXT,
       image_url TEXT,
       created_at TEXT
     );

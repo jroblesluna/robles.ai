@@ -29,6 +29,7 @@ function createTestDb(): InstanceType<typeof Database> {
       selected_news TEXT,
       all_news TEXT,
       post_text TEXT,
+      post_text_instagram TEXT,
       image_url TEXT,
       status TEXT DEFAULT 'pending_review',
       created_at TEXT NOT NULL,

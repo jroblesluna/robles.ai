@@ -85,4 +85,12 @@ db.exec(`
   );
 `);
 
+// Add new columns for platform-specific text (safe to call multiple times)
+try {
+  db.exec('ALTER TABLE dominical_reports ADD COLUMN post_text_instagram TEXT');
+} catch (e: any) {
+  // Column already exists — ignore
+  if (!e.message.includes('duplicate column')) throw e;
+}
+
 export default db;

@@ -117,6 +117,54 @@ Devuelve SOLO el texto del post, sin markdown ni explicaciones adicionales.`;
 }
 
 /**
+ * Generates an Instagram caption using GPT-4o.
+ * Format: hook with emoji → brief per-news summary → CTA + hashtags.
+ * Max 2200 chars, Spanish language, casual-professional tone.
+ */
+async function generateInstagramPost(selectedPosts: ScoredPost[], apiKey: string): Promise<string> {
+  const openai = new OpenAI({ apiKey });
+
+  const newsList = selectedPosts
+    .map((p, i) => `${i + 1}. "${p.title}" (${p.reason})`)
+    .join('\n');
+
+  const systemPrompt = `Eres el redactor de "El Dominical IA" de Robles.AI para Instagram. Tu estilo es informado, visual, con emojis y directo. Escribes en español.`;
+
+  const userPrompt = `Escribe un caption de Instagram en español para "El Dominical IA" de esta semana. Usa estas noticias:
+
+${newsList}
+
+Formato:
+1. Gancho con emoji (1 línea)
+2. Resumen breve de cada noticia (1 línea por noticia, con emoji)
+3. Cierre con CTA ("Link en bio" o "Síguenos para más")
+4. Hashtags al final (máximo 10)
+
+Reglas:
+- MÁXIMO 2100 caracteres (deja margen para los hashtags)
+- NO incluyas URLs (Instagram no las hace clickeables en captions)
+- Usa emojis libremente
+- Tono más casual que LinkedIn pero profesional
+- Menciona datos concretos de cada noticia
+- Escribe en primera persona del plural
+
+Devuelve SOLO el texto del caption, sin markdown.`;
+
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o',
+    temperature: 0.7,
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt },
+    ],
+  });
+
+  const content = response.choices[0]?.message?.content;
+  if (!content) throw new Error('Empty response from GPT-4o IG post generation');
+  return content.slice(0, 2200);
+}
+
+/**
  * Sends notification email that the Dominical report is ready for review.
  */
 async function sendNotificationEmail(selectedPosts: ScoredPost[]): Promise<void> {
@@ -230,6 +278,10 @@ export async function generateDominicalReport(): Promise<{ reportId: number }> {
   const postText = await generateLinkedInPost(selectedPosts, apiKey);
   console.log(`✍️ Generated LinkedIn post (${postText.length} chars)`);
 
+  // 3b. Generate Instagram caption
+  const postTextInstagram = await generateInstagramPost(selectedPosts, apiKey);
+  console.log(`📸 Generated Instagram caption (${postTextInstagram.length} chars)`);
+
   // 4. Calculate week_start and week_end
   const now = new Date();
   const weekEnd = now.toISOString().split('T')[0]; // Today (Saturday)
@@ -239,8 +291,8 @@ export async function generateDominicalReport(): Promise<{ reportId: number }> {
 
   // 5. Insert into dominical_reports
   const stmt = db.prepare(`
-    INSERT INTO dominical_reports (week_start, week_end, selected_news, all_news, post_text, status, created_at)
-    VALUES (?, ?, ?, ?, ?, 'pending_review', ?)
+    INSERT INTO dominical_reports (week_start, week_end, selected_news, all_news, post_text, post_text_instagram, status, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, 'pending_review', ?)
   `);
 
   // Store all_news with scores embedded (merge allPosts with scores)
@@ -260,6 +312,7 @@ export async function generateDominicalReport(): Promise<{ reportId: number }> {
     JSON.stringify(selectedPosts),
     JSON.stringify(allNewsWithScores),
     postText,
+    postTextInstagram,
     new Date().toISOString()
   );
 

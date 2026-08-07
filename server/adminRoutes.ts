@@ -553,6 +553,7 @@ adminRouter.get('/dominical/:id', requireAuth, (req, res) => {
           selected_news: string | null;
           all_news: string | null;
           post_text: string | null;
+          post_text_instagram: string | null;
           image_url: string | null;
           status: string;
           created_at: string;
@@ -593,6 +594,7 @@ adminRouter.get('/dominical/:id', requireAuth, (req, res) => {
       selected_news: selectedNews,
       all_news: allNews,
       post_text: row.post_text,
+      post_text_instagram: row.post_text_instagram,
       image_url: row.image_url,
       status: row.status,
       created_at: row.created_at,
@@ -616,11 +618,11 @@ adminRouter.get('/dominical/:id', requireAuth, (req, res) => {
 adminRouter.put('/dominical/:id', requireAuth, (req, res) => {
   try {
     const { id } = req.params;
-    const { post_text, selected_news, image_url } = req.body;
+    const { post_text, post_text_instagram, selected_news, image_url } = req.body;
 
     // Check report exists
     const existing = db.prepare('SELECT * FROM dominical_reports WHERE id = ?').get(Number(id)) as
-      | { id: number; status: string; selected_news: string | null; all_news: string | null; post_text: string | null; image_url: string | null; week_start: string; week_end: string; created_at: string; last_edited_at: string | null; published_at: string | null; linkedin_post_id: string | null; error_log: string | null }
+      | { id: number; status: string; selected_news: string | null; all_news: string | null; post_text: string | null; post_text_instagram: string | null; image_url: string | null; week_start: string; week_end: string; created_at: string; last_edited_at: string | null; published_at: string | null; linkedin_post_id: string | null; error_log: string | null }
       | undefined;
 
     if (!existing) {
@@ -638,6 +640,10 @@ adminRouter.put('/dominical/:id', requireAuth, (req, res) => {
     if (post_text !== undefined) {
       updates.push('post_text = ?');
       values.push(post_text);
+    }
+    if (post_text_instagram !== undefined) {
+      updates.push('post_text_instagram = ?');
+      values.push(post_text_instagram);
     }
     if (selected_news !== undefined) {
       updates.push('selected_news = ?');
@@ -667,6 +673,7 @@ adminRouter.put('/dominical/:id', requireAuth, (req, res) => {
       selected_news: string | null;
       all_news: string | null;
       post_text: string | null;
+      post_text_instagram: string | null;
       image_url: string | null;
       status: string;
       created_at: string;
@@ -692,6 +699,7 @@ adminRouter.put('/dominical/:id', requireAuth, (req, res) => {
       selected_news: parsedSelectedNews,
       all_news: parsedAllNews,
       post_text: updated.post_text,
+      post_text_instagram: updated.post_text_instagram,
       image_url: updated.image_url,
       status: updated.status,
       created_at: updated.created_at,
@@ -807,15 +815,142 @@ Devuelve SOLO el texto del post, sin markdown ni explicaciones adicionales.`;
 
     const postText = response.choices[0]?.message?.content?.slice(0, 2800) || '';
 
+    // Also generate Instagram caption
+    const igNewsList = selectedPosts
+      .map((p, i) => `${i + 1}. "${p.title}" (${p.reason})`)
+      .join('\n');
+
+    const igSystemPrompt = `Eres el redactor de "El Dominical IA" de Robles.AI para Instagram. Tu estilo es informado, visual, con emojis y directo. Escribes en español.`;
+
+    const igUserPrompt = `Escribe un caption de Instagram en español para "El Dominical IA" de esta semana. Usa estas noticias:
+
+${igNewsList}
+
+Formato:
+1. Gancho con emoji (1 línea)
+2. Resumen breve de cada noticia (1 línea por noticia, con emoji)
+3. Cierre con CTA ("Link en bio" o "Síguenos para más")
+4. Hashtags al final (máximo 10)
+
+Reglas:
+- MÁXIMO 2100 caracteres
+- NO incluyas URLs (Instagram no las hace clickeables)
+- Usa emojis libremente
+- Tono más casual que LinkedIn pero profesional
+- Menciona datos concretos de cada noticia
+- Escribe en primera persona del plural
+
+Devuelve SOLO el texto del caption, sin markdown.`;
+
+    const igResponse = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      temperature: 0.7,
+      messages: [
+        { role: 'system', content: igSystemPrompt },
+        { role: 'user', content: igUserPrompt },
+      ],
+    });
+
+    const postTextInstagram = igResponse.choices[0]?.message?.content?.slice(0, 2200) || '';
+
     // Update the report
     const now = new Date().toISOString();
     db.prepare(
-      `UPDATE dominical_reports SET post_text = ?, selected_news = ?, last_edited_at = ?, status = 'edited' WHERE id = ?`
-    ).run(postText, JSON.stringify(selectedPosts), now, Number(id));
+      `UPDATE dominical_reports SET post_text = ?, post_text_instagram = ?, selected_news = ?, last_edited_at = ?, status = 'edited' WHERE id = ?`
+    ).run(postText, postTextInstagram, JSON.stringify(selectedPosts), now, Number(id));
 
-    res.json({ success: true, post_text: postText, selected_news: selectedPosts });
+    res.json({ success: true, post_text: postText, post_text_instagram: postTextInstagram, selected_news: selectedPosts });
   } catch (error) {
     console.error('Error regenerating post:', error);
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
+
+/**
+ * POST /api/admin/dominical/:id/regenerate-instagram
+ * Regenerate only the Instagram caption based on current selected news.
+ */
+adminRouter.post('/dominical/:id/regenerate-instagram', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const existing = db.prepare('SELECT selected_news FROM dominical_reports WHERE id = ?').get(Number(id)) as
+      | { selected_news: string | null }
+      | undefined;
+
+    if (!existing) {
+      res.status(404).json({ error: 'Report not found' });
+      return;
+    }
+
+    let selectedPosts: Array<{ slug: string; title: string; reason: string }> = [];
+    if (existing.selected_news) {
+      try { selectedPosts = JSON.parse(existing.selected_news); } catch { selectedPosts = []; }
+    }
+
+    if (selectedPosts.length === 0) {
+      res.status(400).json({ error: 'No selected news found for this report' });
+      return;
+    }
+
+    const apiKeyRow = db.prepare('SELECT value FROM settings WHERE key = ?').get('openai_api_key') as
+      | { value: string | null }
+      | undefined;
+    const apiKey = apiKeyRow?.value || process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      res.status(500).json({ error: 'OpenAI API key not configured' });
+      return;
+    }
+
+    const OpenAI = (await import('openai')).default;
+    const openai = new OpenAI({ apiKey });
+
+    const igNewsList = selectedPosts
+      .map((p, i) => `${i + 1}. "${p.title}" (${p.reason})`)
+      .join('\n');
+
+    const igSystemPrompt = `Eres el redactor de "El Dominical IA" de Robles.AI para Instagram. Tu estilo es informado, visual, con emojis y directo. Escribes en español.`;
+
+    const igUserPrompt = `Escribe un caption de Instagram en español para "El Dominical IA" de esta semana. Usa estas noticias:
+
+${igNewsList}
+
+Formato:
+1. Gancho con emoji (1 línea)
+2. Resumen breve de cada noticia (1 línea por noticia, con emoji)
+3. Cierre con CTA ("Link en bio" o "Síguenos para más")
+4. Hashtags al final (máximo 10)
+
+Reglas:
+- MÁXIMO 2100 caracteres
+- NO incluyas URLs
+- Usa emojis libremente
+- Tono casual pero profesional
+- Menciona datos concretos
+- Primera persona del plural
+
+Devuelve SOLO el texto del caption.`;
+
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      temperature: 0.7,
+      messages: [
+        { role: 'system', content: igSystemPrompt },
+        { role: 'user', content: igUserPrompt },
+      ],
+    });
+
+    const postTextInstagram = response.choices[0]?.message?.content?.slice(0, 2200) || '';
+
+    const now = new Date().toISOString();
+    db.prepare(
+      `UPDATE dominical_reports SET post_text_instagram = ?, last_edited_at = ? WHERE id = ?`
+    ).run(postTextInstagram, now, Number(id));
+
+    res.json({ success: true, post_text_instagram: postTextInstagram });
+  } catch (error) {
+    console.error('Error regenerating Instagram caption:', error);
     const message = error instanceof Error ? error.message : 'Unknown error';
     res.status(500).json({ error: message });
   }

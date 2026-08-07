@@ -55,6 +55,7 @@ interface DominicalReportDetail {
   all_news: PostSummary[];
   selected_news: ScoredPost[];
   post_text: string | null;
+  post_text_instagram: string | null;
   image_url: string | null;
   status: string;
   created_at: string;
@@ -62,6 +63,7 @@ interface DominicalReportDetail {
 }
 
 const MAX_CHARS = 3000;
+const MAX_CHARS_IG = 2200;
 
 const statusConfig: Record<string, { label: string; className: string }> = {
   pending_review: {
@@ -109,6 +111,7 @@ export default function AdminDominicalDetail() {
 
   // Editable state
   const [postText, setPostText] = useState("");
+  const [postTextInstagram, setPostTextInstagram] = useState("");
   const [selectedSlugs, setSelectedSlugs] = useState<Set<string>>(new Set());
 
   // Image state
@@ -116,6 +119,7 @@ export default function AdminDominicalDetail() {
   const [imageUrlInput, setImageUrlInput] = useState("");
   const [generatingImage, setGeneratingImage] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
+  const [regeneratingIg, setRegeneratingIg] = useState(false);
   const [selectionChanged, setSelectionChanged] = useState(false);
 
   // Slide editor state
@@ -143,6 +147,7 @@ export default function AdminDominicalDetail() {
       const data = await res.json();
       setReport(data);
       setPostText(data.post_text || "");
+      setPostTextInstagram(data.post_text_instagram || "");
       setSelectedSlugs(
         new Set((data.selected_news || []).map((n: ScoredPost) => n.slug))
       );
@@ -171,6 +176,7 @@ export default function AdminDominicalDetail() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           post_text: postText,
+          post_text_instagram: postTextInstagram,
           selected_news: selectedNews,
           image_url: imageUrl || null,
         }),
@@ -249,6 +255,9 @@ export default function AdminDominicalDetail() {
       }
       const data = await res.json();
       setPostText(data.post_text);
+      if (data.post_text_instagram) {
+        setPostTextInstagram(data.post_text_instagram);
+      }
       setSelectionChanged(false);
       toast({ title: "Post regenerated with new selection" });
     } catch (err) {
@@ -259,6 +268,32 @@ export default function AdminDominicalDetail() {
       });
     } finally {
       setRegenerating(false);
+    }
+  };
+
+  const handleRegenerateInstagram = async () => {
+    if (!reportId) return;
+    try {
+      setRegeneratingIg(true);
+      const res = await fetch(`/api/admin/dominical/${reportId}/regenerate-instagram`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to regenerate");
+      }
+      const data = await res.json();
+      setPostTextInstagram(data.post_text_instagram);
+      toast({ title: "Instagram caption regenerated" });
+    } catch (err) {
+      toast({
+        title: "Error regenerating Instagram caption",
+        description: err instanceof Error ? err.message : "Unknown error",
+        variant: "destructive",
+      });
+    } finally {
+      setRegeneratingIg(false);
     }
   };
 
@@ -367,6 +402,10 @@ export default function AdminDominicalDetail() {
   const charCount = postText.length;
   const charWarning = charCount > MAX_CHARS * 0.9;
   const charOver = charCount > MAX_CHARS;
+
+  const charCountIg = postTextInstagram.length;
+  const charWarningIg = charCountIg > MAX_CHARS_IG * 0.9;
+  const charOverIg = charCountIg > MAX_CHARS_IG;
 
   if (!matched) {
     return null;
@@ -619,6 +658,51 @@ export default function AdminDominicalDetail() {
                 }`}
               >
                 {charCount} / {MAX_CHARS}
+              </span>
+            </div>
+          </div>
+
+          {/* Instagram caption editor */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="post-text-instagram" className="text-base font-semibold">
+                Instagram Caption
+              </Label>
+              {!isReadOnly && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleRegenerateInstagram}
+                  disabled={regeneratingIg}
+                >
+                  {regeneratingIg ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />
+                  ) : (
+                    <Sparkles className="h-3.5 w-3.5 mr-1" />
+                  )}
+                  Regenerate IG
+                </Button>
+              )}
+            </div>
+            <textarea
+              id="post-text-instagram"
+              value={postTextInstagram}
+              onChange={(e) => setPostTextInstagram(e.target.value)}
+              disabled={isReadOnly}
+              className="w-full min-h-[200px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-y"
+              placeholder="Write your Instagram caption here..."
+            />
+            <div className="flex justify-end">
+              <span
+                className={`text-xs ${
+                  charOverIg
+                    ? "text-red-600 font-semibold"
+                    : charWarningIg
+                      ? "text-yellow-600"
+                      : "text-muted-foreground"
+                }`}
+              >
+                {charCountIg} / {MAX_CHARS_IG}
               </span>
             </div>
           </div>
