@@ -957,6 +957,95 @@ Devuelve SOLO el texto del caption.`;
 });
 
 /**
+ * POST /api/admin/dominical/:id/regenerate-linkedin
+ * Regenerate only the LinkedIn post text based on current selected news.
+ */
+adminRouter.post('/dominical/:id/regenerate-linkedin', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const existing = db.prepare('SELECT selected_news FROM dominical_reports WHERE id = ?').get(Number(id)) as
+      | { selected_news: string | null }
+      | undefined;
+
+    if (!existing) {
+      res.status(404).json({ error: 'Report not found' });
+      return;
+    }
+
+    let selectedPosts: Array<{ slug: string; title: string; weightedScore?: number; score?: number; reason: string }> = [];
+    if (existing.selected_news) {
+      try { selectedPosts = JSON.parse(existing.selected_news); } catch { selectedPosts = []; }
+    }
+
+    if (selectedPosts.length === 0) {
+      res.status(400).json({ error: 'No selected news found for this report' });
+      return;
+    }
+
+    const apiKeyRow = db.prepare('SELECT value FROM settings WHERE key = ?').get('openai_api_key') as
+      | { value: string | null }
+      | undefined;
+    const apiKey = apiKeyRow?.value || process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      res.status(500).json({ error: 'OpenAI API key not configured' });
+      return;
+    }
+
+    const OpenAI = (await import('openai')).default;
+    const openai = new OpenAI({ apiKey });
+
+    const newsList = selectedPosts
+      .map((p, i) => `${i + 1}. "${p.title}" (Score: ${p.weightedScore || p.score || 50}/100 — ${p.reason})\n   URL: https://robles.ai/blog/${p.slug}`)
+      .join('\n');
+
+    const systemPrompt = `Eres el redactor de "El Dominical IA", un newsletter semanal en LinkedIn para profesionales de tecnología y negocios en Latinoamérica. Tu estilo es informado, opinado, cercano y profesional. Escribes en español.`;
+
+    const userPrompt = `Escribe un post de LinkedIn en español para "El Dominical IA" de esta semana. Usa las siguientes noticias seleccionadas:
+
+${newsList}
+
+Formato del post:
+1. Gancho de atención (1-2 líneas que capten interés)
+2. Para cada noticia seleccionada: 1-2 líneas con tu opinión/análisis breve, mencionando el enlace al artículo en robles.ai
+3. Cierre con reflexión y call-to-action (invitar a seguir, comentar, leer más en robles.ai)
+4. Hashtags relevantes al final (máximo 5)
+
+Reglas:
+- Máximo 2800 caracteres
+- Usa emojis con moderación (1-2 por sección)
+- Tono profesional pero cercano
+- No uses bullet points genéricos, cada opinión debe ser específica y valiosa
+- El post debe fluir como una narrativa, no como una lista
+- INCLUYE los enlaces a cada artículo de robles.ai en el texto de forma natural
+
+Devuelve SOLO el texto del post, sin markdown ni explicaciones adicionales.`;
+
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      temperature: 0.7,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+    });
+
+    const postText = response.choices[0]?.message?.content?.slice(0, 2800) || '';
+
+    const now = new Date().toISOString();
+    db.prepare(
+      `UPDATE dominical_reports SET post_text = ?, last_edited_at = ? WHERE id = ?`
+    ).run(postText, now, Number(id));
+
+    res.json({ success: true, post_text: postText });
+  } catch (error) {
+    console.error('Error regenerating LinkedIn post:', error);
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
+
+/**
  * POST /api/admin/dominical/:id/cancel
  * Cancel a dominical report by setting its status to 'cancelled'.
  */

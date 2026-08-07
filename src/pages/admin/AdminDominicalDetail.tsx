@@ -120,6 +120,7 @@ export default function AdminDominicalDetail() {
   const [generatingImage, setGeneratingImage] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
   const [regeneratingIg, setRegeneratingIg] = useState(false);
+  const [regeneratingLi, setRegeneratingLi] = useState(false);
   const [selectionChanged, setSelectionChanged] = useState(false);
 
   // Slide editor state
@@ -294,6 +295,32 @@ export default function AdminDominicalDetail() {
       });
     } finally {
       setRegeneratingIg(false);
+    }
+  };
+
+  const handleRegenerateLinkedin = async () => {
+    if (!reportId) return;
+    try {
+      setRegeneratingLi(true);
+      const res = await fetch(`/api/admin/dominical/${reportId}/regenerate-linkedin`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to regenerate");
+      }
+      const data = await res.json();
+      setPostText(data.post_text);
+      toast({ title: "LinkedIn post regenerated" });
+    } catch (err) {
+      toast({
+        title: "Error regenerating LinkedIn post",
+        description: err instanceof Error ? err.message : "Unknown error",
+        variant: "destructive",
+      });
+    } finally {
+      setRegeneratingLi(false);
     }
   };
 
@@ -636,9 +663,26 @@ export default function AdminDominicalDetail() {
         <div className="space-y-6">
           {/* Post text editor */}
           <div className="space-y-2">
-            <Label htmlFor="post-text" className="text-base font-semibold">
-              LinkedIn Post
-            </Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="post-text" className="text-base font-semibold">
+                LinkedIn Post
+              </Label>
+              {!isReadOnly && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleRegenerateLinkedin}
+                  disabled={regeneratingLi}
+                >
+                  {regeneratingLi ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />
+                  ) : (
+                    <Sparkles className="h-3.5 w-3.5 mr-1" />
+                  )}
+                  Regenerate LI
+                </Button>
+              )}
+            </div>
             <textarea
               id="post-text"
               value={postText}
