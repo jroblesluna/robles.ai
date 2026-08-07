@@ -273,3 +273,125 @@ export async function publishPost(
 
   return postId;
 }
+
+/**
+ * Uploads a PDF document to LinkedIn and publishes a post with it as a carousel.
+ * Uses the LinkedIn Documents API (versioned REST API) for personal profiles.
+ * The PDF pages will appear as swipeable carousel slides.
+ *
+ * Flow:
+ * 1. Initialize document upload
+ * 2. Upload the PDF binary
+ * 3. Create a post with the document attached
+ *
+ * @param text - The post text content
+ * @param pdfBuffer - The PDF file buffer
+ * @param title - Document title shown on the carousel
+ * @returns LinkedIn post URN
+ */
+export async function publishPostWithDocument(
+  text: string,
+  pdfBuffer: Buffer,
+  title: string = 'El Dominical IA'
+): Promise<string> {
+  const accessToken = await getValidAccessToken();
+
+  const personId = getSetting('linkedin_person_id');
+  if (!personId) {
+    throw new Error('LinkedIn person ID not found. Please reconnect LinkedIn in Settings.');
+  }
+
+  const authorUrn = `urn:li:person:${personId}`;
+
+  // Step 1: Initialize document upload
+  const initResponse = await fetch('https://api.linkedin.com/rest/documents?action=initializeUpload', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+      'LinkedIn-Version': '202401',
+      'X-Restli-Protocol-Version': '2.0.0',
+    },
+    body: JSON.stringify({
+      initializeUploadRequest: {
+        owner: authorUrn,
+      },
+    }),
+  });
+
+  if (!initResponse.ok) {
+    const errorBody = await initResponse.text();
+    console.error('LinkedIn document init failed:', initResponse.status, errorBody);
+    throw new Error(`Failed to initialize document upload (${initResponse.status}): ${errorBody}`);
+  }
+
+  const initData = (await initResponse.json()) as {
+    value: {
+      uploadUrl: string;
+      document: string; // document URN
+    };
+  };
+
+  const uploadUrl = initData.value.uploadUrl;
+  const documentUrn = initData.value.document;
+
+  // Step 2: Upload the PDF binary
+  const uploadResponse = await fetch(uploadUrl, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/pdf',
+    },
+    body: new Uint8Array(pdfBuffer),
+  });
+
+  if (!uploadResponse.ok) {
+    const errorBody = await uploadResponse.text();
+    console.error('LinkedIn document upload failed:', uploadResponse.status, errorBody);
+    throw new Error(`Failed to upload document to LinkedIn (${uploadResponse.status}): ${errorBody}`);
+  }
+
+  // Step 3: Create post with document
+  const postPayload = {
+    author: authorUrn,
+    commentary: text,
+    visibility: 'PUBLIC',
+    distribution: {
+      feedDistribution: 'MAIN_FEED',
+      targetEntities: [],
+      thirdPartyDistributionChannels: [],
+    },
+    content: {
+      media: {
+        title: title,
+        id: documentUrn,
+      },
+    },
+    lifecycleState: 'PUBLISHED',
+    isReshareDisabledByAuthor: false,
+  };
+
+  const postResponse = await fetch('https://api.linkedin.com/rest/posts', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+      'LinkedIn-Version': '202401',
+      'X-Restli-Protocol-Version': '2.0.0',
+    },
+    body: JSON.stringify(postPayload),
+  });
+
+  if (!postResponse.ok) {
+    const errorBody = await postResponse.text();
+    console.error('LinkedIn post with document failed:', postResponse.status, errorBody);
+    throw new Error(`Failed to publish post with document (${postResponse.status}): ${errorBody}`);
+  }
+
+  // Get the post URN from the response header
+  const postUrn = postResponse.headers.get('x-restli-id') ||
+    postResponse.headers.get('X-RestLi-Id') ||
+    'unknown';
+
+  return postUrn;
+}

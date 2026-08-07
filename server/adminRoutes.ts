@@ -7,7 +7,7 @@ import fs from 'fs';
 import db from './db.js';
 import { generateToken, verifyToken, requireAuth } from './auth.js';
 import { generateDominicalReport } from './jobs/generateDominical.js';
-import { publishPost } from './services/linkedin.js';
+import { publishPost, publishPostWithDocument } from './services/linkedin.js';
 import { generateCarousel, regenerateSlide } from './services/carouselGenerator.js';
 import { exportCarouselPdf } from './services/pdfExporter.js';
 import { composeArticleSlide } from './services/slideCompositor.js';
@@ -983,8 +983,36 @@ adminRouter.post('/dominical/:id/publish', requireAuth, async (req, res) => {
       return;
     }
 
-    // Publish to LinkedIn
-    const linkedinPostId = await publishPost(report.post_text, report.image_url || undefined);
+    // Check if carousel is available — publish as document (carousel) if so
+    let linkedinPostId: string;
+
+    const slides = db.prepare(
+      'SELECT composite_image_path FROM carousel_slides WHERE report_id = ? AND status = ? ORDER BY position ASC'
+    ).all(Number(id), 'generated') as Array<{ composite_image_path: string | null }>;
+
+    const slidePaths = slides
+      .map((s) => s.composite_image_path)
+      .filter((p): p is string => p !== null);
+
+    if (slidePaths.length >= 2) {
+      // Generate PDF and publish as carousel document
+      const pdfResult = await exportCarouselPdf(Number(id), slidePaths);
+
+      if (pdfResult.pageCount >= 2) {
+        console.log(`📄 Publishing carousel as document (${pdfResult.pageCount} pages)`);
+        linkedinPostId = await publishPostWithDocument(
+          report.post_text,
+          pdfResult.pdfBuffer,
+          'El Dominical IA'
+        );
+      } else {
+        // Fallback to image post if PDF only has 1 page
+        linkedinPostId = await publishPost(report.post_text, report.image_url || undefined);
+      }
+    } else {
+      // No carousel — publish as regular post with cover image
+      linkedinPostId = await publishPost(report.post_text, report.image_url || undefined);
+    }
 
     // Update report
     const now = new Date().toISOString();
