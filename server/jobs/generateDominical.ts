@@ -19,7 +19,7 @@ function getArticleContentSummary(slug: string): string {
   if (!match) return '';
 
   const [, year, month, day] = match;
-  const postsDir = path.resolve(__dirname, '../data/posts');
+  const postsDir = path.resolve(process.cwd(), 'server/data/posts');
   const dayDir = path.join(postsDir, year, month, day);
 
   if (!fs.existsSync(dayDir)) return '';
