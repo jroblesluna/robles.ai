@@ -215,7 +215,6 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
   const apiKey = getApiKey();
   const report = fetchReport(reportId);
   const articles = report.articles;
-  const totalSlides = articles.length + 2; // cover + articles + CTA
 
   const paletteConfig: PaletteConfig | undefined = palette ? PALETTE_CONFIGS[palette] : undefined;
   const styleConfig: ImageStyleConfig | undefined = imageStyle ? IMAGE_STYLE_CONFIGS[imageStyle] : undefined;
@@ -289,114 +288,137 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
     }
   }
 
-  // Generate all background images with concurrency limit
-  const bgTasks: (() => Promise<{ position: number; path: string }>)[] = [];
+  // Generate, compose, and finalize each slide with concurrency limit
+  const slideTasks: (() => Promise<{ slide: SlideResult; error?: SlideError }>)[] = [];
 
-  // Cover background
-  const coverBgPath = path.join(backgroundsDir, 'cover.png');
-  bgTasks.push(async () => {
-    // Mark as generating right before API call
+  // Cover task
+  slideTasks.push(async () => {
+    const position = 0;
+    const bgPath = path.join(backgroundsDir, 'cover.png');
+
+    // Mark as generating
     db.prepare('UPDATE carousel_slides SET status = ?, updated_at = ? WHERE report_id = ? AND position = ?')
-      .run('generating', new Date().toISOString(), reportId, 0);
-    await generateCoverBackground(apiKey, coverBgPath, paletteConfig, styleConfig);
-    return { position: 0, path: coverBgPath };
-  });
+      .run('generating', new Date().toISOString(), reportId, position);
 
-  // Article backgrounds
-  for (let i = 0; i < articles.length; i++) {
-    const bgPath = path.join(backgroundsDir, `slide-${i + 1}.png`);
-    const article = articles[i];
-    bgTasks.push(async () => {
-      // Mark as generating right before API call
-      db.prepare('UPDATE carousel_slides SET status = ?, updated_at = ? WHERE report_id = ? AND position = ?')
-        .run('generating', new Date().toISOString(), reportId, i + 1);
-      await generateCarouselBackgroundImage(
-        article.title,
-        article.categories || [],
-        apiKey,
-        bgPath,
-        paletteConfig,
-        styleConfig,
-      );
-      return { position: i + 1, path: bgPath };
-    });
-  }
-
-  // CTA background
-  const ctaBgPath = path.join(backgroundsDir, 'cta.png');
-  bgTasks.push(async () => {
-    // Mark as generating right before API call
-    db.prepare('UPDATE carousel_slides SET status = ?, updated_at = ? WHERE report_id = ? AND position = ?')
-      .run('generating', new Date().toISOString(), reportId, articles.length + 1);
-    await generateCTABackground(apiKey, ctaBgPath, paletteConfig, styleConfig);
-    return { position: articles.length + 1, path: ctaBgPath };
-  });
-
-  const bgResults = await runWithConcurrency(bgTasks, MAX_CONCURRENCY);
-
-  // Process results and compose slides
-  const bgPathMap = new Map<number, string>();
-  for (const result of bgResults) {
-    if (result.status === 'fulfilled') {
-      bgPathMap.set(result.value.position, result.value.path);
+    // Generate background
+    let bgSuccess = true;
+    try {
+      await generateCoverBackground(apiKey, bgPath, paletteConfig, styleConfig);
+    } catch (err: any) {
+      bgSuccess = false;
+      console.error(`[CarouselGenerator] Cover background failed:`, err.message);
     }
-  }
 
-  // Compose cover slide
-  const coverResult = await composeSingleSlide({
-    reportId,
-    position: 0,
-    slideType: 'cover',
-    articleSlug: null,
-    titleText: 'El Dominical IA',
-    engagementPhrase: null,
-    bgPath: bgPathMap.get(0) || null,
-    compositesDir,
-    weekStart: report.week_start,
-    weekEnd: report.week_end,
-    paletteConfig,
-  });
-  slides.push(coverResult.slide);
-  if (coverResult.error) errors.push(coverResult.error);
-
-  // Compose article slides
-  for (let i = 0; i < articles.length; i++) {
-    const position = i + 1;
-    const phrase = phrases[i] || null;
-    const articleResult = await composeSingleSlide({
+    // Compose slide
+    return composeSingleSlide({
       reportId,
       position,
-      slideType: 'article',
-      articleSlug: articles[i].slug || null,
-      titleText: articles[i].title,
-      engagementPhrase: phrase,
-      bgPath: bgPathMap.get(position) || null,
+      slideType: 'cover',
+      articleSlug: null,
+      titleText: 'El Dominical IA',
+      engagementPhrase: null,
+      bgPath: bgSuccess ? bgPath : null,
       compositesDir,
       weekStart: report.week_start,
       weekEnd: report.week_end,
-      categories: articles[i].categories || [],
       paletteConfig,
     });
-    slides.push(articleResult.slide);
-    if (articleResult.error) errors.push(articleResult.error);
+  });
+
+  // Article tasks
+  for (let i = 0; i < articles.length; i++) {
+    const position = i + 1;
+    const article = articles[i];
+    const phrase = phrases[i] || null;
+
+    slideTasks.push(async () => {
+      const bgPath = path.join(backgroundsDir, `slide-${position}.png`);
+
+      // Mark as generating
+      db.prepare('UPDATE carousel_slides SET status = ?, updated_at = ? WHERE report_id = ? AND position = ?')
+        .run('generating', new Date().toISOString(), reportId, position);
+
+      // Generate background
+      let bgSuccess = true;
+      try {
+        await generateCarouselBackgroundImage(
+          article.title,
+          article.categories || [],
+          apiKey,
+          bgPath,
+          paletteConfig,
+          styleConfig,
+        );
+      } catch (err: any) {
+        bgSuccess = false;
+        console.error(`[CarouselGenerator] Slide ${position} background failed:`, err.message);
+      }
+
+      // Compose slide
+      return composeSingleSlide({
+        reportId,
+        position,
+        slideType: 'article',
+        articleSlug: article.slug || null,
+        titleText: article.title,
+        engagementPhrase: phrase,
+        bgPath: bgSuccess ? bgPath : null,
+        compositesDir,
+        weekStart: report.week_start,
+        weekEnd: report.week_end,
+        categories: article.categories || [],
+        paletteConfig,
+      });
+    });
   }
 
-  // Compose CTA slide
-  const ctaResult = await composeSingleSlide({
-    reportId,
-    position: articles.length + 1,
-    slideType: 'cta',
-    articleSlug: null,
-    titleText: CTA_MESSAGE,
-    engagementPhrase: null,
-    bgPath: bgPathMap.get(articles.length + 1) || null,
-    compositesDir,
-    weekStart: report.week_start,
-    weekEnd: report.week_end,
-    paletteConfig,
+  // CTA task
+  slideTasks.push(async () => {
+    const position = articles.length + 1;
+    const bgPath = path.join(backgroundsDir, 'cta.png');
+
+    // Mark as generating
+    db.prepare('UPDATE carousel_slides SET status = ?, updated_at = ? WHERE report_id = ? AND position = ?')
+      .run('generating', new Date().toISOString(), reportId, position);
+
+    // Generate background
+    let bgSuccess = true;
+    try {
+      await generateCTABackground(apiKey, bgPath, paletteConfig, styleConfig);
+    } catch (err: any) {
+      bgSuccess = false;
+      console.error(`[CarouselGenerator] CTA background failed:`, err.message);
+    }
+
+    // Compose slide
+    return composeSingleSlide({
+      reportId,
+      position,
+      slideType: 'cta',
+      articleSlug: null,
+      titleText: CTA_MESSAGE,
+      engagementPhrase: null,
+      bgPath: bgSuccess ? bgPath : null,
+      compositesDir,
+      weekStart: report.week_start,
+      weekEnd: report.week_end,
+      paletteConfig,
+    });
   });
-  slides.push(ctaResult.slide);
-  if (ctaResult.error) errors.push(ctaResult.error);
+
+  // Run all slide tasks with concurrency limit
+  const slideResults = await runWithConcurrency(slideTasks, MAX_CONCURRENCY);
+
+  // Collect results
+  for (const result of slideResults) {
+    if (result.status === 'fulfilled') {
+      slides.push(result.value.slide);
+      if (result.value.error) errors.push(result.value.error);
+    } else {
+      // This shouldn't happen since composeSingleSlide handles errors internally
+      console.error('[CarouselGenerator] Unexpected task rejection:', result.reason?.message);
+    }
+  }
 
   return { reportId, slides, errors };
 }
