@@ -136,7 +136,9 @@ ${newsList}
 
 FORMATO EXACTO (respeta los saltos de línea):
 ---
-[Emoji] [Título gancho de 1 línea]
+🗞️ El Dominical IA — Resumen semanal
+
+[Emoji] [Título gancho de 1 línea sobre el tema general]
 
 [Emoji numeral] [Título corto noticia 1]
 [1 línea con dato concreto]
@@ -149,25 +151,28 @@ FORMATO EXACTO (respeta los saltos de línea):
 
 [...repetir para cada noticia...]
 
-[Emoji] [Cierre motivacional 1 línea]
-👉 Más detalles en robles.ai (link en bio)
+📰 Lee los artículos completos en nuestro Centro de Noticias
+👉 robles.ai (link en bio)
 
 .
 .
 .
-#Hashtag1 #Hashtag2 #Hashtag3 (máximo 8 hashtags)
+#ElDominicalIA #RoblesAI #Hashtag3 #Hashtag4 (máximo 8 hashtags, siempre incluir #ElDominicalIA y #RoblesAI)
 ---
 
 Reglas:
 - MÁXIMO 2100 caracteres total
-- NO incluyas URLs en el texto (solo menciona "link en bio")
+- NO incluyas URLs completas en el texto (solo "robles.ai" como mención)
 - Cada noticia debe ocupar exactamente 2 líneas (título + dato)
-- Usa UN emoji al inicio de cada bloque de noticia (🔹, 🚀, 🤖, 💡, 🔬, etc.)
+- Usa UN emoji al inicio de cada bloque de noticia (🔹, 🚀, 🤖, 💡, 🔬, 📊, etc.)
 - Separa CADA noticia con UNA línea en blanco
 - Los hashtags van SEPARADOS del texto con 3 puntos (.) para que queden ocultos
+- SIEMPRE empezar con "🗞️ El Dominical IA — Resumen semanal"
+- SIEMPRE incluir la referencia al Centro de Noticias de robles.ai antes de los hashtags
 - Tono casual pero informativo
 - Primera persona del plural ("exploramos", "analizamos")
 - Menciona datos específicos: nombres de empresas, cifras, tecnologías
+- SIEMPRE incluir #ElDominicalIA y #RoblesAI entre los hashtags
 
 Devuelve SOLO el caption, sin explicaciones ni markdown.`;
 
