@@ -96,17 +96,15 @@ describe('Carousel API Routes', () => {
       // Mock report exists
       mockGet.mockReturnValueOnce({ id: 1 });
 
-      // Mock generateCarousel to throw with statusCode 409
-      const conflictError = new Error('Carousel generation already in progress') as any;
-      conflictError.statusCode = 409;
-      mockGenerateCarousel.mockRejectedValueOnce(conflictError);
+      // Mock concurrency check: slides already generating
+      mockGet.mockReturnValueOnce({ count: 1 });
 
       const res = await request(app)
         .post('/api/admin/dominical/1/generate-carousel')
         .send();
 
       expect(res.status).toBe(409);
-      expect(res.body.error).toBe('Carousel generation already in progress');
+      expect(res.body.error).toBe('Carousel generation already in progress for this report');
     });
 
     it('returns 404 if report does not exist', async () => {
@@ -121,26 +119,22 @@ describe('Carousel API Routes', () => {
       expect(res.body.error).toBe('Report not found');
     });
 
-    it('returns 200 with carousel result on success', async () => {
+    it('returns 200 with generating status on success (fire-and-forget)', async () => {
       // Mock report exists
       mockGet.mockReturnValueOnce({ id: 1 });
 
-      const carouselResult = {
-        reportId: 1,
-        slides: [
-          { position: 0, type: 'cover', status: 'generated', imagePath: '/path/cover.png', articleSlug: null, titleText: 'El Dominical IA', engagementPhrase: null },
-        ],
-        errors: [],
-      };
-      mockGenerateCarousel.mockResolvedValueOnce(carouselResult);
+      // Mock concurrency check: no slides generating
+      mockGet.mockReturnValueOnce({ count: 0 });
+
+      mockGenerateCarousel.mockResolvedValueOnce({ reportId: 1, slides: [], errors: [] });
 
       const res = await request(app)
         .post('/api/admin/dominical/1/generate-carousel')
         .send();
 
       expect(res.status).toBe(200);
+      expect(res.body.status).toBe('generating');
       expect(res.body.reportId).toBe(1);
-      expect(res.body.slides).toHaveLength(1);
     });
   });
 

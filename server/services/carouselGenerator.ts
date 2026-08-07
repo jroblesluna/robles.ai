@@ -70,6 +70,7 @@ function assertNotGenerating(reportId: number): void {
 
 /**
  * Fetches the report from the database and parses selected_news.
+ * Cross-references with all_news to get categories (not stored in selected_news).
  */
 function fetchReport(reportId: number): {
   id: number;
@@ -78,9 +79,9 @@ function fetchReport(reportId: number): {
   articles: Array<{ title: string; excerpt: string; categories: string[]; slug: string }>;
 } {
   const row = db
-    .prepare('SELECT id, week_start, week_end, selected_news FROM dominical_reports WHERE id = ?')
+    .prepare('SELECT id, week_start, week_end, selected_news, all_news FROM dominical_reports WHERE id = ?')
     .get(reportId) as
-    | { id: number; week_start: string; week_end: string; selected_news: string | null }
+    | { id: number; week_start: string; week_end: string; selected_news: string | null; all_news: string | null }
     | undefined;
 
   if (!row) {
@@ -89,11 +90,41 @@ function fetchReport(reportId: number): {
     throw error;
   }
 
+  // Parse all_news to build a slug → categories lookup
+  let allNewsMap = new Map<string, { categories: string[]; excerpt: string }>();
+  if (row.all_news) {
+    try {
+      const parsed = JSON.parse(row.all_news);
+      if (Array.isArray(parsed)) {
+        for (const item of parsed) {
+          if (item.slug) {
+            allNewsMap.set(item.slug, {
+              categories: item.categories || [],
+              excerpt: item.excerpt || '',
+            });
+          }
+        }
+      }
+    } catch {
+      // Ignore parse errors
+    }
+  }
+
   let articles: Array<{ title: string; excerpt: string; categories: string[]; slug: string }> = [];
   if (row.selected_news) {
     try {
       const parsed = JSON.parse(row.selected_news);
-      articles = Array.isArray(parsed) ? parsed : [];
+      if (Array.isArray(parsed)) {
+        articles = parsed.map((item: any) => {
+          const allNewsItem = allNewsMap.get(item.slug);
+          return {
+            title: item.title || '',
+            excerpt: item.excerpt || allNewsItem?.excerpt || '',
+            categories: item.categories || allNewsItem?.categories || [],
+            slug: item.slug || '',
+          };
+        });
+      }
     } catch {
       articles = [];
     }

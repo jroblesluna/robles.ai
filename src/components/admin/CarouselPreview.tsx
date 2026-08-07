@@ -95,7 +95,8 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: carouselQueryKey });
+      // Force immediate refetch (not just invalidate) so polling kicks in
+      queryClient.refetchQueries({ queryKey: carouselQueryKey });
       toast({ title: "Carousel generation started" });
     },
     onError: (err: Error) => {
@@ -116,7 +117,7 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: carouselQueryKey });
+      queryClient.refetchQueries({ queryKey: carouselQueryKey });
       toast({ title: "Slide regenerated" });
     },
     onError: (err: Error) => {
@@ -130,7 +131,9 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
 
   const getSlideImageUrl = (slide: CarouselSlide) => {
     if (slide.status !== "generated") return null;
-    return `/api/admin/dominical/${reportId}/carousel/slides/${slide.position}/image`;
+    // Cache-bust with updatedAt to ensure browser loads fresh image after regeneration
+    const cacheBuster = slide.updatedAt || slide.createdAt || Date.now();
+    return `/api/admin/dominical/${reportId}/carousel/slides/${slide.position}/image?t=${encodeURIComponent(cacheBuster)}`;
   };
 
   const getSlideLabel = (slide: CarouselSlide) => {

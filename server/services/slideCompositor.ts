@@ -4,10 +4,11 @@ import path from 'path';
 import type { ComposeSlideOptions, ComposeCoverOptions, ComposeCTAOptions } from './carouselTypes.js';
 
 const SLIDE_SIZE = 1080;
-const LOGO_SIZE = 60;
+const LOGO_WIDTH = 200;
+const LOGO_HEIGHT = 80;
 const LOGO_TOP = 10;
-const LOGO_LEFT = 20;
-const WHITE_BAND_HEIGHT = 80;
+const LOGO_LEFT = 15;
+const WHITE_BAND_HEIGHT = 100;
 
 /**
  * Escapes special characters for safe embedding in SVG/XML content.
@@ -196,9 +197,9 @@ export async function composeArticleSlide(options: ComposeSlideOptions): Promise
   const outputDir = path.dirname(outputPath);
   fs.mkdirSync(outputDir, { recursive: true });
 
-  // Resize logo to target size
+  // Resize logo to fit within band (width-based, maintain aspect ratio)
   const logoBuffer = await sharp(logoPath)
-    .resize(LOGO_SIZE, LOGO_SIZE, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .resize(LOGO_WIDTH, LOGO_HEIGHT, { fit: 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .png()
     .toBuffer();
 
@@ -234,9 +235,9 @@ export async function composeCoverSlide(options: ComposeCoverOptions): Promise<v
   const outputDir = path.dirname(outputPath);
   fs.mkdirSync(outputDir, { recursive: true });
 
-  // Resize logo to target size
+  // Resize logo to fit within band (width-based, maintain aspect ratio)
   const logoBuffer = await sharp(logoPath)
-    .resize(LOGO_SIZE, LOGO_SIZE, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .resize(LOGO_WIDTH, LOGO_HEIGHT, { fit: 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .png()
     .toBuffer();
 
@@ -272,9 +273,9 @@ export async function composeCTASlide(options: ComposeCTAOptions): Promise<void>
   const outputDir = path.dirname(outputPath);
   fs.mkdirSync(outputDir, { recursive: true });
 
-  // Resize logo to target size
+  // Resize logo to fit within band (width-based, maintain aspect ratio)
   const logoBuffer = await sharp(logoPath)
-    .resize(LOGO_SIZE, LOGO_SIZE, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .resize(LOGO_WIDTH, LOGO_HEIGHT, { fit: 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .png()
     .toBuffer();
 

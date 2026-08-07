@@ -982,6 +982,7 @@ adminRouter.post('/dominical/:id/publish', requireAuth, async (req, res) => {
 /**
  * POST /api/admin/dominical/:id/generate-carousel
  * Triggers full carousel generation for a report. Protected endpoint.
+ * Generation runs in the background — responds immediately with status 'generating'.
  */
 adminRouter.post('/dominical/:id/generate-carousel', requireAuth, async (req, res) => {
   try {
@@ -999,18 +1000,25 @@ adminRouter.post('/dominical/:id/generate-carousel', requireAuth, async (req, re
       return;
     }
 
-    const result = await generateCarousel(reportId, palette);
-    res.json(result);
+    // Check concurrency before starting (don't wait for full generation)
+    const generating = db.prepare(
+      'SELECT COUNT(*) as count FROM carousel_slides WHERE report_id = ? AND status = ?'
+    ).get(reportId, 'generating') as { count: number };
+
+    if (generating.count > 0) {
+      res.status(409).json({ error: 'Carousel generation already in progress for this report' });
+      return;
+    }
+
+    // Start generation in background (don't await)
+    generateCarousel(reportId, palette).catch((err) => {
+      console.error('[CarouselGenerator] Background generation failed:', err.message);
+    });
+
+    // Respond immediately so frontend can start polling
+    res.json({ status: 'generating', reportId });
   } catch (error: any) {
     console.error('Error generating carousel:', error);
-    if (error.statusCode === 409) {
-      res.status(409).json({ error: error.message });
-      return;
-    }
-    if (error.statusCode === 404) {
-      res.status(404).json({ error: error.message });
-      return;
-    }
     const message = error instanceof Error ? error.message : 'Unknown error';
     res.status(500).json({ error: message });
   }
