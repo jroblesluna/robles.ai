@@ -68,6 +68,7 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
     { value: "sunset-orange", label: "Sunset Orange" },
     { value: "royal-purple", label: "Royal Purple" },
     { value: "midnight-teal", label: "Midnight Teal" },
+    { value: "natural", label: "Natural" },
   ];
 
   const imageStyles = [

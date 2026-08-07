@@ -3,7 +3,7 @@
  */
 
 /** Available color palettes for carousel generation */
-export type CarouselPalette = 'tech-blue' | 'emerald-green' | 'sunset-orange' | 'royal-purple' | 'midnight-teal';
+export type CarouselPalette = 'tech-blue' | 'emerald-green' | 'sunset-orange' | 'royal-purple' | 'midnight-teal' | 'natural';
 
 /** Palette configuration with colors for illustrations and text accents */
 export interface PaletteConfig {
@@ -60,6 +60,14 @@ export const PALETTE_CONFIGS: Record<CarouselPalette, PaletteConfig> = {
     secondaryAccent: 'silver and light blue',
     backgroundDesc: 'dark charcoal (#0f1a1a)',
     phraseColor: '#5eead4',
+  },
+  'natural': {
+    name: 'natural',
+    label: 'Natural',
+    primaryAccent: 'natural realistic colors appropriate to the scene',
+    secondaryAccent: 'warm and cool earth tones, soft highlights',
+    backgroundDesc: 'natural lighting with realistic colors (no forced artificial color scheme — let the scene dictate its own palette)',
+    phraseColor: '#e2e8f0',
   },
 };
 
