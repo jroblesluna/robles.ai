@@ -1000,12 +1000,23 @@ adminRouter.post('/dominical/:id/generate-carousel', requireAuth, async (req, re
       return;
     }
 
-    // Check concurrency before starting (don't wait for full generation)
-    const generating = db.prepare(
-      'SELECT COUNT(*) as count FROM carousel_slides WHERE report_id = ? AND status = ?'
-    ).get(reportId, 'generating') as { count: number };
+    // Check for slides stuck in 'generating' status — auto-reset stale ones (>5 min)
+    const staleThreshold = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    const staleReset = db.prepare(
+      `UPDATE carousel_slides SET status = 'failed', error_message = 'Generation interrupted (server restart)', updated_at = ?
+       WHERE report_id = ? AND status = 'generating' AND (updated_at IS NULL OR updated_at < ?)`
+    ).run(new Date().toISOString(), reportId, staleThreshold);
 
-    if (generating.count > 0) {
+    if (staleReset.changes > 0) {
+      console.log(`[CarouselGenerator] Auto-reset ${staleReset.changes} stale generating slide(s) for report ${reportId}`);
+    }
+
+    // Check if there are still actively generating slides (updated within last 5 min)
+    const activeGenerating = db.prepare(
+      `SELECT COUNT(*) as count FROM carousel_slides WHERE report_id = ? AND status = 'generating' AND updated_at >= ?`
+    ).get(reportId, staleThreshold) as { count: number };
+
+    if (activeGenerating.count > 0) {
       res.status(409).json({ error: 'Carousel generation already in progress for this report' });
       return;
     }
