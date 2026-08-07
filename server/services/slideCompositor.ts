@@ -69,12 +69,28 @@ function wrapText(text: string, maxCharsPerLine: number, maxLines: number): stri
 }
 
 /**
+ * Capitalizes the first letter of each word only if it starts with a lowercase letter.
+ * E.g., "quantum computing" → "Quantum Computing"
+ * E.g., "AI in Healthcare" → "AI In Healthcare"
+ */
+function smartTitleCase(text: string): string {
+  return text.split(' ').map(word => {
+    if (!word) return word;
+    if (word[0] >= 'a' && word[0] <= 'z') {
+      return word[0].toUpperCase() + word.slice(1);
+    }
+    return word;
+  }).join(' ');
+}
+
+/**
  * Builds a small SVG for the band area text (category label or date).
  * This SVG is sized to the full slide width but only WHITE_BAND_HEIGHT tall.
  */
 function buildBandTextSvg(rightText?: string): Buffer {
+  const displayText = rightText ? smartTitleCase(rightText) : undefined;
   const svg = `<svg width="${SLIDE_SIZE}" height="${WHITE_BAND_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
-  ${rightText ? `<text x="${SLIDE_SIZE - 25}" y="${WHITE_BAND_HEIGHT / 2 + 6}" font-family="Arial, sans-serif" font-size="18" fill="#6B7280" text-anchor="end">${escapeXml(rightText)}</text>` : ''}
+  ${displayText ? `<text x="${SLIDE_SIZE - 25}" y="${WHITE_BAND_HEIGHT / 2 + 6}" font-family="Arial, sans-serif" font-size="18" fill="#6B7280" text-anchor="end">${escapeXml(displayText)}</text>` : ''}
 </svg>`;
   return Buffer.from(svg);
 }

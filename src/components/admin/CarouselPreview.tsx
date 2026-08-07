@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, RefreshCw, Sparkles, X, Download, Pencil } from "lucide-react";
+import { Loader2, RefreshCw, Sparkles, X, Download, Pencil, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -147,6 +147,18 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
           ? slide.titleText.slice(0, 30) + "..."
           : slide.titleText;
     }
+  };
+
+  const navigateSlide = (direction: 'prev' | 'next') => {
+    if (!enlargedSlide || !carousel) return;
+    const generatedSlides = carousel.slides.filter(s => s.status === 'generated');
+    const currentIndex = generatedSlides.findIndex(s => s.id === enlargedSlide.id);
+    if (currentIndex === -1) return;
+
+    const newIndex = direction === 'prev'
+      ? (currentIndex - 1 + generatedSlides.length) % generatedSlides.length
+      : (currentIndex + 1) % generatedSlides.length;
+    setEnlargedSlide(generatedSlides[newIndex]);
   };
 
   if (isLoading) {
@@ -334,6 +346,26 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
               aria-label="Close enlarged view"
             >
               <X className="h-6 w-6" />
+            </Button>
+            {/* Left arrow */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-white hover:bg-white/20 h-12 w-12"
+              onClick={(e) => { e.stopPropagation(); navigateSlide('prev'); }}
+              aria-label="Previous slide"
+            >
+              <ChevronLeft className="h-8 w-8" />
+            </Button>
+            {/* Right arrow */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-10 text-white hover:bg-white/20 h-12 w-12"
+              onClick={(e) => { e.stopPropagation(); navigateSlide('next'); }}
+              aria-label="Next slide"
+            >
+              <ChevronRight className="h-8 w-8" />
             </Button>
             <img
               src={getSlideImageUrl(enlargedSlide)!}
