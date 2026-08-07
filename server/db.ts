@@ -71,4 +71,7 @@ db.exec(`
   );
 `);
 
+// Run migrations
+migration001(db);
+
 export default db;
