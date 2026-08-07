@@ -38,15 +38,15 @@ const statusBadgeConfig: Record<
   { label: string; className: string }
 > = {
   pending: {
-    label: "Pending",
-    className: "bg-gray-100 text-gray-700 border-gray-200",
+    label: "Queued",
+    className: "bg-amber-100 text-amber-700 border-amber-200",
   },
   generating: {
     label: "Generating...",
-    className: "bg-blue-100 text-blue-700 border-blue-200",
+    className: "bg-blue-100 text-blue-700 border-blue-200 animate-pulse",
   },
   generated: {
-    label: "Generated",
+    label: "Ready",
     className: "bg-green-100 text-green-700 border-green-200",
   },
   failed: {
@@ -89,7 +89,7 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
     refetchInterval: (query) => {
       // Poll while generating
       const data = query.state.data as CarouselMetadata | undefined;
-      if (data?.status === "generating") return 3000;
+      if (data?.status === "generating") return 2000;
       return false;
     },
   });
@@ -231,9 +231,16 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
 
       {/* Status indicator */}
       {isGenerating && (
-        <div className="flex items-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-700">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          Generating carousel slides...
+        <div className="flex items-center justify-between rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-700">
+          <div className="flex items-center gap-2">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>Generating carousel slides...</span>
+          </div>
+          {carousel && (
+            <span className="font-medium">
+              {carousel.slides.filter(s => s.status === 'generated').length}/{carousel.slides.length} ready
+            </span>
+          )}
         </div>
       )}
 
@@ -279,7 +286,17 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
                         loading="lazy"
                       />
                     ) : slide.status === "generating" ? (
-                      <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
+                      <div className="flex flex-col items-center gap-2">
+                        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                        <span className="text-xs text-blue-600 font-medium">Generating...</span>
+                      </div>
+                    ) : slide.status === "pending" ? (
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="h-8 w-8 rounded-full border-2 border-amber-300 border-dashed animate-[spin_3s_linear_infinite] flex items-center justify-center">
+                          <span className="text-amber-500 text-xs font-bold">{slide.position + 1}</span>
+                        </div>
+                        <span className="text-xs text-amber-600 font-medium">In queue</span>
+                      </div>
                     ) : slide.status === "failed" ? (
                       <span className="text-xs text-red-500 text-center px-2">
                         {slide.errorMessage || "Generation failed"}

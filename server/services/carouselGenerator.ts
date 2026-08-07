@@ -226,7 +226,7 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
   const slides: SlideResult[] = [];
   const errors: SlideError[] = [];
 
-  // Create all slide records with status 'generating'
+  // Create all slide records with status 'pending' (queued/waiting)
   // Position 0: cover
   upsertSlide({
     reportId,
@@ -237,7 +237,7 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
     engagementPhrase: null,
     backgroundImagePath: null,
     compositeImagePath: null,
-    status: 'generating',
+    status: 'pending',
     errorMessage: null,
   });
 
@@ -252,7 +252,7 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
       engagementPhrase: null,
       backgroundImagePath: null,
       compositeImagePath: null,
-      status: 'generating',
+      status: 'pending',
       errorMessage: null,
     });
   }
@@ -267,7 +267,7 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
     engagementPhrase: null,
     backgroundImagePath: null,
     compositeImagePath: null,
-    status: 'generating',
+    status: 'pending',
     errorMessage: null,
   });
 
@@ -295,6 +295,9 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
   // Cover background
   const coverBgPath = path.join(backgroundsDir, 'cover.png');
   bgTasks.push(async () => {
+    // Mark as generating right before API call
+    db.prepare('UPDATE carousel_slides SET status = ?, updated_at = ? WHERE report_id = ? AND position = ?')
+      .run('generating', new Date().toISOString(), reportId, 0);
     await generateCoverBackground(apiKey, coverBgPath, paletteConfig, styleConfig);
     return { position: 0, path: coverBgPath };
   });
@@ -304,6 +307,9 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
     const bgPath = path.join(backgroundsDir, `slide-${i + 1}.png`);
     const article = articles[i];
     bgTasks.push(async () => {
+      // Mark as generating right before API call
+      db.prepare('UPDATE carousel_slides SET status = ?, updated_at = ? WHERE report_id = ? AND position = ?')
+        .run('generating', new Date().toISOString(), reportId, i + 1);
       await generateCarouselBackgroundImage(
         article.title,
         article.categories || [],
@@ -319,6 +325,9 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
   // CTA background
   const ctaBgPath = path.join(backgroundsDir, 'cta.png');
   bgTasks.push(async () => {
+    // Mark as generating right before API call
+    db.prepare('UPDATE carousel_slides SET status = ?, updated_at = ? WHERE report_id = ? AND position = ?')
+      .run('generating', new Date().toISOString(), reportId, articles.length + 1);
     await generateCTABackground(apiKey, ctaBgPath, paletteConfig, styleConfig);
     return { position: articles.length + 1, path: ctaBgPath };
   });

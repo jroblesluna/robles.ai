@@ -1011,9 +1011,19 @@ adminRouter.post('/dominical/:id/generate-carousel', requireAuth, async (req, re
       console.log(`[CarouselGenerator] Auto-reset ${staleReset.changes} stale generating slide(s) for report ${reportId}`);
     }
 
-    // Check if there are still actively generating slides (updated within last 5 min)
+    // Also reset stale pending slides (they should have moved to generating by now)
+    const stalePendingReset = db.prepare(
+      `UPDATE carousel_slides SET status = 'failed', error_message = 'Generation interrupted (server restart)', updated_at = ?
+       WHERE report_id = ? AND status = 'pending' AND (updated_at IS NULL OR updated_at < ?)`
+    ).run(new Date().toISOString(), reportId, staleThreshold);
+
+    if (stalePendingReset.changes > 0) {
+      console.log(`[CarouselGenerator] Auto-reset ${stalePendingReset.changes} stale pending slide(s) for report ${reportId}`);
+    }
+
+    // Check if there are still actively generating or pending slides (updated within last 5 min)
     const activeGenerating = db.prepare(
-      `SELECT COUNT(*) as count FROM carousel_slides WHERE report_id = ? AND status = 'generating' AND updated_at >= ?`
+      `SELECT COUNT(*) as count FROM carousel_slides WHERE report_id = ? AND status IN ('generating', 'pending') AND updated_at >= ?`
     ).get(reportId, staleThreshold) as { count: number };
 
     if (activeGenerating.count > 0) {
@@ -1324,7 +1334,7 @@ adminRouter.get('/dominical/:id/carousel', requireAuth, (req, res) => {
     let overallStatus: string;
     if (slides.length === 0) {
       overallStatus = 'not_generated';
-    } else if (slides.some((s) => s.status === 'generating')) {
+    } else if (slides.some((s) => s.status === 'generating' || s.status === 'pending')) {
       overallStatus = 'generating';
     } else if (slides.every((s) => s.status === 'generated')) {
       overallStatus = 'completed';
