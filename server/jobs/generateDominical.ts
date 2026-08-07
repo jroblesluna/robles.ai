@@ -134,21 +134,42 @@ async function generateInstagramPost(selectedPosts: ScoredPost[], apiKey: string
 
 ${newsList}
 
-Formato:
-1. Gancho con emoji (1 línea)
-2. Resumen breve de cada noticia (1 línea por noticia, con emoji)
-3. Cierre con CTA ("Link en bio" o "Síguenos para más")
-4. Hashtags al final (máximo 10)
+FORMATO EXACTO (respeta los saltos de línea):
+---
+[Emoji] [Título gancho de 1 línea]
+
+[Emoji numeral] [Título corto noticia 1]
+[1 línea con dato concreto]
+
+[Emoji numeral] [Título corto noticia 2]
+[1 línea con dato concreto]
+
+[Emoji numeral] [Título corto noticia 3]
+[1 línea con dato concreto]
+
+[...repetir para cada noticia...]
+
+[Emoji] [Cierre motivacional 1 línea]
+👉 Más detalles en robles.ai (link en bio)
+
+.
+.
+.
+#Hashtag1 #Hashtag2 #Hashtag3 (máximo 8 hashtags)
+---
 
 Reglas:
-- MÁXIMO 2100 caracteres (deja margen para los hashtags)
-- NO incluyas URLs (Instagram no las hace clickeables en captions)
-- Usa emojis libremente
-- Tono más casual que LinkedIn pero profesional
-- Menciona datos concretos de cada noticia
-- Escribe en primera persona del plural
+- MÁXIMO 2100 caracteres total
+- NO incluyas URLs en el texto (solo menciona "link en bio")
+- Cada noticia debe ocupar exactamente 2 líneas (título + dato)
+- Usa UN emoji al inicio de cada bloque de noticia (🔹, 🚀, 🤖, 💡, 🔬, etc.)
+- Separa CADA noticia con UNA línea en blanco
+- Los hashtags van SEPARADOS del texto con 3 puntos (.) para que queden ocultos
+- Tono casual pero informativo
+- Primera persona del plural ("exploramos", "analizamos")
+- Menciona datos específicos: nombres de empresas, cifras, tecnologías
 
-Devuelve SOLO el texto del caption, sin markdown.`;
+Devuelve SOLO el caption, sin explicaciones ni markdown.`;
 
   const response = await openai.chat.completions.create({
     model: 'gpt-4o',
