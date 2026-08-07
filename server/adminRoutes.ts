@@ -988,7 +988,7 @@ adminRouter.post('/dominical/:id/generate-carousel', requireAuth, async (req, re
   try {
     const { id } = req.params;
     const reportId = Number(id);
-    const { palette } = req.body || {};
+    const { palette, imageStyle } = req.body || {};
 
     // Validate report exists
     const report = db.prepare('SELECT id FROM dominical_reports WHERE id = ?').get(reportId) as
@@ -1022,7 +1022,7 @@ adminRouter.post('/dominical/:id/generate-carousel', requireAuth, async (req, re
     }
 
     // Start generation in background (don't await)
-    generateCarousel(reportId, palette).catch((err) => {
+    generateCarousel(reportId, palette, imageStyle).catch((err) => {
       console.error('[CarouselGenerator] Background generation failed:', err.message);
     });
 

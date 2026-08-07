@@ -16,8 +16,10 @@ import type {
   SlideType,
   CarouselPalette,
   PaletteConfig,
+  CarouselImageStyle,
+  ImageStyleConfig,
 } from './carouselTypes.js';
-import { PALETTE_CONFIGS } from './carouselTypes.js';
+import { PALETTE_CONFIGS, IMAGE_STYLE_CONFIGS } from './carouselTypes.js';
 import fs from 'fs';
 
 /** CTA default message */
@@ -206,7 +208,7 @@ async function runWithConcurrency<T>(
  * Generates a full carousel for the given report.
  * Carousel structure: position 0 = cover, positions 1..N = articles, position N+1 = CTA.
  */
-export async function generateCarousel(reportId: number, palette?: CarouselPalette): Promise<CarouselGenerationResult> {
+export async function generateCarousel(reportId: number, palette?: CarouselPalette, imageStyle?: CarouselImageStyle): Promise<CarouselGenerationResult> {
   // Concurrency guard
   assertNotGenerating(reportId);
 
@@ -216,6 +218,7 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
   const totalSlides = articles.length + 2; // cover + articles + CTA
 
   const paletteConfig: PaletteConfig | undefined = palette ? PALETTE_CONFIGS[palette] : undefined;
+  const styleConfig: ImageStyleConfig | undefined = imageStyle ? IMAGE_STYLE_CONFIGS[imageStyle] : undefined;
 
   const backgroundsDir = ensureBackgroundsDir(reportId);
   const compositesDir = ensureCompositesDir(reportId);
@@ -292,7 +295,7 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
   // Cover background
   const coverBgPath = path.join(backgroundsDir, 'cover.png');
   bgTasks.push(async () => {
-    await generateCoverBackground(apiKey, coverBgPath, paletteConfig);
+    await generateCoverBackground(apiKey, coverBgPath, paletteConfig, styleConfig);
     return { position: 0, path: coverBgPath };
   });
 
@@ -307,6 +310,7 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
         apiKey,
         bgPath,
         paletteConfig,
+        styleConfig,
       );
       return { position: i + 1, path: bgPath };
     });
@@ -315,7 +319,7 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
   // CTA background
   const ctaBgPath = path.join(backgroundsDir, 'cta.png');
   bgTasks.push(async () => {
-    await generateCTABackground(apiKey, ctaBgPath, paletteConfig);
+    await generateCTABackground(apiKey, ctaBgPath, paletteConfig, styleConfig);
     return { position: articles.length + 1, path: ctaBgPath };
   });
 
@@ -538,7 +542,7 @@ async function composeSingleSlide(params: {
 /**
  * Regenerates only the specified slide for a report.
  */
-export async function regenerateSlide(reportId: number, position: number, palette?: CarouselPalette): Promise<SlideResult> {
+export async function regenerateSlide(reportId: number, position: number, palette?: CarouselPalette, imageStyle?: CarouselImageStyle): Promise<SlideResult> {
   // Concurrency guard
   assertNotGenerating(reportId);
 
@@ -548,6 +552,7 @@ export async function regenerateSlide(reportId: number, position: number, palett
   const totalSlides = articles.length + 2;
 
   const paletteConfig: PaletteConfig | undefined = palette ? PALETTE_CONFIGS[palette] : undefined;
+  const styleConfig: ImageStyleConfig | undefined = imageStyle ? IMAGE_STYLE_CONFIGS[imageStyle] : undefined;
 
   if (position < 0 || position >= totalSlides) {
     const error = new Error(`Invalid slide position ${position}. Valid range: 0-${totalSlides - 1}`);
@@ -615,10 +620,10 @@ export async function regenerateSlide(reportId: number, position: number, palett
   try {
     if (slideType === 'cover') {
       bgPath = path.join(backgroundsDir, 'cover.png');
-      await generateCoverBackground(apiKey, bgPath, paletteConfig);
+      await generateCoverBackground(apiKey, bgPath, paletteConfig, styleConfig);
     } else if (slideType === 'cta') {
       bgPath = path.join(backgroundsDir, 'cta.png');
-      await generateCTABackground(apiKey, bgPath, paletteConfig);
+      await generateCTABackground(apiKey, bgPath, paletteConfig, styleConfig);
     } else {
       const articleIndex = position - 1;
       bgPath = path.join(backgroundsDir, `slide-${position}.png`);
@@ -628,6 +633,7 @@ export async function regenerateSlide(reportId: number, position: number, palett
         apiKey,
         bgPath,
         paletteConfig,
+        styleConfig,
       );
     }
   } catch (err: any) {

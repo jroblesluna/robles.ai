@@ -137,3 +137,50 @@ export interface PdfExportResult {
   pageCount: number;
   warnings: string[];
 }
+
+/** Available image art styles for carousel generation */
+export type CarouselImageStyle = 'flat-vector' | '3d-isometric' | 'cinematic-scene' | 'data-viz' | 'editorial-collage';
+
+/** Image style configuration with prompt instructions */
+export interface ImageStyleConfig {
+  name: string;
+  label: string;
+  /** Style description to inject into image generation prompts */
+  stylePrompt: string;
+  /** Additional constraints for this style */
+  constraints: string;
+}
+
+/** All available image styles */
+export const IMAGE_STYLE_CONFIGS: Record<CarouselImageStyle, ImageStyleConfig> = {
+  'flat-vector': {
+    name: 'flat-vector',
+    label: 'Flat Vector',
+    stylePrompt: 'clean flat-design vector illustration, modern and professional',
+    constraints: 'No realistic human faces or photographs. Stylized silhouettes or icons are acceptable.',
+  },
+  '3d-isometric': {
+    name: '3d-isometric',
+    label: '3D Isometric',
+    stylePrompt: '3D isometric illustration with soft lighting, lowpoly style, clean geometric shapes, modern tech aesthetic like Blender or Cinema4D render',
+    constraints: 'No realistic human faces. Stylized 3D characters or objects are acceptable. Keep consistent isometric camera angle.',
+  },
+  'cinematic-scene': {
+    name: 'cinematic-scene',
+    label: 'Cinematic Scene',
+    stylePrompt: 'photorealistic cinematic scene, dramatic lighting, shallow depth of field, high production value like a movie still or concept art',
+    constraints: 'No human faces visible (show from behind, silhouettes, or cropped). Environments and objects only. Moody atmospheric lighting.',
+  },
+  'data-viz': {
+    name: 'data-viz',
+    label: 'Data Visualization',
+    stylePrompt: 'stylized data visualization art, glowing network graphs, neural network nodes, flowing data streams, dashboard-like aesthetic with beautiful charts and connections',
+    constraints: 'No human faces. Abstract data representations only. Emphasize luminous lines, particles, and node connections.',
+  },
+  'editorial-collage': {
+    name: 'editorial-collage',
+    label: 'Editorial Collage',
+    stylePrompt: 'mixed media editorial collage combining photography fragments, geometric shapes, bold typography-like elements, textured paper layers, and digital overlays in the style of Wired or MIT Technology Review magazine covers',
+    constraints: 'No recognizable human faces. Use silhouettes, fragmented body parts, or abstract human forms only.',
+  },
+};

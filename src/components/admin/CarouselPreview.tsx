@@ -60,6 +60,7 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
   const queryClient = useQueryClient();
   const [enlargedSlide, setEnlargedSlide] = useState<CarouselSlide | null>(null);
   const [selectedPalette, setSelectedPalette] = useState<string>("tech-blue");
+  const [selectedStyle, setSelectedStyle] = useState<string>("flat-vector");
 
   const palettes = [
     { value: "tech-blue", label: "Tech Blue" },
@@ -67,6 +68,14 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
     { value: "sunset-orange", label: "Sunset Orange" },
     { value: "royal-purple", label: "Royal Purple" },
     { value: "midnight-teal", label: "Midnight Teal" },
+  ];
+
+  const imageStyles = [
+    { value: "flat-vector", label: "Flat Vector" },
+    { value: "3d-isometric", label: "3D Isometric" },
+    { value: "cinematic-scene", label: "Cinematic Scene" },
+    { value: "data-viz", label: "Data Visualization" },
+    { value: "editorial-collage", label: "Editorial Collage" },
   ];
 
   const carouselQueryKey = [`/api/admin/dominical/${reportId}/carousel`];
@@ -90,7 +99,7 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
       const res = await apiRequest(
         "POST",
         `/api/admin/dominical/${reportId}/generate-carousel`,
-        { palette: selectedPalette }
+        { palette: selectedPalette, imageStyle: selectedStyle }
       );
       return res.json();
     },
@@ -186,6 +195,15 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold">LinkedIn Carousel</h3>
         <div className="flex items-center gap-2">
+          <select
+            value={selectedStyle}
+            onChange={(e) => setSelectedStyle(e.target.value)}
+            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+          >
+            {imageStyles.map((s) => (
+              <option key={s.value} value={s.value}>{s.label}</option>
+            ))}
+          </select>
           <select
             value={selectedPalette}
             onChange={(e) => setSelectedPalette(e.target.value)}
