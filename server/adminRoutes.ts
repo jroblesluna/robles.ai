@@ -291,7 +291,7 @@ adminRouter.get('/linkedin/auth-url', requireAuth, (req, res) => {
       `?response_type=code` +
       `&client_id=${encodeURIComponent(clientId)}` +
       `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-      `&scope=${encodeURIComponent('w_member_social')}` +
+      `&scope=${encodeURIComponent('openid profile w_member_social')}` +
       `&state=${encodeURIComponent(state)}`;
 
     res.json({ url: authUrl });
@@ -407,17 +407,39 @@ adminRouter.get('/linkedin/callback', async (req, res) => {
 
     // Fetch user profile to get person ID
     try {
-      const profileResponse = await fetch('https://api.linkedin.com/v2/me', {
+      let personId: string | null = null;
+
+      // Try /v2/userinfo first (works with openid scope)
+      const userinfoResponse = await fetch('https://api.linkedin.com/v2/userinfo', {
         headers: { Authorization: `Bearer ${tokenData.access_token}` },
       });
 
-      if (profileResponse.ok) {
-        const profileData = (await profileResponse.json()) as { id?: string };
-        if (profileData.id) {
-          upsert.run('linkedin_person_id', profileData.id, nowIso);
+      if (userinfoResponse.ok) {
+        const userinfoData = (await userinfoResponse.json()) as { sub?: string };
+        if (userinfoData.sub) {
+          personId = userinfoData.sub;
         }
+      }
+
+      // Fallback to /v2/me (works with r_liteprofile or profile scope)
+      if (!personId) {
+        const profileResponse = await fetch('https://api.linkedin.com/v2/me', {
+          headers: { Authorization: `Bearer ${tokenData.access_token}` },
+        });
+
+        if (profileResponse.ok) {
+          const profileData = (await profileResponse.json()) as { id?: string };
+          if (profileData.id) {
+            personId = profileData.id;
+          }
+        }
+      }
+
+      if (personId) {
+        upsert.run('linkedin_person_id', personId, nowIso);
+        console.log('✅ LinkedIn person ID stored:', personId);
       } else {
-        console.warn('Failed to fetch LinkedIn profile:', profileResponse.status);
+        console.warn('⚠️ Could not retrieve LinkedIn person ID from /v2/userinfo or /v2/me');
       }
     } catch (profileError) {
       console.warn('Error fetching LinkedIn profile:', profileError);
