@@ -122,7 +122,8 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
     mutationFn: async (position: number) => {
       const res = await apiRequest(
         "POST",
-        `/api/admin/dominical/${reportId}/carousel/slides/${position}/regenerate`
+        `/api/admin/dominical/${reportId}/carousel/slides/${position}/regenerate`,
+        { palette: selectedPalette, imageStyle: selectedStyle }
       );
       return res.json();
     },

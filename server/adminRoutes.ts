@@ -1404,7 +1404,8 @@ adminRouter.post('/dominical/:id/carousel/slides/:position/regenerate', requireA
       return;
     }
 
-    const result = await regenerateSlide(reportId, slidePosition);
+    const { palette, imageStyle } = req.body || {};
+    const result = await regenerateSlide(reportId, slidePosition, palette, imageStyle);
     res.json(result);
   } catch (error: any) {
     console.error('Error regenerating slide:', error);
