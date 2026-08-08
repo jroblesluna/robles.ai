@@ -143,14 +143,18 @@ ESTRUCTURA:
 - Cierra invitando a leer más en robles.ai
 - Hashtags al final
 
-EJEMPLO DE TONO:
+EJEMPLO DE TONO (nota los saltos de línea y emojis):
 "🗞️ El Dominical IA
 
-Esta semana la IA no para. Desde Tesla y Waymo acelerando la autonomía vehicular, hasta la computación cuántica blindando nuestra ciberseguridad — el futuro ya llegó. En Latinoamérica, los drones con IA están transformando la logística y la salud, mientras las ciudades inteligentes empiezan a tomar forma. Todo esto y más en nuestro Centro de Noticias.
+🚗 Esta semana nos subimos al tren de la autonomía. Tesla y Waymo lideran la carrera hacia un futuro sin conductores — y las ciudades inteligentes de LATAM ya están tomando nota.
 
-👉 robles.ai (link en bio)
+🔐 Pero no todo es velocidad: la computación cuántica emerge como el nuevo escudo de la ciberseguridad, protegiendo infraestructuras digitales críticas.
 
-#ElDominicalIA #RoblesAI #IA #Tecnologia"
+🤖 Y los drones con IA están transformando la logística y la salud en América Latina. El futuro ya llegó.
+
+📰 Todo esto y más en nuestro Centro de Noticias 👉 robles.ai (link en bio)
+
+#ElDominicalIA #RoblesAI #IA #Tecnologia #Innovacion"
 
 REGLAS:
 - MÁXIMO 2100 caracteres
@@ -163,6 +167,10 @@ REGLAS:
 - Tono casual, cercano, como contando a un amigo
 - NO hagas lista con emojis por cada noticia
 - La narrativa debe fluir naturalmente conectando los temas
+- USA EMOJIS al inicio de cada párrafo (🚗, 🔐, 🤖, 💡, 🌍, 📊, 🔬, etc.)
+- OBLIGATORIO: Separa cada párrafo con UNA LÍNEA EN BLANCO (usa \\n\\n entre párrafos)
+- El caption debe tener 3-4 párrafos cortos separados por líneas en blanco, NO un solo bloque de texto
+- Cada párrafo debe empezar con un emoji diferente
 
 Devuelve SOLO el caption, sin explicaciones ni markdown.`;
 
