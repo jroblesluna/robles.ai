@@ -1898,4 +1898,111 @@ adminRouter.post('/settings/meta/validate', requireAuth, (req, res) => {
   })();
 });
 
+/**
+ * POST /api/admin/test-ig-linebreaks
+ * TEMPORARY: Publishes 5 test posts to Instagram with different line break techniques.
+ * DELETE THIS ENDPOINT AFTER TESTING.
+ */
+adminRouter.post('/test-ig-linebreaks', requireAuth, (req, res) => {
+  (async () => {
+    try {
+      const igUserId = db.prepare("SELECT value FROM settings WHERE key = 'instagram_business_account_id'").get() as { value: string } | undefined;
+      const igToken = db.prepare("SELECT value FROM settings WHERE key = 'instagram_access_token'").get() as { value: string } | undefined;
+
+      if (!igUserId?.value || !igToken?.value) {
+        res.status(400).json({ error: 'Instagram credentials not configured' });
+        return;
+      }
+
+      const accountId = igUserId.value;
+      const accessToken = igToken.value;
+      const imageUrl = 'https://robles.ai/api/public/slides/6/0.png';
+      const GRAPH_API_BASE = 'https://graph.facebook.com/v21.0';
+
+      // 5 different separator techniques
+      const tests = [
+        { name: 'Test 1: \\n\\n puro', separator: '\n\n' },
+        { name: 'Test 2: \\n.\\n (punto)', separator: '\n.\n' },
+        { name: 'Test 3: \\n\\u2800\\n (Braille)', separator: '\n\u2800\n' },
+        { name: 'Test 4: \\n\\u200B\\n (zero-width)', separator: '\n\u200B\n' },
+        { name: 'Test 5: \\n \\n (espacio)', separator: '\n \n' },
+      ];
+
+      const results: Array<{ name: string; success: boolean; postId?: string; error?: string }> = [];
+
+      for (const test of tests) {
+        const caption = `${test.name}${test.separator}Párrafo 1: La inteligencia artificial está transformando el mundo.${test.separator}Párrafo 2: Desde vehículos autónomos hasta ciberseguridad cuántica.${test.separator}Párrafo 3: Descubre más en robles.ai${test.separator}#TestLineBreaks #RoblesAI`;
+
+        try {
+          // Create single image container
+          const createRes = await fetch(`${GRAPH_API_BASE}/${accountId}/media`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              image_url: imageUrl,
+              caption,
+              access_token: accessToken,
+            }),
+          });
+
+          if (!createRes.ok) {
+            const err = await createRes.text();
+            results.push({ name: test.name, success: false, error: err });
+            continue;
+          }
+
+          const { id: containerId } = (await createRes.json()) as { id: string };
+
+          // Wait for container to be ready (poll up to 30s)
+          let ready = false;
+          for (let i = 0; i < 10; i++) {
+            await new Promise(r => setTimeout(r, 3000));
+            const statusRes = await fetch(`${GRAPH_API_BASE}/${containerId}?fields=status_code&access_token=${accessToken}`);
+            if (statusRes.ok) {
+              const data = (await statusRes.json()) as { status_code?: string };
+              if (data.status_code === 'FINISHED') { ready = true; break; }
+              if (data.status_code === 'ERROR') { break; }
+            }
+          }
+
+          if (!ready) {
+            results.push({ name: test.name, success: false, error: 'Container not ready after 30s' });
+            continue;
+          }
+
+          // Publish
+          const publishRes = await fetch(`${GRAPH_API_BASE}/${accountId}/media_publish`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              creation_id: containerId,
+              access_token: accessToken,
+            }),
+          });
+
+          if (!publishRes.ok) {
+            const err = await publishRes.text();
+            results.push({ name: test.name, success: false, error: err });
+            continue;
+          }
+
+          const { id: mediaId } = (await publishRes.json()) as { id: string };
+          results.push({ name: test.name, success: true, postId: mediaId });
+
+          // 5 second delay between posts to avoid rate limiting
+          await new Promise(r => setTimeout(r, 5000));
+
+        } catch (err) {
+          results.push({ name: test.name, success: false, error: err instanceof Error ? err.message : String(err) });
+        }
+      }
+
+      res.json({ results });
+    } catch (error) {
+      console.error('Error in test-ig-linebreaks:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  })();
+});
+
 export default adminRouter;
