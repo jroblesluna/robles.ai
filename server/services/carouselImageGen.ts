@@ -44,7 +44,7 @@ export function buildArticleImagePrompt(articleTitle: string, categories: string
     `${categoryContext} ` +
     `${contentContext}` +
     `Style: ${imageStyle?.stylePrompt || 'clean flat-design vector illustration, modern and professional'}. ` +
-    `Include recognizable visual metaphors that represent the SPECIFIC topic. If companies are mentioned, suggest their presence through visual cues (e.g., a car resembling Tesla's style, industrial equipment in Schneider's orange brand color, server racks for cloud companies, a phone for Apple). Include visual hints of monetary figures if relevant (stacks of coins, growth charts with numbers). The references don't need to be exact — just enough for the viewer to associate the image with the real-world actors and scale of the story. ` +
+    `Include recognizable visual metaphors that represent the SPECIFIC topic. If companies are mentioned, suggest their presence through visual cues (e.g., a car resembling famous mentioned EV brand style, industrial equipment in mentioned company's brand color or logo shape, server racks for mentioned or known cloud-based companies, a phone for well-known or mentioned brands). Include visual hints of monetary figures if relevant (stacks of coins, growth charts with numbers). The references don't need to be exact — just enough for the viewer to associate the image with the real-world actors and scale of the story. ` +
     `Color palette: ${colorDesc}. ` +
     `No text, no letters, no words, no watermarks. ` +
     `${imageStyle?.constraints || 'No realistic human faces or photographs. Stylized silhouettes or icons are acceptable.'} ` +
