@@ -21,6 +21,7 @@ import type {
 } from './carouselTypes.js';
 import { PALETTE_CONFIGS, IMAGE_STYLE_CONFIGS } from './carouselTypes.js';
 import fs from 'fs';
+import { getArticleContentSummary } from '../jobs/generateDominical.js';
 
 /** CTA default message */
 const CTA_MESSAGE = 'Síguenos para más insights de IA cada semana';
@@ -342,6 +343,7 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
       // Generate background
       let bgSuccess = true;
       try {
+        const contentSummary = getArticleContentSummary(article.slug);
         await generateCarouselBackgroundImage(
           article.title,
           article.categories || [],
@@ -349,6 +351,7 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
           bgPath,
           paletteConfig,
           styleConfig,
+          contentSummary,
         );
       } catch (err: any) {
         bgSuccess = false;
@@ -660,6 +663,7 @@ export async function regenerateSlide(reportId: number, position: number, palett
     } else {
       const articleIndex = position - 1;
       bgPath = path.join(backgroundsDir, `slide-${position}.png`);
+      const contentSummary = getArticleContentSummary(articles[articleIndex].slug);
       await generateCarouselBackgroundImage(
         articles[articleIndex].title,
         articles[articleIndex].categories || [],
@@ -667,6 +671,7 @@ export async function regenerateSlide(reportId: number, position: number, palett
         bgPath,
         paletteConfig,
         styleConfig,
+        contentSummary,
       );
     }
   } catch (err: any) {

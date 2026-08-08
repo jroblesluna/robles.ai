@@ -25,9 +25,14 @@ export function ensureBackgroundsDir(reportId: number): string {
  * Builds an image prompt from article title and categories for a conceptual background.
  * Generates vector/flat-design style illustrations that represent the article's topic.
  */
-export function buildArticleImagePrompt(articleTitle: string, categories: string[], palette?: PaletteConfig, imageStyle?: ImageStyleConfig): string {
+export function buildArticleImagePrompt(articleTitle: string, categories: string[], palette?: PaletteConfig, imageStyle?: ImageStyleConfig, contentSummary?: string): string {
   const categoryContext = categories.length > 0
     ? `Related domains: ${categories.join(', ')}.`
+    : '';
+
+  // Extract key visual elements from content summary
+  const contentContext = contentSummary
+    ? `Key details from the article (use these for visual inspiration): ${contentSummary.slice(0, 300)}. `
     : '';
 
   const colorDesc = palette
@@ -37,8 +42,9 @@ export function buildArticleImagePrompt(articleTitle: string, categories: string
   return (
     `Conceptual illustration for a LinkedIn carousel slide about: "${articleTitle}". ` +
     `${categoryContext} ` +
+    `${contentContext}` +
     `Style: ${imageStyle?.stylePrompt || 'clean flat-design vector illustration, modern and professional'}. ` +
-    `Include recognizable visual metaphors and icons that represent the topic conceptually (e.g., if about autonomous vehicles show a stylized car with sensor lines, if about quantum computing show qubits and circuits, if about healthcare show medical symbols with data flows). ` +
+    `Include recognizable visual metaphors and icons that represent the SPECIFIC topic (e.g., if about Schneider Electric acquiring AI companies show industrial robots and factory automation, if about Tesla autonomous driving show a self-driving car with LiDAR sensors, if about quantum cybersecurity show quantum circuits with security shields). ` +
     `Color palette: ${colorDesc}. ` +
     `No text, no letters, no words, no watermarks. ` +
     `${imageStyle?.constraints || 'No realistic human faces or photographs. Stylized silhouettes or icons are acceptable.'} ` +
@@ -58,9 +64,10 @@ export async function generateCarouselBackgroundImage(
   apiKey: string,
   outputPath: string,
   palette?: PaletteConfig,
-  imageStyle?: ImageStyleConfig
+  imageStyle?: ImageStyleConfig,
+  contentSummary?: string
 ): Promise<void> {
-  const prompt = buildArticleImagePrompt(articleTitle, categories, palette, imageStyle);
+  const prompt = buildArticleImagePrompt(articleTitle, categories, palette, imageStyle, contentSummary);
   const imageBuffer = await callGptImage(prompt, apiKey);
   await resizeAndSave(imageBuffer, outputPath);
 }
