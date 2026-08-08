@@ -19,6 +19,7 @@ import adminRouter from './adminRoutes.js';
 import publicRouter from './publicRoutes.js';
 import { generateDominicalReport } from './jobs/generateDominical.js';
 import { autoPublishDominical } from './jobs/autoPublishDominical.js';
+import { generateCarousel } from './services/carouselGenerator.js';
 import { getSlugIndex } from './vite.js';
 
 // Reconstruir __dirname compatible con ESM
@@ -193,7 +194,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
-  // Saturday 12pm: Generate El Dominical IA weekly report
+  // Saturday 12pm: Generate El Dominical IA weekly report + carousel
   cron.schedule(
     '0 12 * * 6',
     async () => {
@@ -203,8 +204,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log('[CRON] Skipping Dominical generation in development mode.');
           return;
         }
-        await generateDominicalReport();
-        console.log('[CRON] Dominical IA generation completed.');
+        const { reportId } = await generateDominicalReport();
+        console.log('[CRON] Dominical IA generation completed. Report ID:', reportId);
+
+        // Auto-generate carousel with cinematic + natural style
+        console.log('[CRON] Starting carousel generation for report', reportId);
+        await generateCarousel(reportId, 'natural', 'cinematic-scene');
+        console.log('[CRON] Carousel generation completed for report', reportId);
       } catch (error) {
         console.error('[CRON] Error generating Dominical IA:', error);
       }
