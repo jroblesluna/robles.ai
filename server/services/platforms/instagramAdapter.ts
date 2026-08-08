@@ -13,7 +13,7 @@ const MAX_CAROUSEL_IMAGES = 10;
  * This is the standard approach used by social media scheduling tools.
  */
 function formatCaptionForInstagram(text: string): string {
-  return text.replace(/\n\n/g, '\n \n');
+  return text.replace(/\n\n/g, '\n\u2063\n');
 }
 
 /**
