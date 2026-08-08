@@ -8,12 +8,11 @@ const MAX_CAROUSEL_IMAGES = 10;
 
 /**
  * Format caption for Instagram to preserve paragraph breaks.
- * Instagram Graph API strips blank lines and invisible characters.
- * The only reliable method is to place a visible character (·) on blank lines.
- * This is the standard approach used by social media scheduling tools.
+ * Instagram strips blank lines but preserves lines containing a single space.
+ * Replace \n\n with \n(space)\n to create visual paragraph separation.
  */
 function formatCaptionForInstagram(text: string): string {
-  return text.replace(/\n\n/g, '\r\n\r\n');
+  return text.replace(/\n\n/g, '\n \n');
 }
 
 /**
