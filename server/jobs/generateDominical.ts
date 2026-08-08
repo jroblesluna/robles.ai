@@ -85,7 +85,7 @@ Formato del post:
 
 Reglas:
 - Máximo 2800 caracteres
-- Usa emojis con moderación (1-2 por sección)
+- USA UN EMOJI al inicio de cada párrafo/sección para dar ritmo visual (🚗, 🔐, 🤖, 💡, 🌍, 📊, 🔬, 🏭, etc.)
 - Tono profesional pero cercano
 - No uses bullet points genéricos, cada opinión debe ser específica y valiosa
 - OBLIGATORIO: Menciona datos concretos de cada artículo (empresas, cifras, hallazgos, nombres, tecnologías específicas). NO escribas resúmenes vagos como "promete revolucionar" o "podría redefinir". Cita hechos reales del contenido proporcionado.
@@ -112,8 +112,10 @@ Devuelve SOLO el texto del post, sin markdown ni explicaciones adicionales.`;
     throw new Error('Empty response from GPT-4o post generation');
   }
 
-  // Enforce max 2800 chars
-  return content.slice(0, 2800);
+  // Enforce max 2800 chars — use Array.from to avoid cutting multi-byte emoji characters
+  if (content.length <= 2800) return content;
+  const chars = Array.from(content);
+  return chars.slice(0, 2800).join('');
 }
 
 /**
@@ -188,7 +190,10 @@ Devuelve SOLO el caption, sin explicaciones ni markdown.`;
 
   const content = response.choices[0]?.message?.content;
   if (!content) throw new Error('Empty response from GPT-4o IG post generation');
-  return content.slice(0, 2200);
+  // Enforce max 2200 chars — use Array.from to avoid cutting multi-byte emoji characters
+  if (content.length <= 2200) return content;
+  const chars = Array.from(content);
+  return chars.slice(0, 2200).join('');
 }
 
 /**

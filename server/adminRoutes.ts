@@ -813,7 +813,9 @@ Devuelve SOLO el texto del post, sin markdown ni explicaciones adicionales.`;
       ],
     });
 
-    const postText = response.choices[0]?.message?.content?.slice(0, 2800) || '';
+    const postTextRaw = response.choices[0]?.message?.content || '';
+    // Enforce max 2800 chars — use Array.from to avoid cutting multi-byte emoji characters
+    const postText = postTextRaw.length <= 2800 ? postTextRaw : Array.from(postTextRaw).slice(0, 2800).join('');
 
     // Also generate Instagram caption
     const igNewsList = selectedPosts
@@ -878,7 +880,9 @@ Devuelve SOLO el caption, sin explicaciones ni markdown.`;
       ],
     });
 
-    const postTextInstagram = igResponse.choices[0]?.message?.content?.slice(0, 2200) || '';
+    const postTextInstagramRaw = igResponse.choices[0]?.message?.content || '';
+    // Enforce max 2200 chars — use Array.from to avoid cutting multi-byte emoji characters
+    const postTextInstagram = postTextInstagramRaw.length <= 2200 ? postTextInstagramRaw : Array.from(postTextInstagramRaw).slice(0, 2200).join('');
 
     // Update the report
     const now = new Date().toISOString();
@@ -995,7 +999,9 @@ Devuelve SOLO el caption, sin explicaciones ni markdown.`;
       ],
     });
 
-    const postTextInstagram = response.choices[0]?.message?.content?.slice(0, 2200) || '';
+    const postTextInstagramRaw2 = response.choices[0]?.message?.content || '';
+    // Enforce max 2200 chars — use Array.from to avoid cutting multi-byte emoji characters
+    const postTextInstagram = postTextInstagramRaw2.length <= 2200 ? postTextInstagramRaw2 : Array.from(postTextInstagramRaw2).slice(0, 2200).join('');
 
     const now = new Date().toISOString();
     db.prepare(
@@ -1087,7 +1093,9 @@ Devuelve SOLO el texto del post, sin markdown ni explicaciones adicionales.`;
       ],
     });
 
-    const postText = response.choices[0]?.message?.content?.slice(0, 2800) || '';
+    const postTextRaw2 = response.choices[0]?.message?.content || '';
+    // Enforce max 2800 chars — use Array.from to avoid cutting multi-byte emoji characters
+    const postText = postTextRaw2.length <= 2800 ? postTextRaw2 : Array.from(postTextRaw2).slice(0, 2800).join('');
 
     const now = new Date().toISOString();
     db.prepare(
