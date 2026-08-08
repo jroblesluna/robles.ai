@@ -820,51 +820,40 @@ Devuelve SOLO el texto del post, sin markdown ni explicaciones adicionales.`;
       .map((p, i) => `${i + 1}. "${p.title}" (${p.reason})`)
       .join('\n');
 
-    const igSystemPrompt = `Eres el redactor de "El Dominical IA" de Robles.AI para Instagram. Tu estilo es informado, visual, con emojis y directo. Escribes en español.`;
+    const igSystemPrompt = `Eres el community manager de Robles.AI para Instagram. Escribes captions narrativos y enganchantes en español, como si contaras una historia corta sobre las novedades de la semana en IA.`;
 
-    const igUserPrompt = `Escribe un caption de Instagram en español para "El Dominical IA" de esta semana. Usa estas noticias:
+    const igUserPrompt = `Escribe un caption de Instagram en español para "El Dominical IA" de esta semana. Estas son las noticias que cubrimos:
 
 ${igNewsList}
 
-FORMATO EXACTO (respeta los saltos de línea):
----
-🗞️ El Dominical IA — Resumen semanal
+ESTILO: Escribe como una HISTORIA CORTA que enganche al lector. NO hagas una lista de noticias ni párrafos separados por noticia. En cambio, cuenta una narrativa fluida de lo que el lector encontrará esta semana — como si le estuvieras contando a un amigo qué hay de nuevo en el mundo de la IA.
 
-[Emoji] [Título gancho de 1 línea sobre el tema general]
+ESTRUCTURA:
+- Empieza con "🗞️ El Dominical IA" y un gancho narrativo
+- Desarrolla en 3-5 oraciones fluidas que conecten los temas de la semana, mencionando datos concretos (empresas, tecnologías, cifras)
+- Cierra invitando a leer más en robles.ai
+- Hashtags al final
 
-[Emoji numeral] [Título corto noticia 1]
-[1 línea con dato concreto]
+EJEMPLO DE TONO:
+"🗞️ El Dominical IA
 
-[Emoji numeral] [Título corto noticia 2]
-[1 línea con dato concreto]
+Esta semana la IA no para. Desde Tesla y Waymo acelerando la autonomía vehicular, hasta la computación cuántica blindando nuestra ciberseguridad — el futuro ya llegó. En Latinoamérica, los drones con IA están transformando la logística y la salud, mientras las ciudades inteligentes empiezan a tomar forma. Todo esto y más en nuestro Centro de Noticias.
 
-[Emoji numeral] [Título corto noticia 3]
-[1 línea con dato concreto]
-
-[...repetir para cada noticia...]
-
-📰 Lee los artículos completos en nuestro Centro de Noticias
 👉 robles.ai (link en bio)
 
-.
-.
-.
-#ElDominicalIA #RoblesAI #Hashtag3 #Hashtag4 (máximo 8 hashtags, siempre incluir #ElDominicalIA y #RoblesAI)
----
+#ElDominicalIA #RoblesAI #IA #Tecnologia"
 
-Reglas:
-- MÁXIMO 2100 caracteres total
-- NO incluyas URLs completas en el texto (solo "robles.ai" como mención)
-- Cada noticia debe ocupar exactamente 2 líneas (título + dato)
-- Usa UN emoji al inicio de cada bloque de noticia (🔹, 🚀, 🤖, 💡, 🔬, 📊, etc.)
-- Separa CADA noticia con UNA línea en blanco
-- Los hashtags van SEPARADOS del texto con 3 puntos (.) para que queden ocultos
-- SIEMPRE empezar con "🗞️ El Dominical IA — Resumen semanal"
-- SIEMPRE incluir la referencia al Centro de Noticias de robles.ai antes de los hashtags
-- Tono casual pero informativo
-- Primera persona del plural ("exploramos", "analizamos")
-- Menciona datos específicos: nombres de empresas, cifras, tecnologías
-- SIEMPRE incluir #ElDominicalIA y #RoblesAI entre los hashtags
+REGLAS:
+- MÁXIMO 2100 caracteres
+- NO incluyas URLs (solo "robles.ai" como mención)
+- Escribe en primera persona del plural ("exploramos", "analizamos", "nuestro")
+- Menciona datos concretos de las noticias (empresas, cifras, tecnologías)
+- HASHTAGS sin tildes ni acentos (#Innovacion NO #Innovación)
+- SIEMPRE incluir #ElDominicalIA y #RoblesAI
+- Máximo 8 hashtags
+- Tono casual, cercano, como contando a un amigo
+- NO hagas lista con emojis por cada noticia
+- La narrativa debe fluir naturalmente conectando los temas
 
 Devuelve SOLO el caption, sin explicaciones ni markdown.`;
 
@@ -936,51 +925,40 @@ adminRouter.post('/dominical/:id/regenerate-instagram', requireAuth, async (req,
       .map((p, i) => `${i + 1}. "${p.title}" (${p.reason})`)
       .join('\n');
 
-    const igSystemPrompt = `Eres el redactor de "El Dominical IA" de Robles.AI para Instagram. Tu estilo es informado, visual, con emojis y directo. Escribes en español.`;
+    const igSystemPrompt = `Eres el community manager de Robles.AI para Instagram. Escribes captions narrativos y enganchantes en español, como si contaras una historia corta sobre las novedades de la semana en IA.`;
 
-    const igUserPrompt = `Escribe un caption de Instagram en español para "El Dominical IA" de esta semana. Usa estas noticias:
+    const igUserPrompt = `Escribe un caption de Instagram en español para "El Dominical IA" de esta semana. Estas son las noticias que cubrimos:
 
 ${igNewsList}
 
-FORMATO EXACTO (respeta los saltos de línea):
----
-🗞️ El Dominical IA — Resumen semanal
+ESTILO: Escribe como una HISTORIA CORTA que enganche al lector. NO hagas una lista de noticias ni párrafos separados por noticia. En cambio, cuenta una narrativa fluida de lo que el lector encontrará esta semana — como si le estuvieras contando a un amigo qué hay de nuevo en el mundo de la IA.
 
-[Emoji] [Título gancho de 1 línea sobre el tema general]
+ESTRUCTURA:
+- Empieza con "🗞️ El Dominical IA" y un gancho narrativo
+- Desarrolla en 3-5 oraciones fluidas que conecten los temas de la semana, mencionando datos concretos (empresas, tecnologías, cifras)
+- Cierra invitando a leer más en robles.ai
+- Hashtags al final
 
-[Emoji numeral] [Título corto noticia 1]
-[1 línea con dato concreto]
+EJEMPLO DE TONO:
+"🗞️ El Dominical IA
 
-[Emoji numeral] [Título corto noticia 2]
-[1 línea con dato concreto]
+Esta semana la IA no para. Desde Tesla y Waymo acelerando la autonomía vehicular, hasta la computación cuántica blindando nuestra ciberseguridad — el futuro ya llegó. En Latinoamérica, los drones con IA están transformando la logística y la salud, mientras las ciudades inteligentes empiezan a tomar forma. Todo esto y más en nuestro Centro de Noticias.
 
-[Emoji numeral] [Título corto noticia 3]
-[1 línea con dato concreto]
-
-[...repetir para cada noticia...]
-
-📰 Lee los artículos completos en nuestro Centro de Noticias
 👉 robles.ai (link en bio)
 
-.
-.
-.
-#ElDominicalIA #RoblesAI #Hashtag3 #Hashtag4 (máximo 8 hashtags, siempre incluir #ElDominicalIA y #RoblesAI)
----
+#ElDominicalIA #RoblesAI #IA #Tecnologia"
 
-Reglas:
-- MÁXIMO 2100 caracteres total
-- NO incluyas URLs completas en el texto (solo "robles.ai" como mención)
-- Cada noticia debe ocupar exactamente 2 líneas (título + dato)
-- Usa UN emoji al inicio de cada bloque de noticia (🔹, 🚀, 🤖, 💡, 🔬, 📊, etc.)
-- Separa CADA noticia con UNA línea en blanco
-- Los hashtags van SEPARADOS del texto con 3 puntos (.) para que queden ocultos
-- SIEMPRE empezar con "🗞️ El Dominical IA — Resumen semanal"
-- SIEMPRE incluir la referencia al Centro de Noticias de robles.ai antes de los hashtags
-- Tono casual pero informativo
-- Primera persona del plural ("exploramos", "analizamos")
-- Menciona datos específicos: nombres de empresas, cifras, tecnologías
-- SIEMPRE incluir #ElDominicalIA y #RoblesAI entre los hashtags
+REGLAS:
+- MÁXIMO 2100 caracteres
+- NO incluyas URLs (solo "robles.ai" como mención)
+- Escribe en primera persona del plural ("exploramos", "analizamos", "nuestro")
+- Menciona datos concretos de las noticias (empresas, cifras, tecnologías)
+- HASHTAGS sin tildes ni acentos (#Innovacion NO #Innovación)
+- SIEMPRE incluir #ElDominicalIA y #RoblesAI
+- Máximo 8 hashtags
+- Tono casual, cercano, como contando a un amigo
+- NO hagas lista con emojis por cada noticia
+- La narrativa debe fluir naturalmente conectando los temas
 
 Devuelve SOLO el caption, sin explicaciones ni markdown.`;
 
