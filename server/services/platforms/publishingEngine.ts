@@ -110,24 +110,29 @@ export class PublishingEngine {
       // Build the raw PublishRequest from the report data
       const rawRequest = this.buildPublishRequest(reportId);
 
-      // Use platform-specific text if available
-      if (platform === 'instagram' && rawRequest.postTextInstagram) {
-        rawRequest.text = rawRequest.postTextInstagram;
+      // Use platform-specific text if available (pre-formatted, skip content formatter)
+      const hasPlatformSpecificText = platform === 'instagram' && rawRequest.postTextInstagram;
+      
+      let finalText: string;
+      if (hasPlatformSpecificText) {
+        // Instagram has its own pre-formatted text — use as-is without running through formatter
+        finalText = rawRequest.postTextInstagram!;
+      } else {
+        // Format content for the specific platform (truncates text, selects media type)
+        const formatted = formatForPlatform(
+          platform,
+          rawRequest.text,
+          rawRequest.slideImageUrls,
+          rawRequest.pdfBuffer,
+          rawRequest.coverImageUrl
+        );
+        finalText = formatted.text;
       }
 
-      // Format content for the specific platform (truncates text, selects media type)
-      const formatted = formatForPlatform(
-        platform,
-        rawRequest.text,
-        rawRequest.slideImageUrls,
-        rawRequest.pdfBuffer,
-        rawRequest.coverImageUrl
-      );
-
-      // Build the final request with formatted text
+      // Build the final request
       const request: PublishRequest = {
         ...rawRequest,
-        text: formatted.text,
+        text: finalText,
       };
 
       // Call the adapter
