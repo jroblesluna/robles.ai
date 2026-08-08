@@ -67,27 +67,35 @@ export async function generateCarouselBackgroundImage(
 
 /**
  * Generates a branded cover background for the first slide.
- * Uses a conceptual tech/AI illustration style.
+ * Uses a contextual illustration style based on the week's news topics.
  */
 export async function generateCoverBackground(
   apiKey: string,
   outputPath: string,
   palette?: PaletteConfig,
-  imageStyle?: ImageStyleConfig
+  imageStyle?: ImageStyleConfig,
+  topics?: string[]
 ): Promise<void> {
   const colorDesc = palette
     ? `${palette.backgroundDesc} background with ${palette.primaryAccent} and ${palette.secondaryAccent} accent elements`
     : 'dark navy background (#1a1a2e) with electric cyan, purple, and white accent elements';
 
+  // Build topic description from article titles
+  const topicDesc = topics && topics.length > 0
+    ? `The visual theme should relate to these topics: ${topics.slice(0, 3).join(', ')}. Choose visual metaphors that represent these specific subjects (e.g., autonomous cars, quantum computing, drones, cybersecurity shields, smart cities, etc.) — NOT generic AI brains or neural networks.`
+    : `Show diverse AI technology concepts: autonomous vehicles, smart cities, robotics, data visualization — NOT just a brain or neural network.`;
+
   const prompt = (
-    `Conceptual cover illustration for a weekly AI technology newsletter. ` +
-    `Style: ${imageStyle?.stylePrompt || 'clean flat-design vector illustration with isometric perspective elements'}. ` +
-    `Show a composition of technology icons: neural network nodes, data streams, a glowing brain, circuit board patterns, and connected devices — all arranged as a cohesive scene. ` +
+    `Cover illustration for a weekly AI technology newsletter called "El Dominical IA". ` +
+    `Style: ${imageStyle?.stylePrompt || 'cinematic photography with dramatic lighting'}. ` +
+    `${topicDesc} ` +
+    `Create a visually striking composition that feels fresh and different each week. ` +
     `Color palette: ${colorDesc}. ` +
+    `IMPORTANT: Do NOT show brains, neural network diagrams, or generic deep learning symbols. Instead show real-world applications of AI technology. ` +
     `No text, no letters, no words, no watermarks. ` +
-    `${imageStyle?.constraints || 'No realistic human faces.'} ` +
+    `${imageStyle?.constraints || 'Photorealistic humans are acceptable.'} ` +
     `Square format 1:1 ratio. ` +
-    `Center area should be slightly darker/emptier for overlaying a logo and title text.`
+    `Lower-left area should be slightly darker for overlaying a title text.`
   );
 
   const imageBuffer = await callGptImage(prompt, apiKey);

@@ -303,7 +303,8 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
     // Generate background
     let bgSuccess = true;
     try {
-      await generateCoverBackground(apiKey, bgPath, paletteConfig, styleConfig);
+      const articleTopics = articles.map(a => a.title);
+      await generateCoverBackground(apiKey, bgPath, paletteConfig, styleConfig, articleTopics);
     } catch (err: any) {
       bgSuccess = false;
       console.error(`[CarouselGenerator] Cover background failed:`, err.message);
@@ -651,7 +652,8 @@ export async function regenerateSlide(reportId: number, position: number, palett
   try {
     if (slideType === 'cover') {
       bgPath = path.join(backgroundsDir, 'cover.png');
-      await generateCoverBackground(apiKey, bgPath, paletteConfig, styleConfig);
+      const articleTopics = articles.map(a => a.title);
+      await generateCoverBackground(apiKey, bgPath, paletteConfig, styleConfig, articleTopics);
     } else if (slideType === 'cta') {
       bgPath = path.join(backgroundsDir, 'cta.png');
       await generateCTABackground(apiKey, bgPath, paletteConfig, styleConfig);
