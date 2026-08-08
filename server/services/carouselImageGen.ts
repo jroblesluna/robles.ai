@@ -44,7 +44,7 @@ export function buildArticleImagePrompt(articleTitle: string, categories: string
     `${categoryContext} ` +
     `${contentContext}` +
     `Style: ${imageStyle?.stylePrompt || 'clean flat-design vector illustration, modern and professional'}. ` +
-    `Include recognizable visual metaphors and icons that represent the SPECIFIC topic (e.g., if about Schneider Electric acquiring AI companies show industrial robots and factory automation, if about Tesla autonomous driving show a self-driving car with LiDAR sensors, if about quantum cybersecurity show quantum circuits with security shields). ` +
+    `Include recognizable visual metaphors that represent the SPECIFIC topic. If companies are mentioned, suggest their presence through visual cues (e.g., a car resembling Tesla's style, industrial equipment in Schneider's orange brand color, server racks for cloud companies, a phone for Apple). Include visual hints of monetary figures if relevant (stacks of coins, growth charts with numbers). The references don't need to be exact — just enough for the viewer to associate the image with the real-world actors and scale of the story. ` +
     `Color palette: ${colorDesc}. ` +
     `No text, no letters, no words, no watermarks. ` +
     `${imageStyle?.constraints || 'No realistic human faces or photographs. Stylized silhouettes or icons are acceptable.'} ` +
@@ -87,20 +87,40 @@ export async function generateCoverBackground(
     ? `${palette.backgroundDesc} background with ${palette.primaryAccent} and ${palette.secondaryAccent} accent elements`
     : 'dark navy background (#1a1a2e) with electric cyan, purple, and white accent elements';
 
-  // Build topic description from article titles
-  const topicDesc = topics && topics.length > 0
-    ? `The visual theme should relate to these topics: ${topics.slice(0, 3).join(', ')}. Choose visual metaphors that represent these specific subjects (e.g., autonomous cars, quantum computing, drones, cybersecurity shields, smart cities, etc.) — NOT generic AI brains or neural networks.`
-    : `Show diverse AI technology concepts: autonomous vehicles, smart cities, robotics, data visualization — NOT just a brain or neural network.`;
+  // Creative cover concepts that rotate for variety
+  const coverConcepts = [
+    'A humanoid robot sitting in a cozy armchair reading a newspaper titled "El Dominical". The room has warm lighting and a cup of coffee nearby.',
+    'Friends (a mix of humans and friendly robots) gathered around a large screen/TV discussing the latest tech news. The screen shows abstract data visualizations.',
+    'A person browsing a futuristic holographic magazine floating in mid-air, with news headlines appearing as 3D floating elements around them.',
+    'A robot journalist at a desk broadcasting AI news on a retro-futuristic TV set. The atmosphere is like a late-night show.',
+    'A bird\'s-eye view of a futuristic newsroom where humans and AI assistants collaborate, with multiple screens showing different tech topics.',
+    'Someone opening a glowing envelope/newsletter on their phone while commuting on a futuristic train, with AI-related icons floating out of the screen.',
+    'A friendly robot delivering a rolled-up newspaper to a doorstep in a futuristic neighborhood, with smart cars and drones in the background.',
+    'A group of diverse people at a café, all looking at their devices with amazement as holographic news stories float above the table.',
+    'A vintage-style newsstand but in a futuristic city, selling digital newspapers with holographic covers about AI topics.',
+    'An AI assistant presenting a weekly briefing on a large interactive whiteboard, with charts and icons representing the week\'s main stories.',
+  ];
+
+  // Pick a concept based on the current week number for variety
+  const weekNumber = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+  const conceptIndex = weekNumber % coverConcepts.length;
+  const baseConcept = coverConcepts[conceptIndex];
+
+  // Incorporate the week's topics into the chosen concept
+  const topicHint = topics && topics.length > 0
+    ? `The news/content being discussed or shown should visually hint at: ${topics.slice(0, 2).join(' and ')}. Include subtle visual references to these themes in the background or on screens/papers shown in the scene.`
+    : '';
 
   const prompt = (
-    `Cover illustration for a weekly AI technology newsletter called "El Dominical IA". ` +
+    `Cover illustration for "El Dominical IA", a weekly AI newsletter. ` +
+    `Scene concept: ${baseConcept} ` +
+    `${topicHint} ` +
     `Style: ${imageStyle?.stylePrompt || 'cinematic photography with dramatic lighting'}. ` +
-    `${topicDesc} ` +
-    `Create a visually striking composition that feels fresh and different each week. ` +
     `Color palette: ${colorDesc}. ` +
-    `IMPORTANT: Do NOT show brains, neural network diagrams, or generic deep learning symbols. Instead show real-world applications of AI technology. ` +
+    `The overall mood should be warm, inviting, and intellectually curious — like discovering exciting news. ` +
+    `IMPORTANT: Do NOT show generic AI brains or neural networks. The scene should feel like a moment of human (or human+AI) connection with news/information. ` +
     `No text, no letters, no words, no watermarks. ` +
-    `${imageStyle?.constraints || 'Photorealistic humans are acceptable.'} ` +
+    `${imageStyle?.constraints || 'Photorealistic humans and stylized robots are acceptable.'} ` +
     `Square format 1:1 ratio. ` +
     `Lower-left area should be slightly darker for overlaying a title text.`
   );
