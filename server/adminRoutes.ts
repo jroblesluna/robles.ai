@@ -6,7 +6,7 @@ import path from 'path';
 import fs from 'fs';
 import db from './db.js';
 import { generateToken, verifyToken, requireAuth } from './auth.js';
-import { generateDominicalReport } from './jobs/generateDominical.js';
+import { generateDominicalReport, getArticleContentSummary } from './jobs/generateDominical.js';
 import { publishPost, publishPostWithDocument } from './services/linkedin.js';
 import { generateCarousel, regenerateSlide } from './services/carouselGenerator.js';
 import { exportCarouselPdf } from './services/pdfExporter.js';
@@ -817,8 +817,11 @@ Devuelve SOLO el texto del post, sin markdown ni explicaciones adicionales.`;
 
     // Also generate Instagram caption
     const igNewsList = selectedPosts
-      .map((p, i) => `${i + 1}. "${p.title}" (${p.reason})`)
-      .join('\n');
+      .map((p, i) => {
+        const contentSummary = getArticleContentSummary(p.slug);
+        return `${i + 1}. "${p.title}" (${p.reason})\n   ${contentSummary}`;
+      })
+      .join('\n\n');
 
     const igSystemPrompt = `Eres el community manager de Robles.AI para Instagram. Escribes captions narrativos y enganchantes en español, como si contaras una historia corta sobre las novedades de la semana en IA.`;
 
@@ -931,8 +934,11 @@ adminRouter.post('/dominical/:id/regenerate-instagram', requireAuth, async (req,
     const openai = new OpenAI({ apiKey });
 
     const igNewsList = selectedPosts
-      .map((p, i) => `${i + 1}. "${p.title}" (${p.reason})`)
-      .join('\n');
+      .map((p, i) => {
+        const contentSummary = getArticleContentSummary(p.slug);
+        return `${i + 1}. "${p.title}" (${p.reason})\n   ${contentSummary}`;
+      })
+      .join('\n\n');
 
     const igSystemPrompt = `Eres el community manager de Robles.AI para Instagram. Escribes captions narrativos y enganchantes en español, como si contaras una historia corta sobre las novedades de la semana en IA.`;
 
@@ -1044,8 +1050,11 @@ adminRouter.post('/dominical/:id/regenerate-linkedin', requireAuth, async (req, 
     const openai = new OpenAI({ apiKey });
 
     const newsList = selectedPosts
-      .map((p, i) => `${i + 1}. "${p.title}" (Score: ${p.weightedScore || p.score || 50}/100 — ${p.reason})\n   URL: https://robles.ai/blog/${p.slug}`)
-      .join('\n');
+      .map((p, i) => {
+        const contentSummary = getArticleContentSummary(p.slug);
+        return `${i + 1}. "${p.title}" (Score: ${p.weightedScore || p.score || 50}/100 — ${p.reason})\n   URL: https://robles.ai/blog/${p.slug}\n   ${contentSummary}`;
+      })
+      .join('\n\n');
 
     const systemPrompt = `Eres el redactor de "El Dominical IA", un newsletter semanal en LinkedIn para profesionales de tecnología y negocios en Latinoamérica. Tu estilo es informado, opinado, cercano y profesional. Escribes en español.`;
 

@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
  * Loads the excerpt and first content sections for a given article slug.
  * Returns a brief summary with specific details (companies, figures, quotes).
  */
-function getArticleContentSummary(slug: string): string {
+export function getArticleContentSummary(slug: string): string {
   // Slug format: YYYY-MM-DD-HH-mm-ss-rest-of-slug
   const match = slug.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (!match) return '';
@@ -125,8 +125,11 @@ async function generateInstagramPost(selectedPosts: ScoredPost[], apiKey: string
   const openai = new OpenAI({ apiKey });
 
   const newsList = selectedPosts
-    .map((p, i) => `${i + 1}. "${p.title}" (${p.reason})`)
-    .join('\n');
+    .map((p, i) => {
+      const contentSummary = getArticleContentSummary(p.slug);
+      return `${i + 1}. "${p.title}" (${p.reason})\n   ${contentSummary}`;
+    })
+    .join('\n\n');
 
   const systemPrompt = `Eres el community manager de Robles.AI para Instagram. Escribes captions narrativos y enganchantes en español, como si contaras una historia corta sobre las novedades de la semana en IA.`;
 
