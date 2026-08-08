@@ -110,15 +110,20 @@ export class PublishingEngine {
       // Build the raw PublishRequest from the report data
       const rawRequest = this.buildPublishRequest(reportId);
 
-      // Use platform-specific text if available (pre-formatted, skip content formatter)
-      const hasPlatformSpecificText = platform === 'instagram' && rawRequest.postTextInstagram;
-      
+      // Determine if we should skip the content formatter
+      // Skip when: platform-specific pre-formatted text exists, or for Facebook (post_text is already well-formatted)
+      const useRawText = (platform === 'instagram' && rawRequest.postTextInstagram)
+        || platform === 'facebook';
+
       let finalText: string;
-      if (hasPlatformSpecificText) {
-        // Instagram has its own pre-formatted text — use as-is without running through formatter
-        finalText = rawRequest.postTextInstagram!;
+      if (platform === 'instagram' && rawRequest.postTextInstagram) {
+        // Instagram has its own pre-formatted caption
+        finalText = rawRequest.postTextInstagram;
+      } else if (platform === 'facebook') {
+        // Facebook: use post_text as-is (well under 63K char limit, already formatted with links)
+        finalText = rawRequest.text;
       } else {
-        // Format content for the specific platform (truncates text, selects media type)
+        // LinkedIn and others: format content (truncates text, preserves hashtags)
         const formatted = formatForPlatform(
           platform,
           rawRequest.text,
