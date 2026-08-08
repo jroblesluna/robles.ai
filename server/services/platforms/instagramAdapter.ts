@@ -7,15 +7,6 @@ const GRAPH_API_BASE = 'https://graph.facebook.com/v21.0';
 const MAX_CAROUSEL_IMAGES = 10;
 
 /**
- * Format caption for Instagram to preserve paragraph breaks.
- * Instagram strips blank lines but preserves lines containing a single space.
- * Replace \n\n with \n(space)\n to create visual paragraph separation.
- */
-function formatCaptionForInstagram(text: string): string {
-  return text.replace(/\n\n/g, '\n \n');
-}
-
-/**
  * Helper to read a setting from the database.
  */
 function getSetting(key: string): string | null {
@@ -325,8 +316,7 @@ export class InstagramAdapter implements PlatformAdapter {
    * Attempt to publish based on the request content.
    */
   private async attemptPublish(request: PublishRequest): Promise<string> {
-    const { text: rawText, slideImageUrls, coverImageUrl } = request;
-    const text = formatCaptionForInstagram(rawText);
+    const { text, slideImageUrls, coverImageUrl } = request;
 
     const igUserId = getSetting('instagram_business_account_id');
     const accessToken = getSetting('instagram_access_token');
