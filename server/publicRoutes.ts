@@ -50,7 +50,9 @@ function serveSlideImage(req: any, res: any) {
     }
 
     // Serve the PNG with appropriate headers for Meta API consumption
+    const stat = fs.statSync(slide.composite_image_path);
     res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Content-Length', stat.size);
     res.setHeader('Cache-Control', 'public, max-age=86400'); // 24h cache — slides don't change once generated
     res.setHeader('Content-Disposition', `inline; filename="slide-${numPosition}.png"`);
 
