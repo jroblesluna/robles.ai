@@ -830,7 +830,8 @@ ESTILO: Escribe como una HISTORIA CORTA que enganche al lector. NO hagas una lis
 
 ESTRUCTURA:
 - Empieza con "🗞️ El Dominical IA" y un gancho narrativo
-- Desarrolla en 3-5 oraciones fluidas que conecten los temas de la semana, mencionando datos concretos (empresas, tecnologías, cifras)
+- Dedica 2-3 oraciones extra a la noticia más importante (la primera de la lista, la de mayor puntaje) — profundiza un poco más en ella como ejemplo concreto de lo que encontrarán
+- Luego conecta el resto de temas en 2-3 oraciones fluidas que enganchen al lector a querer leer más
 - Cierra invitando a leer más en robles.ai
 - Hashtags al final
 
@@ -935,7 +936,8 @@ ESTILO: Escribe como una HISTORIA CORTA que enganche al lector. NO hagas una lis
 
 ESTRUCTURA:
 - Empieza con "🗞️ El Dominical IA" y un gancho narrativo
-- Desarrolla en 3-5 oraciones fluidas que conecten los temas de la semana, mencionando datos concretos (empresas, tecnologías, cifras)
+- Dedica 2-3 oraciones extra a la noticia más importante (la primera de la lista, la de mayor puntaje) — profundiza un poco más en ella como ejemplo concreto de lo que encontrarán
+- Luego conecta el resto de temas en 2-3 oraciones fluidas que enganchen al lector a querer leer más
 - Cierra invitando a leer más en robles.ai
 - Hashtags al final
 
