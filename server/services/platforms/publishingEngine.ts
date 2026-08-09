@@ -3,6 +3,7 @@
 import type Database from 'better-sqlite3';
 import type { PlatformName, PlatformStatus, PlatformAdapter, PublishRequest, PublishResult } from './types.js';
 import { formatForPlatform } from './contentFormatter.js';
+import { exportCarouselPdf } from '../pdfExporter.js';
 
 export interface PlatformPublishStatus {
   reportId: number;
@@ -108,7 +109,7 @@ export class PublishingEngine {
 
     try {
       // Build the raw PublishRequest from the report data
-      const rawRequest = this.buildPublishRequest(reportId);
+      const rawRequest = await this.buildPublishRequest(reportId);
 
       // Determine if we should skip the content formatter
       // Skip when: platform-specific pre-formatted text exists, or for Facebook (post_text is already well-formatted)
@@ -211,8 +212,9 @@ export class PublishingEngine {
 
   /**
    * Build a PublishRequest by fetching report data and slide image URLs from the database.
+   * Generates a carousel PDF when ≥2 slides are available.
    */
-  private buildPublishRequest(reportId: number): PublishRequest {
+  private async buildPublishRequest(reportId: number): Promise<PublishRequest> {
     // Fetch report data
     const report = this.db.prepare(
       'SELECT id, post_text, post_text_instagram, image_url FROM dominical_reports WHERE id = ?'
@@ -243,12 +245,37 @@ export class PublishingEngine {
       ? (report.image_url.startsWith('http') ? report.image_url : `${this.baseUrl}${report.image_url}`)
       : undefined;
 
+    // Generate PDF for LinkedIn carousel if ≥2 slides exist
+    let pdfBuffer: Buffer | undefined;
+    if (slides.length >= 2) {
+      // Get composite image paths for PDF generation
+      const slideRows = this.db.prepare(
+        `SELECT composite_image_path FROM carousel_slides
+         WHERE report_id = ? AND status = 'generated' AND composite_image_path IS NOT NULL
+         ORDER BY position ASC`
+      ).all(reportId) as Array<{ composite_image_path: string }>;
+
+      const slidePaths = slideRows.map(r => r.composite_image_path);
+
+      if (slidePaths.length >= 2) {
+        try {
+          const pdfResult = await exportCarouselPdf(reportId, slidePaths);
+          pdfBuffer = pdfResult.pdfBuffer;
+          console.log(`📄 Generated carousel PDF for report #${reportId} (${pdfResult.pageCount} pages)`);
+        } catch (err) {
+          console.error(`⚠️ PDF generation failed for report #${reportId}:`, err);
+          // Continue without PDF — will fall back to single image on LinkedIn
+        }
+      }
+    }
+
     return {
       reportId,
       text: report.post_text,
       postTextInstagram: report.post_text_instagram,
       slideImageUrls,
       coverImageUrl,
+      pdfBuffer,
     };
   }
 
