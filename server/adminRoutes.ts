@@ -801,6 +801,7 @@ Reglas:
 - No uses bullet points genéricos, cada opinión debe ser específica y valiosa
 - El post debe fluir como una narrativa, no como una lista
 - INCLUYE los enlaces a cada artículo de robles.ai en el texto de forma natural
+- HASHTAGS sin tildes ni acentos (#Innovacion, #Tecnologia, #InteligenciaArtificial, #TransformacionDigital — NUNCA usar tildes en hashtags)
 
 Devuelve SOLO el texto del post, sin markdown ni explicaciones adicionales.`;
 
@@ -1081,6 +1082,7 @@ Reglas:
 - No uses bullet points genéricos, cada opinión debe ser específica y valiosa
 - El post debe fluir como una narrativa, no como una lista
 - INCLUYE los enlaces a cada artículo de robles.ai en el texto de forma natural
+- HASHTAGS sin tildes ni acentos (#Innovacion, #Tecnologia, #InteligenciaArtificial, #TransformacionDigital — NUNCA usar tildes en hashtags)
 
 Devuelve SOLO el texto del post, sin markdown ni explicaciones adicionales.`;
 

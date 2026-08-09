@@ -2,7 +2,6 @@
 
 import type Database from 'better-sqlite3';
 import type { PlatformName, PlatformStatus, PlatformAdapter, PublishRequest, PublishResult } from './types.js';
-import { formatForPlatform } from './contentFormatter.js';
 import { exportCarouselPdf } from '../pdfExporter.js';
 
 export interface PlatformPublishStatus {
@@ -111,28 +110,11 @@ export class PublishingEngine {
       // Build the raw PublishRequest from the report data
       const rawRequest = await this.buildPublishRequest(reportId);
 
-      // Determine if we should skip the content formatter
-      // Skip when: platform-specific pre-formatted text exists, or for Facebook (post_text is already well-formatted)
-      const useRawText = (platform === 'instagram' && rawRequest.postTextInstagram)
-        || platform === 'facebook';
-
       let finalText: string;
       if (platform === 'instagram' && rawRequest.postTextInstagram) {
-        // Instagram has its own pre-formatted caption
         finalText = rawRequest.postTextInstagram;
-      } else if (platform === 'facebook') {
-        // Facebook: use post_text as-is (well under 63K char limit, already formatted with links)
-        finalText = rawRequest.text;
       } else {
-        // LinkedIn and others: format content (truncates text, preserves hashtags)
-        const formatted = formatForPlatform(
-          platform,
-          rawRequest.text,
-          rawRequest.slideImageUrls,
-          rawRequest.pdfBuffer,
-          rawRequest.coverImageUrl
-        );
-        finalText = formatted.text;
+        finalText = rawRequest.text;
       }
 
       // Build the final request
