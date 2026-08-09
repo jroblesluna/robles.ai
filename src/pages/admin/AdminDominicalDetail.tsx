@@ -312,10 +312,10 @@ export default function AdminDominicalDetail() {
       }
       const data = await res.json();
       setPostText(data.post_text);
-      toast({ title: "LinkedIn post regenerated" });
+      toast({ title: "Post regenerated (LinkedIn & Facebook)" });
     } catch (err) {
       toast({
-        title: "Error regenerating LinkedIn post",
+        title: "Error regenerating post",
         description: err instanceof Error ? err.message : "Unknown error",
         variant: "destructive",
       });
@@ -665,7 +665,7 @@ export default function AdminDominicalDetail() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="post-text" className="text-base font-semibold">
-                LinkedIn Post
+                Post (LinkedIn & Facebook)
               </Label>
               {!isReadOnly && (
                 <Button
@@ -679,7 +679,7 @@ export default function AdminDominicalDetail() {
                   ) : (
                     <Sparkles className="h-3.5 w-3.5 mr-1" />
                   )}
-                  Regenerate LI
+                  Regenerate
                 </Button>
               )}
             </div>
