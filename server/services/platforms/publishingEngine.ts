@@ -2,6 +2,7 @@
 
 import type Database from 'better-sqlite3';
 import type { PlatformName, PlatformStatus, PlatformAdapter, PublishRequest, PublishResult } from './types.js';
+import { formatForPlatform } from './contentFormatter.js';
 import { exportCarouselPdf } from '../pdfExporter.js';
 
 export interface PlatformPublishStatus {
@@ -112,8 +113,10 @@ export class PublishingEngine {
 
       let finalText: string;
       if (platform === 'instagram' && rawRequest.postTextInstagram) {
+        // Instagram has its own pre-formatted caption
         finalText = rawRequest.postTextInstagram;
       } else {
+        // LinkedIn and Facebook: use post_text as-is (already formatted by GPT with proper line breaks)
         finalText = rawRequest.text;
       }
 

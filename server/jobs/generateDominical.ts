@@ -95,7 +95,6 @@ Reglas:
 - VOZ: Escribe en primera persona del plural. Los artículos son NUESTROS. NO digas "según el artículo de Robles AI" ni "el artículo menciona" — di "en nuestro artículo exploramos", "como analizamos en", "vemos que", etc.
 - PRESENTACIÓN: El post es "El Dominical IA" publicado por Robles.AI. Preséntalo como tal al inicio.
 - CTA: Usa "síguenos" (no "sigue a El Dominical"). Se publica desde la cuenta de Robles.AI.
-- HASHTAGS sin tildes ni acentos (#Innovacion, #Tecnologia, #InteligenciaArtificial, #TransformacionDigital — NUNCA usar tildes en hashtags)
 
 Devuelve SOLO el texto del post, sin markdown ni explicaciones adicionales.`;
 
