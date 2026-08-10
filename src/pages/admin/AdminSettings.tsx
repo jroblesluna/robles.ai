@@ -487,6 +487,44 @@ export default function AdminSettings() {
         </CardContent>
       </Card>
 
+      {/* Analytics & Tracking */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Analytics & Tracking</CardTitle>
+          <CardDescription>
+            Configure website analytics. Leave empty to disable.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="ga4_measurement_id">Google Analytics 4 Measurement ID</Label>
+            <Input
+              id="ga4_measurement_id"
+              type="text"
+              placeholder="G-XXXXXXXXXX"
+              value={settings.ga4_measurement_id || ""}
+              onChange={(e) => updateSetting("ga4_measurement_id", e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Find it in Google Analytics → Admin → Data Streams → your stream
+            </p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="meta_pixel_id">Meta Pixel ID</Label>
+            <Input
+              id="meta_pixel_id"
+              type="text"
+              placeholder="123456789012345"
+              value={settings.meta_pixel_id || ""}
+              onChange={(e) => updateSetting("meta_pixel_id", e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Find it in Meta Events Manager → your pixel → Settings
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* OpenAI API Key */}
       <Card>
         <CardHeader>

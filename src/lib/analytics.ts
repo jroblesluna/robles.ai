@@ -1,55 +1,67 @@
 import ReactGA from 'react-ga4';
 import ReactPixel from 'react-facebook-pixel';
 
-const gaMeasurementId = import.meta.env.VITE_GA_MEASUREMENT_ID;
-const fbPixelId = import.meta.env.VITE_FACEBOOK_PIXEL_ID;
+let gaInitialized = false;
+let fbInitialized = false;
 
 /**
- * Initialize Google Analytics and Facebook Pixel
- * Only in production environment
+ * Initialize Google Analytics and Facebook Pixel.
+ * Fetches IDs dynamically from the admin settings API so they can be
+ * configured from the admin panel without redeploying.
+ * Only activates in production environment.
  */
-export const initAnalytics = () => {
+export const initAnalytics = async () => {
   if (!import.meta.env.PROD) {
     console.log('Analytics disabled in development');
     return;
   }
 
-  if (gaMeasurementId) {
-    ReactGA.initialize(gaMeasurementId);
-    ReactGA.send({ hitType: 'pageview', page: window.location.pathname });
-    console.log('✅ Google Analytics initialized');
-  } else {
-    console.warn('⚠️ GA Measurement ID missing');
-  }
+  // Don't inject analytics on admin pages
+  if (window.location.pathname.startsWith('/admin')) return;
 
-  if (fbPixelId) {
-    ReactPixel.init(fbPixelId);
-    ReactPixel.pageView();
-    console.log('✅ Facebook Pixel initialized');
-  } else {
-    console.warn('⚠️ Facebook Pixel ID missing');
+  try {
+    const res = await fetch('/api/public/analytics-config');
+    if (!res.ok) return;
+    const config = await res.json();
+
+    if (config.ga4) {
+      ReactGA.initialize(config.ga4);
+      ReactGA.send({ hitType: 'pageview', page: window.location.pathname });
+      gaInitialized = true;
+      console.log('✅ Google Analytics initialized');
+    }
+
+    if (config.metaPixel) {
+      ReactPixel.init(config.metaPixel);
+      ReactPixel.pageView();
+      fbInitialized = true;
+      console.log('✅ Facebook Pixel initialized');
+    }
+  } catch {
+    // Silently fail — analytics are non-critical
   }
 };
 
 /**
- * Optional: Track custom events
+ * Track custom events in both GA4 and Meta Pixel.
  */
 export const trackEvent = (category: string, action: string, label?: string) => {
-  if (gaMeasurementId) {
+  if (gaInitialized) {
     ReactGA.event({ category, action, label });
   }
-  if (fbPixelId) {
+  if (fbInitialized) {
     ReactPixel.track(action, { label });
   }
 };
 
+/**
+ * Track a page view (for SPA navigation).
+ */
 export const trackPageView = (url: string): void => {
-  if (gaMeasurementId) {
+  if (gaInitialized) {
     ReactGA.send({ hitType: 'pageview', page: url });
-    console.log('📊 GA Pageview:', url);
   }
-  if (fbPixelId) {
+  if (fbInitialized) {
     ReactPixel.pageView();
-    console.log('📊 FB Pageview:', url);
   }
 };
