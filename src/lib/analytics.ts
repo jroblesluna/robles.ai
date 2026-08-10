@@ -24,6 +24,32 @@ export const initAnalytics = async () => {
     if (!res.ok) return;
     const config = await res.json();
 
+    // Google Tag Manager (must load first — it can manage other tags)
+    if (config.gtm && /^GTM-[A-Z0-9]+$/.test(config.gtm)) {
+      // Inject GTM script into <head>
+      const gtmScript = document.createElement('script');
+      gtmScript.textContent = `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','${config.gtm}');`;
+      document.head.insertBefore(gtmScript, document.head.firstChild);
+
+      // Inject noscript iframe into <body>
+      const noscript = document.createElement('noscript');
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.googletagmanager.com/ns.html?id=${config.gtm}`;
+      iframe.height = '0';
+      iframe.width = '0';
+      iframe.style.display = 'none';
+      iframe.style.visibility = 'hidden';
+      noscript.appendChild(iframe);
+      document.body.insertBefore(noscript, document.body.firstChild);
+
+      console.log('✅ Google Tag Manager initialized:', config.gtm);
+    }
+
+    // Google Analytics 4
     if (config.ga4) {
       ReactGA.initialize(config.ga4);
       ReactGA.send({ hitType: 'pageview', page: window.location.pathname });
@@ -31,6 +57,7 @@ export const initAnalytics = async () => {
       console.log('✅ Google Analytics initialized');
     }
 
+    // Meta Pixel
     if (config.metaPixel) {
       ReactPixel.init(config.metaPixel);
       ReactPixel.pageView();

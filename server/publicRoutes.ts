@@ -72,11 +72,13 @@ function serveSlideImage(req: any, res: any) {
 publicRouter.get('/analytics-config', (_req, res) => {
   const ga4Id = db.prepare("SELECT value FROM settings WHERE key = 'ga4_measurement_id'").get() as { value: string | null } | undefined;
   const pixelId = db.prepare("SELECT value FROM settings WHERE key = 'meta_pixel_id'").get() as { value: string | null } | undefined;
+  const gtmId = db.prepare("SELECT value FROM settings WHERE key = 'gtm_container_id'").get() as { value: string | null } | undefined;
 
   res.setHeader('Cache-Control', 'public, max-age=3600'); // 1h cache
   res.json({
     ga4: ga4Id?.value || null,
     metaPixel: pixelId?.value || null,
+    gtm: gtmId?.value || null,
   });
 });
 

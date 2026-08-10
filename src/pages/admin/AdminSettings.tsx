@@ -522,6 +522,19 @@ export default function AdminSettings() {
               Find it in Meta Events Manager → your pixel → Settings
             </p>
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="gtm_container_id">Google Tag Manager Container ID</Label>
+            <Input
+              id="gtm_container_id"
+              type="text"
+              placeholder="GTM-XXXXXXX"
+              value={settings.gtm_container_id || ""}
+              onChange={(e) => updateSetting("gtm_container_id", e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Find it in tagmanager.google.com → your container → Container ID
+            </p>
+          </div>
         </CardContent>
       </Card>
 
