@@ -24,7 +24,8 @@ export const initAnalytics = async () => {
     if (!res.ok) return;
     const config = await res.json();
 
-    // Google Tag Manager (must load first — it can manage other tags)
+    // If GTM is configured, it handles ALL tracking (GA4, Meta Pixel, etc.)
+    // Don't inject individual trackers to avoid duplicate events.
     if (config.gtm && /^GTM-[A-Z0-9]+$/.test(config.gtm)) {
       // Inject GTM script into <head>
       const gtmScript = document.createElement('script');
@@ -46,23 +47,23 @@ export const initAnalytics = async () => {
       noscript.appendChild(iframe);
       document.body.insertBefore(noscript, document.body.firstChild);
 
-      console.log('✅ Google Tag Manager initialized:', config.gtm);
+      console.log('✅ Google Tag Manager initialized (manages all tracking):', config.gtm);
+      return; // GTM handles everything — stop here
     }
 
-    // Google Analytics 4
+    // Fallback: No GTM configured — use direct GA4 and Meta Pixel injection
     if (config.ga4) {
       ReactGA.initialize(config.ga4);
       ReactGA.send({ hitType: 'pageview', page: window.location.pathname });
       gaInitialized = true;
-      console.log('✅ Google Analytics initialized');
+      console.log('✅ Google Analytics initialized (direct)');
     }
 
-    // Meta Pixel
     if (config.metaPixel) {
       ReactPixel.init(config.metaPixel);
       ReactPixel.pageView();
       fbInitialized = true;
-      console.log('✅ Facebook Pixel initialized');
+      console.log('✅ Facebook Pixel initialized (direct)');
     }
   } catch {
     // Silently fail — analytics are non-critical
