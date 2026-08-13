@@ -83,6 +83,13 @@ db.exec(`
     FOREIGN KEY (report_id) REFERENCES dominical_reports(id),
     UNIQUE(report_id, platform)
   );
+
+  CREATE TABLE IF NOT EXISTS analytics_cache (
+    cache_key TEXT PRIMARY KEY,
+    response_json TEXT NOT NULL,
+    fetched_at TEXT NOT NULL,
+    ttl_seconds INTEGER NOT NULL
+  );
 `);
 
 // Add new columns for platform-specific text (safe to call multiple times)

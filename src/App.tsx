@@ -26,6 +26,7 @@ import AdminLayout from '@/pages/admin/AdminLayout';
 import AdminSettings from '@/pages/admin/AdminSettings';
 import AdminDominicalList from '@/pages/admin/AdminDominicalList';
 import AdminDominicalDetail from '@/pages/admin/AdminDominicalDetail';
+import AdminAnalytics from '@/pages/admin/AdminAnalytics';
 
 function App() {
   const [location] = useLocation(); // 👈 de wouter
@@ -78,6 +79,11 @@ function App() {
           <Route path="/admin/dominical/:id">
             <AdminLayout>
               <AdminDominicalDetail />
+            </AdminLayout>
+          </Route>
+          <Route path="/admin/analytics">
+            <AdminLayout>
+              <AdminAnalytics />
             </AdminLayout>
           </Route>
           <Route component={NotFound} />

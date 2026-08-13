@@ -16,6 +16,7 @@ import cron from 'node-cron';
 import { generateHistoricalPosts } from '@/scripts/generateHistoricalPosts';
 import { addOneDay, subtractOneDay } from '@/utils/managmentDate';
 import adminRouter from './adminRoutes.js';
+import analyticsRouter from './analyticsRoutes.js';
 import publicRouter from './publicRoutes.js';
 import { generateDominicalReport } from './jobs/generateDominical.js';
 import { autoPublishDominical } from './jobs/autoPublishDominical.js';
@@ -31,6 +32,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Admin routes
   app.use('/api/admin', adminRouter);
+
+  // Analytics routes
+  app.use('/api/admin/analytics', analyticsRouter);
 
   // Public routes (no auth — Meta servers need to access slide images)
   app.use('/api/public', publicRouter);
