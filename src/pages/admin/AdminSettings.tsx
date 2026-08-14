@@ -538,6 +538,35 @@ export default function AdminSettings() {
         </CardContent>
       </Card>
 
+
+      {/* GA4 Data API (Dashboard) */}
+      <Card>
+        <CardHeader>
+          <CardTitle>GA4 Data API (Dashboard)</CardTitle>
+          <CardDescription>
+            Configure the GA4 Data API for the analytics dashboard. This is separate from the Measurement ID above.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="ga4_property_id">GA4 Property ID (numeric)</Label>
+            <Input
+              id="ga4_property_id"
+              type="text"
+              placeholder="123456789"
+              value={settings.ga4_property_id || ""}
+              onChange={(e) => updateSetting("ga4_property_id", e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              The numeric Property ID. Find it in Google Analytics &rarr; Admin &rarr; Property Settings.
+            </p>
+          </div>
+          <div className="space-y-2">
+            <Label>Service Account JSON</Label>
+            <Ga4ServiceAccountUpload />
+          </div>
+        </CardContent>
+      </Card>
       {/* OpenAI API Key */}
       <Card>
         <CardHeader>
@@ -682,6 +711,63 @@ export default function AdminSettings() {
           {saving ? "Saving..." : "Save Settings"}
         </Button>
       </div>
+    </div>
+  );
+}
+
+function Ga4ServiceAccountUpload() {
+  const [status, setStatus] = useState<"unknown" | "configured" | "not_configured">("unknown");
+  const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/admin/settings/ga4-status")
+      .then((r) => r.json())
+      .then((data) => setStatus(data.hasCredentials ? "configured" : "not_configured"))
+      .catch(() => setStatus("unknown"));
+  }, []);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const text = await file.text();
+      const json = JSON.parse(text);
+      const res = await fetch("/api/admin/settings/ga4-service-account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(json),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Upload failed");
+      setStatus("configured");
+      toast({ title: "Success", description: "Service account credentials saved." });
+    } catch (err) {
+      toast({ title: "Error", description: err instanceof Error ? err.message : "Upload failed", variant: "destructive" });
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-3">
+      <label className="cursor-pointer">
+        <input type="file" accept=".json" className="hidden" onChange={handleUpload} disabled={uploading} />
+        <Button variant="outline" size="sm" asChild disabled={uploading}>
+          <span>{uploading ? "Uploading..." : "Upload JSON"}</span>
+        </Button>
+      </label>
+      {status === "configured" && (
+        <span className="flex items-center gap-1 text-sm text-green-600">
+          <CheckCircle2 className="h-4 w-4" /> Configured
+        </span>
+      )}
+      {status === "not_configured" && (
+        <span className="flex items-center gap-1 text-sm text-amber-600">
+          <XCircle className="h-4 w-4" /> Not configured
+        </span>
+      )}
     </div>
   );
 }

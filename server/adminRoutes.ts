@@ -2023,4 +2023,70 @@ adminRouter.post('/test-ig-linebreaks', requireAuth, (req, res) => {
   })();
 });
 
+
+
+// --- GA4 Service Account Upload ---
+
+/**
+ * GET /api/admin/settings/ga4-status
+ * Returns whether the GA4 service account file exists (without exposing contents).
+ */
+adminRouter.get('/settings/ga4-status', requireAuth, (_req, res) => {
+  try {
+    const saPath = path.resolve(process.cwd(), 'server/data/ga4-service-account.json');
+    const exists = fs.existsSync(saPath);
+    const propertyIdRow = db.prepare('SELECT value FROM settings WHERE key = ?').get('ga4_property_id') as { value: string | null } | undefined;
+    const hasPropertyId = Boolean(propertyIdRow?.value);
+    res.json({ configured: exists && hasPropertyId, hasCredentials: exists, hasPropertyId });
+  } catch (error) {
+    console.error('Error checking GA4 status:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * POST /api/admin/settings/ga4-service-account
+ * Upload a GA4 Service Account JSON file. Validates structure before saving.
+ */
+adminRouter.post('/settings/ga4-service-account', requireAuth, (req, res) => {
+  try {
+    const body = req.body;
+
+    // Validate it looks like a service account JSON
+    if (!body || typeof body !== 'object') {
+      res.status(400).json({ error: 'Request body must be a valid JSON object' });
+      return;
+    }
+
+    const requiredFields = ['type', 'project_id', 'private_key_id', 'private_key', 'client_email'];
+    const missing = requiredFields.filter((f) => !(f in body));
+    if (missing.length > 0) {
+      res.status(400).json({ error: 'Invalid service account JSON. Missing fields: ' + missing.join(', ') });
+      return;
+    }
+
+    if (body.type !== 'service_account') {
+      res.status(400).json({ error: 'JSON type must be "service_account"' });
+      return;
+    }
+
+    // Write the file
+    const saPath = path.resolve(process.cwd(), 'server/data/ga4-service-account.json');
+    fs.mkdirSync(path.dirname(saPath), { recursive: true });
+    fs.writeFileSync(saPath, JSON.stringify(body, null, 2), 'utf-8');
+
+    // Reset the GA4 client so it picks up the new credentials
+    try {
+      import("./services/ga4Client.js").then(m => m.resetClient()).catch(() => {});
+    } catch {
+      // Non-fatal if import fails during startup
+    }
+
+    res.json({ success: true, message: 'Service account credentials saved' });
+  } catch (error) {
+    console.error('Error uploading GA4 service account:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default adminRouter;
