@@ -39,23 +39,29 @@ interface Editor {
 }
 
 function splitIntoParagraphs(text: string): string[] {
-  // Split ONLY on double line breaks — intentional paragraph separators from the LLM
+  // 1. If text has double line breaks, use them
   const byDoubleBreak = text.split(/\n\s*\n/).map(p => p.trim()).filter(p => p.length > 0);
+  if (byDoubleBreak.length >= 2) return byDoubleBreak;
 
-  if (byDoubleBreak.length >= 2) {
-    return byDoubleBreak;
-  }
-
-  // Fallback: treat single \n as paragraph breaks (some older posts use this)
+  // 2. If text has single line breaks, use them
   const bySingleBreak = text.split(/\n/).map(p => p.trim()).filter(p => p.length > 30);
+  if (bySingleBreak.length >= 2) return bySingleBreak;
 
-  if (bySingleBreak.length >= 2) {
-    return bySingleBreak;
+  // 3. Fallback: split into visual paragraphs every ~3 sentences
+  // Use a regex that splits on ". " followed by an uppercase letter,
+  // but NOT on decimals ($1.9), abbreviations (EE.UU.), or initials (Dr. Smith)
+  const sentenceEnders = /(?<=[.!?])\s+(?=[A-ZÀ-Ü])/g;
+  const sentences = text.split(sentenceEnders).filter(s => s.trim().length > 0);
+
+  if (sentences.length <= 3) return [text];
+
+  // Group every 3 sentences into a paragraph
+  const paragraphs: string[] = [];
+  for (let i = 0; i < sentences.length; i += 3) {
+    const group = sentences.slice(i, i + 3).join(' ');
+    paragraphs.push(group.trim());
   }
-
-  // No line breaks at all — return as single paragraph
-  // Do NOT split by sentence — it breaks on decimals like $1.9, $6.2, EE.UU.
-  return [text];
+  return paragraphs;
 }
 
 // Extrae y convierte la fecha del slug tipo YYYY-MM-DD-HH-MM-SS
