@@ -78,7 +78,17 @@ QUALITY CHECK — before returning, verify your output:
 - Would an expert in the field find new, specific information?
 - Is every paragraph grounded in source data (not filler)?
 
-Target: 5-7 sections, 15-20 min read per language.
+LENGTH REQUIREMENTS (CRITICAL):
+- MINIMUM 2000 words per language (English and Spanish each)
+- Each section body MUST be at least 4 paragraphs, each paragraph 150-250 words
+- Total article: 5-7 sections minimum
+- Target reading time: 15-20 min per language
+- If your output is under 2000 words per language, you have NOT written enough detail
+
+QUOTES REQUIREMENT:
+- Include at least 2 DIRECT QUOTES from the source material (attributed to specific people)
+- If the source doesn't have quotes, paraphrase a specific statement and attribute it to the source/author
+- Example: According to Tim Breen, CEO of GlobalFoundries, "this represents a paradigm shift in..."
 `.trim();
 
   return { systemPrompt, userPrompt };

@@ -165,7 +165,7 @@ export async function generateHistoricalPosts(
           ],
           temperature,
           top_p,
-          max_tokens: 15000,
+          max_tokens: 16000,
         });
         //Simulate response
         /*
