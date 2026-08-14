@@ -39,23 +39,23 @@ interface Editor {
 }
 
 function splitIntoParagraphs(text: string): string[] {
-  const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
-  const paragraphs: string[] = [];
-  let currentParagraph = '';
+  // Split ONLY on double line breaks — intentional paragraph separators from the LLM
+  const byDoubleBreak = text.split(/\n\s*\n/).map(p => p.trim()).filter(p => p.length > 0);
 
-  for (const sentence of sentences) {
-    const trimmed = sentence.trim();
-    if (currentParagraph.split(/\s+/).length >= 50) {
-      paragraphs.push(currentParagraph.trim());
-      currentParagraph = trimmed;
-    } else {
-      currentParagraph += (currentParagraph ? ' ' : '') + trimmed;
-    }
+  if (byDoubleBreak.length >= 2) {
+    return byDoubleBreak;
   }
-  if (currentParagraph) {
-    paragraphs.push(currentParagraph.trim());
+
+  // Fallback: treat single \n as paragraph breaks (some older posts use this)
+  const bySingleBreak = text.split(/\n/).map(p => p.trim()).filter(p => p.length > 30);
+
+  if (bySingleBreak.length >= 2) {
+    return bySingleBreak;
   }
-  return paragraphs;
+
+  // No line breaks at all — return as single paragraph
+  // Do NOT split by sentence — it breaks on decimals like $1.9, $6.2, EE.UU.
+  return [text];
 }
 
 // Extrae y convierte la fecha del slug tipo YYYY-MM-DD-HH-MM-SS
