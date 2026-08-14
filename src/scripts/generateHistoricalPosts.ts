@@ -7,6 +7,7 @@ import { searchNews } from './newsService';
 import { savePost, listRecentTopics } from './postUtils';
 import { buildPostPrompt } from './postPrompt';
 import { updateSitemap } from './sitemapService';
+import db from '../../server/db.js';
 
 dotenv.config();
 
@@ -14,7 +15,21 @@ dotenv.config();
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = path.dirname(__filename);
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// Read API key from DB (settings table) with env var fallback
+function getOpenAIApiKey(): string {
+  try {
+    const row = db.prepare('SELECT value FROM settings WHERE key = ?').get('openai_api_key') as { value: string } | undefined;
+    if (row?.value) return row.value;
+  } catch {
+    // DB query failed, fall through to env
+  }
+  if (process.env.OPENAI_API_KEY) return process.env.OPENAI_API_KEY;
+  throw new Error('OpenAI API key not configured. Set it in Admin Settings or as OPENAI_API_KEY env var.');
+}
+
+function getOpenAIClient(): OpenAI {
+  return new OpenAI({ apiKey: getOpenAIApiKey() });
+}
 
 function randomBetween(min: number, max: number): number {
   return Math.random() * (max - min) + min;
@@ -141,7 +156,8 @@ export async function generateHistoricalPosts(
       console.log(`Temperature: ${temperature.toFixed(2)}, Top_p: ${top_p.toFixed(2)}`);
 
       try {
-        const response = await openai.chat.completions.create({
+        const client = getOpenAIClient();
+        const response = await client.chat.completions.create({
           model: 'gpt-4o',
           messages: [
             { role: 'system', content: systemPrompt },
