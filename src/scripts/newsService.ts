@@ -8,7 +8,51 @@ interface ArticleResult {
   urlToImage: string;
   source: string;
   content: string;
-  liveContent: string; // <--- nuevo campo
+  liveContent: string;
+}
+
+/**
+ * Extract the main textual content from an HTML page.
+ * Tries multiple strategies: <article>, main content areas, then falls back to <p> tags.
+ */
+function extractContent($: cheerio.CheerioAPI): string {
+  // Strategy 1: Look for <article> or known content containers
+  const contentSelectors = [
+    'article',
+    '[role="main"]',
+    '.post-content',
+    '.article-content',
+    '.entry-content',
+    '.story-body',
+    '.article-body',
+    '.content-body',
+    'main',
+  ];
+
+  for (const selector of contentSelectors) {
+    const el = $(selector);
+    if (el.length > 0) {
+      const paragraphs = el
+        .find('p')
+        .map((_, p) => $(p).text().trim())
+        .get()
+        .filter((text) => text.length > 40)
+        .slice(0, 30);
+
+      if (paragraphs.length >= 3) {
+        return paragraphs.join('\n\n');
+      }
+    }
+  }
+
+  // Strategy 2: Fall back to all <p> tags on the page
+  const allParagraphs = $('p')
+    .map((_, p) => $(p).text().trim())
+    .get()
+    .filter((text) => text.length > 40)
+    .slice(0, 25);
+
+  return allParagraphs.join('\n\n');
 }
 
 export async function searchNews(query: string, date: string): Promise<ArticleResult[]> {
@@ -16,37 +60,40 @@ export async function searchNews(query: string, date: string): Promise<ArticleRe
   const fromDate = date;
   const toDate = date;
 
-  const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&from=${fromDate}&to=${toDate}&sortBy=popularity&language=en&pageSize=5&apiKey=${apiKey}`;
+  // Fetch more articles (10) so we can filter out weak ones
+  const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&from=${fromDate}&to=${toDate}&sortBy=popularity&language=en&pageSize=10&apiKey=${apiKey}`;
 
   console.log(`Fetching news from URL: ${url}`);
   const response = await axios.get(url);
   const articles = response.data.articles;
-  console.log(`Fetched articles: ${JSON.stringify(articles)}`);
 
   const results: ArticleResult[] = [];
-
   let articleId = 0;
+
   for (const article of articles) {
     let liveContent = '';
     articleId++;
+
     try {
-      const page = await axios.get(article.url, { timeout: 10000 }); // 10 seconds timeout
+      const page = await axios.get(article.url, {
+        timeout: 12000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; RoblesAI/1.0; +https://robles.ai)',
+        },
+      });
       const $ = cheerio.load(page.data);
 
-      // Extraer el contenido visible de la página:
-      // Vamos a intentar extraer los <p> más importantes
-      let paragraphs = $('p')
-        .map((_, p) => $(p).text())
-        .get()
-        .filter(text => text.length > 50) // evitar basura como "Accept Cookies"
-        .slice(0, 10) // máximo 10 párrafos para no saturar
-        .join('\n\n');
+      // Remove noise elements before extraction
+      $('script, style, nav, footer, header, aside, .sidebar, .comments, .ad, [class*="cookie"]').remove();
 
-      if (paragraphs.length > 10000) {
-        paragraphs = paragraphs.slice(0, 9997) + '...'; // Leave room for ellipsis
+      let content = extractContent($);
+
+      // Cap at 15000 chars to stay within token budget
+      if (content.length > 15000) {
+        content = content.slice(0, 14997) + '...';
       }
 
-      liveContent = paragraphs || '';
+      liveContent = content;
     } catch (err) {
       let errorMessage = 'Unknown error';
       if (err instanceof Error) {
@@ -57,15 +104,29 @@ export async function searchNews(query: string, date: string): Promise<ArticleRe
     }
 
     results.push({
-      articleId: articleId,
+      articleId,
       title: article.title,
       url: article.url,
       urlToImage: article.urlToImage,
       source: article.source.name,
-      content: article.content,
-      liveContent: liveContent,
+      content: article.content || '',
+      liveContent,
     });
   }
 
-  return results;
+  // Filter out articles with insufficient content (less than 300 chars of usable text)
+  const MIN_CONTENT_LENGTH = 300;
+  const richResults = results.filter((r) => {
+    const bestContent = r.liveContent.length > r.content.length ? r.liveContent : r.content;
+    return bestContent.length >= MIN_CONTENT_LENGTH;
+  });
+
+  // Return at least the top 5 rich articles, or all results if filtering removes too many
+  if (richResults.length >= 3) {
+    console.log(`📰 ${richResults.length}/${results.length} articles passed content filter`);
+    return richResults.slice(0, 7);
+  }
+
+  console.log(`📰 Content filter too aggressive, returning top ${Math.min(5, results.length)} articles`);
+  return results.slice(0, 5);
 }

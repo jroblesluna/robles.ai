@@ -6,7 +6,7 @@ You must always respond strictly in JSON format according to the structure provi
   const userPrompt = `
 Your task:
 - You are writing today's blog post as ${editor.name}, following your unique editorial voice and style.
-- Analyze the following news articles:
+- Analyze the following news articles carefully. Pay close attention to the FULL CONTENT provided — it contains specific data, names, technologies, and details you MUST use:
   
   ${JSON.stringify(newsArticles, null, 2)}
   
@@ -15,21 +15,25 @@ Your task:
       : ''}
       
 - Your mission:
-  - Select only news articles that are truly relevant.
-  - Write a blog post that combines your editorial style with Robles.AI's vision: delivering value and clarity about AI's real-world impact.
-  - Reflect how this topic could apply to real industries (e.g., health, logistics, cities, finance, etc).
-  - Insert examples, projections, or hypotheticals relevant to the editor’s voice.
+  - Select only news articles that are truly relevant and have enough substance.
+  - Write an IN-DEPTH blog post that demonstrates expert knowledge. NOT a superficial summary.
+  - You MUST cite specific data points, statistics, company names, technology names, research findings, and quotes directly from the source content.
+  - Each section must deeply analyze one aspect — explain WHY it matters, HOW it works technically, and WHAT the implications are.
+  - Include specific examples: name the companies, the technologies (specific model names, frameworks, algorithms), the numbers (percentages, dollar amounts, user counts).
+  - Reflect how this topic applies to real industries with CONCRETE scenarios, not vague generalities.
+  - If a source mentions a specific technology or methodology, explain it — don't just name-drop it.
   - End the article with a dedicated section like:
-    - “How Robles.AI addresses this challenge”
-    - “Where Robles.AI fits into this future”
-    - Include a short call to action like “Contact us to learn how we can help.”
+    - "How Robles.AI addresses this challenge" or "Where Robles.AI fits into this future"
+    - Include a short call to action like "Contact us to learn how we can help."
 
-- You must:
-  - Mention at least 2 news articles explicitly
-  - Use quotes if they add credibility
-  - Write deeply — no summaries, expand ideas
-  - Inject your editor persona clearly
-  - Write in both English and Spanish
+- CRITICAL QUALITY RULES:
+  - DO NOT write generic filler like "AI is transforming the world" or "technology plays a crucial role"
+  - Every paragraph must contain at least one SPECIFIC fact, data point, or technical detail from the sources
+  - Mention at least 3 news articles explicitly with their specific content
+  - Use direct quotes from the sources when they add credibility (attribute them properly)
+  - Write deeply — each section should TEACH the reader something they didn't know
+  - Explain technical concepts for a professional audience (not dumbed down, not overly academic)
+  - Write in both English and Spanish (both versions must be equally detailed)
   - Avoid markdown; return clean JSON
   - Follow this JSON format:
 
@@ -49,11 +53,11 @@ Your task:
     },
     "es": {
       "slug": "titulo-del-post",
-      "title": "Título del Post",
+      "title": "Titulo del Post",
       "excerpt": "Extracto del post.",
       "content": [
-        { "heading": "Subtítulo 1", "body": "Contenido detallado del subtítulo 1." },
-        { "heading": "Subtítulo 2", "body": "Contenido detallado del subtítulo 2." },
+        { "heading": "Subtitulo 1", "body": "Contenido detallado del subtitulo 1." },
+        { "heading": "Subtitulo 2", "body": "Contenido detallado del subtitulo 2." },
         ...
       ]
     }
@@ -69,10 +73,12 @@ Your task:
   ]
 }
 
-- Extra rules:
-  - 3 to 5 sections, each 3–5 paragraphs of 150–300 words
-  - Target reading time: 10–15 min per language
-  - Be informative and visionary, but practical
+- Section requirements:
+  - 4 to 6 sections, each 3-5 paragraphs
+  - Each paragraph: 150-300 words with SPECIFIC details
+  - Target reading time: 12-18 min per language
+  - Be informative, technical, and visionary — but always grounded in specific facts from the sources
+  - The reader should finish knowing MORE than what a headline tells them
 `.trim();
 
   return { systemPrompt, userPrompt };
