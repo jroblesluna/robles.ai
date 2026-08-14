@@ -320,7 +320,7 @@ export default function BlogPost() {
                 </h2>
               )}
               {splitIntoParagraphs(block.body).map((paragraph, pidx) => (
-                <p key={pidx}>{paragraph}</p>
+                <p key={pidx} className="mb-4">{paragraph}</p>
               ))}
               {(translation.content.length || -1) == idx + 1 && (
                 <div className="mt-6">
