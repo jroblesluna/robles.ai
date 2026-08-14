@@ -6,79 +6,79 @@ You must always respond strictly in JSON format according to the structure provi
   const userPrompt = `
 Your task:
 - You are writing today's blog post as ${editor.name}, following your unique editorial voice and style.
-- Analyze the following news articles carefully. Pay close attention to the FULL CONTENT provided — it contains specific data, names, technologies, and details you MUST use:
-  
-  ${JSON.stringify(newsArticles, null, 2)}
-  
-  ${recentTopics.length > 0
-      ? `- Also consider previously covered topics (avoid repeating them):\n${recentTopics.join(', ')}`
-      : ''}
-      
-- Your mission:
-  - Select only news articles that are truly relevant and have enough substance.
-  - Write an IN-DEPTH blog post that demonstrates expert knowledge. NOT a superficial summary.
-  - You MUST cite specific data points, statistics, company names, technology names, research findings, and quotes directly from the source content.
-  - Each section must deeply analyze one aspect — explain WHY it matters, HOW it works technically, and WHAT the implications are.
-  - Include specific examples: name the companies, the technologies (specific model names, frameworks, algorithms), the numbers (percentages, dollar amounts, user counts).
-  - Reflect how this topic applies to real industries with CONCRETE scenarios, not vague generalities.
-  - If a source mentions a specific technology or methodology, explain it — don't just name-drop it.
-  - End the article with a dedicated section like:
-    - "How Robles.AI addresses this challenge" or "Where Robles.AI fits into this future"
-    - Include a short call to action like "Contact us to learn how we can help."
+- You have ${newsArticles.length} source articles below with FULL SCRAPED CONTENT. Use this content deeply.
 
-- CRITICAL QUALITY RULES:
-  - DO NOT write generic filler like "AI is transforming the world" or "technology plays a crucial role"
-  - Every paragraph must contain at least one SPECIFIC fact, data point, or technical detail from the sources
-  - Mention at least 3 news articles explicitly with their specific content
-  - Use direct quotes from the sources when they add credibility (attribute them properly)
-  - Write deeply — each section should TEACH the reader something they didn't know
-  - Explain technical concepts for a professional audience (not dumbed down, not overly academic)
-  - Write in both English and Spanish (both versions must be equally detailed)
-  - Avoid markdown; return clean JSON
-  - Follow this JSON format:
+SOURCE ARTICLES:
+${JSON.stringify(newsArticles, null, 2)}
 
+${recentTopics.length > 0
+    ? `Previously covered topics (avoid repeating): ${recentTopics.join(", ")}`
+    : ""}
+
+WRITING INSTRUCTIONS:
+
+1. STRUCTURE: Dedicate ONE FULL SECTION to each major source article (minimum 3 articles, each gets its own heading and 3-5 paragraphs). Do NOT merge multiple articles into one generic section.
+
+2. DEPTH REQUIREMENTS FOR EACH SECTION:
+   - Paragraph 1: State the specific news — WHO did WHAT, WHEN, with exact names, figures, and context from the source
+   - Paragraph 2: Explain the TECHNICAL DETAILS — how does this technology/approach work? What specific methods, algorithms, architectures, or processes are involved? Pull this from the scraped content.
+   - Paragraph 3: Analyze the IMPLICATIONS — what does this mean for the industry? Include specific market data, adoption numbers, competitor landscape, or expert quotes from the source.
+   - Paragraph 4 (optional): Your editorial perspective — connect this to broader trends, add your expert opinion, relate to Robles.AI's domain
+
+3. MANDATORY SPECIFICS (your article MUST include):
+   - At least 5 specific numbers/statistics from the sources (revenue figures, percentages, dates, user counts, etc.)
+   - At least 3 named technologies, products, or methodologies
+   - At least 2 named people (CEOs, researchers, etc.) with their actual quotes or paraphrased statements from the sources
+   - At least 3 named companies or institutions
+   - Technical explanations that go beyond surface level (explain HOW things work, not just WHAT happened)
+
+4. FORBIDDEN PATTERNS (do NOT write these):
+   - "AI is transforming the world/industry/landscape"
+   - "The implications are profound"
+   - "This technology plays a crucial role"
+   - "In today's rapidly evolving..."
+   - Any sentence that could apply to ANY technology article (be specific to THIS news)
+   - Generic calls to action without connection to the specific content discussed
+
+5. FINAL SECTION: "Where Robles.AI Fits" — connect SPECIFICALLY to the technologies discussed (not generic "we help with AI"), mention which specific capability or service relates to the article content.
+
+6. Write in BOTH English and Spanish (both equally detailed, not a shortened translation).
+
+JSON FORMAT:
 {
-  "categories": [ "category_1", "category_2", "category_3", ...more if needed ],
-  "keywords": [ "keyword_1", "keyword_2", "keyword_3", ...more if needed ],
+  "categories": ["category_1", "category_2", "category_3"],
+  "keywords": ["keyword_1", "keyword_2", "keyword_3", "keyword_4", "keyword_5"],
   "translations": {
     "en": {
-      "slug": "title-of-the-post",
-      "title": "Title of the Post",
-      "excerpt": "Excerpt of the post.",
+      "slug": "descriptive-slug-with-specific-topic",
+      "title": "Specific Title Mentioning Key Technology or Company",
+      "excerpt": "2-3 sentence excerpt with a specific data point.",
       "content": [
-        { "heading": "Heading 1", "body": "Detailed content of section 1." },
-        { "heading": "Heading 2", "body": "Detailed content of section 2." },
-        ...
+        { "heading": "Section Heading About Specific Article", "body": "Full detailed content. Multiple paragraphs separated by newlines. Each paragraph 150-250 words. Must contain specific data from source." },
+        { "heading": "Another Specific Section", "body": "..." }
       ]
     },
     "es": {
-      "slug": "titulo-del-post",
-      "title": "Titulo del Post",
-      "excerpt": "Extracto del post.",
+      "slug": "slug-descriptivo-con-tema-especifico",
+      "title": "Titulo Especifico Mencionando Tecnologia o Empresa Clave",
+      "excerpt": "Extracto de 2-3 oraciones con un dato especifico.",
       "content": [
-        { "heading": "Subtitulo 1", "body": "Contenido detallado del subtitulo 1." },
-        { "heading": "Subtitulo 2", "body": "Contenido detallado del subtitulo 2." },
-        ...
+        { "heading": "Encabezado Sobre Articulo Especifico", "body": "Contenido completo y detallado..." }
       ]
     }
   },
   "sources": [
-    {
-      "articleId": 1,
-      "title": "News Title",
-      "url": "https://source.com/article",
-      "source": "News Outlet Name"
-    },
-    ... more only if used
+    { "articleId": 1, "title": "Exact Article Title", "url": "https://...", "source": "Outlet Name" }
   ]
 }
 
-- Section requirements:
-  - 4 to 6 sections, each 3-5 paragraphs
-  - Each paragraph: 150-300 words with SPECIFIC details
-  - Target reading time: 12-18 min per language
-  - Be informative, technical, and visionary — but always grounded in specific facts from the sources
-  - The reader should finish knowing MORE than what a headline tells them
+QUALITY CHECK — before returning, verify your output:
+- Does each section contain at least 3 specific facts/numbers from the source?
+- Could a reader learn HOW a technology works from your article?
+- Would an expert in the field find new, specific information?
+- Is every paragraph grounded in source data (not filler)?
+
+Target: 5-7 sections, 15-20 min read per language.
 `.trim();
 
   return { systemPrompt, userPrompt };
