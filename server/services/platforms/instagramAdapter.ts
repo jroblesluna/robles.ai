@@ -290,26 +290,45 @@ export class InstagramAdapter implements PlatformAdapter {
    * an auth error, refresh the token and retry once.
    */
   async publish(request: PublishRequest): Promise<PublishResult> {
-    try {
-      const mediaId = await this.attemptPublish(request);
-      return { success: true, platformPostId: mediaId };
-    } catch (firstError) {
-      // Check if it's a 401/403 error — attempt token refresh and retry
-      if (this.isAuthError(firstError)) {
-        try {
-          console.log('Instagram publish got auth error, attempting token refresh and retry...');
-          await refreshAccessToken();
-          const mediaId = await this.attemptPublish(request);
-          return { success: true, platformPostId: mediaId };
-        } catch (retryError) {
-          const message = retryError instanceof Error ? retryError.message : String(retryError);
-          return { success: false, error: `Instagram publish failed after token refresh retry: ${message}` };
-        }
-      }
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY_MS = 30000; // 30 seconds between retries
 
-      const message = firstError instanceof Error ? firstError.message : String(firstError);
-      return { success: false, error: message };
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        const mediaId = await this.attemptPublish(request);
+        if (attempt > 1) {
+          console.log(`Instagram publish succeeded on attempt ${attempt}/${MAX_RETRIES}`);
+        }
+        return { success: true, platformPostId: mediaId };
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+
+        // Auth error (401/403): try token refresh once
+        if (attempt === 1 && this.isAuthError(error)) {
+          try {
+            console.log('Instagram publish got auth error, attempting token refresh and retry...');
+            await refreshAccessToken();
+            const mediaId = await this.attemptPublish(request);
+            return { success: true, platformPostId: mediaId };
+          } catch (retryError) {
+            const retryMsg = retryError instanceof Error ? retryError.message : String(retryError);
+            return { success: false, error: `Instagram publish failed after token refresh retry: ${retryMsg}` };
+          }
+        }
+
+        // Transient media download error (code 9004): retry with backoff
+        if (this.isTransientMediaError(error) && attempt < MAX_RETRIES) {
+          console.log(`Instagram media download error (attempt ${attempt}/${MAX_RETRIES}). Retrying in ${RETRY_DELAY_MS / 1000}s...`);
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+          continue;
+        }
+
+        // Final attempt or non-retryable error
+        return { success: false, error: message };
+      }
     }
+
+    return { success: false, error: 'Instagram publish failed after all retry attempts' };
   }
 
   /**
@@ -358,6 +377,17 @@ export class InstagramAdapter implements PlatformAdapter {
 
     // No images available — Instagram requires at least one image
     throw new Error('Instagram publishing requires at least one image. No slides or cover image available.');
+  }
+
+  /**
+   * Check if an error is a transient media download error (code 9004).
+   * These are temporary failures where Instagram cannot fetch the image URL.
+   */
+  private isTransientMediaError(error: unknown): boolean {
+    if (error instanceof Error) {
+      return error.message.includes('9004') || error.message.includes('Only photo or video');
+    }
+    return false;
   }
 
   /**

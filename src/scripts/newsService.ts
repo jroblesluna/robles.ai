@@ -11,6 +11,25 @@ interface ArticleResult {
   liveContent: string;
 }
 
+// --- NewsAPI Key Rotation ---
+const NEWS_API_KEYS: string[] = (process.env.NEWS_API_KEYS || process.env.NEWS_API_KEY || '').split(',').filter(k => k.trim());
+let currentKeyIndex = 0;
+
+function getNextApiKey(): string {
+  if (NEWS_API_KEYS.length === 0) throw new Error('No NEWS_API_KEY(S) configured');
+  const key = NEWS_API_KEYS[currentKeyIndex % NEWS_API_KEYS.length];
+  currentKeyIndex++;
+  return key.trim();
+}
+
+function rotateToNextKey(): string {
+  if (NEWS_API_KEYS.length <= 1) throw new Error('All NewsAPI keys exhausted (rate limited)');
+  const key = NEWS_API_KEYS[currentKeyIndex % NEWS_API_KEYS.length];
+  currentKeyIndex++;
+  console.log(`  Rotating to NewsAPI key #${(currentKeyIndex % NEWS_API_KEYS.length) + 1}/${NEWS_API_KEYS.length}`);
+  return key.trim();
+}
+
 /**
  * Extract the main textual content from an HTML page.
  * Tries multiple strategies: <article>, main content areas, then falls back to <p> tags.
@@ -56,17 +75,26 @@ function extractContent($: cheerio.CheerioAPI): string {
 }
 
 export async function searchNews(query: string, date: string): Promise<ArticleResult[]> {
-  const apiKey = process.env.NEWS_API_KEY;
   const fromDate = date;
   const toDate = date;
-
-  // Fetch more articles (10) so we can filter out weak ones
-  const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&from=${fromDate}&to=${toDate}&sortBy=popularity&language=en&pageSize=10&apiKey=${apiKey}`;
-
-  console.log(`Fetching news from URL: ${url}`);
-  const response = await axios.get(url);
-  const articles = response.data.articles;
-
+  // Try each API key until one works (rotate on 429)
+  let articles: any[] = [];
+  for (let keyAttempt = 0; keyAttempt < NEWS_API_KEYS.length; keyAttempt++) {
+    const apiKey = keyAttempt === 0 ? getNextApiKey() : rotateToNextKey();
+    const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&from=${fromDate}&to=${toDate}&sortBy=popularity&language=en&pageSize=10&apiKey=${apiKey}`;
+    console.log(`Fetching news: "${query}" key #${(currentKeyIndex % NEWS_API_KEYS.length) + 1}`);
+    try {
+      const response = await axios.get(url);
+      articles = response.data.articles || [];
+      break;
+    } catch (err: any) {
+      if (err?.response?.status === 429 && keyAttempt < NEWS_API_KEYS.length - 1) {
+        console.log(`  NewsAPI rate limited (429). Rotating to next key...`);
+        continue;
+      }
+      throw err;
+    }
+  }
   const results: ArticleResult[] = [];
   let articleId = 0;
 
