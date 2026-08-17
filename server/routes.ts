@@ -250,9 +250,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (specificDate) {
         // Direct mode: generate for a specific date, bypassing lastPostDate logic
         console.log(`[API] Generating for specific date: ${specificDate}, editor: ${editorId || 'all'}`);
-        await generateHistoricalPosts(specificDate, editorId, specificDate);
+        const result = await generateHistoricalPosts(specificDate, editorId, specificDate);
         console.log('[API] Specific date generation completed.');
-        res.status(200).json({ success: true, data: `Generated for ${specificDate}` });
+        res.status(200).json({ success: true, data: `Generated for ${specificDate}`, stats: result });
         return;
       }
 

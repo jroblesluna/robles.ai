@@ -78,11 +78,13 @@ function generateDatePrefix(date: Date, editorId: number): string {
   return `${year}-${month}-${day}-${hours}-${minutes}-${seconds}`;
 }
 
+export interface GenResult { newsCount: number; tokensUsed: number; skipped?: string }
+
 export async function generateHistoricalPosts(
   targetDate?: string,
   targetEditorId?: number,
   startDateOpc: string = '2025-04-30'
-) {
+): Promise<GenResult | null> {
   const startDate = new Date(startDateOpc);
   const today = new Date();
 
@@ -115,6 +117,7 @@ export async function generateHistoricalPosts(
       const alreadyExists = await postExistsForDateEditor(dateString, editor.id);
       if (alreadyExists) {
         console.log(`⏭️  Post already exists for ${editor.name} on ${dateString}. Skipping.`);
+        return { newsCount: 0, tokensUsed: 0, skipped: 'already_exists' };
         continue;
       }
 
@@ -123,6 +126,7 @@ export async function generateHistoricalPosts(
 
       if (!news.length) {
         console.warn(`⚠️ No news found for ${editor.name} on ${dateString}. Skipping.`);
+        return { newsCount: 0, tokensUsed: 0, skipped: 'no_news' };
         continue;
       }
 
@@ -265,6 +269,7 @@ export async function generateHistoricalPosts(
         }
 
         console.log(`✅ Post generated for ${editor.name} on ${datePrefix}`);
+        return { newsCount: news.length, tokensUsed: post.stats.total_tokens };
       } catch (error) {
         console.error(`❌ Error generating post for ${editor.name} on ${dateString}:`, error);
       }

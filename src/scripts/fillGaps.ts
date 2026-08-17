@@ -116,9 +116,21 @@ async function main() {
 
       try {
         const response = await fetch(url);
-        const data = await response.json() as { success: boolean; error?: string };
+        const data = await response.json() as { success: boolean; error?: string; stats?: { newsCount: number; tokensUsed: number; skipped?: string } };
 
-        if (data.success) {
+        if (data.success && data.stats) {
+          const s = data.stats;
+          if (s.skipped === 'already_exists') {
+            console.log('⏭️  Already exists');
+            skipped++;
+          } else if (s.skipped === 'no_news') {
+            console.log('⚠️  No news found');
+            skipped++;
+          } else {
+            console.log(`✅ ${s.newsCount} news, ${s.tokensUsed} tokens`);
+            filled++;
+          }
+        } else if (data.success) {
           console.log('✅');
           filled++;
         } else {
