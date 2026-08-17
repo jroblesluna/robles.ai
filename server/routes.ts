@@ -18,10 +18,13 @@ import { addOneDay, subtractOneDay } from '@/utils/managmentDate';
 import adminRouter from './adminRoutes.js';
 import analyticsRouter from './analyticsRoutes.js';
 import publicRouter from './publicRoutes.js';
+import searchRouter from './searchRoutes.js';
 import { generateDominicalReport } from './jobs/generateDominical.js';
 import { autoPublishDominical } from './jobs/autoPublishDominical.js';
 import { generateCarousel } from './services/carouselGenerator.js';
 import { getSlugIndex } from './vite.js';
+import db from './db.js';
+import { indexNewPosts, type PostJson } from './fts/indexer.js';
 
 // Reconstruir __dirname compatible con ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -38,6 +41,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Public routes (no auth — Meta servers need to access slide images)
   app.use('/api/public', publicRouter);
+
+  // Search routes (mounted before catch-all /api/blog GET)
+  app.use('/api/blog', searchRouter);
 
   // 🚀 Contact form route - SEND EMAIL instead of storage
   app.post('/api/contact', (req: Request, res: Response) => {
@@ -186,6 +192,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (slugIndex) {
           await slugIndex.rebuild();
           console.log('[CRON] SlugIndex rebuilt with new posts.');
+        }
+
+        // Index newly generated posts into FTS5 for search
+        try {
+          const [yyyy, mm, dd] = targetDate.split('-');
+          const dayDir = path.resolve(__dirname, `./data/posts/${yyyy}/${mm}/${dd}`);
+          const dayFiles = await readdir(dayDir);
+          const jsonFiles = dayFiles.filter((f) => f.endsWith('.json'));
+
+          const posts: PostJson[] = [];
+          for (const file of jsonFiles) {
+            try {
+              const content = await readFile(path.join(dayDir, file), 'utf-8');
+              posts.push(JSON.parse(content) as PostJson);
+            } catch (parseErr) {
+              console.warn(`[FTS] Skipped (parse error): ${file}`, parseErr);
+            }
+          }
+
+          if (posts.length > 0) {
+            indexNewPosts(db, posts);
+            console.log(`[CRON] FTS indexed ${posts.length} new posts.`);
+          }
+        } catch (ftsErr) {
+          console.error('[CRON] FTS indexing error (non-fatal):', ftsErr);
         }
 
         console.log('[CRON] Scheduled task completed.');

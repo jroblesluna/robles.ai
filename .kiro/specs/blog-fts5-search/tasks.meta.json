@@ -1,0 +1,312 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Implement `server/fts/indexer.ts` with `ensureFtsTable`, `extractContent`, `indexPost`, `indexAllPosts`, and `indexNewPosts`": [
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786945657559
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786945665739
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786945891497
+      }
+    ],
+    "1.2 Write property tests for `extractContent` (Properties 1, 2, 4)": [
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786945657596
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786945895760
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946034355
+      }
+    ],
+    "1.3 Write property tests for indexing operations (Properties 5, 6, 7)": [
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786945657626
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786945896575
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946035341
+      }
+    ],
+    "2.1 Implement `server/fts/migrate.ts` CLI script": [
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786945657659
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786945897600
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946036326
+      }
+    ],
+    "3. Checkpoint - Verify indexer and migration": [
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786945657696
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946984456
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786947036109
+      }
+    ],
+    "4.1 Create `server/searchRoutes.ts` with search endpoint": [
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786945657724
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946045553
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946210554
+      }
+    ],
+    "4.2 Register search route in `server/routes.ts`": [
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786945657751
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946214766
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946441540
+      }
+    ],
+    "4.3 Write property tests for Search API (Properties 8, 9, 10, 11, 12, 13)": [
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786945657778
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946215605
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946442740
+      }
+    ],
+    "4.4 Write property test for BM25 ranking (Property 14)": [
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786945657803
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946216478
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946443616
+      }
+    ],
+    "5. Checkpoint - Verify search API": [
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786945657830
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786947039662
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786947355070
+      }
+    ],
+    "6.1 Create `src/hooks/useSearch.ts` custom hook": [
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786945657859
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946453577
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946627756
+      }
+    ],
+    "6.2 Create `src/components/BlogSearch.tsx` component": [
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786945657886
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946636994
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946786234
+      }
+    ],
+    "6.3 Integrate `BlogSearch` into `src/pages/BlogList.tsx`": [
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786945657913
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946790901
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946975136
+      }
+    ],
+    "6.4 Write unit tests for BlogSearch component (Property 15)": [
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786945657941
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946791739
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946976172
+      }
+    ],
+    "7.1 Modify `server/routes.ts` to call `indexNewPosts` after hourly cron generates posts": [
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786945657968
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946453633
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946628619
+      }
+    ],
+    "8. Final checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786945658001
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786947358722
+      },
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786947362354
+      }
+    ],
+    "1. Create FTS Indexer module": [
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946035368
+      }
+    ],
+    "2. Create migration script": [
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946036359
+      }
+    ],
+    "4. Implement Search API route": [
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946443647
+      }
+    ],
+    "7. Wire incremental indexing into cron": [
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946628646
+      }
+    ],
+    "6. Implement frontend search": [
+      {
+        "executionId": "ca2a5b1c-b71e-43cf-9b09-9a4bc7a087b0",
+        "chatSessionId": "sess_e0bc9c2d-6871-4ebb-998c-c8026a732a51",
+        "timestamp": 1786946976199
+      }
+    ]
+  }
+}

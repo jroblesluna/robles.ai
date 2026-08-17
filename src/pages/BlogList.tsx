@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'wouter';
+import BlogSearch from '@/components/BlogSearch';
 
 interface Post {
   slug: string;
@@ -53,6 +54,7 @@ export default function BlogList() {
   const observer = useRef<IntersectionObserver | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [searchActive, setSearchActive] = useState(false);
 
   const lastPostRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -116,201 +118,208 @@ export default function BlogList() {
 
   return (
     <div className="container mx-auto p-6">
-      {/* Filters */}
-      {/* Cool horizontal scrollable editor selector */}
-      <div className="mb-6 flex items-center justify-center gap-2">
-        <span className="text-lg text-gray-500">
-          {i18n.language === 'es' ? 'Filtrar por' : 'Filter by'}
-        </span>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 text-lg bg-gray-50 text-gray-500 hover:text-blue-700 rounded-md hover:bg-blue-50 transition duration-300 shadow-md"
-        >
-          <span>
-            {editorFilter === null
-              ? i18n.language === 'es'
-                ? 'Todos los temas'
-                : 'All topics'
-              : editors.find((e) => e.id === editorFilter)?.specialty || 'Editor'}
-          </span>
-          <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-            <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-          </svg>
-        </button>
-      </div>
+      {/* Search */}
+      <BlogSearch onSearchActive={setSearchActive} />
 
-      {/* POSTS */}
-      {posts.length === 0 && loading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="rounded-lg border border-gray-100 shadow-md bg-white p-4 animate-pulse">
-              <div className="h-4 w-24 bg-gray-200 rounded mb-3" />
-              <div className="h-5 w-full bg-gray-200 rounded mb-2" />
-              <div className="h-5 w-3/4 bg-gray-200 rounded mb-4" />
-              <div className="h-3 w-full bg-gray-100 rounded mb-1" />
-              <div className="h-3 w-2/3 bg-gray-100 rounded mb-6" />
-              <div className="flex items-center gap-3 mt-auto">
-                <div className="w-10 h-10 bg-gray-200 rounded-full" />
-                <div>
-                  <div className="h-3 w-24 bg-gray-200 rounded mb-1" />
-                  <div className="h-3 w-16 bg-gray-100 rounded" />
+      {!searchActive && (
+        <>
+          {/* Filters */}
+          {/* Cool horizontal scrollable editor selector */}
+          <div className="mb-6 flex items-center justify-center gap-2">
+            <span className="text-lg text-gray-500">
+              {i18n.language === 'es' ? 'Filtrar por' : 'Filter by'}
+            </span>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 text-lg bg-gray-50 text-gray-500 hover:text-blue-700 rounded-md hover:bg-blue-50 transition duration-300 shadow-md"
+            >
+              <span>
+                {editorFilter === null
+                  ? i18n.language === 'es'
+                    ? 'Todos los temas'
+                    : 'All topics'
+                  : editors.find((e) => e.id === editorFilter)?.specialty || 'Editor'}
+              </span>
+              <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+              </svg>
+            </button>
+          </div>
+
+          {/* POSTS */}
+          {posts.length === 0 && loading && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="rounded-lg border border-gray-100 shadow-md bg-white p-4 animate-pulse">
+                  <div className="h-4 w-24 bg-gray-200 rounded mb-3" />
+                  <div className="h-5 w-full bg-gray-200 rounded mb-2" />
+                  <div className="h-5 w-3/4 bg-gray-200 rounded mb-4" />
+                  <div className="h-3 w-full bg-gray-100 rounded mb-1" />
+                  <div className="h-3 w-2/3 bg-gray-100 rounded mb-6" />
+                  <div className="flex items-center gap-3 mt-auto">
+                    <div className="w-10 h-10 bg-gray-200 rounded-full" />
+                    <div>
+                      <div className="h-3 w-24 bg-gray-200 rounded mb-1" />
+                      <div className="h-3 w-16 bg-gray-100 rounded" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {posts.map((post, index) => {
+              const translation =
+                post.translations[i18n.language as 'en' | 'es'] || post.translations.en;
+              const postDate = extractDateTimeFromSlug(post.slug);
+              const formattedDate = formatDateWithTimeZone(postDate, i18n.language as 'en' | 'es');
+              const editor = editors.find((e) => e.id === post.editorId);
+              const bgColor = editor?.colorPalette?.[0] ?? '#cccccc'; // Fallback color
+              const textColor = isColorLight(bgColor) ? '#000000' : '#FFFFFF';
+
+              const isLast = index === posts.length - 1;
+              return (
+                <div ref={isLast ? lastPostRef : null} key={post.slug}>
+                  <Link
+                    href={`/blog/${post.slug}`}
+                    className="h-full block rounded-lg border border-white hover:border-purple-400 hover:-mt-2 hover:mb-2 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden bg-white p-4"
+                  >
+                    <div className="flex flex-col justify-between h-full">
+                      <div>
+                        {editor?.specialty && editor?.colorPalette && (
+                          <span
+                            className="inline-block mb-2 px-2 py-1 text-xs font-semibold rounded"
+                            style={{
+                              backgroundColor: bgColor,
+                              color: textColor,
+                            }}
+                          >
+                            {editor.specialty}
+                          </span>
+                        )}
+                        <h2 className="text-lg md:text-xl font-semibold mb-2 text-gray-800">
+                          {translation.title}
+                        </h2>
+                        <p className="text-sm text-gray-500 mb-4">{translation.excerpt}</p>
+                      </div>
+                      {editor && (
+                        <div className="flex items-center gap-3 mt-auto ">
+                          <div className="flex flex-col leading-tight ">
+                            <p className="text-xs font-semibold text-gray-700">
+                              ✍️ {i18n.language === 'es' ? `Publicado por` : `Published By`}:
+                              Antonio Robles
+                            </p>
+                            <p className="text-xs font-semibold text-gray-700">
+                              🤖 {i18n.language === 'es' ? `Asistente IA` : `AI Assistant`}:{' '}
+                              {editor.name}
+                            </p>
+                            <p className="text-[11px] text-gray-500">{formattedDate}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Loading indicator */}
+          {loading && (
+            <div className="flex justify-center items-center py-10">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-8 h-8 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
+                <span className="text-sm text-gray-500">
+                  {i18n.language === 'es' ? 'Cargando más noticias...' : 'Loading more news...'}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* No more posts */}
+          {!hasMore && posts.length > 0 && !loading && (
+            <div className="text-center py-8">
+              <span className="text-sm text-gray-400">
+                {i18n.language === 'es' ? 'No hay más noticias' : 'No more news'}
+              </span>
+            </div>
+          )}
+
+          {isModalOpen && (
+            <div
+              className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center"
+              onClick={(e) => {
+                if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+                  setIsModalOpen(false);
+                }
+              }}
+            >
+              <div
+                ref={modalRef}
+                className="bg-white rounded-lg shadow-lg w-full max-w-md p-4 overflow-y-hidden"
+                onClick={(e) => e.stopPropagation()} // Evita que el clic dentro del modal lo cierre
+              >
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold">
+                    {i18n.language === 'es' ? 'Selecciona un tema' : 'Choose a topic'}
+                  </h2>
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="text-gray-600 hover:text-red-500 text-xl font-bold"
+                  >
+                    &times;
+                  </button>
+                </div>
+                <div className="max-h-[70vh] overflow-y-auto">
+                  <button
+                    onClick={() => {
+                      if (editorFilter === null) {
+                        setIsModalOpen(false);
+                        return;
+                      }
+                      setEditorFilter(null);
+                      setPage(1);
+                      setPosts([]);
+                      setIsModalOpen(false);
+                    }}
+                    className="w-full text-left flex items-center gap-3 p-3 mb-2 rounded-lg hover:bg-gray-100 transition bg-blue-50 text-blue-700 font-medium"
+                  >
+                    {i18n.language === 'es' ? 'Todos los temas' : 'All topics'}
+                  </button>
+                  {editors.map((editor) => (
+                    <button
+                      key={editor.id}
+                      onClick={() => {
+                        if (editorFilter === editor.id) {
+                          setIsModalOpen(false);
+                          return;
+                        }
+                        setEditorFilter(editor.id);
+                        setPage(1);
+                        setPosts([]);
+                        setIsModalOpen(false);
+                      }}
+                      className={`w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition duration-50 ${
+                        editorFilter === editor.id ? 'bg-blue-100' : ''
+                      }`}
+                    >
+                      <img
+                        src={`/avatars/${editor.id}-headshot.png`}
+                        alt={editor.name}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                      <div>
+                        <p className="font-semibold text-sm">{editor.specialty}</p>
+                        <p className="text-xs text-gray-500">{editor.name}</p>
+                      </div>
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        {posts.map((post, index) => {
-          const translation =
-            post.translations[i18n.language as 'en' | 'es'] || post.translations.en;
-          const postDate = extractDateTimeFromSlug(post.slug);
-          const formattedDate = formatDateWithTimeZone(postDate, i18n.language as 'en' | 'es');
-          const editor = editors.find((e) => e.id === post.editorId);
-          const bgColor = editor?.colorPalette?.[0] ?? '#cccccc'; // Fallback color
-          const textColor = isColorLight(bgColor) ? '#000000' : '#FFFFFF';
-
-          const isLast = index === posts.length - 1;
-          return (
-            <div ref={isLast ? lastPostRef : null} key={post.slug}>
-              <Link
-                href={`/blog/${post.slug}`}
-                className="h-full block rounded-lg border border-white hover:border-purple-400 hover:-mt-2 hover:mb-2 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden bg-white p-4"
-              >
-                <div className="flex flex-col justify-between h-full">
-                  <div>
-                    {editor?.specialty && editor?.colorPalette && (
-                      <span
-                        className="inline-block mb-2 px-2 py-1 text-xs font-semibold rounded"
-                        style={{
-                          backgroundColor: bgColor,
-                          color: textColor,
-                        }}
-                      >
-                        {editor.specialty}
-                      </span>
-                    )}
-                    <h2 className="text-lg md:text-xl font-semibold mb-2 text-gray-800">
-                      {translation.title}
-                    </h2>
-                    <p className="text-sm text-gray-500 mb-4">{translation.excerpt}</p>
-                  </div>
-                  {editor && (
-                    <div className="flex items-center gap-3 mt-auto ">
-                      <div className="flex flex-col leading-tight ">
-                        <p className="text-xs font-semibold text-gray-700">
-                          ✍️ {i18n.language === 'es' ? `Publicado por` : `Published By`}:
-                          Antonio Robles
-                        </p>
-                        <p className="text-xs font-semibold text-gray-700">
-                          🤖 {i18n.language === 'es' ? `Asistente IA` : `AI Assistant`}:{' '}
-                          {editor.name}
-                        </p>
-                        <p className="text-[11px] text-gray-500">{formattedDate}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </Link>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Loading indicator */}
-      {loading && (
-        <div className="flex justify-center items-center py-10">
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-8 h-8 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
-            <span className="text-sm text-gray-500">
-              {i18n.language === 'es' ? 'Cargando más noticias...' : 'Loading more news...'}
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* No more posts */}
-      {!hasMore && posts.length > 0 && !loading && (
-        <div className="text-center py-8">
-          <span className="text-sm text-gray-400">
-            {i18n.language === 'es' ? 'No hay más noticias' : 'No more news'}
-          </span>
-        </div>
-      )}
-
-      {isModalOpen && (
-        <div
-          className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center"
-          onClick={(e) => {
-            if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-              setIsModalOpen(false);
-            }
-          }}
-        >
-          <div
-            ref={modalRef}
-            className="bg-white rounded-lg shadow-lg w-full max-w-md p-4 overflow-y-hidden"
-            onClick={(e) => e.stopPropagation()} // Evita que el clic dentro del modal lo cierre
-          >
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">
-                {i18n.language === 'es' ? 'Selecciona un tema' : 'Choose a topic'}
-              </h2>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="text-gray-600 hover:text-red-500 text-xl font-bold"
-              >
-                &times;
-              </button>
-            </div>
-            <div className="max-h-[70vh] overflow-y-auto">
-              <button
-                onClick={() => {
-                  if (editorFilter === null) {
-                    setIsModalOpen(false);
-                    return;
-                  }
-                  setEditorFilter(null);
-                  setPage(1);
-                  setPosts([]);
-                  setIsModalOpen(false);
-                }}
-                className="w-full text-left flex items-center gap-3 p-3 mb-2 rounded-lg hover:bg-gray-100 transition bg-blue-50 text-blue-700 font-medium"
-              >
-                {i18n.language === 'es' ? 'Todos los temas' : 'All topics'}
-              </button>
-              {editors.map((editor) => (
-                <button
-                  key={editor.id}
-                  onClick={() => {
-                    if (editorFilter === editor.id) {
-                      setIsModalOpen(false);
-                      return;
-                    }
-                    setEditorFilter(editor.id);
-                    setPage(1);
-                    setPosts([]);
-                    setIsModalOpen(false);
-                  }}
-                  className={`w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition duration-50 ${
-                    editorFilter === editor.id ? 'bg-blue-100' : ''
-                  }`}
-                >
-                  <img
-                    src={`/avatars/${editor.id}-headshot.png`}
-                    alt={editor.name}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                  <div>
-                    <p className="font-semibold text-sm">{editor.specialty}</p>
-                    <p className="text-xs text-gray-500">{editor.name}</p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+          )}
+        </>
       )}
     </div>
   );
