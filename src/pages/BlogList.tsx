@@ -117,35 +117,39 @@ export default function BlogList() {
       {!searchActive && (
         <>
           {/* Inline Pill Filters */}
-          <div className="mb-4 flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => handleFilterChange(null)}
-              className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                editorFilter === null
-                  ? 'bg-purple-600 text-white shadow-sm'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              {lang === 'es' ? 'Todos' : 'All'}
-            </button>
-            {editors.map((editor) => (
+          <div className="relative mb-4">
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 pr-8" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
               <button
-                key={editor.id}
-                onClick={() => handleFilterChange(editor.id)}
+                onClick={() => handleFilterChange(null)}
                 className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                  editorFilter === editor.id
+                  editorFilter === null
                     ? 'bg-purple-600 text-white shadow-sm'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
-                <img
-                  src={`/avatars/${editor.id}-headshot.png`}
-                  alt=""
-                  className="w-5 h-5 rounded-full object-cover"
-                />
-                <span>{editor.specialty}</span>
+                {lang === 'es' ? 'Todos' : 'All'}
               </button>
-            ))}
+              {editors.map((editor) => (
+                <button
+                  key={editor.id}
+                  onClick={() => handleFilterChange(editor.id)}
+                  className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                    editorFilter === editor.id
+                      ? 'bg-purple-600 text-white shadow-sm'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <img
+                    src={`/avatars/${editor.id}-headshot.png`}
+                    alt=""
+                    className="w-5 h-5 rounded-full object-cover"
+                  />
+                  <span>{editor.specialty}</span>
+                </button>
+              ))}
+            </div>
+            {/* Fade gradient on right edge to hint at scrollability */}
+            <div className="pointer-events-none absolute right-0 top-0 bottom-2 w-12 bg-gradient-to-l from-white to-transparent" />
           </div>
 
           {/* Results indicator when filter is active */}
