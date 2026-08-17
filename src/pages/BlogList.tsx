@@ -117,7 +117,7 @@ export default function BlogList() {
       {!searchActive && (
         <>
           {/* Inline Pill Filters */}
-          <div className="mb-4 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <div className="mb-4 flex flex-wrap items-center gap-2">
             <button
               onClick={() => handleFilterChange(null)}
               className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
