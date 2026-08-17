@@ -38,7 +38,24 @@ searchRouter.get('/search', (req: Request, res: Response) => {
     const offset = (page - 1) * limit;
 
     // Build the search query dynamically based on lang filter
-    const matchValue = q.trim();
+    // Enable prefix matching: "artesana" will match "artesanal", "artesanía", etc.
+    const matchValue = q.trim()
+      .split(/\s+/)
+      .filter(word => word.length > 0)
+      .map(word => {
+        // Don't add * if the word already ends with * or is an FTS5 operator
+        if (word.endsWith('*') || word === 'AND' || word === 'OR' || word === 'NOT') {
+          return word;
+        }
+        // Strip any trailing punctuation before adding *, then add *
+        return word.replace(/[^\w\u00C0-\u024F]+$/, '') + '*';
+      })
+      .join(' ');
+
+    if (matchValue.length === 0) {
+      res.json({ results: [], total: 0 });
+      return;
+    }
 
     if (lang) {
       // With language filter
