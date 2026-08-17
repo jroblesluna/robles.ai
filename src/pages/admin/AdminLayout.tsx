@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, Link } from "wouter";
-import { LayoutDashboard, Newspaper, Settings, LogOut, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Newspaper, Settings, LogOut, BarChart3, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +11,7 @@ interface AdminLayoutProps {
 const navLinks = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/admin/conversations", label: "Conversations", icon: MessageSquare },
   { href: "/admin/dominical", label: "Dominical", icon: Newspaper },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];

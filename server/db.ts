@@ -2,6 +2,7 @@ import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { migrateChatTables } from './migrations/chatTables.js';
 
 // Reconstruct __dirname for ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -99,5 +100,8 @@ try {
   // Column already exists — ignore
   if (!e.message.includes('duplicate column')) throw e;
 }
+
+// Run chat tables migration
+migrateChatTables(db);
 
 export default db;

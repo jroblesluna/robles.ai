@@ -19,6 +19,7 @@ import adminRouter from './adminRoutes.js';
 import analyticsRouter from './analyticsRoutes.js';
 import publicRouter from './publicRoutes.js';
 import searchRouter from './searchRoutes.js';
+import chatRouter from './chatRoutes.js';
 import { generateDominicalReport } from './jobs/generateDominical.js';
 import { autoPublishDominical } from './jobs/autoPublishDominical.js';
 import { generateCarousel } from './services/carouselGenerator.js';
@@ -48,6 +49,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Search routes (mounted before catch-all /api/blog GET)
   app.use('/api/blog', searchRouter);
+
+  // Chat routes (public chatbot widget API)
+  app.use('/api/chat', chatRouter);
 
   // 🚀 Contact form route - SEND EMAIL instead of storage
   app.post('/api/contact', (req: Request, res: Response) => {

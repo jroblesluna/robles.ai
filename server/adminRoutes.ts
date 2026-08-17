@@ -17,6 +17,7 @@ import { InstagramAdapter } from './services/platforms/instagramAdapter.js';
 import { FacebookAdapter } from './services/platforms/facebookAdapter.js';
 import type { PlatformName, PlatformAdapter } from './services/platforms/types.js';
 import { rebuildListingIndex } from './listing/indexer.js';
+import chatAdminRouter from './chatAdminRoutes.js';
 
 const SALT_ROUNDS = 12;
 
@@ -28,6 +29,9 @@ const COOKIE_OPTIONS = {
 };
 
 const adminRouter = Router();
+
+// Mount chat admin sub-router (conversations list, detail, analytics)
+adminRouter.use(chatAdminRouter);
 
 // --- Platform Publishing Engine (singleton) ---
 const VALID_PLATFORMS: PlatformName[] = ['linkedin', 'instagram', 'facebook'];

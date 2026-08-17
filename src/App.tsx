@@ -19,7 +19,7 @@ import TryLangChain from '@/pages/TryLangChain';
 import TryRAG from '@/pages/TryRAG';
 import TryMedical from '@/pages/TryMedical';
 import Landing from '@/pages/Landing';
-import WhatsAppBubble from '@/components/WhatsAppBubble';
+import ChatbotWidget from '@/components/chat/ChatbotWidget';
 import { useSEO } from '@/hooks/useSEO';
 import AdminPage from '@/pages/admin/AdminPage';
 import AdminLayout from '@/pages/admin/AdminLayout';
@@ -27,6 +27,8 @@ import AdminSettings from '@/pages/admin/AdminSettings';
 import AdminDominicalList from '@/pages/admin/AdminDominicalList';
 import AdminDominicalDetail from '@/pages/admin/AdminDominicalDetail';
 import AdminAnalytics from '@/pages/admin/AdminAnalytics';
+import AdminConversationList from '@/pages/admin/AdminConversationList';
+import AdminConversationDetail from '@/pages/admin/AdminConversationDetail';
 
 function App() {
   const [location] = useLocation(); // 👈 de wouter
@@ -60,7 +62,7 @@ function App() {
     }
   }, [i18n.language]);
 
-  // Admin routes — no Header, Footer, or WhatsAppBubble
+  // Admin routes — no Header, Footer, or ChatbotWidget
   if (isAdminRoute) {
     return (
       <QueryClientProvider client={queryClient}>
@@ -86,6 +88,16 @@ function App() {
               <AdminAnalytics />
             </AdminLayout>
           </Route>
+          <Route path="/admin/conversations/:id">
+            <AdminLayout>
+              <AdminConversationDetail />
+            </AdminLayout>
+          </Route>
+          <Route path="/admin/conversations">
+            <AdminLayout>
+              <AdminConversationList />
+            </AdminLayout>
+          </Route>
           <Route component={NotFound} />
         </Switch>
         <Toaster />
@@ -93,7 +105,7 @@ function App() {
     );
   }
 
-  // Public routes — with Header, Footer, and WhatsAppBubble
+  // Public routes — with Header, Footer, and ChatbotWidget
   return (
     <QueryClientProvider client={queryClient}>
       <div className="flex min-h-screen flex-col">
@@ -118,7 +130,7 @@ function App() {
           </Switch>
         </main>
         <Footer />
-        <WhatsAppBubble />
+        <ChatbotWidget />
         <Toaster />
       </div>
     </QueryClientProvider>
