@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { useTranslation } from 'react-i18next';
 import { Search, X, Loader2 } from 'lucide-react';
@@ -31,9 +31,24 @@ function formatDateWithTimeZone(date: Date, language: 'en' | 'es'): string {
 export default function BlogSearch({ onSearchActive }: BlogSearchProps) {
   const { i18n } = useTranslation();
   const [, setLocation] = useLocation();
-  const { query, setQuery, results, isLoading, isSearchActive, clearSearch } = useSearch();
+  const { query, setQuery, results, isLoading, isLoadingMore, isSearchActive, hasMore, loadMore, clearSearch } = useSearch();
 
   const lang = i18n.language as 'en' | 'es';
+  const observer = useRef<IntersectionObserver | null>(null);
+
+  const lastResultRef = useCallback(
+    (node: HTMLButtonElement | null) => {
+      if (!hasMore) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          loadMore();
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [hasMore, loadMore]
+  );
 
   useEffect(() => {
     onSearchActive(isSearchActive);
@@ -81,13 +96,15 @@ export default function BlogSearch({ onSearchActive }: BlogSearchProps) {
       {/* Search Results */}
       {isSearchActive && !isLoading && results.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mt-4">
-          {results.map((result) => {
+          {results.map((result, index) => {
             const postDate = extractDateTimeFromSlug(result.slug);
             const formattedDate = formatDateWithTimeZone(postDate, lang);
+            const isLast = index === results.length - 1;
 
             return (
               <button
                 key={`${result.slug}-${result.language}`}
+                ref={isLast ? lastResultRef : null}
                 onClick={() => setLocation(`/blog/${result.slug}`)}
                 className="text-left block rounded-lg border border-white hover:border-purple-400 hover:-mt-2 hover:mb-2 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden bg-white p-4"
               >
@@ -106,6 +123,22 @@ export default function BlogSearch({ onSearchActive }: BlogSearchProps) {
               </button>
             );
           })}
+        </div>
+      )}
+
+      {/* Loading more indicator */}
+      {isLoadingMore && (
+        <div className="flex justify-center items-center py-10">
+          <Loader2 className="w-6 h-6 text-purple-500 animate-spin" />
+        </div>
+      )}
+
+      {/* No more results */}
+      {isSearchActive && !hasMore && results.length > 0 && !isLoading && !isLoadingMore && (
+        <div className="text-center py-8">
+          <span className="text-sm text-gray-400">
+            {lang === 'es' ? 'No hay más resultados' : 'No more results'}
+          </span>
         </div>
       )}
 
