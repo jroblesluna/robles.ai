@@ -1,4 +1,4 @@
-// Enhanced BlogList.tsx with scroll pagination, filters, search and dropdown
+// Enhanced BlogList.tsx with scroll pagination, inline pill filters, and improved card design
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -33,14 +33,11 @@ function extractDateTimeFromSlug(slug: string): Date {
   return new Date(isoString);
 }
 
-function formatDateWithTimeZone(date: Date, language: 'en' | 'es'): string {
+function formatDate(date: Date, language: 'en' | 'es'): string {
   return new Intl.DateTimeFormat(language === 'es' ? 'es-ES' : 'en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    timeZoneName: 'short',
   }).format(date);
 }
 
@@ -52,9 +49,10 @@ export default function BlogList() {
   const [hasMore, setHasMore] = useState(true);
   const [editorFilter, setEditorFilter] = useState<number | null>(null);
   const observer = useRef<IntersectionObserver | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [searchActive, setSearchActive] = useState(false);
+
+  const lang = i18n.language as 'en' | 'es';
 
   const lastPostRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -90,63 +88,83 @@ export default function BlogList() {
       .finally(() => setLoading(false));
   }, [page, editorFilter]);
 
-  function isColorLight(hex: string): boolean {
-    const r = parseInt(hex.substr(1, 2), 16);
-    const g = parseInt(hex.substr(3, 2), 16);
-    const b = parseInt(hex.substr(5, 2), 16);
-    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-    return brightness > 160; // Ajusta este umbral si es necesario
+  function handleFilterChange(id: number | null) {
+    if (editorFilter === id) return;
+    setEditorFilter(id);
+    setPage(1);
+    setPosts([]);
   }
 
-  const modalRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setIsModalOpen(false);
-      }
-    };
-
-    if (isModalOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isModalOpen]);
+  const activeEditor = editors.find((e) => e.id === editorFilter);
 
   return (
     <div className="container mx-auto p-6">
+      {/* Page Header */}
+      <div className="mb-6 text-center">
+        <h1 className="text-3xl font-bold text-gray-900">
+          {lang === 'es' ? 'Centro de Noticias IA' : 'AI News Hub'}
+        </h1>
+        <p className="mt-1 text-sm text-gray-500">
+          {lang === 'es'
+            ? 'Últimas noticias sobre inteligencia artificial, generadas por nuestro equipo editorial IA'
+            : 'Latest insights on artificial intelligence, powered by our AI editorial team'}
+        </p>
+      </div>
+
       {/* Search */}
       <BlogSearch onSearchActive={setSearchActive} />
 
       {!searchActive && (
         <>
-          {/* Filters */}
-          {/* Cool horizontal scrollable editor selector */}
-          <div className="mb-6 flex items-center justify-center gap-2">
-            <span className="text-lg text-gray-500">
-              {i18n.language === 'es' ? 'Filtrar por' : 'Filter by'}
-            </span>
+          {/* Inline Pill Filters */}
+          <div className="mb-4 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             <button
-              onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 text-lg bg-gray-50 text-gray-500 hover:text-blue-700 rounded-md hover:bg-blue-50 transition duration-300 shadow-md"
+              onClick={() => handleFilterChange(null)}
+              className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                editorFilter === null
+                  ? 'bg-purple-600 text-white shadow-sm'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
             >
-              <span>
-                {editorFilter === null
-                  ? i18n.language === 'es'
-                    ? 'Todos los temas'
-                    : 'All topics'
-                  : editors.find((e) => e.id === editorFilter)?.specialty || 'Editor'}
-              </span>
-              <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-              </svg>
+              {lang === 'es' ? 'Todos' : 'All'}
             </button>
+            {editors.map((editor) => (
+              <button
+                key={editor.id}
+                onClick={() => handleFilterChange(editor.id)}
+                className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  editorFilter === editor.id
+                    ? 'bg-purple-600 text-white shadow-sm'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                <img
+                  src={`/avatars/${editor.id}-headshot.png`}
+                  alt=""
+                  className="w-5 h-5 rounded-full object-cover"
+                />
+                <span>{editor.specialty}</span>
+              </button>
+            ))}
           </div>
 
-          {/* POSTS */}
+          {/* Results indicator when filter is active */}
+          {editorFilter !== null && activeEditor && (
+            <div className="mb-4 flex items-center gap-2 text-sm text-gray-600">
+              <span>
+                {lang === 'es' ? `Mostrando posts de ${activeEditor.specialty}` : `Showing ${activeEditor.specialty} posts`}
+              </span>
+              <button
+                onClick={() => handleFilterChange(null)}
+                className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 text-gray-500 hover:bg-red-100 hover:text-red-500 transition-colors text-xs"
+                aria-label={lang === 'es' ? 'Limpiar filtro' : 'Clear filter'}
+              >
+                &times;
+              </button>
+            </div>
+          )}
+
+          {/* Loading skeletons (initial load) */}
           {posts.length === 0 && loading && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {Array.from({ length: 6 }).map((_, i) => (
@@ -157,7 +175,7 @@ export default function BlogList() {
                   <div className="h-3 w-full bg-gray-100 rounded mb-1" />
                   <div className="h-3 w-2/3 bg-gray-100 rounded mb-6" />
                   <div className="flex items-center gap-3 mt-auto">
-                    <div className="w-10 h-10 bg-gray-200 rounded-full" />
+                    <div className="w-8 h-8 bg-gray-200 rounded-full" />
                     <div>
                       <div className="h-3 w-24 bg-gray-200 rounded mb-1" />
                       <div className="h-3 w-16 bg-gray-100 rounded" />
@@ -168,54 +186,42 @@ export default function BlogList() {
             </div>
           )}
 
+          {/* Posts Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {posts.map((post, index) => {
               const translation =
-                post.translations[i18n.language as 'en' | 'es'] || post.translations.en;
+                post.translations[lang] || post.translations.en;
               const postDate = extractDateTimeFromSlug(post.slug);
-              const formattedDate = formatDateWithTimeZone(postDate, i18n.language as 'en' | 'es');
+              const formattedDate = formatDate(postDate, lang);
               const editor = editors.find((e) => e.id === post.editorId);
-              const bgColor = editor?.colorPalette?.[0] ?? '#cccccc'; // Fallback color
-              const textColor = isColorLight(bgColor) ? '#000000' : '#FFFFFF';
+              const accentColor = editor?.colorPalette?.[0] ?? '#a855f7';
 
               const isLast = index === posts.length - 1;
               return (
                 <div ref={isLast ? lastPostRef : null} key={post.slug}>
                   <Link
                     href={`/blog/${post.slug}`}
-                    className="h-full block rounded-lg border border-white hover:border-purple-400 hover:-mt-2 hover:mb-2 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden bg-white p-4"
+                    className="h-full block rounded-lg border-l-4 border border-gray-100 hover:border-purple-300 hover:-translate-y-0.5 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden bg-white p-4"
+                    style={{ borderLeftColor: accentColor }}
                   >
                     <div className="flex flex-col justify-between h-full">
                       <div>
-                        {editor?.specialty && editor?.colorPalette && (
-                          <span
-                            className="inline-block mb-2 px-2 py-1 text-xs font-semibold rounded"
-                            style={{
-                              backgroundColor: bgColor,
-                              color: textColor,
-                            }}
-                          >
-                            {editor.specialty}
-                          </span>
-                        )}
-                        <h2 className="text-lg md:text-xl font-semibold mb-2 text-gray-800">
+                        <h2 className="text-lg font-bold mb-1 text-gray-800 line-clamp-2">
                           {translation.title}
                         </h2>
-                        <p className="text-sm text-gray-500 mb-4">{translation.excerpt}</p>
+                        <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                          {translation.excerpt}
+                        </p>
                       </div>
                       {editor && (
-                        <div className="flex items-center gap-3 mt-auto ">
-                          <div className="flex flex-col leading-tight ">
-                            <p className="text-xs font-semibold text-gray-700">
-                              ✍️ {i18n.language === 'es' ? `Publicado por` : `Published By`}:
-                              Antonio Robles
-                            </p>
-                            <p className="text-xs font-semibold text-gray-700">
-                              🤖 {i18n.language === 'es' ? `Asistente IA` : `AI Assistant`}:{' '}
-                              {editor.name}
-                            </p>
-                            <p className="text-[11px] text-gray-500">{formattedDate}</p>
-                          </div>
+                        <div className="flex items-center gap-2 mt-auto pt-2 border-t border-gray-50">
+                          <img
+                            src={`/avatars/${editor.id}-headshot.png`}
+                            alt={editor.name}
+                            className="w-6 h-6 rounded-full object-cover"
+                          />
+                          <span className="text-xs text-gray-600 font-medium">{editor.name}</span>
+                          <span className="text-xs text-gray-400 ml-auto">{formattedDate}</span>
                         </div>
                       )}
                     </div>
@@ -225,13 +231,13 @@ export default function BlogList() {
             })}
           </div>
 
-          {/* Loading indicator */}
-          {loading && (
+          {/* Loading indicator for more posts */}
+          {loading && posts.length > 0 && (
             <div className="flex justify-center items-center py-10">
               <div className="flex flex-col items-center gap-3">
                 <div className="w-8 h-8 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
                 <span className="text-sm text-gray-500">
-                  {i18n.language === 'es' ? 'Cargando más noticias...' : 'Loading more news...'}
+                  {lang === 'es' ? 'Cargando más noticias...' : 'Loading more news...'}
                 </span>
               </div>
             </div>
@@ -241,82 +247,8 @@ export default function BlogList() {
           {!hasMore && posts.length > 0 && !loading && (
             <div className="text-center py-8">
               <span className="text-sm text-gray-400">
-                {i18n.language === 'es' ? 'No hay más noticias' : 'No more news'}
+                {lang === 'es' ? 'No hay más noticias' : 'No more news'}
               </span>
-            </div>
-          )}
-
-          {isModalOpen && (
-            <div
-              className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center"
-              onClick={(e) => {
-                if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-                  setIsModalOpen(false);
-                }
-              }}
-            >
-              <div
-                ref={modalRef}
-                className="bg-white rounded-lg shadow-lg w-full max-w-md p-4 overflow-y-hidden"
-                onClick={(e) => e.stopPropagation()} // Evita que el clic dentro del modal lo cierre
-              >
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold">
-                    {i18n.language === 'es' ? 'Selecciona un tema' : 'Choose a topic'}
-                  </h2>
-                  <button
-                    onClick={() => setIsModalOpen(false)}
-                    className="text-gray-600 hover:text-red-500 text-xl font-bold"
-                  >
-                    &times;
-                  </button>
-                </div>
-                <div className="max-h-[70vh] overflow-y-auto">
-                  <button
-                    onClick={() => {
-                      if (editorFilter === null) {
-                        setIsModalOpen(false);
-                        return;
-                      }
-                      setEditorFilter(null);
-                      setPage(1);
-                      setPosts([]);
-                      setIsModalOpen(false);
-                    }}
-                    className="w-full text-left flex items-center gap-3 p-3 mb-2 rounded-lg hover:bg-gray-100 transition bg-blue-50 text-blue-700 font-medium"
-                  >
-                    {i18n.language === 'es' ? 'Todos los temas' : 'All topics'}
-                  </button>
-                  {editors.map((editor) => (
-                    <button
-                      key={editor.id}
-                      onClick={() => {
-                        if (editorFilter === editor.id) {
-                          setIsModalOpen(false);
-                          return;
-                        }
-                        setEditorFilter(editor.id);
-                        setPage(1);
-                        setPosts([]);
-                        setIsModalOpen(false);
-                      }}
-                      className={`w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition duration-50 ${
-                        editorFilter === editor.id ? 'bg-blue-100' : ''
-                      }`}
-                    >
-                      <img
-                        src={`/avatars/${editor.id}-headshot.png`}
-                        alt={editor.name}
-                        className="w-10 h-10 rounded-full object-cover"
-                      />
-                      <div>
-                        <p className="font-semibold text-sm">{editor.specialty}</p>
-                        <p className="text-xs text-gray-500">{editor.name}</p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
             </div>
           )}
         </>
