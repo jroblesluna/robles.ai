@@ -39,11 +39,11 @@ const Home = () => {
   return (
     <>
       <Hero />
+      <Features />
       <Solutions />
       <Courses />
       <CaseStudies />
       <Testimonials />
-      <Features />
       <Team />
       <Contact />
     </>

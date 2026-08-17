@@ -51,7 +51,7 @@ const Hero = () => {
           <motion.div 
             variants={fadeIn}
             custom={0.4}
-            className="flex flex-row justify-center gap-4"
+            className="flex flex-wrap justify-center gap-3"
           >
             <a 
               href="#features" 

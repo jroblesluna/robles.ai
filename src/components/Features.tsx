@@ -83,7 +83,7 @@ const Features = () => {
             custom={0}
             className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
           >
-            {t("features.title")}Robles<span className="text-blue-600">.AI</span>?
+            {t("features.title")} Robles<span className="text-blue-600">.AI</span>?
           </motion.h2>
           <motion.p 
             variants={fadeIn}
