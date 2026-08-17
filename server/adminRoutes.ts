@@ -16,6 +16,7 @@ import { LinkedInAdapter } from './services/platforms/linkedinAdapter.js';
 import { InstagramAdapter } from './services/platforms/instagramAdapter.js';
 import { FacebookAdapter } from './services/platforms/facebookAdapter.js';
 import type { PlatformName, PlatformAdapter } from './services/platforms/types.js';
+import { rebuildListingIndex } from './listing/indexer.js';
 
 const SALT_ROUNDS = 12;
 
@@ -266,6 +267,24 @@ adminRouter.put('/settings', requireAuth, (req, res) => {
   } catch (error) {
     console.error('Error updating settings:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// --- Reindex Blog Posts ---
+
+/**
+ * POST /api/admin/reindex-posts
+ * Triggers a full rebuild of the blog_posts_index from JSON files.
+ * Protected endpoint — requires admin authentication.
+ */
+adminRouter.post('/reindex-posts', requireAuth, async (_req, res) => {
+  try {
+    const postsDir = path.resolve(process.cwd(), 'server/data/posts');
+    const result = await rebuildListingIndex(db, postsDir);
+    res.json({ success: true, indexed: result.indexed, skipped: result.skipped });
+  } catch (err) {
+    console.error('[Admin] Reindex error:', err);
+    res.status(500).json({ success: false, error: 'Reindex failed' });
   }
 });
 

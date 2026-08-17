@@ -1,0 +1,322 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Create `server/listing/indexer.ts` with interfaces, table creation, and extraction function": [
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950234952
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950243872
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950516599
+      }
+    ],
+    "1.2 Implement `rebuildListingIndex` and `indexListingPosts` functions in `server/listing/indexer.ts`": [
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950234994
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950520961
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950686403
+      }
+    ],
+    "2.1 Write unit tests for `extractListingRow` and `ensureListingTable`": [
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950235018
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950521713
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950687355
+      }
+    ],
+    "2.2 Write property test: Extraction preserves data (Property 8)": [
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950235042
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950699116
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950938051
+      }
+    ],
+    "2.3 Write property test: Rebuild round-trip (Property 1)": [
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950235067
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950699898
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950938967
+      }
+    ],
+    "2.4 Write property test: Rebuild idempotence (Property 2)": [
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950235098
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950700772
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950939850
+      }
+    ],
+    "2.5 Write property test: Upsert preserves latest data (Property 3)": [
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950235136
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950701589
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950940645
+      }
+    ],
+    "3. Checkpoint - Core module verification": [
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950235166
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950953580
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950957157
+      }
+    ],
+    "4.1 Rewrite `GET /api/blog` handler in `server/routes.ts` to query `blog_posts_index`": [
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950235189
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950967792
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786951098578
+      }
+    ],
+    "4.2 Add `POST /api/admin/reindex-posts` endpoint in `server/adminRoutes.ts`": [
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950235212
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950968920
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786951099534
+      }
+    ],
+    "4.3 Write unit tests for the listing API endpoint": [
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950235240
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786951104046
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786951231245
+      }
+    ],
+    "4.4 Write property tests for listing API query behavior": [
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950235268
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786951104832
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786951232182
+      }
+    ],
+    "5. Checkpoint - API migration verification": [
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950235292
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786951236920
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786951240382
+      }
+    ],
+    "6.1 Add incremental listing indexing to the hourly cron job in `server/routes.ts`": [
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950235317
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786951244353
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786951408368
+      }
+    ],
+    "6.2 Add server startup auto-rebuild logic in `server/routes.ts`": [
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950235342
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786951245217
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786951409202
+      }
+    ],
+    "6.3 Write integration tests for cron and startup behavior": [
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950235367
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786951413679
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786951550112
+      }
+    ],
+    "7. Final checkpoint - Full integration verification": [
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950235393
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786951558031
+      },
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786951596590
+      }
+    ],
+    "1. Create listing indexer module with core interfaces and table management": [
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950686449
+      }
+    ],
+    "2. Write unit and property tests for the listing indexer module": [
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786950940681
+      }
+    ],
+    "4. Migrate the listing API and add admin reindex endpoint": [
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786951232224
+      }
+    ],
+    "6. Integrate with cron job and server startup": [
+      {
+        "executionId": "7c35b6de-5b30-4f33-a350-80712e1aa1b6",
+        "chatSessionId": "sess_a7b08a1f-6bac-49be-bfe9-21a4d60c5c1d",
+        "timestamp": 1786951550143
+      }
+    ]
+  }
+}

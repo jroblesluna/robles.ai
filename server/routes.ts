@@ -25,6 +25,7 @@ import { generateCarousel } from './services/carouselGenerator.js';
 import { getSlugIndex } from './vite.js';
 import db from './db.js';
 import { indexNewPosts, type PostJson } from './fts/indexer.js';
+import { ensureListingTable, indexListingPosts, rebuildListingIndex, type PostJson as ListingPostJson } from './listing/indexer.js';
 
 // Reconstruir __dirname compatible con ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -32,6 +33,9 @@ const __dirname = path.dirname(__filename);
 
 export async function registerRoutes(app: Express): Promise<Server> {
   app.use(express.json());
+
+  // Ensure the listing index table exists
+  ensureListingTable(db);
 
   // Admin routes
   app.use('/api/admin', adminRouter);
@@ -194,29 +198,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log('[CRON] SlugIndex rebuilt with new posts.');
         }
 
-        // Index newly generated posts into FTS5 for search
+        // Collect newly generated posts for indexing
+        let posts: ListingPostJson[] = [];
         try {
           const [yyyy, mm, dd] = targetDate.split('-');
           const dayDir = path.resolve(__dirname, `./data/posts/${yyyy}/${mm}/${dd}`);
           const dayFiles = await readdir(dayDir);
           const jsonFiles = dayFiles.filter((f) => f.endsWith('.json'));
 
-          const posts: PostJson[] = [];
           for (const file of jsonFiles) {
             try {
               const content = await readFile(path.join(dayDir, file), 'utf-8');
-              posts.push(JSON.parse(content) as PostJson);
+              posts.push(JSON.parse(content) as ListingPostJson);
             } catch (parseErr) {
-              console.warn(`[FTS] Skipped (parse error): ${file}`, parseErr);
+              console.warn(`[CRON] Skipped (parse error): ${file}`, parseErr);
             }
           }
+        } catch (collectErr) {
+          console.error('[CRON] Error collecting new posts (non-fatal):', collectErr);
+        }
 
+        // Index into FTS5 for search
+        try {
           if (posts.length > 0) {
-            indexNewPosts(db, posts);
+            indexNewPosts(db, posts as unknown as PostJson[]);
             console.log(`[CRON] FTS indexed ${posts.length} new posts.`);
           }
         } catch (ftsErr) {
           console.error('[CRON] FTS indexing error (non-fatal):', ftsErr);
+        }
+
+        // Index into listing index (blog_posts_index)
+        try {
+          if (posts.length > 0) {
+            indexListingPosts(db, posts);
+            console.log(`[CRON] Listing indexed ${posts.length} new posts.`);
+          }
+        } catch (listingErr) {
+          console.error('[CRON] Listing indexing error (non-fatal):', listingErr);
         }
 
         console.log('[CRON] Scheduled task completed.');
@@ -458,37 +477,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return collected;
   }
 
-  app.get('/api/blog', async (req: Request, res: Response) => {
+  app.get('/api/blog', (req: Request, res: Response) => {
     try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 9;
-      const editorId = req.query.editorId ? parseInt(req.query.editorId as string) : null;
+      let page = parseInt(req.query.page as string) || 1;
+      let limit = parseInt(req.query.limit as string) || 9;
+      if (limit > 100) limit = 100;
+      if (page < 1) page = 1;
       const offset = (page - 1) * limit;
 
-      const postsRoot = path.resolve(__dirname, './data/posts');
-      const allFiles = await collectJsonFiles(postsRoot);
+      const editorId = req.query.editorId ? parseInt(req.query.editorId as string) : null;
+      const category = req.query.category as string | undefined;
 
-      const filtered = [];
-      for (const file of allFiles) {
-        const content = await readFile(file, 'utf-8');
-        const json = JSON.parse(content);
-        if (!editorId || json.editorId === editorId) {
-          filtered.push({
-            slug: json.slug,
-            date: json.date,
-            editorId: json.editorId,
-            translations: json.translations,
-          });
-        }
+      // Build dynamic WHERE clause
+      const conditions: string[] = [];
+      const params: any[] = [];
+
+      if (editorId) {
+        conditions.push('editor_id = ?');
+        params.push(editorId);
+      }
+      if (category) {
+        conditions.push("categories LIKE ?");
+        params.push(`%"${category}"%`);
       }
 
-      // Sort descending by date string in slug (assumes same timestamp format)
-      filtered.sort((a, b) => b.slug.localeCompare(a.slug));
-      const paginated = filtered.slice(offset, offset + limit);
+      const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
-      res.json({ posts: paginated, total: filtered.length });
+      // Query posts
+      const posts = db.prepare(`
+        SELECT slug, date, editor_id, categories, title_en, excerpt_en, title_es, excerpt_es
+        FROM blog_posts_index
+        ${whereClause}
+        ORDER BY date DESC
+        LIMIT ? OFFSET ?
+      `).all(...params, limit, offset);
+
+      // Query total count
+      const totalRow = db.prepare(`
+        SELECT COUNT(*) as total FROM blog_posts_index ${whereClause}
+      `).get(...params) as { total: number };
+
+      // Transform to match current response shape
+      const transformed = (posts as any[]).map((row: any) => ({
+        slug: row.slug,
+        date: row.date,
+        editorId: row.editor_id,
+        translations: {
+          en: { title: row.title_en || '', excerpt: row.excerpt_en || '' },
+          es: { title: row.title_es || '', excerpt: row.excerpt_es || '' },
+        },
+      }));
+
+      res.json({ posts: transformed, total: totalRow.total });
     } catch (err) {
-      console.error('❌ Error loading nested posts:', err);
+      console.error('Error querying blog listing index:', err);
       res.status(500).json({ success: false, error: 'Failed to load posts' });
     }
   });
@@ -618,5 +660,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   const httpServer = createServer(app);
+
+  // Auto-rebuild listing index if table is empty
+  (async () => {
+    try {
+      const count = db.prepare('SELECT COUNT(*) as c FROM blog_posts_index').get() as { c: number };
+      if (count.c === 0) {
+        console.log('[Startup] blog_posts_index is empty — running full rebuild...');
+        const postsDir = path.resolve(__dirname, './data/posts');
+        const result = await rebuildListingIndex(db, postsDir);
+        console.log(`[Startup] Listing index rebuilt: ${result.indexed} posts indexed, ${result.skipped} skipped.`);
+      } else {
+        console.log(`[Startup] blog_posts_index already populated (${count.c} rows), skipping rebuild.`);
+      }
+    } catch (err) {
+      console.error('[Startup] Error checking/rebuilding listing index:', err);
+    }
+  })();
+
   return httpServer;
 }
