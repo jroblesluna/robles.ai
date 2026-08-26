@@ -27,7 +27,9 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'framer-motion'],
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-motion': ['framer-motion'],
+          'vendor-query': ['@tanstack/react-query'],
           firebase: ['firebase/app', 'firebase/analytics', 'firebase/storage'],
           ui: ['lucide-react', '@radix-ui/react-slot', '@radix-ui/react-label', '@radix-ui/react-toast'],
           i18n: ['i18next', 'react-i18next', 'i18next-browser-languagedetector'],

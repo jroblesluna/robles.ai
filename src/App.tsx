@@ -1,34 +1,36 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { Route, Switch, useLocation } from 'wouter';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './lib/queryClient';
 import { Toaster } from '@/components/ui/toaster';
 import NotFound from '@/pages/not-found';
 import Home from '@/pages/Home';
-import Careers from '@/pages/Careers';
-import Apply from '@/pages/Apply';
-import OTP from '@/pages/OTP';
 import BlogList from '@/pages/BlogList';
 import BlogPost from '@/pages/BlogPost';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { initAnalytics, trackPageView } from '@/lib/analytics';
 import { useTranslation } from 'react-i18next';
-import TryIdentity from '@/pages/TryIdentity';
-import TryLangChain from '@/pages/TryLangChain';
-import TryRAG from '@/pages/TryRAG';
-import TryMedical from '@/pages/TryMedical';
-import Landing from '@/pages/Landing';
 import ChatbotWidget from '@/components/chat/ChatbotWidget';
 import { useSEO } from '@/hooks/useSEO';
-import AdminPage from '@/pages/admin/AdminPage';
-import AdminLayout from '@/pages/admin/AdminLayout';
-import AdminSettings from '@/pages/admin/AdminSettings';
-import AdminDominicalList from '@/pages/admin/AdminDominicalList';
-import AdminDominicalDetail from '@/pages/admin/AdminDominicalDetail';
-import AdminAnalytics from '@/pages/admin/AdminAnalytics';
-import AdminConversationList from '@/pages/admin/AdminConversationList';
-import AdminConversationDetail from '@/pages/admin/AdminConversationDetail';
+
+// Lazy-loaded routes (code-split into separate chunks)
+const Careers = lazy(() => import('@/pages/Careers'));
+const Apply = lazy(() => import('@/pages/Apply'));
+const OTP = lazy(() => import('@/pages/OTP'));
+const Landing = lazy(() => import('@/pages/Landing'));
+const TryIdentity = lazy(() => import('@/pages/TryIdentity'));
+const TryLangChain = lazy(() => import('@/pages/TryLangChain'));
+const TryRAG = lazy(() => import('@/pages/TryRAG'));
+const TryMedical = lazy(() => import('@/pages/TryMedical'));
+const AdminPage = lazy(() => import('@/pages/admin/AdminPage'));
+const AdminLayout = lazy(() => import('@/pages/admin/AdminLayout'));
+const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
+const AdminDominicalList = lazy(() => import('@/pages/admin/AdminDominicalList'));
+const AdminDominicalDetail = lazy(() => import('@/pages/admin/AdminDominicalDetail'));
+const AdminAnalytics = lazy(() => import('@/pages/admin/AdminAnalytics'));
+const AdminConversationList = lazy(() => import('@/pages/admin/AdminConversationList'));
+const AdminConversationDetail = lazy(() => import('@/pages/admin/AdminConversationDetail'));
 
 function App() {
   const [location] = useLocation(); // 👈 de wouter
@@ -66,40 +68,42 @@ function App() {
   if (isAdminRoute) {
     return (
       <QueryClientProvider client={queryClient}>
-        <Switch>
-          <Route path="/admin" component={AdminPage} />
-          <Route path="/admin/settings">
-            <AdminLayout>
-              <AdminSettings />
-            </AdminLayout>
-          </Route>
-          <Route path="/admin/dominical">
-            <AdminLayout>
-              <AdminDominicalList />
-            </AdminLayout>
-          </Route>
-          <Route path="/admin/dominical/:id">
-            <AdminLayout>
-              <AdminDominicalDetail />
-            </AdminLayout>
-          </Route>
-          <Route path="/admin/analytics">
-            <AdminLayout>
-              <AdminAnalytics />
-            </AdminLayout>
-          </Route>
-          <Route path="/admin/conversations/:id">
-            <AdminLayout>
-              <AdminConversationDetail />
-            </AdminLayout>
-          </Route>
-          <Route path="/admin/conversations">
-            <AdminLayout>
-              <AdminConversationList />
-            </AdminLayout>
-          </Route>
-          <Route component={NotFound} />
-        </Switch>
+        <Suspense fallback={<div className="flex items-center justify-center min-h-[50vh]"><div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>}>
+          <Switch>
+            <Route path="/admin" component={AdminPage} />
+            <Route path="/admin/settings">
+              <AdminLayout>
+                <AdminSettings />
+              </AdminLayout>
+            </Route>
+            <Route path="/admin/dominical">
+              <AdminLayout>
+                <AdminDominicalList />
+              </AdminLayout>
+            </Route>
+            <Route path="/admin/dominical/:id">
+              <AdminLayout>
+                <AdminDominicalDetail />
+              </AdminLayout>
+            </Route>
+            <Route path="/admin/analytics">
+              <AdminLayout>
+                <AdminAnalytics />
+              </AdminLayout>
+            </Route>
+            <Route path="/admin/conversations/:id">
+              <AdminLayout>
+                <AdminConversationDetail />
+              </AdminLayout>
+            </Route>
+            <Route path="/admin/conversations">
+              <AdminLayout>
+                <AdminConversationList />
+              </AdminLayout>
+            </Route>
+            <Route component={NotFound} />
+          </Switch>
+        </Suspense>
         <Toaster />
       </QueryClientProvider>
     );
@@ -114,20 +118,22 @@ function App() {
           setIsMobileMenuOpen={setIsMobileMenuOpen}
         />
         <main className="flex-grow pt-[68px]">
-          <Switch>
-            <Route path="/" component={Home} />
-            <Route path="/careers" component={Careers} />
-            <Route path="/apply" component={Apply} />
-            <Route path="/try-identity" component={TryIdentity} />
-            <Route path="/try-langchain" component={TryLangChain} />
-            <Route path="/try-rag" component={TryRAG} />
-            <Route path="/try-medical" component={TryMedical} />
-            <Route path="/get-started" component={Landing} />
-            <Route path="/otp" component={OTP} />
-            <Route path="/blog" component={BlogList} />
-            <Route path="/blog/:slug" component={BlogPost} />
-            <Route component={NotFound} />
-          </Switch>
+          <Suspense fallback={<div className="flex items-center justify-center min-h-[50vh]"><div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>}>
+            <Switch>
+              <Route path="/" component={Home} />
+              <Route path="/careers" component={Careers} />
+              <Route path="/apply" component={Apply} />
+              <Route path="/try-identity" component={TryIdentity} />
+              <Route path="/try-langchain" component={TryLangChain} />
+              <Route path="/try-rag" component={TryRAG} />
+              <Route path="/try-medical" component={TryMedical} />
+              <Route path="/get-started" component={Landing} />
+              <Route path="/otp" component={OTP} />
+              <Route path="/blog" component={BlogList} />
+              <Route path="/blog/:slug" component={BlogPost} />
+              <Route component={NotFound} />
+            </Switch>
+          </Suspense>
         </main>
         <Footer />
         <ChatbotWidget />
