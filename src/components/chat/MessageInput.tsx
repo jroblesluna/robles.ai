@@ -9,11 +9,12 @@ const MAX_MESSAGE_LENGTH = 2000;
 
 interface MessageInputProps {
   onSend: (message: string) => void;
+  onEscape?: () => void;
   isDisabled: boolean;
   onTyping?: () => void;
 }
 
-export default function MessageInput({ onSend, isDisabled, onTyping }: MessageInputProps) {
+export default function MessageInput({ onSend, isDisabled, onTyping, onEscape }: MessageInputProps) {
   const [value, setValue] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const prevDisabledRef = useRef(isDisabled);
@@ -56,6 +57,7 @@ export default function MessageInput({ onSend, isDisabled, onTyping }: MessageIn
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
       // Submit on Enter (Shift+Enter inserts newline)
+      if (e.key === 'Escape') { e.preventDefault(); onEscape?.(); return; }
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         handleSubmit();

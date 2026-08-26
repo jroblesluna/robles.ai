@@ -183,7 +183,7 @@ export default function ChatPanel({
       )}
 
       {/* Input area */}
-      {!isClosed && <MessageInput onSend={handleSend} isDisabled={isInputDisabled} onTyping={onUserTyping} />}
+      {!isClosed && <MessageInput onSend={handleSend} isDisabled={isInputDisabled} onTyping={onUserTyping} onEscape={onClose} />}
 
       {/* Footer actions: WhatsApp + Close session */}
       <div className="flex items-center justify-between px-3 py-2 border-t border-gray-100 bg-gray-50 flex-shrink-0">
