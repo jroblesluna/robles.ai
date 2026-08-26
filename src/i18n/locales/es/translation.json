@@ -1051,6 +1051,9 @@
             "disclaimer": "Ejemplo ilustrativo de estructura, no vinculado a un cliente específico."
         }
     },
+    "chatbotWidget": {
+        "greeting": "\ud83d\udc4b \u00a1Hola! Estoy aqu\u00ed si necesitas ayuda con soluciones de IA o tienes alguna consulta."
+    },
     "whatsappWidget": {
         "cta": "Escríbenos",
         "default": {

@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { X, MessageSquare, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +11,7 @@ import MessageInput from './MessageInput.js';
 // ============================================================
 // ChatPanel — Full conversation view for the AI chatbot widget
 // Renders header, message list, input, WhatsApp button, and
-// handles closed conversation state.
+// handles closed conversation state with a countdown transition.
 // ============================================================
 
 const WHATSAPP_NUMBER = '14085900153';
@@ -26,6 +26,7 @@ interface ChatPanelProps {
   onClose: () => void;
   onCloseSession: () => Promise<void>;
   onStartNewSession: () => void;
+  onUserTyping?: () => void;
   pagePath: string;
 }
 
@@ -56,6 +57,7 @@ export default function ChatPanel({
   onClose,
   onCloseSession,
   onStartNewSession,
+  onUserTyping,
   pagePath,
 }: ChatPanelProps) {
   const whatsappMessage = useWhatsAppMessage();
@@ -70,6 +72,42 @@ export default function ChatPanel({
 
   const isClosed = conversationStatus === 'closed';
   const isInputDisabled = status === 'loading' || status === 'streaming' || isClosed;
+
+  // Issue 4: Countdown before showing closed view
+  const [closingCountdown, setClosingCountdown] = useState<number | null>(null);
+  const [showClosedView, setShowClosedView] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (isClosed && messages.length > 0 && !showClosedView) {
+      setClosingCountdown(20);
+      intervalRef.current = setInterval(() => {
+        setClosingCountdown((prev) => {
+          if (prev === null || prev <= 1) {
+            if (intervalRef.current) clearInterval(intervalRef.current);
+            setShowClosedView(true);
+            return null;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+      };
+    }
+    // If closed but no messages, show closed view immediately
+    if (isClosed && messages.length === 0) {
+      setShowClosedView(true);
+    }
+  }, [isClosed, messages.length, showClosedView]);
+
+  // Reset when starting a new session
+  useEffect(() => {
+    if (!isClosed) {
+      setShowClosedView(false);
+      setClosingCountdown(null);
+    }
+  }, [isClosed]);
 
   return (
     <motion.div
@@ -86,7 +124,7 @@ export default function ChatPanel({
       aria-label="Chat with Robles.AI"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-purple-700 to-purple-900 text-white flex-shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-800 text-white flex-shrink-0">
         <div className="flex items-center gap-2">
           <MessageSquare className="w-5 h-5" />
           <span className="font-semibold text-sm">Robles.AI</span>
@@ -101,10 +139,40 @@ export default function ChatPanel({
       </div>
 
       {/* Message area */}
-      {isClosed ? (
+      {isClosed && showClosedView ? (
         <ClosedConversationView onStartNew={onStartNewSession} />
       ) : (
-        <MessageList messages={messages} isStreaming={status === 'streaming'} />
+        <>
+          <MessageList messages={messages} isStreaming={status === 'streaming'} />
+          {/* Countdown banner when closing */}
+          {closingCountdown !== null && (
+            <div className="px-4 py-2 bg-blue-50 border-t border-blue-100 text-blue-700 text-xs font-medium flex items-center gap-2 flex-shrink-0">
+              <div className="relative w-4 h-4 flex-shrink-0">
+                <svg className="w-4 h-4 -rotate-90" viewBox="0 0 16 16">
+                  <circle
+                    cx="8"
+                    cy="8"
+                    r="6"
+                    fill="none"
+                    stroke="#DBEAFE"
+                    strokeWidth="2"
+                  />
+                  <circle
+                    cx="8"
+                    cy="8"
+                    r="6"
+                    fill="none"
+                    stroke="#3B82F6"
+                    strokeWidth="2"
+                    strokeDasharray={`${(closingCountdown / 20) * 37.7} 37.7`}
+                    className="transition-all duration-1000 ease-linear"
+                  />
+                </svg>
+              </div>
+              <span className="flex-1">Chat closing in {closingCountdown}s...</span><button onClick={() => { if (intervalRef.current) clearInterval(intervalRef.current); setClosingCountdown(null); onStartNewSession(); }} className="ml-2 px-2 py-0.5 rounded-md bg-blue-600 text-white text-[11px] font-medium hover:bg-blue-700 transition-colors">Continue chatting</button>
+            </div>
+          )}
+        </>
       )}
 
       {/* Error message */}
@@ -115,7 +183,7 @@ export default function ChatPanel({
       )}
 
       {/* Input area */}
-      {!isClosed && <MessageInput onSend={handleSend} isDisabled={isInputDisabled} />}
+      {!isClosed && <MessageInput onSend={handleSend} isDisabled={isInputDisabled} onTyping={onUserTyping} />}
 
       {/* Footer actions: WhatsApp + Close session */}
       <div className="flex items-center justify-between px-3 py-2 border-t border-gray-100 bg-gray-50 flex-shrink-0">
@@ -160,7 +228,7 @@ function ClosedConversationView({ onStartNew }: { onStartNew: () => void }) {
       </div>
       <button
         onClick={onStartNew}
-        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium transition-colors"
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
         aria-label="Start a new conversation"
       >
         <RotateCcw className="w-4 h-4" />

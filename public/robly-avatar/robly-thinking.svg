@@ -1,0 +1,191 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500" role="img" aria-label="Robly - thinking">
+<defs>
+  <linearGradient id="bodyGrad" x1="0.2" y1="0" x2="0.8" y2="1">
+    <stop offset="0" stop-color="#ffffff"/>
+    <stop offset="1" stop-color="#e4ecfb"/>
+  </linearGradient>
+  <radialGradient id="headSheen" cx="0.32" cy="0.22" r="0.75">
+    <stop offset="0" stop-color="#ffffff" stop-opacity="0.95"/>
+    <stop offset="0.5" stop-color="#ffffff" stop-opacity="0.18"/>
+    <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="visorGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#141b2d"/>
+    <stop offset="1" stop-color="#04070d"/>
+  </linearGradient>
+  <linearGradient id="accentGrad" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#3b82f6"/>
+    <stop offset="1" stop-color="#8b5cf6"/>
+  </linearGradient>
+  <linearGradient id="cyanGrad" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#5eead4"/>
+    <stop offset="1" stop-color="#38bdf8"/>
+  </linearGradient>
+  <radialGradient id="sphereGrad" cx="0.35" cy="0.3" r="0.75">
+    <stop offset="0" stop-color="#bff4ff"/>
+    <stop offset="0.45" stop-color="#38bdf8"/>
+    <stop offset="1" stop-color="#3b82f6"/>
+  </radialGradient>
+  <radialGradient id="ringGlow" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#38bdf8" stop-opacity="0.55"/>
+    <stop offset="0.7" stop-color="#38bdf8" stop-opacity="0.16"/>
+    <stop offset="1" stop-color="#38bdf8" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="gloveGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#2b3040"/>
+    <stop offset="1" stop-color="#12141d"/>
+  </linearGradient>
+  <filter id="glow" x="-120%" y="-120%" width="340%" height="340%">
+    <feGaussianBlur stdDeviation="5" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="softGlow" x="-150%" y="-150%" width="400%" height="400%">
+    <feGaussianBlur stdDeviation="9" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="dropShadow" x="-50%" y="-30%" width="200%" height="200%">
+    <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#1e293b" flood-opacity="0.22"/>
+  </filter>
+</defs>
+<style>
+
+.robot-anim{transform-origin:250px 350px;animation:robotFloat 3.2s ease-in-out infinite}
+@keyframes robotFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.base-ring{transform-origin:250px 424px;animation:ringPulse 3.2s ease-in-out infinite}
+@keyframes ringPulse{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.06);opacity:1}}
+.antenna-halo{transform-origin:250px 36px;animation:haloPulse 2.4s ease-in-out infinite}
+@keyframes haloPulse{0%,100%{transform:scale(.85);opacity:.5}50%{transform:scale(1.25);opacity:1}}
+.eyes{transform-origin:250px 190px;animation:blink 4.6s ease-in-out infinite}
+@keyframes blink{0%,44%,50%,100%{transform:scaleY(1)}47%{transform:scaleY(.08)}}
+
+.robot-anim{animation:ponder 3.4s ease-in-out infinite}
+@keyframes ponder{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-5px) rotate(1.4deg)}}
+.arm-l{transform-origin:155px 315px;animation:fidgetL 1.1s ease-in-out infinite}
+.arm-r{transform-origin:345px 315px;animation:fidgetR 1.1s ease-in-out infinite}
+@keyframes fidgetL{0%,100%{transform:rotate(0)}50%{transform:rotate(4deg)}}
+@keyframes fidgetR{0%,100%{transform:rotate(0)}50%{transform:rotate(-4deg)}}
+.fm{opacity:0;animation:fmCycle 4.8s ease-in-out infinite}
+.f1{animation-delay:0s}
+.f2{animation-delay:1.2s}
+.f3{animation-delay:2.4s}
+.f4{animation-delay:3.6s}
+@keyframes fmCycle{0%{opacity:0}6%{opacity:1}19%{opacity:1}25%{opacity:0}100%{opacity:0}}
+.antenna-halo.antenna-working{animation:haloWork 1.4s ease-in-out infinite}
+@keyframes haloWork{0%,100%{transform:scale(.85);opacity:.55}50%{transform:scale(1.3);opacity:1}}
+
+</style>
+<g class="orbit-back"><g class="orbit-icon" filter="url(#dropShadow)"><g>
+      <rect x="-27" y="-16.5" width="54" height="33" rx="10" fill="#0b1220" stroke="url(#accentGrad)" stroke-width="2.6"/>
+      <rect x="-27" y="-16.5" width="54" height="11" rx="5.5" fill="#ffffff" opacity="0.08"/>
+      <text class="fm f1" x="0" y="4.3" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="11" font-weight="700" fill="url(#cyanGrad)">∫f(x)dx</text><text class="fm f2" x="0" y="4.3" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="11" font-weight="700" fill="#e6ecff">F(x)+C</text><text class="fm f3" x="0" y="4.3" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="11" font-weight="700" fill="#c084fc">f′(x)</text><text class="fm f4" x="0" y="4.3" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="11" font-weight="700" fill="url(#cyanGrad)">Σ → ∫</text>
+    </g><animateMotion dur="6.4s" repeatCount="indefinite" begin="-0.00s" path="M 446,172 A 196,86 0 1,1 54,172 A 196,86 0 1,1 446,172"/>
+      <animate attributeName="opacity" dur="6.4s" repeatCount="indefinite" begin="-0.00s" keyTimes="0;0.46;0.5;0.96;1" values="1;1;0;0;1"/>
+    </g><g class="orbit-icon" filter="url(#dropShadow)"><g>
+      <circle r="21" fill="url(#bodyGrad)" stroke="url(#accentGrad)" stroke-width="2.6"/>
+      <text x="0" y="8" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="22" font-weight="700" fill="#8b5cf6">dx</text>
+    </g><animateMotion dur="6.4s" repeatCount="indefinite" begin="-1.60s" path="M 446,172 A 196,86 0 1,1 54,172 A 196,86 0 1,1 446,172"/>
+      <animate attributeName="opacity" dur="6.4s" repeatCount="indefinite" begin="-1.60s" keyTimes="0;0.46;0.5;0.96;1" values="1;1;0;0;1"/>
+    </g><g class="orbit-icon" filter="url(#dropShadow)"><g>
+      <circle r="21" fill="url(#bodyGrad)" stroke="url(#accentGrad)" stroke-width="2.6"/>
+      <g><rect x="-3.2" y="-18.5" width="6.4" height="7.5" rx="1.8" fill="#5eead4" transform="rotate(0)"/><rect x="-3.2" y="-18.5" width="6.4" height="7.5" rx="1.8" fill="#5eead4" transform="rotate(45)"/><rect x="-3.2" y="-18.5" width="6.4" height="7.5" rx="1.8" fill="#5eead4" transform="rotate(90)"/><rect x="-3.2" y="-18.5" width="6.4" height="7.5" rx="1.8" fill="#5eead4" transform="rotate(135)"/><rect x="-3.2" y="-18.5" width="6.4" height="7.5" rx="1.8" fill="#5eead4" transform="rotate(180)"/><rect x="-3.2" y="-18.5" width="6.4" height="7.5" rx="1.8" fill="#5eead4" transform="rotate(225)"/><rect x="-3.2" y="-18.5" width="6.4" height="7.5" rx="1.8" fill="#5eead4" transform="rotate(270)"/><rect x="-3.2" y="-18.5" width="6.4" height="7.5" rx="1.8" fill="#5eead4" transform="rotate(315)"/><circle r="10.5" fill="none" stroke="#5eead4" stroke-width="3.6"/><circle r="3.2" fill="#5eead4"/><animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="3.4s" repeatCount="indefinite"/></g>
+    </g><animateMotion dur="6.4s" repeatCount="indefinite" begin="-3.20s" path="M 446,172 A 196,86 0 1,1 54,172 A 196,86 0 1,1 446,172"/>
+      <animate attributeName="opacity" dur="6.4s" repeatCount="indefinite" begin="-3.20s" keyTimes="0;0.46;0.5;0.96;1" values="1;1;0;0;1"/>
+    </g><g class="orbit-icon" filter="url(#dropShadow)"><g>
+      <circle r="21" fill="url(#bodyGrad)" stroke="url(#accentGrad)" stroke-width="2.6"/>
+      <ellipse cx="0" cy="0" rx="16" ry="5" fill="none" stroke="#38bdf8" stroke-width="1.7" opacity="0.55" transform="rotate(-16)"/>
+      <circle r="11" fill="url(#sphereGrad)"/>
+      <circle r="2.9" fill="#f8fafc" transform="rotate(-16)">
+        <animateMotion dur="2.6s" repeatCount="indefinite" path="M 16,0 A 16,5 0 1,1 -16,0 A 16,5 0 1,1 16,0"/>
+      </circle>
+    </g><animateMotion dur="6.4s" repeatCount="indefinite" begin="-4.80s" path="M 446,172 A 196,86 0 1,1 54,172 A 196,86 0 1,1 446,172"/>
+      <animate attributeName="opacity" dur="6.4s" repeatCount="indefinite" begin="-4.80s" keyTimes="0;0.46;0.5;0.96;1" values="1;1;0;0;1"/>
+    </g></g>
+<g class="base-ring ">
+      <ellipse cx="250" cy="424" rx="128" ry="30" fill="url(#ringGlow)"/>
+      <ellipse cx="250" cy="424" rx="108" ry="15" fill="none" stroke="url(#cyanGrad)" stroke-width="2.5" opacity="0.55"/>
+      <ellipse cx="250" cy="420" rx="76" ry="9" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.35"/>
+    </g>
+<g class="robot-anim">
+  <g class="robot">
+    <g class="torso-group">
+      <rect x="163" y="300" width="174" height="122" rx="50" fill="url(#bodyGrad)" stroke="#c7d2fe" stroke-width="5" filter="url(#dropShadow)"/>
+      <rect x="216" y="326" width="68" height="68" rx="18" fill="url(#accentGrad)"/>
+      <rect x="216" y="326" width="68" height="24" rx="12" fill="#ffffff" opacity="0.18"/>
+      <text x="250" y="374" text-anchor="middle" font-family="'IBM Plex Sans', Arial, sans-serif" font-size="46" font-weight="700" fill="white">R</text>
+    </g>
+    <g class="antenna">
+      <radialGradient id="antennaWorkGrad" cx="0.35" cy="0.3" r="0.78">
+          <stop offset="0" stop-color="#ffffff">
+            <animate attributeName="stop-color" values="#ffffff;#5eead4;#38bdf8;#ffffff" dur="1.8s" repeatCount="indefinite"/>
+          </stop>
+          <stop offset="0.5" stop-color="#38bdf8">
+            <animate attributeName="stop-color" values="#38bdf8;#34d399;#60a5fa;#38bdf8" dur="1.8s" repeatCount="indefinite"/>
+          </stop>
+          <stop offset="1" stop-color="#3b82f6">
+            <animate attributeName="stop-color" values="#3b82f6;#059669;#1d4ed8;#3b82f6" dur="1.8s" repeatCount="indefinite"/>
+          </stop>
+        </radialGradient>
+      <rect x="244" y="46" width="12" height="26" rx="6" fill="#2b3040"/>
+      <circle cx="250" cy="36" r="20" fill="url(#ringGlow)" class="antenna-halo antenna-working"/>
+      <circle cx="250" cy="36" r="13" fill="url(#antennaWorkGrad)" filter="url(#glow)"/>
+      <circle cx="245" cy="31" r="3.6" fill="#ffffff" opacity="0.9"/>
+    </g>
+    <g class="ears">
+      <rect x="85" y="148" width="30" height="72" rx="15" fill="url(#accentGrad)"/>
+      <rect x="385" y="148" width="30" height="72" rx="15" fill="url(#accentGrad)"/>
+      <rect x="91" y="156" width="8" height="56" rx="4" fill="#ffffff" opacity="0.35"/>
+      <rect x="391" y="156" width="8" height="56" rx="4" fill="#ffffff" opacity="0.35"/>
+    </g>
+    <g class="head-group">
+      <rect x="100" y="66" width="300" height="216" rx="92" fill="url(#bodyGrad)" stroke="#c7d2fe" stroke-width="5" filter="url(#dropShadow)"/>
+      <rect x="100" y="66" width="300" height="216" rx="92" fill="url(#headSheen)"/>
+      <rect x="132" y="93" width="236" height="160" rx="62" fill="url(#visorGrad)"/>
+      <rect x="132" y="93" width="236" height="160" rx="62" fill="none" stroke="#3b82f6" stroke-opacity="0.35" stroke-width="1.5"/>
+      <path d="M180 152 L198 162 L216 153" fill="none" stroke="#8b5cf6" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
+    <g class="eyes" fill="none" stroke="url(#cyanGrad)" stroke-width="12" stroke-linecap="round" filter="url(#glow)">
+      <path d="M172 196 Q198 178 224 192"/>
+      <path d="M276 192 Q302 172 328 188"/>
+    </g>
+    </g>
+    <g class="arm-l">
+      <rect x="135.0" y="315.0" width="40" height="30.2" rx="20.0" fill="url(#bodyGrad)" stroke="#c7d2fe" stroke-width="2" transform="rotate(-55.8 155.0 315.0)"/>
+      <rect x="139.0" y="308.5" width="32.0" height="13" rx="6.5" fill="url(#accentGrad)" transform="rotate(-55.8 155.0 315.0)"/>
+      <rect x="164.0" y="332.0" width="32" height="51.3" rx="16.0" fill="url(#bodyGrad)" stroke="#c7d2fe" stroke-width="2" transform="rotate(-123.1 180.0 332.0)"/>
+      <rect x="166.8" y="325.5" width="26.4" height="13" rx="6.5" fill="url(#accentGrad)" transform="rotate(-123.1 180.0 332.0)"/>
+      <g transform="rotate(-123.1 223.0 304.0)"><rect x="208.6" y="304.8" width="6.4" height="11.2" rx="3.2" fill="url(#gloveGrad)" transform="rotate(-24 211.8 305.6)"/><rect x="213.4" y="301.6" width="19.2" height="16.0" rx="7.2" fill="url(#gloveGrad)"/><rect x="212.3" y="314.4" width="5.4" height="12.0" rx="2.7" fill="url(#gloveGrad)"/><rect x="220.3" y="314.4" width="5.4" height="13.6" rx="2.7" fill="url(#gloveGrad)"/><rect x="228.3" y="314.4" width="5.4" height="12.0" rx="2.7" fill="url(#gloveGrad)"/></g>
+    </g><g class="arm-r">
+      <rect x="325.0" y="315.0" width="40" height="30.2" rx="20.0" fill="url(#bodyGrad)" stroke="#c7d2fe" stroke-width="2" transform="rotate(55.8 345.0 315.0)"/>
+      <rect x="329.0" y="308.5" width="32.0" height="13" rx="6.5" fill="url(#accentGrad)" transform="rotate(55.8 345.0 315.0)"/>
+      <rect x="304.0" y="332.0" width="32" height="51.3" rx="16.0" fill="url(#bodyGrad)" stroke="#c7d2fe" stroke-width="2" transform="rotate(123.1 320.0 332.0)"/>
+      <rect x="306.8" y="325.5" width="26.4" height="13" rx="6.5" fill="url(#accentGrad)" transform="rotate(123.1 320.0 332.0)"/>
+      <g transform="rotate(123.1 277.0 304.0)"><rect x="262.6" y="304.8" width="6.4" height="11.2" rx="3.2" fill="url(#gloveGrad)" transform="rotate(-24 265.8 305.6)"/><rect x="267.4" y="301.6" width="19.2" height="16.0" rx="7.2" fill="url(#gloveGrad)"/><rect x="266.3" y="314.4" width="5.4" height="12.0" rx="2.7" fill="url(#gloveGrad)"/><rect x="274.3" y="314.4" width="5.4" height="13.6" rx="2.7" fill="url(#gloveGrad)"/><rect x="282.3" y="314.4" width="5.4" height="12.0" rx="2.7" fill="url(#gloveGrad)"/></g>
+    </g>
+  </g>
+</g>
+<g class="orbit-front"><g class="orbit-icon" filter="url(#dropShadow)"><g>
+      <rect x="-27" y="-16.5" width="54" height="33" rx="10" fill="#0b1220" stroke="url(#accentGrad)" stroke-width="2.6"/>
+      <rect x="-27" y="-16.5" width="54" height="11" rx="5.5" fill="#ffffff" opacity="0.08"/>
+      <text class="fm f1" x="0" y="4.3" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="11" font-weight="700" fill="url(#cyanGrad)">∫f(x)dx</text><text class="fm f2" x="0" y="4.3" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="11" font-weight="700" fill="#e6ecff">F(x)+C</text><text class="fm f3" x="0" y="4.3" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="11" font-weight="700" fill="#c084fc">f′(x)</text><text class="fm f4" x="0" y="4.3" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="11" font-weight="700" fill="url(#cyanGrad)">Σ → ∫</text>
+    </g><animateMotion dur="6.4s" repeatCount="indefinite" begin="-0.00s" path="M 446,172 A 196,86 0 1,1 54,172 A 196,86 0 1,1 446,172"/>
+      <animate attributeName="opacity" dur="6.4s" repeatCount="indefinite" begin="-0.00s" keyTimes="0;0.46;0.5;0.96;1" values="0;0;1;1;0"/>
+    </g><g class="orbit-icon" filter="url(#dropShadow)"><g>
+      <circle r="21" fill="url(#bodyGrad)" stroke="url(#accentGrad)" stroke-width="2.6"/>
+      <text x="0" y="8" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="22" font-weight="700" fill="#8b5cf6">dx</text>
+    </g><animateMotion dur="6.4s" repeatCount="indefinite" begin="-1.60s" path="M 446,172 A 196,86 0 1,1 54,172 A 196,86 0 1,1 446,172"/>
+      <animate attributeName="opacity" dur="6.4s" repeatCount="indefinite" begin="-1.60s" keyTimes="0;0.46;0.5;0.96;1" values="0;0;1;1;0"/>
+    </g><g class="orbit-icon" filter="url(#dropShadow)"><g>
+      <circle r="21" fill="url(#bodyGrad)" stroke="url(#accentGrad)" stroke-width="2.6"/>
+      <g><rect x="-3.2" y="-18.5" width="6.4" height="7.5" rx="1.8" fill="#5eead4" transform="rotate(0)"/><rect x="-3.2" y="-18.5" width="6.4" height="7.5" rx="1.8" fill="#5eead4" transform="rotate(45)"/><rect x="-3.2" y="-18.5" width="6.4" height="7.5" rx="1.8" fill="#5eead4" transform="rotate(90)"/><rect x="-3.2" y="-18.5" width="6.4" height="7.5" rx="1.8" fill="#5eead4" transform="rotate(135)"/><rect x="-3.2" y="-18.5" width="6.4" height="7.5" rx="1.8" fill="#5eead4" transform="rotate(180)"/><rect x="-3.2" y="-18.5" width="6.4" height="7.5" rx="1.8" fill="#5eead4" transform="rotate(225)"/><rect x="-3.2" y="-18.5" width="6.4" height="7.5" rx="1.8" fill="#5eead4" transform="rotate(270)"/><rect x="-3.2" y="-18.5" width="6.4" height="7.5" rx="1.8" fill="#5eead4" transform="rotate(315)"/><circle r="10.5" fill="none" stroke="#5eead4" stroke-width="3.6"/><circle r="3.2" fill="#5eead4"/><animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="3.4s" repeatCount="indefinite"/></g>
+    </g><animateMotion dur="6.4s" repeatCount="indefinite" begin="-3.20s" path="M 446,172 A 196,86 0 1,1 54,172 A 196,86 0 1,1 446,172"/>
+      <animate attributeName="opacity" dur="6.4s" repeatCount="indefinite" begin="-3.20s" keyTimes="0;0.46;0.5;0.96;1" values="0;0;1;1;0"/>
+    </g><g class="orbit-icon" filter="url(#dropShadow)"><g>
+      <circle r="21" fill="url(#bodyGrad)" stroke="url(#accentGrad)" stroke-width="2.6"/>
+      <ellipse cx="0" cy="0" rx="16" ry="5" fill="none" stroke="#38bdf8" stroke-width="1.7" opacity="0.55" transform="rotate(-16)"/>
+      <circle r="11" fill="url(#sphereGrad)"/>
+      <circle r="2.9" fill="#f8fafc" transform="rotate(-16)">
+        <animateMotion dur="2.6s" repeatCount="indefinite" path="M 16,0 A 16,5 0 1,1 -16,0 A 16,5 0 1,1 16,0"/>
+      </circle>
+    </g><animateMotion dur="6.4s" repeatCount="indefinite" begin="-4.80s" path="M 446,172 A 196,86 0 1,1 54,172 A 196,86 0 1,1 446,172"/>
+      <animate attributeName="opacity" dur="6.4s" repeatCount="indefinite" begin="-4.80s" keyTimes="0;0.46;0.5;0.96;1" values="0;0;1;1;0"/>
+    </g></g>
+</svg>

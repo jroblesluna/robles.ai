@@ -1051,6 +1051,9 @@
             "disclaimer": "Illustrative structure example, not tied to a specific client."
         }
     },
+    "chatbotWidget": {
+        "greeting": "\ud83d\udc4b Hi! I'm here if you need help with AI solutions or have any questions!"
+    },
     "whatsappWidget": {
         "cta": "Chat with us",
         "default": {

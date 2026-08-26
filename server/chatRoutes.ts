@@ -1,5 +1,7 @@
 import { Router, type Request, type Response } from 'express';
 import crypto from 'crypto';
+import OpenAI from 'openai';
+import db from './db.js';
 import {
   createConversation,
   getConversationBySession,
@@ -18,6 +20,19 @@ import type { ChatMessageRequest, ChatHistoryResponse, ChatMessage, ContactData 
 // Handles session management, message streaming via SSE, and
 // conversation lifecycle.
 // ============================================================
+
+/**
+ * Retrieves the OpenAI API key from settings table or environment variable.
+ * Used for follow-up calls when the model produces tool calls without text.
+ */
+function getApiKeyForFollowup(): string {
+  const row = db.prepare('SELECT value FROM settings WHERE key = ?').get('openai_api_key') as
+    | { value: string | null }
+    | undefined;
+  const apiKey = row?.value || process.env.OPENAI_API_KEY;
+  if (!apiKey) throw new Error('OpenAI API key not configured');
+  return apiKey;
+}
 
 const router = Router();
 
@@ -250,6 +265,45 @@ router.post('/message', (req: Request, res: Response) => {
         }
       }
 
+      // If the model only produced tool calls without text content,
+      // make a follow-up call to generate an acknowledgment response
+      if (!fullContent && (contactUpdate || shouldClose)) {
+        try {
+          const openai = new OpenAI({ apiKey: getApiKeyForFollowup() });
+
+          // Build messages including the tool result
+          const followupMessages = [
+            ...engineMessages.map((m) => ({
+              role: m.role === 'visitor' ? 'user' as const : 'assistant' as const,
+              content: m.content,
+            })),
+          ];
+
+          const followupStream = await openai.chat.completions.create({
+            model: 'gpt-4o-mini',
+            messages: [
+              { role: 'system', content: 'You are a friendly AI assistant. The visitor just shared their contact information. Acknowledge it warmly and naturally in 1-2 sentences. Continue the conversation. Do NOT ask for the same information again.' },
+              ...followupMessages,
+            ],
+            stream: true,
+            max_tokens: 150,
+          });
+
+          for await (const chunk of followupStream) {
+            const content = chunk.choices[0]?.delta?.content;
+            if (content) {
+              fullContent += content;
+              res.write(`data: ${JSON.stringify({ type: 'token', content })}\n\n`);
+            }
+          }
+        } catch (followupErr) {
+          console.error('[ChatRoutes] Follow-up generation failed:', followupErr);
+          // Fallback: use a static acknowledgment
+          fullContent = contactUpdate?.email ? 'Got it, thanks! How can I help you today?' : 'Thanks for that information!';
+          res.write(`data: ${JSON.stringify({ type: 'token', content: fullContent })}\n\n`);
+        }
+      }
+
       // Store assistant message
       let assistantMessage: { id: number } | null = null;
       if (fullContent) {
@@ -264,6 +318,12 @@ router.post('/message', (req: Request, res: Response) => {
       if (contactUpdate) {
         updateContact(conversation.id, contactUpdate as ContactData);
         res.write(`data: ${JSON.stringify({ type: 'contact_update', data: contactUpdate })}\n\n`);
+      }
+
+
+      // Detect [CLOSE_CHAT] marker as a fallback close signal (model may not always call the tool)
+      if (!shouldClose && fullContent.includes("[CLOSE_CHAT]")) {
+        shouldClose = true;
       }
 
       // Handle conversation closure (triggered by AI detecting goodbye)

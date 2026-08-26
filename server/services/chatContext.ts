@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs/promises';
+import { readFileSync } from 'fs';
 
 // ============================================================
 // Context Provider — Assembles page-specific context for the
@@ -56,7 +57,54 @@ export function clearContextCache(): void {
 // ----------------------------------------------------------
 
 function getHomepageContext(): string {
-  return `The visitor is on the Robles.AI homepage. Robles.AI provides robust artificial intelligence solutions that transform businesses with cutting-edge AI technology.
+  // Try to load dynamic context from i18n files for maximum accuracy
+  try {
+    const translationPath = path.resolve(process.cwd(), 'src/i18n/locales/en/translation.json');
+    const data = JSON.parse(readFileSync(translationPath, 'utf-8'));
+    
+    const solutions = (data.solutions?.items || [])
+      .map((s: any) => `- ${s.title}: ${s.description}`)
+      .join('\n');
+
+    const caseStudies = (data.caseStudies?.items || [])
+      .map((cs: any) => `- ${cs.title} [${cs.category}]: ${cs.description}`)
+      .join('\n');
+
+    const courses = (data.courses?.items || [])
+      .map((c: any) => `- ${c.title} (${c.level}, ${c.duration}, ${c.format}): ${c.description}`)
+      .join('\n');
+
+    const features = (data.features?.items || {});
+    const featuresList = Object.values(features)
+      .map((f: any) => `- ${f.title}: ${f.description}`)
+      .join('\n');
+
+    return `The visitor is on the Robles.AI homepage. Robles.AI provides robust artificial intelligence solutions that transform businesses with cutting-edge AI technology.
+
+AI Solutions Offered:
+${solutions}
+
+Case Studies (proven results):
+${caseStudies}
+
+AI Education & Training Courses:
+${courses}
+
+Why Choose Robles.AI:
+${featuresList || `- Innovation-Driven: Implementing cutting-edge AI research into practical solutions.
+- Ethically Developed: Building AI with integrity, ensuring solutions that are fair and transparent.
+- Rapid Deployment: AI solutions from concept to production faster than traditional methods.
+- Industry Expertise: Deep domain knowledge across healthcare, manufacturing, finance, and retail.`}
+
+Company Info:
+- Robles.AI serves businesses in Latin America and the United States
+- CEO: Antonio Robles Luna (LinkedIn: https://www.linkedin.com/in/antonio-robles-luna/)
+- The company offers AI diagnosis, prioritization, and implementation in measurable stages
+- Contact: Available via the chat, WhatsApp, or the contact form on the website
+- Social media: Facebook (RoblesAITech), Instagram (robles.ai), LinkedIn (antonio-robles-luna)`;
+  } catch {
+    // Fallback to hardcoded context if i18n files can't be read
+    return `The visitor is on the Robles.AI homepage. Robles.AI provides robust artificial intelligence solutions that transform businesses with cutting-edge AI technology.
 
 Services and Solutions:
 - Machine Learning Models: Custom ML solutions for predictive analytics, recommendation systems, and process optimization.
@@ -64,13 +112,26 @@ Services and Solutions:
 - Natural Language Processing: Text analysis, sentiment detection, and conversational AI for customer service and content analysis.
 - Deep Learning Systems: Advanced neural networks for complex pattern recognition, anomaly detection, and autonomous decision-making.
 
-Why Robles.AI:
-- Innovation-Driven: Implementing cutting-edge AI research into practical solutions that give businesses a competitive advantage.
-- Ethically Developed: Building AI with integrity, ensuring solutions that are fair, transparent, and designed with privacy in mind.
-- Rapid Deployment: Streamlined approach delivers AI solutions from concept to production faster than traditional development methods.
-- Industry Expertise: Team of AI specialists with deep domain knowledge across healthcare, manufacturing, finance, and retail industries.
+Case Studies:
+- Smart City Security Surveillance System [Smart Cities]: Citywide computer vision system that reduced crime by 27% and improved emergency response times by 42%.
+- Predictive Analytics for Patient Care [Healthcare]: ML system that predicts patient readmission risks with 87% accuracy, reducing readmissions by 23%.
+- Fraud Detection for Financial Services [Finance]: AI system with 99.2% accuracy, saving $4.5M annually in fraud losses.
+- AI Chatbot for Customer Service [Generative AI]: Generative AI assistant handling 78% of customer inquiries without human intervention.
 
-Robles.AI serves businesses in Latin America and the United States, offering AI diagnosis, prioritization, and implementation in measurable stages.`;
+AI Courses:
+- PyTorch Deep Learning (Intermediate, 10 Weeks, Online) - $1,595
+- TensorFlow for Production (Advanced, 12 Weeks, Online) - $1,995
+- Hugging Face Transformers (Intermediate, 8 Weeks, Online)
+- Computer Vision with OpenCV (Beginner, 6 Weeks, Online)
+
+Why Robles.AI:
+- Innovation-Driven, Ethically Developed, Rapid Deployment, Industry Expertise
+
+Company Info:
+- CEO: Antonio Robles Luna
+- Serves Latin America and the United States
+- Social media: Facebook (RoblesAITech), Instagram (robles.ai), LinkedIn (antonio-robles-luna)`;
+  }
 }
 
 // ----------------------------------------------------------

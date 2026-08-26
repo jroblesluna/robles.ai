@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, type KeyboardEvent, type FormEvent } from 'react';
+import { useState, useCallback, useRef, useEffect, type KeyboardEvent, type FormEvent } from 'react';
 import { Send } from 'lucide-react';
 
 // ============================================================
@@ -10,11 +10,26 @@ const MAX_MESSAGE_LENGTH = 2000;
 interface MessageInputProps {
   onSend: (message: string) => void;
   isDisabled: boolean;
+  onTyping?: () => void;
 }
 
-export default function MessageInput({ onSend, isDisabled }: MessageInputProps) {
+export default function MessageInput({ onSend, isDisabled, onTyping }: MessageInputProps) {
   const [value, setValue] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const prevDisabledRef = useRef(isDisabled);
+
+  // Auto-focus on mount (when panel opens)
+  useEffect(() => {
+    setTimeout(() => textareaRef.current?.focus(), 100);
+  }, []);
+
+  // Re-focus when streaming ends (isDisabled goes true → false)
+  useEffect(() => {
+    if (prevDisabledRef.current && !isDisabled) {
+      setTimeout(() => textareaRef.current?.focus(), 100);
+    }
+    prevDisabledRef.current = isDisabled;
+  }, [isDisabled]);
 
   const trimmedValue = value.trim();
   const canSend = trimmedValue.length > 0 && !isDisabled;
@@ -68,7 +83,10 @@ export default function MessageInput({ onSend, isDisabled }: MessageInputProps) 
         <textarea
           ref={textareaRef}
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => {
+            setValue(e.target.value);
+            onTyping?.();
+          }}
           onKeyDown={handleKeyDown}
           onInput={handleInput}
           placeholder="Type a message..."
