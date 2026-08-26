@@ -46,6 +46,8 @@ const Team = () => {
   const { t } = useTranslation();
   const [, setLocation] = useLocation();
   const members = t("team.members", { returnObjects: true }) as TeamMemberProps[];
+  const hiddenMembers = ["Sophia Martinez"];
+  const visibleMembers = members.filter((m: any) => !hiddenMembers.includes(m.name));
 
   return (
     <section id="about" className="py-16 bg-blue-50 scroll-mt-10">
@@ -73,8 +75,8 @@ const Team = () => {
           </motion.p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {members.map((member: any, index: number) => (
+        <div className={`grid grid-cols-1 gap-8 justify-items-center ${visibleMembers.length <= 3 ? "md:grid-cols-3 max-w-4xl mx-auto" : "md:grid-cols-2 lg:grid-cols-4"}`}>
+          {visibleMembers.map((member: any, index: number) => (
             <TeamMember
               key={index}
               image={member.image}
