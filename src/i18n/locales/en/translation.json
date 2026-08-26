@@ -226,8 +226,8 @@
                 "level": "Intermediate",
                 "duration": "10 Weeks",
                 "format": "Online",
-                "regularPrice": "$1,995",
-                "price": "$1,595",
+                "regularPrice": "$1000",
+                "price": "$800",
                 "buttonBg": "bg-blue-500",
                 "buttonHoverBg": "hover:bg-blue-600"
             },
@@ -239,8 +239,8 @@
                 "level": "Advanced",
                 "duration": "12 Weeks",
                 "format": "Online",
-                "regularPrice": "US$ 2,495",
-                "price": "US$ 1,995",
+                "regularPrice": "US$ 1250",
+                "price": "US$ 1000",
                 "buttonBg": "bg-orange-500",
                 "buttonHoverBg": "hover:bg-orange-600"
             },
@@ -252,8 +252,8 @@
                 "level": "Intermediate",
                 "duration": "8 Weeks",
                 "format": "Online",
-                "regularPrice": "US$ 2,369",
-                "price": "US$ 1,895",
+                "regularPrice": "US$ 1185",
+                "price": "US$ 950",
                 "buttonBg": "bg-yellow-500",
                 "buttonHoverBg": "hover:bg-yellow-600"
             },
@@ -265,8 +265,8 @@
                 "level": "Intermediate",
                 "duration": "6 Weeks",
                 "format": "Online",
-                "regularPrice": "US$ 2,115",
-                "price": "$US1,695",
+                "regularPrice": "US$ 1060",
+                "price": "$US850",
                 "buttonBg": "bg-green-500",
                 "buttonHoverBg": "hover:bg-green-600",
                 "details": {
@@ -514,8 +514,8 @@
                 "level": "Beginner",
                 "duration": "8 Weeks",
                 "format": "Online",
-                "regularPrice": "US$ 2,245",
-                "price": "US$ 1,795",
+                "regularPrice": "US$ 1125",
+                "price": "US$ 900",
                 "buttonBg": "bg-violet-500",
                 "buttonHoverBg": "hover:bg-violet-600"
             },
@@ -527,8 +527,8 @@
                 "level": "Advanced",
                 "duration": "12 Weeks",
                 "format": "Online",
-                "regularPrice": "US$ 2,995",
-                "price": "US$ 2,395",
+                "regularPrice": "US$ 1500",
+                "price": "US$ 1200",
                 "buttonBg": "bg-blue-500",
                 "buttonHoverBg": "hover:bg-blue-600"
             }
@@ -652,21 +652,27 @@
                 "position": "Founder & CEO",
                 "positionColor": "text-blue-600",
                 "bio": "Data Scientist and researcher with 20+ years of experience in Software and New Technologies for Cybersecurity, Blockchain, IoT, AI and Machine Learning for enterprise industries.",
-                "image": "ar.jpg"
+                "image": "ar.jpg",
+                "linkedin": "https://www.linkedin.com/in/antonio-robles-luna/",
+                "email": "antonio@robles.ai"
             },
             {
                 "name": "Enrique Mendo",
                 "position": "Chief Technology Officer",
                 "positionColor": "text-emerald-600",
                 "bio": "Leading expert in Computer Vision with extensive experience in Generative AI, Machine Learning and Deep Learning.",
-                "image": "em.jpg"
+                "image": "em.jpg",
+                "linkedin": "https://www.linkedin.com/in/jose-enrique-mendo-huapaya-0758ab261/",
+                "email": "enrique.mendo@sistemas.com.pe"
             },
             {
                 "name": "Jaren Ramos",
                 "position": "Director of UX",
                 "positionColor": "text-violet-600",
                 "bio": "UX specialist with extensive experience designing intuitive, user-centered interfaces for AI-powered products and enterprise platforms.",
-                "image": "jr.jpg"
+                "image": "jr.jpg",
+                "linkedin": "https://www.linkedin.com/in/jaren-ramos-520950315/",
+                "email": "jaren.ramos@sistemas.com.pe"
             },
             {
                 "name": "Sophia Martinez",
@@ -675,7 +681,8 @@
                 "bio": "Former professor with expertise in responsible AI development, ensuring ethical implementation of our solutions.",
                 "image": "sm.jpg"
             }
-        ]
+        ],
+        "contactButton": "Contact"
     },
     "contact": {
         "title": "Contact Us",
@@ -942,15 +949,39 @@
             "cta": "Book Your Diagnosis"
         },
         "steps": {
-            "step1": { "title": "Diagnosis", "desc": "Survey of real processes and data" },
-            "step2": { "title": "Prioritization", "desc": "Impact, feasibility, and data dependencies" },
-            "step3": { "title": "Phased Roadmap", "desc": "Initiatives grouped by technical affinity" },
-            "step4": { "title": "Monitoring & Evaluation", "desc": "Real KPIs measured in production" }
+            "step1": {
+                "title": "Diagnosis",
+                "desc": "Survey of real processes and data"
+            },
+            "step2": {
+                "title": "Prioritization",
+                "desc": "Impact, feasibility, and data dependencies"
+            },
+            "step3": {
+                "title": "Phased Roadmap",
+                "desc": "Initiatives grouped by technical affinity"
+            },
+            "step4": {
+                "title": "Monitoring & Evaluation",
+                "desc": "Real KPIs measured in production"
+            }
         },
         "stats": {
-            "years": { "value": "10+", "label": "Years of Experience", "detail": "Company established since 2011, with discipline now applied to AI projects." },
-            "weeks": { "value": "2", "label": "Weeks of Diagnosis", "detail": "Prioritized action plan delivered before any major commitment." },
-            "stages": { "value": "4", "label": "Roadmap Stages", "detail": "Controlled progression that reduces risk and learning time in each phase." }
+            "years": {
+                "value": "10+",
+                "label": "Years of Experience",
+                "detail": "Company established since 2011, with discipline now applied to AI projects."
+            },
+            "weeks": {
+                "value": "2",
+                "label": "Weeks of Diagnosis",
+                "detail": "Prioritized action plan delivered before any major commitment."
+            },
+            "stages": {
+                "value": "4",
+                "label": "Roadmap Stages",
+                "detail": "Controlled progression that reduces risk and learning time in each phase."
+            }
         },
         "howWeWork": {
             "title": "How We Work: Four Steps to Real Impact",
@@ -973,43 +1004,106 @@
             "title": "Our Services",
             "subtitle": "AI Diagnosis, process audits, assistants and chatbots, LLM integration, RAG knowledge bases, and predictive machine learning — each service designed to generate real operational and financial impact.",
             "items": {
-                "diagnosis": { "title": "AI Diagnosis", "desc": "Prioritized opportunity map in 2 weeks." },
-                "audit": { "title": "Process Audit", "desc": "Technical review of where and how to automate with real data." },
-                "chatbots": { "title": "Assistants & Chatbots", "desc": "Internal or customer-facing queries, automated." },
-                "llm": { "title": "LLM Integration", "desc": "Language models connected to your current systems and workflows." },
-                "rag": { "title": "Knowledge Bases (RAG)", "desc": "Your internal information, queryable in natural language." },
-                "ml": { "title": "Predictive ML", "desc": "Forecasting, scoring, and prediction applied to your processes." }
+                "diagnosis": {
+                    "title": "AI Diagnosis",
+                    "desc": "Prioritized opportunity map in 2 weeks."
+                },
+                "audit": {
+                    "title": "Process Audit",
+                    "desc": "Technical review of where and how to automate with real data."
+                },
+                "chatbots": {
+                    "title": "Assistants & Chatbots",
+                    "desc": "Internal or customer-facing queries, automated."
+                },
+                "llm": {
+                    "title": "LLM Integration",
+                    "desc": "Language models connected to your current systems and workflows."
+                },
+                "rag": {
+                    "title": "Knowledge Bases (RAG)",
+                    "desc": "Your internal information, queryable in natural language."
+                },
+                "ml": {
+                    "title": "Predictive ML",
+                    "desc": "Forecasting, scoring, and prediction applied to your processes."
+                }
             }
         },
         "technologies": {
             "title": "Technologies We Use, Explained Simply",
             "subtitle": "We don't start from the trendy tool — we start from the functional need: we evaluate which combination best responds to your data, your systems, and your real operations.",
             "items": {
-                "erp": { "title": "SAP / ERP Integration", "desc": "We connect AI directly to the system your business already uses, without duplicate data entry." },
-                "llm": { "title": "LLM — Language Models", "desc": "Understands natural language instructions and can answer queries, draft documents, or execute specific tasks." },
-                "rag": { "title": "RAG — Answers from Your Data", "desc": "Responds with your company's real, updated information — manuals, policies, internal documents." },
-                "ocr": { "title": "OCR — Automatic Document Reading", "desc": "Converts scanned invoices, receipts, or contracts into digital information ready to use." },
-                "apis": { "title": "APIs & Connectors", "desc": "The wiring that allows your systems to communicate and share information automatically." },
-                "cloud": { "title": "Cloud Architecture", "desc": "Cloud infrastructure that grows with your business, without relying on physical servers." },
-                "bi": { "title": "BI & Dashboards", "desc": "Visual dashboards that management can query in real time." },
-                "mlPredictive": { "title": "Predictive ML", "desc": "Models that learn from historical data to anticipate future behaviors." }
+                "erp": {
+                    "title": "SAP / ERP Integration",
+                    "desc": "We connect AI directly to the system your business already uses, without duplicate data entry."
+                },
+                "llm": {
+                    "title": "LLM — Language Models",
+                    "desc": "Understands natural language instructions and can answer queries, draft documents, or execute specific tasks."
+                },
+                "rag": {
+                    "title": "RAG — Answers from Your Data",
+                    "desc": "Responds with your company's real, updated information — manuals, policies, internal documents."
+                },
+                "ocr": {
+                    "title": "OCR — Automatic Document Reading",
+                    "desc": "Converts scanned invoices, receipts, or contracts into digital information ready to use."
+                },
+                "apis": {
+                    "title": "APIs & Connectors",
+                    "desc": "The wiring that allows your systems to communicate and share information automatically."
+                },
+                "cloud": {
+                    "title": "Cloud Architecture",
+                    "desc": "Cloud infrastructure that grows with your business, without relying on physical servers."
+                },
+                "bi": {
+                    "title": "BI & Dashboards",
+                    "desc": "Visual dashboards that management can query in real time."
+                },
+                "mlPredictive": {
+                    "title": "Predictive ML",
+                    "desc": "Models that learn from historical data to anticipate future behaviors."
+                }
             }
         },
         "experience": {
             "title": "Track Record & Experience",
             "subtitle": "We are a company with over a decade of formal track record (since 2011), with validated experience in banking and technology outsourcing — the same work discipline now applied to Artificial Intelligence projects.",
-            "latam": { "title": "LatAm ⇄ USA", "desc": "Cultural proximity and language in LatAm; standards and precision demanded by the US market." },
-            "data": { "title": "Data, Not Assumptions", "desc": "Each roadmap stage is adjusted with real KPIs measured in production." },
-            "sector": { "title": "Sector Experience", "desc": "Validated track record in banking and tech outsourcing, with rigor applied to AI projects." }
+            "latam": {
+                "title": "LatAm ⇄ USA",
+                "desc": "Cultural proximity and language in LatAm; standards and precision demanded by the US market."
+            },
+            "data": {
+                "title": "Data, Not Assumptions",
+                "desc": "Each roadmap stage is adjusted with real KPIs measured in production."
+            },
+            "sector": {
+                "title": "Sector Experience",
+                "desc": "Validated track record in banking and tech outsourcing, with rigor applied to AI projects."
+            }
         },
         "diagnostico": {
             "title": "Start with an AI Diagnosis",
             "subtitle": "The simplest way to apply this methodology to your business: a structured diagnosis in 2 weeks that gives you a prioritized action plan, before any major implementation commitment.",
             "timeline": {
-                "t1": { "title": "Week 1 — Survey", "desc": "Your current processes, data, and tools." },
-                "t2": { "title": "Week 1–2 — Analysis", "desc": "Opportunities prioritized by impact and effort." },
-                "t3": { "title": "Week 2 — Report", "desc": "Findings, risks, and prioritized roadmap." },
-                "t4": { "title": "Closing", "desc": "Live review session and next steps definition." }
+                "t1": {
+                    "title": "Week 1 — Survey",
+                    "desc": "Your current processes, data, and tools."
+                },
+                "t2": {
+                    "title": "Week 1–2 — Analysis",
+                    "desc": "Opportunities prioritized by impact and effort."
+                },
+                "t3": {
+                    "title": "Week 2 — Report",
+                    "desc": "Findings, risks, and prioritized roadmap."
+                },
+                "t4": {
+                    "title": "Closing",
+                    "desc": "Live review session and next steps definition."
+                }
             },
             "pricing": {
                 "label": "Investment",
@@ -1031,10 +1125,22 @@
         },
         "whyNow": {
             "title": "Why Now",
-            "s1": { "value": "83%", "desc": "of SMEs already declare themselves ready to adopt AI" },
-            "s2": { "value": "40–60%", "desc": "lower cost vs. a US-based consultancy, same standard" },
-            "s3": { "value": "73%", "desc": "of consulting clients prefer fixed pricing by outcome, not hourly" },
-            "s4": { "value": "18%", "desc": "year-over-year increase in AI talent rates in LatAm due to demand" }
+            "s1": {
+                "value": "83%",
+                "desc": "of SMEs already declare themselves ready to adopt AI"
+            },
+            "s2": {
+                "value": "40–60%",
+                "desc": "lower cost vs. a US-based consultancy, same standard"
+            },
+            "s3": {
+                "value": "73%",
+                "desc": "of consulting clients prefer fixed pricing by outcome, not hourly"
+            },
+            "s4": {
+                "value": "18%",
+                "desc": "year-over-year increase in AI talent rates in LatAm due to demand"
+            }
         },
         "roadmapTable": {
             "title": "Illustrative Roadmap Example",
@@ -1043,16 +1149,32 @@
             "colCriteria": "Prioritization Criteria",
             "colImpact": "Impact",
             "rows": {
-                "r1": { "focus": "Base architecture & integration with core systems", "criteria": "Mandatory starting point: validates connectors and guardrails", "impact": "High" },
-                "r2": { "focus": "Commercial & customer service automation", "criteria": "High impact, mature technology, low integration risk", "impact": "High" },
-                "r3": { "focus": "Document & financial automation", "criteria": "Data already available in core system", "impact": "High" },
-                "r4": { "focus": "Advanced analytics, corporate RAG & forecasting", "criteria": "Requires already consolidated data and integration layers", "impact": "Medium" }
+                "r1": {
+                    "focus": "Base architecture & integration with core systems",
+                    "criteria": "Mandatory starting point: validates connectors and guardrails",
+                    "impact": "High"
+                },
+                "r2": {
+                    "focus": "Commercial & customer service automation",
+                    "criteria": "High impact, mature technology, low integration risk",
+                    "impact": "High"
+                },
+                "r3": {
+                    "focus": "Document & financial automation",
+                    "criteria": "Data already available in core system",
+                    "impact": "High"
+                },
+                "r4": {
+                    "focus": "Advanced analytics, corporate RAG & forecasting",
+                    "criteria": "Requires already consolidated data and integration layers",
+                    "impact": "Medium"
+                }
             },
             "disclaimer": "Illustrative structure example, not tied to a specific client."
         }
     },
     "chatbotWidget": {
-        "greeting": "\ud83d\udc4b Hi! I'm here if you need help with AI solutions or have any questions!"
+        "greeting": "👋 Hi! I'm here if you need help with AI solutions or have any questions!"
     },
     "whatsappWidget": {
         "cta": "Chat with us",

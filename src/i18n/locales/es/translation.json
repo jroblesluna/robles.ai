@@ -226,8 +226,8 @@
                 "level": "Intermedio",
                 "duration": "10 semanas",
                 "format": "En línea",
-                "regularPrice": "US$ 2,495",
-                "price": "US$ 1,995",
+                "regularPrice": "US$ 1250",
+                "price": "US$ 1000",
                 "buttonBg": "bg-blue-500",
                 "buttonHoverBg": "hover:bg-blue-600"
             },
@@ -239,8 +239,8 @@
                 "level": "Avanzado",
                 "duration": "12 semanas",
                 "format": "En línea",
-                "regularPrice": "US$ 2,995",
-                "price": "US$ 2,395",
+                "regularPrice": "US$ 1500",
+                "price": "US$ 1200",
                 "buttonBg": "bg-orange-500",
                 "buttonHoverBg": "hover:bg-orange-600"
             },
@@ -252,8 +252,8 @@
                 "level": "Intermedio",
                 "duration": "8 semanas",
                 "format": "En línea",
-                "regularPrice": "US$ 2,369",
-                "price": "US$ 1,895",
+                "regularPrice": "US$ 1185",
+                "price": "US$ 950",
                 "buttonBg": "bg-yellow-500",
                 "buttonHoverBg": "hover:bg-yellow-600"
             },
@@ -265,8 +265,8 @@
                 "level": "Intermedio",
                 "duration": "6 semanas",
                 "format": "En línea",
-                "regularPrice": "US$ 2,115",
-                "price": "$US1,695",
+                "regularPrice": "US$ 1060",
+                "price": "$US850",
                 "buttonBg": "bg-green-500",
                 "buttonHoverBg": "hover:bg-green-600",
                 "details": {
@@ -514,8 +514,8 @@
                 "level": "Principiante",
                 "duration": "8 semanas",
                 "format": "En línea",
-                "regularPrice": "US$ 2,245",
-                "price": "US$ 1,795",
+                "regularPrice": "US$ 1125",
+                "price": "US$ 900",
                 "buttonBg": "bg-violet-500",
                 "buttonHoverBg": "hover:bg-violet-600"
             },
@@ -527,8 +527,8 @@
                 "level": "Avanzado",
                 "duration": "12 semanas",
                 "format": "En línea",
-                "regularPrice": "US$ 2,995",
-                "price": "US$ 2,395",
+                "regularPrice": "US$ 1500",
+                "price": "US$ 1200",
                 "buttonBg": "bg-blue-500",
                 "buttonHoverBg": "hover:bg-blue-600"
             }
@@ -652,21 +652,27 @@
                 "position": "Fundador y Director",
                 "positionColor": "text-blue-600",
                 "bio": "Científico de datos e investigador con 20+ años de experiencia en desarrollo de software y nuevas tecnologías para la industria de la ciberseguridad, blockchain, IoT, IA y aprendizaje automático para empresas.",
-                "image": "ar.jpg"
+                "image": "ar.jpg",
+                "linkedin": "https://www.linkedin.com/in/antonio-robles-luna/",
+                "email": "antonio@robles.ai"
             },
             {
                 "name": "Enrique Mendo",
                 "position": "Director de Investigación",
                 "positionColor": "text-emerald-600",
                 "bio": "Experto líder en visión por computadora con amplia experiencia en IA generativa, aprendizaje automático y aprendizaje profundo.",
-                "image": "em.jpg"
+                "image": "em.jpg",
+                "linkedin": "https://www.linkedin.com/in/jose-enrique-mendo-huapaya-0758ab261/",
+                "email": "enrique.mendo@sistemas.com.pe"
             },
             {
                 "name": "Jaren Ramos",
                 "position": "Director de UX",
                 "positionColor": "text-violet-600",
                 "bio": "Especialista en UX con amplia experiencia diseñando interfaces intuitivas y centradas en el usuario para productos de IA y plataformas empresariales.",
-                "image": "jr.jpg"
+                "image": "jr.jpg",
+                "linkedin": "https://www.linkedin.com/in/jaren-ramos-520950315/",
+                "email": "jaren.ramos@sistemas.com.pe"
             },
             {
                 "name": "Sophia Martinez",
@@ -675,7 +681,8 @@
                 "bio": "Ex profesora con experiencia en desarrollo responsable de IA, asegurando la implementación ética de nuestras soluciones.",
                 "image": "sm.jpg"
             }
-        ]
+        ],
+        "contactButton": "Contactar"
     },
     "contact": {
         "title": "Contáctanos",
@@ -942,15 +949,39 @@
             "cta": "Agenda tu Diagnóstico"
         },
         "steps": {
-            "step1": { "title": "Diagnóstico", "desc": "Relevamiento de procesos y datos reales" },
-            "step2": { "title": "Priorización", "desc": "Impacto, factibilidad y dependencia de datos" },
-            "step3": { "title": "Roadmap por Etapas", "desc": "Iniciativas agrupadas por afinidad técnica" },
-            "step4": { "title": "Monitoreo y Evaluación", "desc": "KPIs reales medidos en producción" }
+            "step1": {
+                "title": "Diagnóstico",
+                "desc": "Relevamiento de procesos y datos reales"
+            },
+            "step2": {
+                "title": "Priorización",
+                "desc": "Impacto, factibilidad y dependencia de datos"
+            },
+            "step3": {
+                "title": "Roadmap por Etapas",
+                "desc": "Iniciativas agrupadas por afinidad técnica"
+            },
+            "step4": {
+                "title": "Monitoreo y Evaluación",
+                "desc": "KPIs reales medidos en producción"
+            }
         },
         "stats": {
-            "years": { "value": "10+", "label": "Años de trayectoria", "detail": "Compañía constituida desde 2011 con disciplina aplicada hoy a proyectos de IA." },
-            "weeks": { "value": "2", "label": "Semanas de diagnóstico", "detail": "Entrega de plan de acción priorizado antes de cualquier compromiso mayor." },
-            "stages": { "value": "4", "label": "Etapas del roadmap", "detail": "Progresión controlada que reduce riesgo y tiempo de aprendizaje en cada fase." }
+            "years": {
+                "value": "10+",
+                "label": "Años de trayectoria",
+                "detail": "Compañía constituida desde 2011 con disciplina aplicada hoy a proyectos de IA."
+            },
+            "weeks": {
+                "value": "2",
+                "label": "Semanas de diagnóstico",
+                "detail": "Entrega de plan de acción priorizado antes de cualquier compromiso mayor."
+            },
+            "stages": {
+                "value": "4",
+                "label": "Etapas del roadmap",
+                "detail": "Progresión controlada que reduce riesgo y tiempo de aprendizaje en cada fase."
+            }
         },
         "howWeWork": {
             "title": "Cómo Trabajamos: Cuatro Pasos Hacia el Impacto Real",
@@ -973,43 +1004,106 @@
             "title": "Nuestros Servicios",
             "subtitle": "Diagnóstico IA, auditoría de procesos, asistentes y chatbots, integración de LLM, bases de conocimiento RAG y machine learning predictivo — cada servicio diseñado para generar impacto operativo y financiero real.",
             "items": {
-                "diagnosis": { "title": "Diagnóstico IA", "desc": "Mapa priorizado de oportunidades en 2 semanas." },
-                "audit": { "title": "Auditoría de Procesos", "desc": "Revisión técnica de dónde y cómo automatizar con datos reales." },
-                "chatbots": { "title": "Asistentes y Chatbots", "desc": "Atención y consultas internas o de clientes, automatizadas." },
-                "llm": { "title": "Integración de LLM", "desc": "Modelos de lenguaje conectados a tus sistemas y flujos actuales." },
-                "rag": { "title": "Bases de Conocimiento (RAG)", "desc": "Tu información interna, consultable en lenguaje natural." },
-                "ml": { "title": "Machine Learning Predictivo", "desc": "Forecasting, scoring y predicción aplicada a tus procesos." }
+                "diagnosis": {
+                    "title": "Diagnóstico IA",
+                    "desc": "Mapa priorizado de oportunidades en 2 semanas."
+                },
+                "audit": {
+                    "title": "Auditoría de Procesos",
+                    "desc": "Revisión técnica de dónde y cómo automatizar con datos reales."
+                },
+                "chatbots": {
+                    "title": "Asistentes y Chatbots",
+                    "desc": "Atención y consultas internas o de clientes, automatizadas."
+                },
+                "llm": {
+                    "title": "Integración de LLM",
+                    "desc": "Modelos de lenguaje conectados a tus sistemas y flujos actuales."
+                },
+                "rag": {
+                    "title": "Bases de Conocimiento (RAG)",
+                    "desc": "Tu información interna, consultable en lenguaje natural."
+                },
+                "ml": {
+                    "title": "Machine Learning Predictivo",
+                    "desc": "Forecasting, scoring y predicción aplicada a tus procesos."
+                }
             }
         },
         "technologies": {
             "title": "Tecnologías que Usamos, Explicadas en Simple",
             "subtitle": "No partimos de la herramienta de moda, sino de la necesidad funcional: evaluamos qué combinación responde mejor a tus datos, tus sistemas y tu operación real.",
             "items": {
-                "erp": { "title": "Integración con SAP / ERP", "desc": "Conectamos la IA directamente con el sistema que ya usa el negocio, sin digitación duplicada." },
-                "llm": { "title": "LLM — Modelos de Lenguaje", "desc": "Entiende instrucciones en texto natural y puede responder consultas, redactar documentos o ejecutar tareas." },
-                "rag": { "title": "RAG — Respuestas basadas en tu información", "desc": "Responde con la información real y actualizada de tu empresa — manuales, políticas, documentos internos." },
-                "ocr": { "title": "OCR — Lectura automática de documentos", "desc": "Convierte facturas, boletas o contratos escaneados en información digital lista para usar." },
-                "apis": { "title": "APIs y Conectores", "desc": "Permite que tus sistemas se comuniquen entre sí y compartan información automáticamente." },
-                "cloud": { "title": "Cloud Architecture", "desc": "Infraestructura en la nube que crece junto con tu negocio, sin depender de servidores físicos." },
-                "bi": { "title": "BI y Dashboards", "desc": "Tableros visuales que la gerencia puede consultar en tiempo real." },
-                "mlPredictive": { "title": "Machine Learning Predictivo", "desc": "Modelos que aprenden de datos históricos para anticipar comportamientos futuros." }
+                "erp": {
+                    "title": "Integración con SAP / ERP",
+                    "desc": "Conectamos la IA directamente con el sistema que ya usa el negocio, sin digitación duplicada."
+                },
+                "llm": {
+                    "title": "LLM — Modelos de Lenguaje",
+                    "desc": "Entiende instrucciones en texto natural y puede responder consultas, redactar documentos o ejecutar tareas."
+                },
+                "rag": {
+                    "title": "RAG — Respuestas basadas en tu información",
+                    "desc": "Responde con la información real y actualizada de tu empresa — manuales, políticas, documentos internos."
+                },
+                "ocr": {
+                    "title": "OCR — Lectura automática de documentos",
+                    "desc": "Convierte facturas, boletas o contratos escaneados en información digital lista para usar."
+                },
+                "apis": {
+                    "title": "APIs y Conectores",
+                    "desc": "Permite que tus sistemas se comuniquen entre sí y compartan información automáticamente."
+                },
+                "cloud": {
+                    "title": "Cloud Architecture",
+                    "desc": "Infraestructura en la nube que crece junto con tu negocio, sin depender de servidores físicos."
+                },
+                "bi": {
+                    "title": "BI y Dashboards",
+                    "desc": "Tableros visuales que la gerencia puede consultar en tiempo real."
+                },
+                "mlPredictive": {
+                    "title": "Machine Learning Predictivo",
+                    "desc": "Modelos que aprenden de datos históricos para anticipar comportamientos futuros."
+                }
             }
         },
         "experience": {
             "title": "Respaldo y Experiencia",
             "subtitle": "Somos una compañía con más de una década de trayectoria formal (desde 2011), con experiencia validada en el sector bancario y de outsourcing tecnológico — la misma disciplina de trabajo aplicada ahora a proyectos de Inteligencia Artificial.",
-            "latam": { "title": "LatAm ⇄ USA", "desc": "Cercanía cultural e idioma en LatAm; estándares y precisión que exige el mercado de EE.UU." },
-            "data": { "title": "Datos, no supuestos", "desc": "Cada etapa del roadmap se ajusta con KPIs reales medidos en producción." },
-            "sector": { "title": "Experiencia sectorial", "desc": "Trayectoria validada en banca y outsourcing tecnológico, con rigor aplicado a proyectos de IA." }
+            "latam": {
+                "title": "LatAm ⇄ USA",
+                "desc": "Cercanía cultural e idioma en LatAm; estándares y precisión que exige el mercado de EE.UU."
+            },
+            "data": {
+                "title": "Datos, no supuestos",
+                "desc": "Cada etapa del roadmap se ajusta con KPIs reales medidos en producción."
+            },
+            "sector": {
+                "title": "Experiencia sectorial",
+                "desc": "Trayectoria validada en banca y outsourcing tecnológico, con rigor aplicado a proyectos de IA."
+            }
         },
         "diagnostico": {
             "title": "Empieza con un Diagnóstico IA",
             "subtitle": "La forma más simple de aplicar esta metodología a tu negocio: un diagnóstico estructurado en 2 semanas que te da un plan de acción priorizado, antes de cualquier compromiso mayor.",
             "timeline": {
-                "t1": { "title": "Semana 1 — Relevamiento", "desc": "Tus procesos, datos y herramientas actuales." },
-                "t2": { "title": "Semana 1–2 — Análisis", "desc": "Oportunidades priorizadas por impacto y esfuerzo." },
-                "t3": { "title": "Semana 2 — Informe", "desc": "Hallazgos, riesgos y hoja de ruta priorizada." },
-                "t4": { "title": "Cierre", "desc": "Sesión de revisión en vivo y definición de próximos pasos." }
+                "t1": {
+                    "title": "Semana 1 — Relevamiento",
+                    "desc": "Tus procesos, datos y herramientas actuales."
+                },
+                "t2": {
+                    "title": "Semana 1–2 — Análisis",
+                    "desc": "Oportunidades priorizadas por impacto y esfuerzo."
+                },
+                "t3": {
+                    "title": "Semana 2 — Informe",
+                    "desc": "Hallazgos, riesgos y hoja de ruta priorizada."
+                },
+                "t4": {
+                    "title": "Cierre",
+                    "desc": "Sesión de revisión en vivo y definición de próximos pasos."
+                }
             },
             "pricing": {
                 "label": "Inversión",
@@ -1031,10 +1125,22 @@
         },
         "whyNow": {
             "title": "Por Qué Ahora",
-            "s1": { "value": "83%", "desc": "de Pymes ya se declaran listas para adoptar IA" },
-            "s2": { "value": "40–60%", "desc": "menor costo frente a una consultora en EE.UU., mismo estándar" },
-            "s3": { "value": "73%", "desc": "de clientes de consultoría prefiere precio fijo por resultado, no por hora" },
-            "s4": { "value": "18%", "desc": "de alza interanual en tarifas de talento IA en LatAm por exceso de demanda" }
+            "s1": {
+                "value": "83%",
+                "desc": "de Pymes ya se declaran listas para adoptar IA"
+            },
+            "s2": {
+                "value": "40–60%",
+                "desc": "menor costo frente a una consultora en EE.UU., mismo estándar"
+            },
+            "s3": {
+                "value": "73%",
+                "desc": "de clientes de consultoría prefiere precio fijo por resultado, no por hora"
+            },
+            "s4": {
+                "value": "18%",
+                "desc": "de alza interanual en tarifas de talento IA en LatAm por exceso de demanda"
+            }
         },
         "roadmapTable": {
             "title": "Ejemplo Ilustrativo de un Roadmap",
@@ -1043,16 +1149,32 @@
             "colCriteria": "Criterio de priorización",
             "colImpact": "Impacto",
             "rows": {
-                "r1": { "focus": "Arquitectura base e integración con sistemas centrales", "criteria": "Punto de partida obligatorio: valida conectores y guardrails", "impact": "Alto" },
-                "r2": { "focus": "Automatización comercial y de atención", "criteria": "Alto impacto, tecnología madura, bajo riesgo de integración", "impact": "Alto" },
-                "r3": { "focus": "Automatización documental y financiera", "criteria": "Datos ya disponibles en el sistema central", "impact": "Alto" },
-                "r4": { "focus": "Analítica avanzada, RAG corporativo y forecasting", "criteria": "Requiere las capas de datos e integración ya consolidadas", "impact": "Medio" }
+                "r1": {
+                    "focus": "Arquitectura base e integración con sistemas centrales",
+                    "criteria": "Punto de partida obligatorio: valida conectores y guardrails",
+                    "impact": "Alto"
+                },
+                "r2": {
+                    "focus": "Automatización comercial y de atención",
+                    "criteria": "Alto impacto, tecnología madura, bajo riesgo de integración",
+                    "impact": "Alto"
+                },
+                "r3": {
+                    "focus": "Automatización documental y financiera",
+                    "criteria": "Datos ya disponibles en el sistema central",
+                    "impact": "Alto"
+                },
+                "r4": {
+                    "focus": "Analítica avanzada, RAG corporativo y forecasting",
+                    "criteria": "Requiere las capas de datos e integración ya consolidadas",
+                    "impact": "Medio"
+                }
             },
             "disclaimer": "Ejemplo ilustrativo de estructura, no vinculado a un cliente específico."
         }
     },
     "chatbotWidget": {
-        "greeting": "\ud83d\udc4b \u00a1Hola! Estoy aqu\u00ed si necesitas ayuda con soluciones de IA o tienes alguna consulta."
+        "greeting": "👋 ¡Hola! Estoy aquí si necesitas ayuda con soluciones de IA o tienes alguna consulta."
     },
     "whatsappWidget": {
         "cta": "Escríbenos",

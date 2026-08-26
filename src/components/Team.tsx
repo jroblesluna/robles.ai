@@ -1,10 +1,13 @@
 import { motion } from "framer-motion";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Linkedin, Mail } from "lucide-react";
 import { fadeIn, staggerContainer } from "@/utils/animations";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "wouter";
 
 interface TeamMemberProps {
+  contactLabel?: string;
+  linkedin?: string;
+  email?: string;
   image: string;
   name: string;
   position: string;
@@ -16,6 +19,9 @@ interface TeamMemberProps {
 const TeamMember = ({
   image,
   name,
+  linkedin,
+  contactLabel,
+  email,
   position,
   positionColor,
   bio,
@@ -24,7 +30,7 @@ const TeamMember = ({
   <motion.div 
     variants={fadeIn}
     custom={0.3 + index * 0.1}
-    className="bg-white rounded-xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border border-gray-100"
+    className="bg-white rounded-xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border border-gray-100 flex flex-col"
   >
     <div className="aspect-square relative overflow-hidden bg-gray-100">
       <img 
@@ -34,10 +40,24 @@ const TeamMember = ({
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
     </div>
-    <div className="p-6">
+    <div className="p-6 flex flex-col flex-1">
       <h3 className="text-xl font-semibold text-gray-900 mb-1">{name}</h3>
       <p className={`${positionColor} font-medium mb-4`}>{position}</p>
-      <p className="text-gray-600 mb-4 text-sm leading-relaxed">{bio}</p>
+      <p className="text-gray-600 mb-4 text-sm leading-relaxed flex-1">{bio}</p>
+      {(linkedin || email) && (
+        <div className="flex gap-2 mt-auto pt-2">
+          {linkedin && (
+            <a href={linkedin} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0A66C2] hover:bg-[#004182] text-white text-xs font-medium transition-colors shadow-sm no-underline">
+              <Linkedin className="w-4 h-4" /> LinkedIn
+            </a>
+          )}
+          {email && (
+            <a href={`mailto:${email}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors shadow-sm no-underline">
+              <Mail className="w-4 h-4" /> {contactLabel}
+            </a>
+          )}
+        </div>
+      )}
     </div>
   </motion.div>
 );
@@ -84,6 +104,9 @@ const Team = () => {
               position={member.position}
               positionColor={member.positionColor}
               bio={member.bio}
+              linkedin={(member as any).linkedin}
+              email={(member as any).email}
+              contactLabel={t("team.contactButton")}
               index={index}
             />
           ))}
