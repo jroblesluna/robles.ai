@@ -48,12 +48,13 @@
     },
     "caseStudies": {
         "title": "Case Studies",
-        "subtitle": "Explore how we've helped businesses solve complex challenges with AI-powered solutions.",
+        "subtitle": "Explore how our AI-powered solutions can help businesses solve complex challenges across industries.",
         "items": [
             {
                 "id": 1,
+                "caseType": "illustrative",
                 "title": "Smart City Security Surveillance System",
-                "description": "We implemented a citywide computer vision system that helped reduce crime by 27% and improved emergency response times by 42% through real-time monitoring and analytics.",
+                "description": "An AI-powered computer vision system that can achieve up to 27% crime reduction and 42% faster emergency response through real-time monitoring and edge computing.",
                 "image": "https://images.unsplash.com/photo-1519501025264-65ba15a82390?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
                 "category": "Smart Cities",
                 "categoryColor": "text-blue-700",
@@ -61,7 +62,7 @@
                 "stats": [
                     {
                         "icon": "CheckCircle",
-                        "text": "27% Crime Reduction",
+                        "text": "Up to 27% Crime Reduction",
                         "iconColor": "text-blue-500"
                     },
                     {
@@ -72,13 +73,13 @@
                 ],
                 "ctaColor": "text-blue-600",
                 "ctaHoverColor": "hover:text-blue-700",
-                "ctaText": "Read Full Case Study",
-                "ctaLink": "https://drive.google.com/file/d/17mtCugeIXc7U2MOfBjmWjLy59ebl_mLj/preview"
+                "ctaText": "Read Full Case Study"
             },
             {
                 "id": 2,
+                "caseType": "illustrative",
                 "title": "Predictive Analytics for Patient Care Optimization",
-                "description": "Our machine learning system helped a healthcare provider predict patient readmission risks with 87% accuracy, reducing readmissions by 23%.",
+                "description": "A machine learning system that can typically achieve around 87% accuracy in predicting patient readmission risk, potentially reducing readmissions by 23%.",
                 "image": "https://images.unsplash.com/photo-1624727828489-a1e03b79bba8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
                 "category": "Healthcare",
                 "categoryColor": "text-emerald-700",
@@ -86,7 +87,7 @@
                 "stats": [
                     {
                         "icon": "CheckCircle",
-                        "text": "23% Fewer Readmissions",
+                        "text": "~87% Prediction Accuracy",
                         "iconColor": "text-emerald-500"
                     },
                     {
@@ -97,13 +98,13 @@
                 ],
                 "ctaColor": "text-emerald-600",
                 "ctaHoverColor": "hover:text-emerald-700",
-                "ctaText": "Read Full Case Study",
-                "ctaLink": "https://drive.google.com/file/d/1cXGAjNh3XEb5iA5IpWhcUpzVri9rgTlW/preview"
+                "ctaText": "Read Full Case Study"
             },
             {
                 "id": 3,
+                "caseType": "illustrative",
                 "title": "Fraud Detection for Financial Services",
-                "description": "Our AI system identified fraudulent transactions with 99.2% accuracy, saving a financial institution over $4.5M annually in fraud losses.",
+                "description": "An AI system that can achieve up to 99.2% accuracy in detecting fraudulent transactions, with potential savings of $4.5M annually in fraud losses.",
                 "image": "https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
                 "category": "Finance",
                 "categoryColor": "text-violet-700",
@@ -111,7 +112,7 @@
                 "stats": [
                     {
                         "icon": "CheckCircle",
-                        "text": "99.2% Detection Accuracy",
+                        "text": "Up to 99.2% Accuracy",
                         "iconColor": "text-violet-500"
                     },
                     {
@@ -122,13 +123,13 @@
                 ],
                 "ctaColor": "text-violet-600",
                 "ctaHoverColor": "hover:text-violet-700",
-                "ctaText": "Read Full Case Study",
-                "ctaLink": "https://drive.google.com/file/d/1oau7UvcQVduS6_aNE9OAPysYSrr6SkBL/preview"
+                "ctaText": "Read Full Case Study"
             },
             {
                 "id": 4,
+                "caseType": "illustrative",
                 "title": "AI Chatbot for Customer Service Automation",
-                "description": "We built a generative AI assistant that handles 78% of customer inquiries without human intervention, improving response time by 85% and customer satisfaction by 92%.",
+                "description": "A generative AI assistant that can handle up to 78% of customer inquiries without human intervention, improving response time by up to 85%.",
                 "image": "https://images.unsplash.com/photo-1559136555-9303baea8ebd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
                 "category": "Generative AI",
                 "categoryColor": "text-amber-700",
@@ -136,7 +137,7 @@
                 "stats": [
                     {
                         "icon": "CheckCircle",
-                        "text": "85% Faster Response Time",
+                        "text": "Up to 85% Faster Response",
                         "iconColor": "text-amber-500"
                     },
                     {
@@ -147,8 +148,7 @@
                 ],
                 "ctaColor": "text-amber-600",
                 "ctaHoverColor": "hover:text-amber-700",
-                "ctaText": "Read Full Case Study",
-                "ctaLink": "https://drive.google.com/file/d/1ztlfPfTHn_Vd8znDUzbaznoRYz91p6KW/preview"
+                "ctaText": "Read Full Case Study"
             }
         ]
     },

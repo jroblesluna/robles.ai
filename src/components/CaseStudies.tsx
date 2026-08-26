@@ -1,16 +1,53 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CheckCircle,
   Clock,
   ChevronRight,
+  Info,
 } from "lucide-react";
 import { fadeIn, staggerContainer } from "@/utils/animations";
 import { useTranslation } from "react-i18next";
 
-const PdfModal = ({ pdfUrl, onClose }: { pdfUrl: string; onClose: () => void }) => {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const backdropRef = useRef(null);
+const CASE_STUDY_SLUGS: Record<number, string> = {
+  1: "smart-city",
+  2: "health",
+  3: "finance",
+  4: "telco",
+};
+
+const CASE_STUDY_IMAGES: Record<string, string[]> = {
+  "smart-city": ["image1.png", "image2.jpeg", "image3.png", "image4.png"],
+  health: ["image1.png", "image2.png", "image3.png", "image4.png"],
+  finance: ["image1.png", "image2.jpeg", "image3.jpeg", "image4.png"],
+  telco: ["image1.jpeg", "image2.png", "image3.png", "image4.png"],
+};
+
+interface CaseStudyViewerProps {
+  id: number;
+  title: string;
+  caseType?: string;
+  onClose: () => void;
+}
+
+const CaseStudyViewer = ({ id, title, caseType, onClose }: CaseStudyViewerProps) => {
+  const { t, i18n } = useTranslation();
+  const [htmlContent, setHtmlContent] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const slug = CASE_STUDY_SLUGS[id];
+  const langCode = i18n.language === "es" ? "es" : "en";
+  const images = CASE_STUDY_IMAGES[slug] || [];
+
+  useEffect(() => {
+    fetch("/case-studies/content.json")
+      .then((res) => res.json())
+      .then((data) => {
+        setHtmlContent(data[slug]?.[langCode] || null);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [slug, langCode]);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -24,26 +61,53 @@ const PdfModal = ({ pdfUrl, onClose }: { pdfUrl: string; onClose: () => void }) 
     };
   }, [onClose]);
 
-  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === backdropRef.current) {
-      onClose();
-    }
-  };
+  // Parse HTML content into sections based on h3 headings
+  const parsedContent = useMemo(() => {
+    if (!htmlContent) return null;
 
-  const handlePrint = () => {
-    const iframe = iframeRef.current;
-    if (iframe?.contentWindow) {
-      iframe.contentWindow.focus();
-      iframe.contentWindow.print();
+    // Extract the header (h2 + meta paragraph)
+    const h2Match = htmlContent.match(/<h2>[\s\S]*?<\/h2>/);
+    const metaMatch = htmlContent.match(/<p class="meta">[\s\S]*?<\/p>/);
+    const disclaimerMatch = htmlContent.match(/<p class="disclaimer">[\s\S]*?<\/p>/);
+
+    const header = (h2Match?.[0] || "") + (metaMatch?.[0] || "");
+    const disclaimer = disclaimerMatch?.[0] || "";
+
+    // Remove header and disclaimer from the content to parse sections
+    let body = htmlContent;
+    if (h2Match) body = body.replace(h2Match[0], "");
+    if (metaMatch) body = body.replace(metaMatch[0], "");
+    if (disclaimerMatch) body = body.replace(disclaimerMatch[0], "");
+
+    // Split by h3 headings
+    const sections: { heading: string; content: string }[] = [];
+    const h3Regex = /<h3>([\s\S]*?)<\/h3>/g;
+    let match;
+    const h3Positions: { index: number; heading: string; fullMatch: string }[] = [];
+
+    while ((match = h3Regex.exec(body)) !== null) {
+      h3Positions.push({ index: match.index, heading: match[1], fullMatch: match[0] });
     }
-  };
+
+    for (let i = 0; i < h3Positions.length; i++) {
+      const start = h3Positions[i].index + h3Positions[i].fullMatch.length;
+      const end = i + 1 < h3Positions.length ? h3Positions[i + 1].index : body.length;
+      const sectionContent = body.slice(start, end).trim();
+      sections.push({ heading: h3Positions[i].heading, content: sectionContent });
+    }
+
+    return { header, sections, disclaimer };
+  }, [htmlContent]);
+
+  const illustrativeLabel = langCode === "es"
+    ? "Caso ilustrativo — ejemplo representativo de nuestra metodología, no vinculado a un cliente específico."
+    : "Illustrative case — representative example of our methodology, not linked to a specific client.";
 
   return (
     <AnimatePresence>
       <motion.div
-        ref={backdropRef}
-        className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center"
-        onClick={handleBackdropClick}
+        className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+        onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -53,32 +117,95 @@ const PdfModal = ({ pdfUrl, onClose }: { pdfUrl: string; onClose: () => void }) 
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.9 }}
           transition={{ type: "spring", stiffness: 260, damping: 22 }}
-          className="relative w-full max-w-4xl h-[80vh] bg-white rounded-xl shadow-2xl"
+          className="relative w-full max-w-5xl max-h-[90vh] bg-white rounded-xl shadow-2xl flex flex-col"
         >
-          {/* Botón en “oreja flotante” */}
-          <button
-            onClick={onClose}
-            className="absolute top-0 -right-10 z-20 bg-white text-black w-10 h-10 flex items-center justify-center shadow-xl rounded-full ring-1 ring-black/10 hover:scale-105 transition-transform"
-            aria-label="Close PDF"
-            title="Close PDF"
-          >
-            ✕
-          </button>
-          <button
-            onClick={handlePrint}
-            className="absolute top-12 -right-10 z-20 bg-white text-black w-10 h-10 flex items-center justify-center shadow-xl rounded-full ring-1 ring-black/10 hover:scale-105 transition-transform"
-            aria-label="Print PDF"
-            title="Print PDF"
-          >
-            🖨️
-          </button>
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 flex-shrink-0">
+            <h3 className="text-lg font-semibold text-gray-900 truncate pr-4">{title}</h3>
+            <button
+              onClick={onClose}
+              className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-900"
+              aria-label="Close"
+            >
+              ✕
+            </button>
+          </div>
 
-          <iframe
-            ref={iframeRef}
-            src={pdfUrl}
-            className="w-full h-full rounded-xl"
-            title="Case Study PDF"
-          />
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto px-6 py-6 md:px-10">
+            {loading ? (
+              <div className="flex justify-center py-10">
+                <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+              </div>
+            ) : parsedContent ? (
+              <div>
+                {/* Illustrative case type badge */}
+                {caseType === "illustrative" && (
+                  <div className="flex items-start gap-2 px-4 py-3 mb-6 bg-blue-50 border border-blue-100 rounded-lg">
+                    <Info className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm italic text-blue-700">{illustrativeLabel}</span>
+                  </div>
+                )}
+
+                {/* Title + metadata full-width */}
+                <div
+                  className="mb-8 prose prose-sm sm:prose-base max-w-none prose-headings:text-gray-900 prose-p:text-gray-600"
+                  dangerouslySetInnerHTML={{ __html: parsedContent.header }}
+                />
+
+                {/* Sections in 2-column alternating layout */}
+                {parsedContent.sections.map((section, index) => {
+                  const imageIndex = index < images.length ? index : null;
+                  const isImageLeft = index % 2 === 0;
+
+                  if (imageIndex === null) {
+                    // No image available for this section — render full-width
+                    return (
+                      <div key={index} className="mb-8">
+                        <h3 className="text-xl font-semibold text-gray-900 mb-3">{section.heading}</h3>
+                        <div
+                          className="prose prose-sm sm:prose-base max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900"
+                          dangerouslySetInnerHTML={{ __html: section.content }}
+                        />
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div
+                      key={index}
+                      className={`flex flex-col ${isImageLeft ? "md:flex-row" : "md:flex-row-reverse"} gap-6 items-start mb-8`}
+                    >
+                      <div className="w-full md:w-2/5 flex-shrink-0">
+                        <img
+                          src={`/case-studies/${slug}/${images[imageIndex]}`}
+                          alt={`${section.heading} illustration`}
+                          className="w-full rounded-lg shadow-md"
+                        />
+                      </div>
+                      <div className="w-full md:w-3/5">
+                        <h3 className="text-xl font-semibold text-gray-900 mb-3">{section.heading}</h3>
+                        <div
+                          className="prose prose-sm sm:prose-base max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900"
+                          dangerouslySetInnerHTML={{ __html: section.content }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Disclaimer full-width */}
+                {parsedContent.disclaimer && (
+                  <div
+                    className="mt-8 pt-6 border-t border-gray-200 prose prose-sm max-w-none prose-p:text-gray-500 prose-p:italic"
+                    dangerouslySetInnerHTML={{ __html: parsedContent.disclaimer }}
+                  />
+                )}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center">Content not available.</p>
+            )}
+          </div>
         </motion.div>
       </motion.div>
     </AnimatePresence>
@@ -101,7 +228,6 @@ interface CaseStudyCardProps {
   ctaHoverColor: string;
   index: number;
   ctaText: string;
-  ctaLink: string;
   onCtaClick?: () => void;
 }
 
@@ -117,7 +243,6 @@ const CaseStudyCard = ({
   ctaHoverColor,
   index,
   ctaText,
-  ctaLink,
   onCtaClick,
 }: CaseStudyCardProps) => (
   <motion.div
@@ -158,7 +283,10 @@ const CaseStudyCard = ({
         ))}
       </div>
       <button
-        onClick={onCtaClick}
+        onClick={(e) => {
+          e.stopPropagation();
+          onCtaClick?.();
+        }}
         className={`inline-flex items-center ${ctaColor} font-medium ${ctaHoverColor} transition-all duration-300 hover:translate-x-1`}
       >
         {ctaText}
@@ -182,7 +310,7 @@ const getIconComponent = (iconName: string) => {
 const CaseStudies = () => {
   const { t } = useTranslation();
   const caseStudies = t("caseStudies.items", { returnObjects: true }) as any[];
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [viewerData, setViewerData] = useState<{ id: number; title: string; caseType?: string } | null>(null);
 
   const processedCaseStudies = caseStudies.map((study) => ({
     ...study,
@@ -221,14 +349,22 @@ const CaseStudies = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           {processedCaseStudies.map((study, index) => (
             <CaseStudyCard
-              key={study.id} {...study}
+              key={study.id}
+              {...study}
               index={index}
-              onCtaClick={() => setPdfUrl(study.ctaLink)}
+              onCtaClick={() => setViewerData({ id: study.id, title: study.title, caseType: study.caseType })}
             />
           ))}
         </div>
       </motion.div>
-      {pdfUrl && <PdfModal pdfUrl={pdfUrl} onClose={() => setPdfUrl(null)} />}
+      {viewerData && (
+        <CaseStudyViewer
+          id={viewerData.id}
+          title={viewerData.title}
+          caseType={viewerData.caseType}
+          onClose={() => setViewerData(null)}
+        />
+      )}
     </section>
   );
 };

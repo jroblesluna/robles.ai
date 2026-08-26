@@ -47,13 +47,14 @@
         "cta3": "Empezar con IA en mi Empresa"
     },
     "caseStudies": {
-        "title": "Casos de Éxito",
-        "subtitle": "Descubre cómo hemos ayudado a empresas a resolver desafíos complejos con soluciones impulsadas por IA.",
+        "title": "Casos de Estudio",
+        "subtitle": "Descubre cómo nuestras soluciones de IA pueden ayudar a empresas a resolver desafíos complejos en diversas industrias.",
         "items": [
             {
                 "id": 1,
-                "title": "Sistema de Vigilancia para Ciudades Inteligentes",
-                "description": "Implementamos un sistema de visión computacional a nivel ciudad que ayudó a reducir el crimen en un 27% y mejoró los tiempos de respuesta ante emergencias en un 42%.",
+                "caseType": "illustrative",
+                "title": "Sistema de Vigilancia Inteligente para Ciudades",
+                "description": "Un sistema de visión computacional con IA que puede lograr hasta un 27% de reducción en crimen y 42% de mejora en tiempos de respuesta mediante monitoreo en tiempo real y edge computing.",
                 "image": "https://images.unsplash.com/photo-1519501025264-65ba15a82390?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
                 "category": "Ciudades Inteligentes",
                 "categoryColor": "text-blue-700",
@@ -61,7 +62,7 @@
                 "stats": [
                     {
                         "icon": "CheckCircle",
-                        "text": "27% menos crimen",
+                        "text": "Hasta 27% menos crimen",
                         "iconColor": "text-blue-500"
                     },
                     {
@@ -72,13 +73,13 @@
                 ],
                 "ctaColor": "text-blue-600",
                 "ctaHoverColor": "hover:text-blue-700",
-                "ctaText": "Leer el Estudio de Caso",
-                "ctaLink": "https://drive.google.com/file/d/1eKV3kMYbex9yPSeOG_8z18OZRO26sZPh/preview"
+                "ctaText": "Leer el Estudio de Caso"
             },
             {
                 "id": 2,
+                "caseType": "illustrative",
                 "title": "Análisis Predictivo para Optimizar el Cuidado del Paciente",
-                "description": "Nuestro sistema de machine learning ayudó a un proveedor de salud a predecir el riesgo de reingreso de pacientes con un 87% de precisión, reduciendo reingresos en un 23%.",
+                "description": "Un sistema de machine learning que puede alcanzar típicamente alrededor del 87% de precisión en predecir riesgo de reingreso, reduciendo potencialmente los reingresos en un 23%.",
                 "image": "https://images.unsplash.com/photo-1624727828489-a1e03b79bba8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
                 "category": "Salud",
                 "categoryColor": "text-emerald-700",
@@ -86,7 +87,7 @@
                 "stats": [
                     {
                         "icon": "CheckCircle",
-                        "text": "23% menos reingresos",
+                        "text": "~87% precisión predictiva",
                         "iconColor": "text-emerald-500"
                     },
                     {
@@ -97,13 +98,13 @@
                 ],
                 "ctaColor": "text-emerald-600",
                 "ctaHoverColor": "hover:text-emerald-700",
-                "ctaText": "Leer el Estudio de Caso",
-                "ctaLink": "https://drive.google.com/file/d/1lT-IeTgix6SxZhLkCMrYwiHSP-wODZ6G/preview"
+                "ctaText": "Leer el Estudio de Caso"
             },
             {
                 "id": 3,
+                "caseType": "illustrative",
                 "title": "Detección de Fraude para Servicios Financieros",
-                "description": "Nuestro sistema de IA identificó transacciones fraudulentas con un 99.2% de precisión, ahorrando más de $4.5 millones anuales en pérdidas por fraude.",
+                "description": "Un sistema de IA que puede alcanzar hasta 99.2% de precisión en la detección de transacciones fraudulentas, con ahorro potencial de $4.5M anuales.",
                 "image": "https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
                 "category": "Finanzas",
                 "categoryColor": "text-violet-700",
@@ -111,7 +112,7 @@
                 "stats": [
                     {
                         "icon": "CheckCircle",
-                        "text": "99.2% precisión",
+                        "text": "Hasta 99.2% precisión",
                         "iconColor": "text-violet-500"
                     },
                     {
@@ -122,13 +123,13 @@
                 ],
                 "ctaColor": "text-violet-600",
                 "ctaHoverColor": "hover:text-violet-700",
-                "ctaText": "Leer el Estudio de Caso",
-                "ctaLink": "https://drive.google.com/file/d/17RaMDOiMyIR1QzR4529jVIvWBZBg-lbr/preview"
+                "ctaText": "Leer el Estudio de Caso"
             },
             {
                 "id": 4,
-                "title": "Chatbot de IA para Atención al Cliente",
-                "description": "Creamos un asistente de IA generativa que responde el 78% de las consultas sin intervención humana, mejorando el tiempo de respuesta en un 85% y la satisfacción en un 92%.",
+                "caseType": "illustrative",
+                "title": "Chatbot de IA para Automatización del Servicio al Cliente",
+                "description": "Un asistente de IA generativa que puede gestionar hasta el 78% de las consultas sin intervención humana, mejorando el tiempo de respuesta hasta en un 85%.",
                 "image": "https://images.unsplash.com/photo-1559136555-9303baea8ebd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
                 "category": "IA Generativa",
                 "categoryColor": "text-amber-700",
@@ -136,7 +137,7 @@
                 "stats": [
                     {
                         "icon": "CheckCircle",
-                        "text": "85% respuesta más rápida",
+                        "text": "Hasta 85% más rápido",
                         "iconColor": "text-amber-500"
                     },
                     {
@@ -147,8 +148,7 @@
                 ],
                 "ctaColor": "text-amber-600",
                 "ctaHoverColor": "hover:text-amber-700",
-                "ctaText": "Leer el Estudio de Caso",
-                "ctaLink": "https://drive.google.com/file/d/1icqLYKzcg_SmxvjqGmLYORMLSqHWecmj/preview"
+                "ctaText": "Leer el Estudio de Caso"
             }
         ]
     },
