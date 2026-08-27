@@ -136,7 +136,7 @@ function App() {
           </Suspense>
         </main>
         <Footer />
-        <ChatbotWidget />
+        <ChatbotWidget hideForMobileMenu={isMobileMenuOpen} />
         <Toaster />
       </div>
     </QueryClientProvider>

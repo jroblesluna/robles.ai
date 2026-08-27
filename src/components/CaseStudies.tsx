@@ -106,7 +106,7 @@ const CaseStudyViewer = ({ id, title, caseType, onClose }: CaseStudyViewerProps)
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+        className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4"
         onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

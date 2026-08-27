@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from 'wouter';
 import type { ChatMessage, ContactData } from '../../../shared/chatTypes.js';
 import type { ConnectionStatus, ConversationStatus } from '../../hooks/useChatSession.js';
+import type { RobotMood } from './ChatbotWidget.js';
 import MessageList from './MessageList.js';
 import MessageInput from './MessageInput.js';
 
@@ -17,6 +18,7 @@ import MessageInput from './MessageInput.js';
 const WHATSAPP_NUMBER = '14085900153';
 
 interface ChatPanelProps {
+  mood: RobotMood;
   messages: ChatMessage[];
   contactData: ContactData | null;
   status: ConnectionStatus;
@@ -48,6 +50,7 @@ function useWhatsAppMessage(): string {
 }
 
 export default function ChatPanel({
+  mood,
   messages,
   contactData,
   status,
@@ -126,7 +129,11 @@ export default function ChatPanel({
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-800 text-white flex-shrink-0">
         <div className="flex items-center gap-2">
-          <MessageSquare className="w-5 h-5" />
+          <img
+            src={`/robly-avatar/robly-${mood}.svg`}
+            alt="Robly AI assistant"
+            className="w-9 h-9 -ml-1 flex-shrink-0"
+          />
           <span className="font-semibold text-sm">Robles.AI</span>
         </div>
         <button

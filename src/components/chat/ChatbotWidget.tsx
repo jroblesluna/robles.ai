@@ -12,13 +12,12 @@ import ChatPanel from './ChatPanel.js';
 // entrance sequence. Hidden on admin routes and during print.
 // ============================================================
 
-// Entrance sequence timing (ms)
-const BUBBLE_DELAY = 10_000; // Phase 1→2: bubble appears at 10s
-const NOTIFICATION_DELAY = 20_000; // Phase 3→4: typing dots at 20s
-const GREETING_DELAY = 22_000; // Phase 4→5: greeting text at 22s
+// Entrance sequence timing (ms) — bubble is visible immediately on mount
+const NOTIFICATION_DELAY = 3_000; // Phase 3→4: typing dots at 3s
+const GREETING_DELAY = 5_000; // Phase 4→5: greeting text at 5s
 
 type EntrancePhase = 'hidden' | 'bubble' | 'blinking' | 'typing' | 'greeting';
-type RobotMood = 'idle' | 'listening' | 'thinking' | 'speaking';
+export type RobotMood = 'idle' | 'listening' | 'thinking' | 'speaking';
 
 /** Robly avatar — switches SVG based on mood */
 function RobotAvatar({ mood }: { mood: RobotMood }) {
@@ -26,7 +25,7 @@ function RobotAvatar({ mood }: { mood: RobotMood }) {
     <img
       src={`/robly-avatar/robly-${mood}.svg`}
       alt="Robly AI assistant"
-      className="w-[120px] h-[120px]"
+      className="w-20 h-20 sm:w-24 sm:h-24 md:w-[120px] md:h-[120px]"
     />
   );
 }
@@ -42,11 +41,13 @@ function TypingDots() {
   );
 }
 
-export default function ChatbotWidget() {
+export default function ChatbotWidget({ hideForMobileMenu = false }: { hideForMobileMenu?: boolean }) {
   const [location] = useLocation();
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
-  const [phase, setPhase] = useState<EntrancePhase>('hidden');
+  // Bubble is visible immediately on every page load/reload; only the
+  // proactive notification balloon (typing/greeting) is delayed below.
+  const [phase, setPhase] = useState<EntrancePhase>('bubble');
   const [notificationDismissed, setNotificationDismissed] = useState(false);
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
@@ -97,27 +98,53 @@ export default function ChatbotWidget() {
     };
   }, []);
 
+  // Track hover over any card/button on the page — bot "listens" while the chat is closed.
+  // Debounced so quickly passing the cursor over several elements doesn't flicker the mood.
+  const [isHoveringInteractive, setIsHoveringInteractive] = useState(false);
+  useEffect(() => {
+    let hoverTimer: ReturnType<typeof setTimeout> | null = null;
+    const isInteractive = (target: EventTarget | null) =>
+      target instanceof HTMLElement &&
+      target.closest(
+        'button, a, [role="button"], [class*="card" i], [class*="hover:shadow" i], [class*="hover:-translate" i], [class*="hover:scale" i]',
+      );
+    const handleMouseOver = (e: MouseEvent) => {
+      if (!isInteractive(e.target)) return;
+      if (hoverTimer) clearTimeout(hoverTimer);
+      hoverTimer = setTimeout(() => setIsHoveringInteractive(true), 350);
+    };
+    const handleMouseOut = (e: MouseEvent) => {
+      if (!isInteractive(e.target)) return;
+      if (hoverTimer) clearTimeout(hoverTimer);
+      hoverTimer = setTimeout(() => setIsHoveringInteractive(false), 350);
+    };
+    document.addEventListener('mouseover', handleMouseOver);
+    document.addEventListener('mouseout', handleMouseOut);
+    return () => {
+      document.removeEventListener('mouseover', handleMouseOver);
+      document.removeEventListener('mouseout', handleMouseOut);
+      if (hoverTimer) clearTimeout(hoverTimer);
+    };
+  }, []);
+
   // Compute mood with proper priority
   const currentMood: RobotMood = (() => {
     if (status === 'streaming' || speakingHoldover) return 'speaking';
     if (status === 'loading') return 'thinking';
     if (isOpen && isUserTyping) return 'listening';
+    if (!isOpen && isHoveringInteractive) return 'listening';
     return 'idle';
   })();
 
-  // Start the entrance sequence when there's no existing session
+  // Queue the proactive notification balloon (typing → greeting) when there's
+  // no existing session. The bubble itself is already visible from mount.
   useEffect(() => {
-    // If user already has a session, skip the entrance sequence entirely
-    if (hasExistingSession) {
-      setPhase('bubble');
-      return;
-    }
+    if (hasExistingSession) return;
 
-    const t1 = setTimeout(() => setPhase('bubble'), BUBBLE_DELAY);
     const t2 = setTimeout(() => setPhase('typing'), NOTIFICATION_DELAY);
     const t3 = setTimeout(() => setPhase('greeting'), GREETING_DELAY);
 
-    timersRef.current = [t1, t2, t3];
+    timersRef.current = [t2, t3];
 
     return () => {
       timersRef.current.forEach(clearTimeout);
@@ -198,11 +225,12 @@ export default function ChatbotWidget() {
         }
       `}</style>
 
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 print:hidden">
-        {/* Chat panel */}
+      <div className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex-col items-end gap-3 print:hidden ${hideForMobileMenu ? "hidden md:flex" : "flex"}`}>
+        {/* Chat panel — mascot lives in its header, animated, in-flow with the conversation */}
         <AnimatePresence>
           {isOpen && (
             <ChatPanel
+              mood={currentMood}
               messages={effectiveMessages}
               contactData={contactData}
               status={status}
@@ -219,13 +247,32 @@ export default function ChatbotWidget() {
         </AnimatePresence>
 
         {/* Notification balloon (typing dots → greeting message) */}
-        <AnimatePresence>
+        {/* popLayout: pull the balloon out of flow the instant it starts exiting,
+            so its exit animation doesn't inflate the flex container's height while
+            the (much taller) chat panel is mounting — that combo caused the panel
+            to visibly jump up and then drop as the balloon collapsed away. */}
+        <AnimatePresence mode="popLayout">
           {showNotification && (
             <motion.div
               initial={{ opacity: 0, y: 10, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.9 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                // Soft bounce that decays over time, then rests before the next loop
+                y: [10, -12, 0, -8, 0, -5, 0, -3, 0, -1, 0, 0],
+              }}
+              exit={{ opacity: 0, y: 10, scale: 0.9, transition: { duration: 0.2 } }}
+              transition={{
+                opacity: { duration: 0.3 },
+                scale: { type: 'spring', stiffness: 300, damping: 25 },
+                y: {
+                  duration: 2.4,
+                  times: [0, 0.12, 0.22, 0.34, 0.46, 0.58, 0.7, 0.8, 0.88, 0.94, 0.98, 1],
+                  ease: 'easeOut',
+                  repeat: Infinity,
+                  repeatDelay: 5,
+                },
+              }}
               onClick={handleNotificationClick}
               className="relative bg-white rounded-xl shadow-lg px-4 py-3 max-w-[250px] cursor-pointer"
               role="status"
@@ -255,17 +302,17 @@ export default function ChatbotWidget() {
           )}
         </AnimatePresence>
 
-        {/* Floating bubble button — ALWAYS visible (toggles panel open/close) */}
+        {/* Floating bubble button — visible only while the panel is closed;
+            once open, the peeking mascot above takes over its spot. */}
         <AnimatePresence>
-          {phase !== 'hidden' && (
+          {!isOpen && phase !== 'hidden' && (
             <motion.button
               onClick={handleBubbleClick}
               initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0 }}
-              transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+              animate={{ scale: 1, transition: { duration: 0.1, ease: 'easeOut' } }}
+              exit={{ opacity: 0, transition: { duration: 0 } }}
               className="flex items-center justify-center hover:scale-105 transition-transform cursor-pointer"
-              aria-label={isOpen ? 'Close chat' : 'Open chat'}
+              aria-label="Open chat"
             >
               <RobotAvatar mood={currentMood} />
             </motion.button>

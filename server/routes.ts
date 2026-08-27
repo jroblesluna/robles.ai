@@ -491,6 +491,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const editorId = req.query.editorId ? parseInt(req.query.editorId as string) : null;
       const category = req.query.category as string | undefined;
+      const days = req.query.days ? parseInt(req.query.days as string) : null;
 
       // Build dynamic WHERE clause
       const conditions: string[] = [];
@@ -503,6 +504,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (category) {
         conditions.push("categories LIKE ?");
         params.push(`%"${category}"%`);
+      }
+      if (days && days > 0) {
+        // date is stored as 'YYYY-MM-DD-HH-mm-ss', zero-padded so it sorts/compares lexicographically
+        const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+        const cutoffStr = cutoff.toISOString().slice(0, 19).replace(/[T:]/g, '-');
+        conditions.push('date >= ?');
+        params.push(cutoffStr);
       }
 
       const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';

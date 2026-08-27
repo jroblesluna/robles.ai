@@ -102,7 +102,7 @@ const Apply = () => {
   return (
     <section id="apply" className="py-16 bg-gray-50 min-h-[80vh]">
       <motion.div
-        className="container max-w-4xl mx-auto px-4 sm:px-6 lg:px-8"
+        className="container max-w-4xl mx-auto px-6 sm:px-8 lg:px-8"
         variants={staggerContainer}
         initial="hidden"
         whileInView="visible"
@@ -113,7 +113,7 @@ const Apply = () => {
             <motion.h2
               variants={fadeIn}
               custom={0}
-              className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 text-center"
+              className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-8 text-center"
             >
               {t("careers.apply")} — {job.title}
             </motion.h2>
@@ -122,7 +122,7 @@ const Apply = () => {
               <motion.p
                 variants={fadeIn}
                 custom={0.1}
-                className="text-gray-600 mb-8 text-center max-w-3xl mx-auto"
+                className="text-sm sm:text-base text-gray-600 mb-8 text-center max-w-3xl mx-auto"
               >
                 {job.fullDescription.overview}
               </motion.p>
@@ -130,8 +130,8 @@ const Apply = () => {
 
             {job.fullDescription?.responsibilities && (
               <motion.div variants={fadeIn} custom={0.2} className="mb-8">
-                <h3 className="text-2xl font-semibold text-gray-900 mb-4">{t("careers.responsibilities")}</h3>
-                <ul className="list-disc list-inside text-gray-700 space-y-2">
+                <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4">{t("careers.responsibilities")}</h3>
+                <ul className="list-disc list-inside text-sm sm:text-base text-gray-700 space-y-2">
                   {job.fullDescription.responsibilities.map((resp, index) => (
                     <li key={index}>{resp}</li>
                   ))}
@@ -141,8 +141,8 @@ const Apply = () => {
 
             {job.fullDescription?.requirements && (
               <motion.div variants={fadeIn} custom={0.3} className="mb-12">
-                <h3 className="text-2xl font-semibold text-gray-900 mb-4">{t("careers.requirements")}</h3>
-                <ul className="list-disc list-inside text-gray-700 space-y-2">
+                <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4">{t("careers.requirements")}</h3>
+                <ul className="list-disc list-inside text-sm sm:text-base text-gray-700 space-y-2">
                   {job.fullDescription.requirements.map((req, index) => (
                     <li key={index}>{req}</li>
                   ))}
@@ -164,7 +164,7 @@ const Apply = () => {
                   <form onSubmit={handleSubmit} className="space-y-6" encType="multipart/form-data">
                     <input type="hidden" name="jobTitle" value={job?.title || ""} />
                     <div>
-                      <label className="block mb-2 text-gray-700 font-medium">{t("careers.name")}</label>
+                      <label className="block mb-2 text-sm sm:text-base text-gray-700 font-medium">{t("careers.name")}</label>
                       <input
                         type="text"
                         name="name"
@@ -175,7 +175,7 @@ const Apply = () => {
                       />
                     </div>
                     <div>
-                      <label className="block mb-2 text-gray-700 font-medium">{t("careers.email")}</label>
+                      <label className="block mb-2 text-sm sm:text-base text-gray-700 font-medium">{t("careers.email")}</label>
                       <input
                         type="email"
                         name="email"
@@ -186,7 +186,7 @@ const Apply = () => {
                       />
                     </div>
                     <div>
-                      <label className="block mb-2 text-gray-700 font-medium">{t("careers.phone")}</label>
+                      <label className="block mb-2 text-sm sm:text-base text-gray-700 font-medium">{t("careers.phone")}</label>
                       <input
                         type="tel"
                         name="phone"
@@ -196,7 +196,7 @@ const Apply = () => {
                       />
                     </div>
                     <div>
-                      <label className="block mb-2 text-gray-700 font-medium">{t("careers.uploadResume")}</label>
+                      <label className="block mb-2 text-sm sm:text-base text-gray-700 font-medium">{t("careers.uploadResume")}</label>
                       <input
                         type="file"
                         name="resume"
@@ -208,7 +208,7 @@ const Apply = () => {
                       />
                     </div>
                     <div>
-                      <label className="block mb-2 text-gray-700 font-medium">{t("careers.message")}</label>
+                      <label className="block mb-2 text-sm sm:text-base text-gray-700 font-medium">{t("careers.message")}</label>
                       <textarea
                         name="message"
                         value={formData.message}

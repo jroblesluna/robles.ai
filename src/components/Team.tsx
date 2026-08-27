@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ExternalLink, Linkedin, Mail } from "lucide-react";
+import { ExternalLink, Github, Linkedin, Mail } from "lucide-react";
 import { fadeIn, staggerContainer } from "@/utils/animations";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "wouter";
@@ -7,6 +7,7 @@ import { useLocation } from "wouter";
 interface TeamMemberProps {
   contactLabel?: string;
   linkedin?: string;
+  github?: string;
   email?: string;
   image: string;
   name: string;
@@ -20,6 +21,7 @@ const TeamMember = ({
   image,
   name,
   linkedin,
+  github,
   contactLabel,
   email,
   position,
@@ -44,11 +46,16 @@ const TeamMember = ({
       <h3 className="text-xl font-semibold text-gray-900 mb-1">{name}</h3>
       <p className={`${positionColor} font-medium mb-4`}>{position}</p>
       <p className="text-gray-600 mb-4 text-sm leading-relaxed flex-1">{bio}</p>
-      {(linkedin || email) && (
-        <div className="flex gap-2 mt-auto pt-2">
+      {(linkedin || github || email) && (
+        <div className="flex flex-wrap gap-2 mt-auto pt-2">
           {linkedin && (
             <a href={linkedin} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0A66C2] hover:bg-[#004182] text-white text-xs font-medium transition-colors shadow-sm no-underline">
               <Linkedin className="w-4 h-4" /> LinkedIn
+            </a>
+          )}
+          {github && (
+            <a href={github} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#181717] hover:bg-black text-white text-xs font-medium transition-colors shadow-sm no-underline">
+              <Github className="w-4 h-4" /> GitHub
             </a>
           )}
           {email && (
@@ -95,7 +102,7 @@ const Team = () => {
           </motion.p>
         </div>
         
-        <div className={`grid grid-cols-1 gap-8 justify-items-center ${visibleMembers.length <= 3 ? "md:grid-cols-3 max-w-4xl mx-auto" : "md:grid-cols-2 lg:grid-cols-4"}`}>
+        <div className={`grid grid-cols-1 gap-8 ${visibleMembers.length <= 3 ? "md:grid-cols-3 max-w-6xl mx-auto" : "md:grid-cols-2 lg:grid-cols-4"}`}>
           {visibleMembers.map((member: any, index: number) => (
             <TeamMember
               key={index}
@@ -105,6 +112,7 @@ const Team = () => {
               positionColor={member.positionColor}
               bio={member.bio}
               linkedin={(member as any).linkedin}
+              github={(member as any).github}
               email={(member as any).email}
               contactLabel={t("team.contactButton")}
               index={index}

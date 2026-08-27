@@ -285,7 +285,7 @@ const CourseCard = ({
             {description}
           </p>
 
-          <div className="mb-5 grid grid-cols-3 gap-2">
+          <div className="mb-5 grid grid-cols-2 gap-2 sm:grid-cols-3">
             <div className="flex items-center justify-center">
               <Clock className="mr-2 h-4 w-4 text-neutral-500" />
               <span className="text-sm text-neutral-600">{duration}</span>
@@ -298,7 +298,7 @@ const CourseCard = ({
             {details && (
               <button
                 onClick={() => setShowModal(true)}
-                className="flex justify-center items-center gap-1 rounded-md bg-white text-sm  text-neutral-500 ring-1 ring-inset ring-neutral-300 transition hover:bg-neutral-50 hover:text-neutral-900 dark:bg-neutral-900 dark:text-neutral-200 dark:ring-neutral-700 dark:hover:bg-neutral-800"
+                className="col-span-2 flex items-center justify-center gap-1 rounded-md bg-white text-sm text-neutral-500 ring-1 ring-inset ring-neutral-300 transition hover:bg-neutral-50 hover:text-neutral-900 dark:bg-neutral-900 dark:text-neutral-200 dark:ring-neutral-700 dark:hover:bg-neutral-800 sm:col-span-1"
               >
                 <Sparkles className="h-4 w-4 text-emerald-600" />
                 {detailsLabel}

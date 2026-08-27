@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "wouter";
 
@@ -214,54 +214,70 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="absolute top-16 left-0 w-full h-[calc(100vh-4rem)] bg-white z-40 overflow-hidden"
+            className="absolute top-16 left-0 w-full h-[calc(100vh-4rem)] bg-white z-40 overflow-y-auto"
           >
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
-              className="flex flex-col items-start justify-start pt-8 px-6 space-y-1"
+              className="flex flex-col px-6 pt-6 pb-8"
             >
-              {navLinks.map((link) => (
-                <div key={link.id} className="w-full">
-
-                  <div className="mt-2">
-                    <div className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2">
+              <nav className="flex flex-col gap-4">
+                {navLinks.map((link) => (
+                  <div key={link.id} className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                    <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
                       {link.label}
                     </div>
-                    <div className="flex flex-col space-y-2 pl-3">
-                      {link.children?.map((child) => (
-                        <button
-                          key={child.id}
-                          onClick={() => {
-                            setIsMobileMenuOpen(false);
-                            link.id === "language"
-                              ? i18n.changeLanguage(child.id)
-                              :
-                              handleNavigation(child.href || child.id);
-                          }}
-                          className="text-base text-gray-700 hover:text-blue-600 text-left"
-                        >
-                          {child.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
 
-                </div>
-              ))}
+                    {link.id === "language" ? (
+                      <div className="flex gap-2">
+                        {link.children?.map((child) => (
+                          <button
+                            key={child.id}
+                            onClick={() => {
+                              setIsMobileMenuOpen(false);
+                              i18n.changeLanguage(child.id);
+                            }}
+                            className="flex-1 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 text-center hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                          >
+                            {child.label}
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="flex flex-col divide-y divide-gray-200">
+                        {link.children?.map((child) => (
+                          <button
+                            key={child.id}
+                            onClick={() => {
+                              setIsMobileMenuOpen(false);
+                              handleNavigation(child.href || child.id);
+                            }}
+                            className="flex items-center justify-between rounded-lg px-2 py-2.5 text-base text-gray-700 text-left hover:bg-white hover:text-blue-600 transition-colors"
+                          >
+                            {child.label}
+                            <ChevronRight className="h-4 w-4 text-gray-300" />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </nav>
 
               {/* Contacto */}
-              <button
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  handleNavigation("contact");
-                }}
-                className="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
-              >
-                {t("nav.contact")}
-              </button>
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    handleNavigation("contact");
+                  }}
+                  className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-sm transition-colors"
+                >
+                  {t("nav.contact")}
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}

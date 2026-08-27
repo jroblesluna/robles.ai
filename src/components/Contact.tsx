@@ -98,7 +98,7 @@ const Contact = () => {
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           <motion.div variants={fadeIn} custom={0.2} className="space-y-8">
             <h3 className="text-2xl font-semibold text-gray-900 mb-6">{t("contact.infoTitle")}</h3>
 
@@ -144,20 +144,20 @@ const Contact = () => {
           <motion.div
             variants={fadeIn}
             custom={0.3}
-            className="bg-blue-100 p-8 rounded-xl shadow-sm"
+            className="bg-blue-100 p-5 sm:p-8 rounded-xl shadow-sm"
           >
-            <h3 className="text-2xl font-semibold text-gray-900 mb-6">{t("contact.formTitle")}</h3>
+            <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6">{t("contact.formTitle")}</h3>
 
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
                 <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("contact.name")}</FormLabel>
+                      <FormLabel className="text-sm">{t("contact.name")}</FormLabel>
                       <FormControl>
-                        <Input placeholder={t("contact.namePlaceholder")} {...field} />
+                        <Input placeholder={t("contact.namePlaceholder")} className="bg-white" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -169,9 +169,9 @@ const Contact = () => {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("contact.email")}</FormLabel>
+                      <FormLabel className="text-sm">{t("contact.email")}</FormLabel>
                       <FormControl>
-                        <Input placeholder={t("contact.emailPlaceholder")} {...field} />
+                        <Input placeholder={t("contact.emailPlaceholder")} className="bg-white" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -183,9 +183,9 @@ const Contact = () => {
                   name="company"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("contact.company")}</FormLabel>
+                      <FormLabel className="text-sm">{t("contact.company")}</FormLabel>
                       <FormControl>
-                        <Input placeholder={t("contact.companyPlaceholder")} {...field} />
+                        <Input placeholder={t("contact.companyPlaceholder")} className="bg-white" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -197,11 +197,11 @@ const Contact = () => {
                   name="message"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("contact.message")}</FormLabel>
+                      <FormLabel className="text-sm">{t("contact.message")}</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder={t("contact.messagePlaceholder")}
-                          className="min-h-[120px]"
+                          className="min-h-[100px] sm:min-h-[120px] bg-white"
                           {...field}
                         />
                       </FormControl>
@@ -214,13 +214,13 @@ const Contact = () => {
                   control={form.control}
                   name="newsletter"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormItem className="flex flex-row items-start gap-3 space-y-0 rounded-md border bg-white/60 p-3 sm:p-4">
                       <FormControl>
-                        <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                        <Checkbox className="mt-0.5" checked={field.value} onCheckedChange={field.onChange} />
                       </FormControl>
                       <div className="space-y-1 leading-none">
-                        <FormLabel>{t("contact.subscribe")}</FormLabel>
-                        <p className="text-sm text-gray-500">{t("contact.subscribeDesc")}</p>
+                        <FormLabel className="text-sm">{t("contact.subscribe")}</FormLabel>
+                        <p className="text-xs sm:text-sm text-gray-500">{t("contact.subscribeDesc")}</p>
                       </div>
                     </FormItem>
                   )}

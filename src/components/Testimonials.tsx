@@ -145,8 +145,9 @@ const Testimonials = () => {
               {Array.from({ length: numSlides }).map((_, slideIdx) => (
                 <div key={slideIdx} className="w-full flex-shrink-0 px-4">
                   <div
-                    className={`grid grid-cols-1 md:grid-cols-$
-                      {visibleTestimonials > 1 ? "2" : "1"} lg:grid-cols-${visibleTestimonials} xl:grid-cols-${visibleTestimonials} gap-6 h-full`}
+                    className={`grid ${
+                      { 1: "grid-cols-1", 2: "grid-cols-2", 3: "grid-cols-3" }[visibleTestimonials] ?? "grid-cols-1"
+                    } gap-6 h-full`}
                   >
                     {testimonialsData
                       .slice(

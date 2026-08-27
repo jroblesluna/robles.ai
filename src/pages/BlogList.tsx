@@ -1,9 +1,13 @@
-// Enhanced BlogList.tsx with scroll pagination, inline pill filters, and improved card design
+// Enhanced BlogList.tsx with page-based pagination, inline pill filters, and improved card design
 
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'wouter';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import BlogSearch from '@/components/BlogSearch';
+
+const PAGE_SIZE = 30;
+const DAY_FILTERS = [1, 7, 30] as const;
 
 interface Post {
   slug: string;
@@ -44,29 +48,17 @@ function formatDate(date: Date, language: 'en' | 'es'): string {
 export default function BlogList() {
   const { i18n } = useTranslation();
   const [posts, setPosts] = useState<Post[]>([]);
+  const [total, setTotal] = useState(0);
   const [editors, setEditors] = useState<Editor[]>([]);
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
   const [editorFilter, setEditorFilter] = useState<number | null>(null);
-  const observer = useRef<IntersectionObserver | null>(null);
+  const [dayFilter, setDayFilter] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [searchActive, setSearchActive] = useState(false);
+  const typeScrollRef = useRef<HTMLDivElement>(null);
 
   const lang = i18n.language as 'en' | 'es';
-
-  const lastPostRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (!hasMore) return;
-      if (observer.current) observer.current.disconnect();
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
-          setPage((prev) => prev + 1);
-        }
-      });
-      if (node) observer.current.observe(node);
-    },
-    [hasMore]
-  );
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   useEffect(() => {
     fetch('/api/editors')
@@ -75,27 +67,48 @@ export default function BlogList() {
   }, []);
 
   useEffect(() => {
-    const query = new URLSearchParams({ page: page.toString(), limit: '9' });
+    const query = new URLSearchParams({ page: page.toString(), limit: PAGE_SIZE.toString() });
     if (editorFilter) query.append('editorId', editorFilter.toString());
+    if (dayFilter) query.append('days', dayFilter.toString());
 
     setLoading(true);
     fetch(`/api/blog?${query.toString()}`)
       .then((res) => res.json())
       .then((data) => {
-        setPosts((prev) => [...prev, ...data.posts]);
-        setHasMore(data.posts.length > 0);
+        setPosts(data.posts);
+        setTotal(data.total);
       })
       .finally(() => setLoading(false));
-  }, [page, editorFilter]);
+  }, [page, editorFilter, dayFilter]);
 
-  function handleFilterChange(id: number | null) {
+  function handleEditorFilterChange(id: number | null) {
     if (editorFilter === id) return;
     setEditorFilter(id);
     setPage(1);
-    setPosts([]);
+  }
+
+  function handleDayFilterChange(days: number | null) {
+    if (dayFilter === days) return;
+    setDayFilter(days);
+    setPage(1);
+  }
+
+  function goToPage(next: number) {
+    if (next < 1 || next > totalPages || next === page) return;
+    setPage(next);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function scrollTypeFilter(direction: -1 | 1) {
+    typeScrollRef.current?.scrollBy({ left: direction * 160, behavior: 'smooth' });
   }
 
   const activeEditor = editors.find((e) => e.id === editorFilter);
+  const dayFilterLabels: Record<number, string> = {
+    1: lang === 'es' ? '1 día' : '1 day',
+    7: lang === 'es' ? '7 días' : '7 days',
+    30: lang === 'es' ? 'Últimos 30 días' : 'Last 30 days',
+  };
 
   return (
     <div className="container mx-auto p-6">
@@ -116,40 +129,87 @@ export default function BlogList() {
 
       {!searchActive && (
         <>
-          {/* Inline Pill Filters */}
-          <div className="relative mb-4">
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 pr-8" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
-              <button
-                onClick={() => handleFilterChange(null)}
-                className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                  editorFilter === null
-                    ? 'bg-purple-600 text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+          {/* Inline Pill Filters — by type/editor */}
+          <div className="relative mb-4 flex items-center gap-1">
+            <button
+              onClick={() => scrollTypeFilter(-1)}
+              className="flex-shrink-0 w-7 h-7 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center text-gray-500 hover:bg-gray-50"
+              aria-label={lang === 'es' ? 'Anterior' : 'Previous'}
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <div className="relative flex-1 min-w-0">
+              <div
+                ref={typeScrollRef}
+                className="flex items-center gap-2 overflow-x-auto pb-2 pr-8 scroll-smooth"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
               >
-                {lang === 'es' ? 'Todos' : 'All'}
-              </button>
-              {editors.map((editor) => (
                 <button
-                  key={editor.id}
-                  onClick={() => handleFilterChange(editor.id)}
+                  onClick={() => handleEditorFilterChange(null)}
                   className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                    editorFilter === editor.id
+                    editorFilter === null
                       ? 'bg-purple-600 text-white shadow-sm'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
-                  <img
-                    src={`/avatars/${editor.id}-headshot.png`}
-                    alt=""
-                    className="w-5 h-5 rounded-full object-cover"
-                  />
-                  <span>{editor.specialty}</span>
+                  {lang === 'es' ? 'Todos' : 'All'}
                 </button>
-              ))}
+                {editors.map((editor) => (
+                  <button
+                    key={editor.id}
+                    onClick={() => handleEditorFilterChange(editor.id)}
+                    className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                      editorFilter === editor.id
+                        ? 'bg-purple-600 text-white shadow-sm'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    <img
+                      src={`/avatars/${editor.id}-headshot.png`}
+                      alt=""
+                      className="w-5 h-5 rounded-full object-cover"
+                    />
+                    <span>{editor.specialty}</span>
+                  </button>
+                ))}
+              </div>
+              {/* Fade gradient on right edge to hint at scrollability */}
+              <div className="pointer-events-none absolute right-0 top-0 bottom-2 w-12 bg-gradient-to-l from-white to-transparent" />
             </div>
-            {/* Fade gradient on right edge to hint at scrollability */}
-            <div className="pointer-events-none absolute right-0 top-0 bottom-2 w-12 bg-gradient-to-l from-white to-transparent" />
+            <button
+              onClick={() => scrollTypeFilter(1)}
+              className="flex-shrink-0 w-7 h-7 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center text-gray-500 hover:bg-gray-50"
+              aria-label={lang === 'es' ? 'Siguiente' : 'Next'}
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Date range filter pills */}
+          <div className="flex items-center gap-2 mb-4">
+            <button
+              onClick={() => handleDayFilterChange(null)}
+              className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                dayFilter === null
+                  ? 'bg-purple-600 text-white shadow-sm'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              {lang === 'es' ? 'Todas las fechas' : 'All time'}
+            </button>
+            {DAY_FILTERS.map((days) => (
+              <button
+                key={days}
+                onClick={() => handleDayFilterChange(days)}
+                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  dayFilter === days
+                    ? 'bg-purple-600 text-white shadow-sm'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {dayFilterLabels[days]}
+              </button>
+            ))}
           </div>
 
           {/* Results indicator when filter is active */}
@@ -159,7 +219,7 @@ export default function BlogList() {
                 {lang === 'es' ? `Mostrando posts de ${activeEditor.specialty}` : `Showing ${activeEditor.specialty} posts`}
               </span>
               <button
-                onClick={() => handleFilterChange(null)}
+                onClick={() => handleEditorFilterChange(null)}
                 className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 text-gray-500 hover:bg-red-100 hover:text-red-500 transition-colors text-xs"
                 aria-label={lang === 'es' ? 'Limpiar filtro' : 'Clear filter'}
               >
@@ -192,7 +252,7 @@ export default function BlogList() {
 
           {/* Posts Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {posts.map((post, index) => {
+            {posts.map((post) => {
               const translation =
                 post.translations[lang] || post.translations.en;
               const postDate = extractDateTimeFromSlug(post.slug);
@@ -200,9 +260,8 @@ export default function BlogList() {
               const editor = editors.find((e) => e.id === post.editorId);
               const accentColor = editor?.colorPalette?.[0] ?? '#a855f7';
 
-              const isLast = index === posts.length - 1;
               return (
-                <div ref={isLast ? lastPostRef : null} key={post.slug}>
+                <div key={post.slug}>
                   <Link
                     href={`/blog/${post.slug}`}
                     className="h-full block rounded-lg border-l-4 border border-gray-100 hover:border-purple-300 hover:-translate-y-0.5 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden bg-white p-4"
@@ -235,24 +294,37 @@ export default function BlogList() {
             })}
           </div>
 
-          {/* Loading indicator for more posts */}
-          {loading && posts.length > 0 && (
-            <div className="flex justify-center items-center py-10">
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-8 h-8 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
-                <span className="text-sm text-gray-500">
-                  {lang === 'es' ? 'Cargando más noticias...' : 'Loading more news...'}
-                </span>
-              </div>
+          {/* No results for the current filters */}
+          {!loading && posts.length === 0 && (
+            <div className="text-center py-16">
+              <span className="text-sm text-gray-400">
+                {lang === 'es' ? 'No hay noticias para estos filtros' : 'No news for these filters'}
+              </span>
             </div>
           )}
 
-          {/* No more posts */}
-          {!hasMore && posts.length > 0 && !loading && (
-            <div className="text-center py-8">
-              <span className="text-sm text-gray-400">
-                {lang === 'es' ? 'No hay más noticias' : 'No more news'}
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-4 mt-10">
+              <button
+                onClick={() => goToPage(page - 1)}
+                disabled={page <= 1}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                {lang === 'es' ? 'Anterior' : 'Previous'}
+              </button>
+              <span className="text-sm text-gray-500">
+                {lang === 'es' ? `Página ${page} de ${totalPages}` : `Page ${page} of ${totalPages}`}
               </span>
+              <button
+                onClick={() => goToPage(page + 1)}
+                disabled={page >= totalPages}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                {lang === 'es' ? 'Siguiente' : 'Next'}
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
           )}
         </>

@@ -654,6 +654,7 @@
                 "bio": "Data Scientist and researcher with 20+ years of experience in Software and New Technologies for Cybersecurity, Blockchain, IoT, AI and Machine Learning for enterprise industries.",
                 "image": "ar.jpg",
                 "linkedin": "https://www.linkedin.com/in/antonio-robles-luna/",
+                "github": "https://github.com/jroblesluna",
                 "email": "antonio@robles.ai"
             },
             {
@@ -663,6 +664,7 @@
                 "bio": "Leading expert in Computer Vision with extensive experience in Generative AI, Machine Learning and Deep Learning.",
                 "image": "em.jpg",
                 "linkedin": "https://www.linkedin.com/in/jose-enrique-mendo-huapaya-0758ab261/",
+                "github": "https://github.com/JoseEnriqueMendo",
                 "email": "enrique.mendo@sistemas.com.pe"
             },
             {
@@ -672,6 +674,7 @@
                 "bio": "UX specialist with extensive experience designing intuitive, user-centered interfaces for AI-powered products and enterprise platforms.",
                 "image": "jr.jpg",
                 "linkedin": "https://www.linkedin.com/in/jaren-ramos-520950315/",
+                "github": "https://github.com/JarenML",
                 "email": "jaren.ramos@sistemas.com.pe"
             },
             {
@@ -743,6 +746,7 @@
         "tagline": "Robles.AI - Robust Artificial Intelligence Solutions"
     },
     "careers": {
+        "eyebrow": "We're hiring",
         "title": "Join Our Team",
         "subtitle": "Explore our open positions and be part of our innovation-driven culture.",
         "apply": "Apply Now",
