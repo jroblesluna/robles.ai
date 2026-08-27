@@ -1,6 +1,6 @@
 import { useLocation, useRoute } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Loader2, User, Mail, Phone, Building2, Clock } from "lucide-react";
+import { ArrowLeft, Loader2, User, Mail, Phone, Building2, Clock, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -105,51 +105,60 @@ export default function AdminConversationDetail() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setLocation("/admin/conversations")}
-            className="gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              Conversation #{data.id}
-            </h1>
-            <div className="flex items-center gap-2 mt-1">
-              <Badge className={statusCfg.className}>{statusCfg.label}</Badge>
-              {data.closureReason && (
-                <span className="text-xs text-muted-foreground">
-                  {closureReasonLabels[data.closureReason] || data.closureReason}
-                </span>
-              )}
+      <div className="space-y-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setLocation("/admin/conversations")}
+          className="gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to conversations
+        </Button>
+
+        <div className="flex flex-col gap-4 rounded-lg border bg-card p-4 sm:flex-row sm:items-start sm:justify-between sm:p-6">
+          <div className="flex items-start gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+              <MessageSquare className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">
+                Conversation #{data.id}
+              </h1>
+              <div className="flex flex-wrap items-center gap-2 mt-1">
+                <Badge className={statusCfg.className}>{statusCfg.label}</Badge>
+                {data.closureReason && (
+                  <span className="text-xs text-muted-foreground">
+                    {closureReasonLabels[data.closureReason] || data.closureReason}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1">
-            <Clock className="h-3.5 w-3.5" />
-            Started: {formatDateTime(data.createdAt)}
-          </span>
-          {data.closedAt && (
+          <div className="flex flex-col gap-1 text-xs text-muted-foreground sm:items-end">
             <span className="flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5" />
-              Closed: {formatDateTime(data.closedAt)}
+              <Clock className="h-3.5 w-3.5 text-primary" />
+              Started: {formatDateTime(data.createdAt)}
             </span>
-          )}
+            {data.closedAt && (
+              <span className="flex items-center gap-1">
+                <Clock className="h-3.5 w-3.5 text-primary" />
+                Closed: {formatDateTime(data.closedAt)}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Contact Data Card */}
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-semibold">Contact Information</CardTitle>
+        <CardHeader className="p-4 pb-3 sm:p-6 sm:pb-3">
+          <CardTitle className="flex items-center gap-2 text-base font-semibold">
+            <User className="h-4 w-4 text-primary" />
+            Contact Information
+          </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
           {data.contactData &&
           (data.contactData.name || data.contactData.email || data.contactData.phone) ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -202,10 +211,11 @@ export default function AdminConversationDetail() {
 
       {/* Transcript */}
       <div className="space-y-3">
-        <h2 className="text-base font-semibold">
+        <h2 className="flex items-center gap-2 text-base font-semibold">
+          <MessageSquare className="h-4 w-4 text-primary" />
           Transcript ({data.messages.length} messages)
         </h2>
-        <div className="space-y-3 rounded-lg border p-4">
+        <div className="max-h-[60vh] space-y-3 overflow-y-auto rounded-lg border p-4">
           {data.messages.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-4">
               No messages in this conversation.
@@ -219,7 +229,7 @@ export default function AdminConversationDetail() {
                 }`}
               >
                 <div
-                  className={`max-w-[75%] rounded-lg px-4 py-2.5 ${
+                  className={`max-w-[88%] sm:max-w-[75%] rounded-lg px-4 py-2.5 ${
                     msg.role === "visitor"
                       ? "bg-blue-600 text-white"
                       : "bg-muted"

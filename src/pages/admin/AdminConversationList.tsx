@@ -183,11 +183,11 @@ export default function AdminConversationList() {
   const totalPages = data ? Math.ceil(data.total / limit) : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-1 flex-col space-y-6">
       {/* Page header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Conversations</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Conversations</h1>
+        <p className="text-sm text-muted-foreground sm:text-base">
           AI chatbot conversations and lead capture analytics.
         </p>
       </div>
@@ -219,9 +219,9 @@ export default function AdminConversationList() {
       )}
 
       {activeTab === 'conversations' && (
-        <div className="space-y-4">
+        <div className="flex flex-1 flex-col gap-4">
           {/* Filter bar */}
-          <div className="flex flex-wrap items-end gap-3 rounded-lg border p-4">
+          <div className="grid grid-cols-2 gap-3 rounded-lg border p-4 sm:flex sm:flex-wrap sm:items-end">
             <div className="flex flex-col gap-1">
               <label htmlFor="dateFrom" className="text-xs font-medium text-muted-foreground">
                 From
@@ -231,7 +231,7 @@ export default function AdminConversationList() {
                 type="date"
                 value={dateFrom}
                 onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
-                className="rounded-md border px-3 py-1.5 text-sm"
+                className="w-full rounded-md border px-3 py-1.5 text-sm"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -243,10 +243,10 @@ export default function AdminConversationList() {
                 type="date"
                 value={dateTo}
                 onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
-                className="rounded-md border px-3 py-1.5 text-sm"
+                className="w-full rounded-md border px-3 py-1.5 text-sm"
               />
             </div>
-            <div className="flex flex-col gap-1">
+            <div className="col-span-2 flex flex-col gap-1 sm:col-auto">
               <label htmlFor="statusFilter" className="text-xs font-medium text-muted-foreground">
                 Status
               </label>
@@ -254,14 +254,14 @@ export default function AdminConversationList() {
                 id="statusFilter"
                 value={status}
                 onChange={(e) => { setStatus(e.target.value as '' | 'open' | 'closed'); setPage(1); }}
-                className="rounded-md border px-3 py-1.5 text-sm"
+                className="w-full rounded-md border px-3 py-1.5 text-sm sm:w-auto"
               >
                 <option value="">All</option>
                 <option value="open">Open</option>
                 <option value="closed">Closed</option>
               </select>
             </div>
-            <div className="flex items-center gap-2 pb-0.5">
+            <div className="col-span-2 flex items-center gap-2 sm:col-auto sm:pb-0.5">
               <input
                 id="hasContactFilter"
                 type="checkbox"
@@ -303,7 +303,8 @@ export default function AdminConversationList() {
           {/* Conversations table */}
           {!isLoading && data && data.conversations.length > 0 && (
             <>
-              <div className="overflow-x-auto rounded-lg border">
+              {/* Table — sm and up */}
+              <div className="hidden overflow-x-auto rounded-lg border sm:block">
                 <table className="w-full text-sm">
                   <thead className="border-b bg-muted/50">
                     <tr>
@@ -336,9 +337,32 @@ export default function AdminConversationList() {
                 </table>
               </div>
 
+              {/* Cards — mobile only */}
+              <div className="space-y-3 sm:hidden">
+                {data.conversations.map((conv) => (
+                  <button
+                    key={conv.id}
+                    type="button"
+                    onClick={() => setLocation(`/admin/conversations/${conv.id}`)}
+                    className="w-full rounded-lg border bg-card p-4 text-left transition-colors hover:bg-muted/30"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="font-medium">
+                        {conv.visitorName || <span className="text-muted-foreground italic">Anonymous</span>}
+                      </span>
+                      <StatusBadge status={conv.status} />
+                    </div>
+                    <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                      <span>{conv.messageCount} messages</span>
+                      <span>{formatDate(conv.createdAt)}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
               {/* Pagination */}
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
+              <div className="mt-auto flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between sm:border-t-0 sm:pt-0">
+                <p className="text-center text-sm text-muted-foreground sm:text-left">
                   Showing {(page - 1) * limit + 1}–{Math.min(page * limit, data.total)} of {data.total}
                 </p>
                 <div className="flex items-center gap-2">
@@ -347,11 +371,12 @@ export default function AdminConversationList() {
                     size="sm"
                     disabled={page <= 1}
                     onClick={() => setPage((p) => p - 1)}
+                    className="flex-1 sm:flex-none"
                   >
                     <ChevronLeft className="h-4 w-4" />
                     Prev
                   </Button>
-                  <span className="text-sm font-medium">
+                  <span className="whitespace-nowrap text-sm font-medium">
                     Page {page} of {totalPages}
                   </span>
                   <Button
@@ -359,6 +384,7 @@ export default function AdminConversationList() {
                     size="sm"
                     disabled={page >= totalPages}
                     onClick={() => setPage((p) => p + 1)}
+                    className="flex-1 sm:flex-none"
                   >
                     Next
                     <ChevronRight className="h-4 w-4" />

@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
-import { Loader2, RefreshCw, Eye, Newspaper } from "lucide-react";
+import { Loader2, RefreshCw, Eye, Newspaper, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+
+const PAGE_SIZE = 10;
 
 interface DominicalReport {
   id: number;
@@ -68,6 +70,7 @@ export default function AdminDominicalList() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
 
   const fetchReports = async () => {
     try {
@@ -77,6 +80,7 @@ export default function AdminDominicalList() {
       if (!res.ok) throw new Error("Failed to fetch reports");
       const data = await res.json();
       setReports(data.reports ?? []);
+      setPage(1);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
@@ -107,18 +111,18 @@ export default function AdminDominicalList() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-1 flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
             El Dominical IA
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm text-muted-foreground sm:text-base">
             Weekly LinkedIn post reports
           </p>
         </div>
-        <Button onClick={handleGenerate} disabled={generating} className="sm:w-auto">
+        <Button onClick={handleGenerate} disabled={generating} className="w-full sm:w-auto">
           {generating ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
@@ -144,63 +148,132 @@ export default function AdminDominicalList() {
 
       {/* Empty state */}
       {!loading && reports.length === 0 && !error && (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-12">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed px-6 py-12 text-center">
           <Newspaper className="h-10 w-10 text-muted-foreground" />
           <p className="mt-4 text-lg font-medium">No reports yet</p>
-          <p className="text-sm text-muted-foreground">
+          <p className="max-w-xs text-sm text-muted-foreground">
             Click "Generate Now" to create your first weekly report.
           </p>
         </div>
       )}
 
-      {/* Reports table */}
+      {/* Reports table (desktop) / cards (mobile) */}
       {!loading && reports.length > 0 && (
-        <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
-            <thead className="border-b bg-muted/50">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium">Week</th>
-                <th className="px-4 py-3 text-left font-medium">Status</th>
-                <th className="px-4 py-3 text-left font-medium">News</th>
-                <th className="px-4 py-3 text-left font-medium">Created</th>
-                <th className="px-4 py-3 text-right font-medium">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {reports.map((report) => (
-                <tr
-                  key={report.id}
-                  className="border-b transition-colors hover:bg-muted/30 cursor-pointer"
-                  onClick={() => setLocation(`/admin/dominical/${report.id}`)}
-                >
-                  <td className="px-4 py-3 font-medium">
-                    {formatWeek(report.week_start, report.week_end)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={report.status} />
-                  </td>
-                  <td className="px-4 py-3">{report.selected_news_count}</td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {formatDate(report.created_at)}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setLocation(`/admin/dominical/${report.id}`);
-                      }}
-                      aria-label={`View report for week ${report.week_start}`}
+        <>
+          {(() => {
+            const totalPages = Math.ceil(reports.length / PAGE_SIZE);
+            const pageReports = reports.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+            return (
+              <>
+                {/* Table — sm and up */}
+                <div className="hidden overflow-x-auto rounded-lg border sm:block">
+                  <table className="w-full text-sm">
+                    <thead className="border-b bg-muted/50">
+                      <tr>
+                        <th className="px-4 py-3 text-left font-medium">Week</th>
+                        <th className="px-4 py-3 text-left font-medium">Status</th>
+                        <th className="px-4 py-3 text-left font-medium">News</th>
+                        <th className="px-4 py-3 text-left font-medium">Created</th>
+                        <th className="px-4 py-3 text-right font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pageReports.map((report) => (
+                        <tr
+                          key={report.id}
+                          className="border-b transition-colors hover:bg-muted/30 cursor-pointer"
+                          onClick={() => setLocation(`/admin/dominical/${report.id}`)}
+                        >
+                          <td className="px-4 py-3 font-medium">
+                            {formatWeek(report.week_start, report.week_end)}
+                          </td>
+                          <td className="px-4 py-3">
+                            <StatusBadge status={report.status} />
+                          </td>
+                          <td className="px-4 py-3">{report.selected_news_count}</td>
+                          <td className="px-4 py-3 text-muted-foreground">
+                            {formatDate(report.created_at)}
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setLocation(`/admin/dominical/${report.id}`);
+                              }}
+                              aria-label={`View report for week ${report.week_start}`}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Cards — mobile only */}
+                <div className="space-y-3 sm:hidden">
+                  {pageReports.map((report) => (
+                    <button
+                      key={report.id}
+                      type="button"
+                      onClick={() => setLocation(`/admin/dominical/${report.id}`)}
+                      className="w-full rounded-lg border bg-card p-4 text-left transition-colors hover:bg-muted/30"
                     >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="font-medium">
+                          {formatWeek(report.week_start, report.week_end)}
+                        </span>
+                        <StatusBadge status={report.status} />
+                      </div>
+                      <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                        <span>{report.selected_news_count} news</span>
+                        <span>{formatDate(report.created_at)}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="mt-auto flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between sm:border-t-0 sm:pt-0">
+                    <p className="text-center text-sm text-muted-foreground sm:text-left">
+                      Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, reports.length)} of {reports.length}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={page <= 1}
+                        onClick={() => setPage((p) => p - 1)}
+                        className="flex-1 sm:flex-none"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                        Prev
+                      </Button>
+                      <span className="whitespace-nowrap text-sm font-medium">
+                        Page {page} of {totalPages}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={page >= totalPages}
+                        onClick={() => setPage((p) => p + 1)}
+                        className="flex-1 sm:flex-none"
+                      >
+                        Next
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </>
+            );
+          })()}
+        </>
       )}
     </div>
   );

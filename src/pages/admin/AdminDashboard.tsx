@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Newspaper, Settings } from "lucide-react";
+import { BarChart3, MessageSquare, Newspaper, Settings } from "lucide-react";
 import {
   Card,
   CardDescription,
@@ -8,6 +8,18 @@ import {
 } from "@/components/ui/card";
 
 const quickActions = [
+  {
+    href: "/admin/analytics",
+    title: "Analytics",
+    description: "Website traffic and social media performance",
+    icon: BarChart3,
+  },
+  {
+    href: "/admin/conversations",
+    title: "Conversations",
+    description: "AI chatbot conversations and lead capture analytics",
+    icon: MessageSquare,
+  },
   {
     href: "/admin/dominical",
     title: "Dominical IA",
@@ -26,8 +38,8 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Dashboard</h1>
+        <p className="text-sm text-muted-foreground sm:text-base">
           Welcome to the Dominical IA admin panel.
         </p>
       </div>

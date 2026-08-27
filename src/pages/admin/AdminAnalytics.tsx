@@ -49,8 +49,8 @@ export default function AdminAnalytics() {
       {/* Page header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Analytics</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Analytics</h1>
+          <p className="text-sm text-muted-foreground sm:text-base">
             Website traffic and social media performance.
           </p>
         </div>

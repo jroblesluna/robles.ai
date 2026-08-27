@@ -85,7 +85,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="admin-theme flex min-h-screen flex-col md:flex-row">
+    <div className="admin-theme flex h-screen flex-col overflow-hidden md:flex-row">
       {/* Mobile top bar */}
       <div className="flex h-14 items-center justify-between border-b bg-gray-900 px-4 text-white md:hidden">
         <h1 className="flex items-center gap-2 text-lg font-semibold">
@@ -121,9 +121,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       >
         <div className="flex h-14 items-center justify-between px-6 md:h-16">
           <h1 className="flex items-center gap-2 text-lg font-semibold">
-          <img src="/favicon.svg" alt="" className="h-6 w-6" />
-          Admin Panel
-        </h1>
+            <img src="/favicon.svg" alt="" className="h-6 w-6" />
+            Admin Panel
+          </h1>
           <button
             type="button"
             onClick={() => setMenuOpen(false)}
@@ -173,7 +173,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto bg-background p-4 sm:p-6 lg:p-8">
+      <main className="flex flex-1 flex-col overflow-auto bg-background p-4 sm:p-6 lg:p-8">
         <Suspense
           fallback={
             <div className="flex min-h-[50vh] items-center justify-center">

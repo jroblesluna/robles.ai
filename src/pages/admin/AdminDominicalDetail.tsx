@@ -10,6 +10,9 @@ import {
   Upload,
   Sparkles,
   FileDown,
+  Newspaper,
+  Linkedin,
+  Instagram,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -476,60 +479,66 @@ export default function AdminDominicalDetail() {
   return (
     <div className="space-y-6">
       {/* Header with action buttons */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setLocation("/admin/dominical")}
-            className="gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              Week: {formatDate(report.week_start)} – {formatDate(report.week_end)}
-            </h1>
-            <div className="flex items-center gap-2 mt-1">
-              <Badge className={statusCfg.className}>{statusCfg.label}</Badge>
-              {report.last_edited_at && (
-                <span className="text-xs text-muted-foreground">
-                  Last edited: {formatDate(report.last_edited_at)}
-                </span>
-              )}
+      <div className="space-y-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setLocation("/admin/dominical")}
+          className="gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to list
+        </Button>
+
+        <div className="flex flex-col gap-4 rounded-lg border bg-card p-4 sm:flex-row sm:items-start sm:justify-between sm:p-6">
+          <div className="flex items-start gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+              <Newspaper className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
+                Week: {formatDate(report.week_start)} – {formatDate(report.week_end)}
+              </h1>
+              <div className="flex flex-wrap items-center gap-2 mt-1">
+                <Badge className={statusCfg.className}>{statusCfg.label}</Badge>
+                {report.last_edited_at && (
+                  <span className="text-xs text-muted-foreground">
+                    Last edited: {formatDate(report.last_edited_at)}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-2">
-          <Button
-            onClick={handleSave}
-            disabled={saving || isReadOnly}
-            size="sm"
-            className="gap-2"
-          >
-            {saving ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="h-4 w-4" />
-            )}
-            Save
-          </Button>
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={handleCancel}
-            disabled={cancelling || isReadOnly}
-            className="gap-2"
-          >
-            {cancelling ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <XCircle className="h-4 w-4" />
-            )}
-            Cancel this week
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={handleSave}
+              disabled={saving || isReadOnly}
+              size="sm"
+              className="flex-1 gap-2 sm:flex-none"
+            >
+              {saving ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
+              Save
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleCancel}
+              disabled={cancelling || isReadOnly}
+              className="flex-1 gap-2 sm:flex-none"
+            >
+              {cancelling ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <XCircle className="h-4 w-4" />
+              )}
+              Cancel this week
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -537,7 +546,8 @@ export default function AdminDominicalDetail() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left panel: News List */}
         <div className="space-y-3">
-          <Label className="text-base font-semibold">
+          <Label className="flex items-center gap-2 text-base font-semibold">
+            <Newspaper className="h-4 w-4 text-primary" />
             News this week ({report.all_news.length})
           </Label>
           {selectionChanged && !isReadOnly && (
@@ -664,7 +674,8 @@ export default function AdminDominicalDetail() {
           {/* Post text editor */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="post-text" className="text-base font-semibold">
+              <Label htmlFor="post-text" className="flex items-center gap-2 text-base font-semibold">
+                <Linkedin className="h-4 w-4 text-primary" />
                 Post (LinkedIn & Facebook)
               </Label>
               {!isReadOnly && (
@@ -709,7 +720,8 @@ export default function AdminDominicalDetail() {
           {/* Instagram caption editor */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="post-text-instagram" className="text-base font-semibold">
+              <Label htmlFor="post-text-instagram" className="flex items-center gap-2 text-base font-semibold">
+                <Instagram className="h-4 w-4 text-primary" />
                 Instagram Caption
               </Label>
               {!isReadOnly && (
@@ -753,7 +765,10 @@ export default function AdminDominicalDetail() {
 
           {/* Image section */}
           <div className="space-y-3">
-            <Label className="text-base font-semibold">Image</Label>
+            <Label className="flex items-center gap-2 text-base font-semibold">
+              <ImageIcon className="h-4 w-4 text-primary" />
+              Image
+            </Label>
 
             {/* Image preview */}
             {imageUrl ? (
@@ -847,7 +862,10 @@ export default function AdminDominicalDetail() {
       {/* Carousel section */}
       <div className="space-y-4 border-t pt-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">LinkedIn Carousel</h2>
+          <h2 className="flex items-center gap-2 text-lg font-semibold">
+            <Linkedin className="h-4 w-4 text-primary" />
+            LinkedIn Carousel
+          </h2>
           <Button
             variant="outline"
             size="sm"
