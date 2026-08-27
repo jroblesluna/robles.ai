@@ -78,6 +78,14 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Admin panel: use the same blue-600 accent as the public site (Header/Footer CTAs)
+   instead of the shadcn default near-black primary. */
+.admin-theme {
+  --primary: 221.2 83.2% 53.3%;
+  --primary-foreground: 210 40% 98%;
+  --ring: 221.2 83.2% 53.3%;
+}
+
 @keyframes shimmer {
   100% {
     transform: translateX(100%);

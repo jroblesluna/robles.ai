@@ -208,9 +208,9 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="text-base font-semibold">LinkedIn Carousel</h3>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <select
             value={selectedStyle}
             onChange={(e) => setSelectedStyle(e.target.value)}

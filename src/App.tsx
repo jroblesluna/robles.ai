@@ -23,8 +23,8 @@ const TryIdentity = lazy(() => import('@/pages/TryIdentity'));
 const TryLangChain = lazy(() => import('@/pages/TryLangChain'));
 const TryRAG = lazy(() => import('@/pages/TryRAG'));
 const TryMedical = lazy(() => import('@/pages/TryMedical'));
-const AdminPage = lazy(() => import('@/pages/admin/AdminPage'));
 const AdminLayout = lazy(() => import('@/pages/admin/AdminLayout'));
+const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
 const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
 const AdminDominicalList = lazy(() => import('@/pages/admin/AdminDominicalList'));
 const AdminDominicalDetail = lazy(() => import('@/pages/admin/AdminDominicalDetail'));
@@ -64,45 +64,27 @@ function App() {
     }
   }, [i18n.language]);
 
-  // Admin routes — no Header, Footer, or ChatbotWidget
+  // Admin routes — no Header, Footer, or ChatbotWidget.
+  // AdminLayout mounts once for the whole admin section (it owns the
+  // setup/login/authenticated gating), so switching between sub-pages swaps
+  // only the inner content instead of remounting the sidebar and re-running
+  // the auth check — which used to look like a full page reload.
   if (isAdminRoute) {
     return (
       <QueryClientProvider client={queryClient}>
         <Suspense fallback={<div className="flex items-center justify-center min-h-[50vh]"><div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>}>
-          <Switch>
-            <Route path="/admin" component={AdminPage} />
-            <Route path="/admin/settings">
-              <AdminLayout>
-                <AdminSettings />
-              </AdminLayout>
-            </Route>
-            <Route path="/admin/dominical">
-              <AdminLayout>
-                <AdminDominicalList />
-              </AdminLayout>
-            </Route>
-            <Route path="/admin/dominical/:id">
-              <AdminLayout>
-                <AdminDominicalDetail />
-              </AdminLayout>
-            </Route>
-            <Route path="/admin/analytics">
-              <AdminLayout>
-                <AdminAnalytics />
-              </AdminLayout>
-            </Route>
-            <Route path="/admin/conversations/:id">
-              <AdminLayout>
-                <AdminConversationDetail />
-              </AdminLayout>
-            </Route>
-            <Route path="/admin/conversations">
-              <AdminLayout>
-                <AdminConversationList />
-              </AdminLayout>
-            </Route>
-            <Route component={NotFound} />
-          </Switch>
+          <AdminLayout>
+            <Switch>
+              <Route path="/admin" component={AdminDashboard} />
+              <Route path="/admin/settings" component={AdminSettings} />
+              <Route path="/admin/dominical" component={AdminDominicalList} />
+              <Route path="/admin/dominical/:id" component={AdminDominicalDetail} />
+              <Route path="/admin/analytics" component={AdminAnalytics} />
+              <Route path="/admin/conversations/:id" component={AdminConversationDetail} />
+              <Route path="/admin/conversations" component={AdminConversationList} />
+              <Route component={NotFound} />
+            </Switch>
+          </AdminLayout>
         </Suspense>
         <Toaster />
       </QueryClientProvider>

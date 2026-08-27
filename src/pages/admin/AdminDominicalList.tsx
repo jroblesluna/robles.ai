@@ -109,7 +109,7 @@ export default function AdminDominicalList() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
             El Dominical IA
@@ -118,7 +118,7 @@ export default function AdminDominicalList() {
             Weekly LinkedIn post reports
           </p>
         </div>
-        <Button onClick={handleGenerate} disabled={generating}>
+        <Button onClick={handleGenerate} disabled={generating} className="sm:w-auto">
           {generating ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (

@@ -329,12 +329,12 @@ export default function PlatformPublishStatus({
               return (
                 <div
                   key={platform}
-                  className="flex items-center justify-between rounded-lg border p-3"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3"
                 >
                   {/* Left: platform icon + name + status badge */}
-                  <div className="flex items-center gap-3">
-                    <Icon className={`h-5 w-5 ${config.iconColor}`} />
-                    <div className="flex flex-col gap-1">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <Icon className={`h-5 w-5 shrink-0 ${config.iconColor}`} />
+                    <div className="flex min-w-0 flex-col gap-1">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium">
                           {config.label}

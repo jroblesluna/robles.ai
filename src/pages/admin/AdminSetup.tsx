@@ -64,6 +64,7 @@ export default function AdminSetup() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
+          <img src="/favicon.svg" alt="Robles.AI" className="mx-auto mb-2 h-12 w-12" />
           <CardTitle>Admin Setup</CardTitle>
           <CardDescription>
             Create the first admin account to get started.
