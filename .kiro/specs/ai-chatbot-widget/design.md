@@ -446,3 +446,46 @@ The project already includes `fast-check` as a dev dependency. Property tests wi
 - WhatsApp button redirect
 - Admin panel UX (filtering, pagination, detail view)
 - AI response quality and topic guard effectiveness
+
+---
+
+## Post-Implementation Changes (vs. Original Design)
+
+### Robly Avatar
+The widget uses a custom SVG avatar named **Robly** (not a generic chat bubble icon). Four mood states:
+- `idle` — neutral expression, default
+- `listening` — attentive, shown while user is typing
+- `thinking` — processing indicator, shown during API call
+- `speaking` — animated, shown while streaming tokens
+
+SVG files: `public/robly-avatar/robly-{mood}.svg`
+
+The avatar is rendered via `<RobotAvatar mood={...} />` component inside `ChatbotWidget.tsx`.
+
+### Entrance Sequence Timing (ChatbotWidget)
+```
+0s       → phase: hidden (widget invisible)
+10s      → phase: bubble (Robly avatar appears with animation)
+20s      → phase: blinking → typing (animated typing dots appear)
+22s      → phase: greeting (greeting text fades in)
+```
+On open, all pending timers are cleared. On close, sequence restarts from hidden.
+
+### Session Cleanup Job
+`server/jobs/chatSessionCleanup.ts` runs **every 5 minutes** (not every hour as originally designed) to catch idle sessions more promptly. Open conversations with `last_message_at` > 1 hour ago are closed with `closure_reason = 'timeout'` and an email notification is triggered.
+
+### Chat API Additions
+- `POST /api/chat/session` now available (creates session proactively)
+- Rate limiting: **30 messages per 10-minute window** per session cookie
+- Cookie: `chat_session`, httpOnly, sameSite: lax, maxAge: 3600s, refreshed on each message
+
+### Admin UI
+- `/admin/conversations` added to AdminLayout sidebar
+- `AdminConversationList.tsx`: paginated table, date range filters, hasContact toggle, status filter, analytics cards (total, capture rate, avg messages)
+- `AdminConversationDetail.tsx`: full transcript, contact data header, back navigation
+
+### WhatsApp Integration
+WhatsApp button in `ChatPanel.tsx` uses context-aware message (same logic as former `WhatsAppBubble`):
+- URL: `https://wa.me/14085900153`
+- Pre-filled message based on current page (home/blog/demo/etc.)
+- Opens in new tab

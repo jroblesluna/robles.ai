@@ -61,14 +61,15 @@
 | week_start | TEXT | NOT NULL (YYYY-MM-DD) |
 | week_end | TEXT | NOT NULL (YYYY-MM-DD) |
 | selected_news | TEXT | JSON string |
-| all_news | TEXT | JSON string |
-| post_text | TEXT | nullable |
+| all_news | TEXT | JSON string (includes score + 4 dimension scores per article, sorted DESC) |
+| post_text | TEXT | nullable (LinkedIn text) |
+| post_text_instagram | TEXT | nullable (Instagram-adapted text) |
 | image_url | TEXT | nullable |
 | status | TEXT | DEFAULT 'pending_review' |
 | created_at | TEXT | NOT NULL (ISO 8601) |
 | last_edited_at | TEXT | nullable |
 | published_at | TEXT | nullable |
-| linkedin_post_id | TEXT | nullable |
+| linkedin_post_id | TEXT | nullable (backward compat; platform_publish_status is source of truth) |
 | error_log | TEXT | nullable |
 
 ---
@@ -100,22 +101,36 @@ User → GET /admin → Frontend checks GET /api/admin/status
   │
   ├─ 1. Read all JSON files from server/data/posts/ for last 7 days
   │     └─ Collect: slug, title (en+es), date, editorId, excerpt
+  │     └─ Cap at 30 posts to stay within GPT-4o context window
   │
-  ├─ 2. Send to GPT-4o for scoring
-  │     Prompt: "Score these news articles for a LinkedIn post targeting
-  │              business professionals in LatAm. Return JSON array with
-  │              slug, score (1-10), reason (one line)."
+  ├─ 2. Send to GPT-4o for MULTIDIMENSIONAL scoring (scale 1-100)
+  │     Four dimensions per article:
+  │       • novelty_score: how new/fresh the topic is
+  │       • people_impact_score: direct impact on professionals/consumers
+  │       • economic_impact_score: business/economic relevance
+  │       • narrative_potential_score: engagement potential for LinkedIn
+  │     Combined into a single score. Returns JSON array with:
+  │       slug, score, reason (one line), individual dimension scores
   │     Model: gpt-4o, temperature: 0.3
+  │     Parsing: recursive array search in GPT response to handle
+  │              single-object vs array variations in output format
   │
   ├─ 3. Select top N (from settings.dominical_top_n, default 5)
+  │     Sort all_news by score DESC for UI display
   │
   ├─ 4. Generate LinkedIn post draft
-  │     Prompt: "Write a LinkedIn post in Spanish for 'El Dominical IA'.
-  │              Format: attention hook → 1-2 lines of opinion per news
-  │              → closing with CTA. Include relevant hashtags. Max 2800 chars."
+  │     Prompt: Spanish post for 'El Dominical IA'
+  │              Format: hook → opinions per news (with blog links) → CTA + hashtags
+  │              Max 2800 chars.
   │     Model: gpt-4o, temperature: 0.7
   │
+  ├─ 4b. Generate Instagram post text variant
+  │     Stored in dominical_reports.post_text_instagram (separate column)
+  │     Adapted tone and format for Instagram (2200 char limit)
+  │
   ├─ 5. INSERT INTO dominical_reports (...)
+  │     Also initializes platform_publish_status rows (linkedin/instagram/facebook)
+  │     via PublishingEngine.initializeStatuses()
   │
   └─ 6. Send notification email
 ```
@@ -145,15 +160,17 @@ User → GET /admin → Frontend checks GET /api/admin/status
 
 ---
 
-## Image Generation Service
+### Image Generation Service
 
 ### Provider Selection (from settings.image_provider)
 
 | Provider | API | Model | Notes |
 |----------|-----|-------|-------|
-| DALL-E 3 | OpenAI | dall-e-3 | Already have API key. 1024x1024. |
+| DALL-E 3 / gpt-image-1 | OpenAI | gpt-image-1 | Already have API key. Returns base64. Resized to 1080×1080 via sharp. |
 | Stability AI | stability.ai | stable-diffusion-xl | Needs separate API key. High quality. |
 | Replicate FLUX | replicate.com | black-forest-labs/flux-1.1-pro | Needs API token. Fast, photorealistic. |
+
+> **Note:** The primary model in production is `gpt-image-1` (not dall-e-3). The API returns a base64-encoded image which is saved to `dist/images/` for static serving.
 
 ### Prompt Generation
 From selected news titles, generate a prompt like:
@@ -235,3 +252,32 @@ src/pages/admin/
   AdminDominicalList.tsx         ← Report listing
   AdminDominicalDetail.tsx       ← Review + edit + publish
 ```
+
+---
+
+## Post-Implementation Changes (vs. Original Design)
+
+### Scoring (R3.1)
+- Score scale changed from **1-10** to **1-100** for better granularity
+- Scoring is now **multidimensional** (4 dimensions): novelty, people impact, economic impact, narrative potential
+- Posts are capped at **30** before sending to GPT-4o to avoid context window issues
+- GPT response parsing uses recursive array search to handle output format variations
+- `all_news` stores full dimension breakdown per article, sorted by score DESC
+
+### Image Generation
+- Active model is **gpt-image-1** (not dall-e-3 as originally designed)
+- gpt-image-1 returns base64 — saved to `dist/images/` for static serving
+- Images resized to target dimensions via `sharp`
+
+### LinkedIn Post
+- Post now includes **direct blog links** for each selected article
+- "Regenerate post" button added to UI (re-runs GPT generation without re-scoring)
+
+### Instagram
+- Separate `post_text_instagram` column added to `dominical_reports`
+- Instagram-adapted text generated alongside LinkedIn text during Saturday job
+
+### Admin UI Improvements
+- News list in review panel sorted by score DESC
+- Score displayed on 1-100 scale with dimension breakdown
+- Date display corrected for week range

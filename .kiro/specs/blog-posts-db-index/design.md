@@ -438,3 +438,24 @@ Configuration: minimum 100 iterations per property.
 - Use in-memory `better-sqlite3` databases for unit/property tests (fast, isolated)
 - Use temporary directories with generated JSON files for rebuild tests
 - Reuse the existing `fast-check` PostJson generators from `server/fts/indexer.indexing.property.test.ts` (extend with `date`, `editorId`, `categories` fields)
+
+---
+
+## Post-Implementation Notes
+
+### Startup Behavior
+On server startup (`server/routes.ts`), after registering routes:
+1. `ensureListingTable(db)` is called synchronously to guarantee the table exists
+2. An async IIFE checks `SELECT COUNT(*) FROM blog_posts_index`
+3. If count is 0 → `rebuildListingIndex(db, postsDir)` runs in the background
+4. If count > 0 → skips rebuild (already populated)
+
+### Admin Reindex Endpoint
+`POST /api/admin/reindex-posts` (requires auth) forces a full rebuild and returns `{ success, indexed, skipped }`. Useful after manually editing JSON files or after a batch gap-fill operation.
+
+### Integration with FTS Cron
+The hourly cron job calls **both** indexers after generating new posts:
+1. `indexNewPosts(db, posts)` — FTS5 table
+2. `indexListingPosts(db, posts)` — listing index
+
+Both are wrapped in try/catch — a failure in one does not block the other or the cron job.

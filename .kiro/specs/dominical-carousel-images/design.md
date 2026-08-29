@@ -411,3 +411,33 @@ The project already has `fast-check` as a devDependency and `vitest` as the test
 - OpenAI API behavior (mocked in property tests, tested end-to-end manually)
 - Spanish language quality of engagement phrases (manual review)
 - Visual aesthetics of composed slides (manual review)
+
+---
+
+## Post-Implementation Visual Refinements
+
+The carousel visual design went through several iterations after the initial implementation:
+
+### Background Image Style
+- Changed from **abstract backgrounds** to **conceptual vector illustrations** (cleaner, more professional on LinkedIn)
+- Model: `gpt-image-1`, returns base64, resized to 1080×1080 via `sharp`
+
+### Slide Layout (SlideCompositor)
+- **White band header** (70px) at top — logo + "El Dominical IA" branding displayed in band
+- **Art displayed below the band**, not behind it
+- Title allows up to **3 lines** (previously 2) for longer Spanish headlines
+- Text positioned in **lower gradient zone** (bottom third dark gradient)
+- Category labels pulled from `all_news` (not just selected articles)
+- **Palette selector**: admin can choose from multiple color schemes in the UI
+- Logo scaled to **200×80px** for better visibility
+- Text has **drop shadow glow** for legibility over images
+
+### Carousel Preview UI
+- **Prev/Next arrows** in the slide preview modal for navigation
+- **Auto-reset stale slides**: slides stuck in `generating` status for >5 min are auto-reset to `failed`
+- Slide regeneration and text editing (re-compose only, no background re-gen) remain independent
+
+### Storage
+- All carousel files stored in `server/data/carousel/{reportId}/` — persisted across builds by postbuild script
+- Background images: `server/data/carousel/{reportId}/backgrounds/`
+- Composite slides: `server/data/carousel/{reportId}/slides/`
