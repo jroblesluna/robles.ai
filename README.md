@@ -108,7 +108,7 @@ scripts/                # generateCaseStudyContent.js (case study HTML generatio
 |--------|-------------|
 | `npm run dev` | Start Express with `tsx watch` and Vite in dev mode |
 | `npm run build` | Compile frontend (Vite) + bundle server (esbuild) to `dist/` |
-| `npm start` | Run production: `NODE_ENV=production node dist/index.js` |
+| `npm start` | Run production: `NODE_ENV=production node dist/index.js` (inline env — NOT `&&`) |
 | `npm run check` | TypeScript type check (`tsc`) |
 | `npm test` | Run all tests with `vitest --run` |
 
@@ -416,13 +416,40 @@ npm start
 
 ## Deployment
 
-The project runs on a VPS with PM2:
+The project runs on a VPS with PM2 under user `roblesai`. **Deploy is always done manually by the project owner** — never trigger builds or restarts from code assistants.
 
 ```bash
-./pull.sh    # git fetch+reset → npm install → npm run build → PM2 restart
+# Run on the VPS (manually):
+./pull.sh
 ```
 
-`pull.sh` uses `git fetch origin main && git reset --hard origin/main` to avoid merge conflicts, preserves executable permissions, and merges `server/data/` into `dist/data/` without overwriting existing data files.
+`pull.sh` requires NVM in PATH. Run it with a login shell or prefix manually:
+
+```bash
+source ~/.nvm/nvm.sh && bash pull.sh
+```
+
+`pull.sh` handles: `git fetch` → `git reset --hard origin/main` → `npm install` → `npm run build` → `pm2 restart`.
+
+> **Important:** `pull.sh` uses `pm2` and `npm` which require NVM to be loaded first. The script itself does not source NVM — always invoke it from a login shell (`bash -l pull.sh`) or after `source ~/.nvm/nvm.sh`.
+
+### Known VPS configuration
+
+| Setting | Value |
+|---------|-------|
+| User | `roblesai` |
+| App path | `~/htdocs/robles.ai` |
+| PM2 process name | `robles-ai` |
+| PM2 binary | `~/.nvm/versions/node/v22.14.0/bin/pm2` |
+| Node version | v22.14.0 (via NVM) |
+| Port | 5173 |
+| PM2 logs | `~/.pm2/logs/robles-ai-out.log` / `robles-ai-error.log` |
+
+### NODE_ENV bug (fixed Aug 29 2026)
+
+The `start` script previously used `NODE_ENV=production && node dist/index.js`. The `&&` operator does **not** pass the variable to the child process — it runs `NODE_ENV=production` as a no-op command, then runs `node` with `NODE_ENV` undefined. Express defaults undefined `NODE_ENV` to `"development"`, which caused all cron jobs (blog generation, Dominical IA) to be skipped via their dev-mode guards.
+
+Fixed to: `NODE_ENV=production node dist/index.js` (inline assignment, POSIX-standard).
 
 ---
 
