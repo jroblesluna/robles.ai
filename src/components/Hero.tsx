@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "wouter";
 import { fadeIn, staggerContainer } from "@/utils/animations";
 import ParticleBackground from './ParticleBackground';
 import { useTranslation } from 'react-i18next';
@@ -59,18 +60,18 @@ const Hero = () => {
             >
               {t("hero.cta1")}
             </a>
-            <a 
-              href="/blog" 
+            <Link
+              href="/blog"
               className="px-4 py-2 mb-4 bg-blue-500 text-white font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-white/20"
             >
               {t("hero.cta2")}
-            </a>
-            <a 
-              href="/get-started" 
+            </Link>
+            <Link
+              href="/get-started"
               className="px-4 py-2 mb-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
             >
               {t("hero.cta3")}
-            </a>
+            </Link>
           </motion.div>
         </div>
       </div>

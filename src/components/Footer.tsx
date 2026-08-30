@@ -8,9 +8,15 @@ const FooterSection = ({ title, links }: { title: string, links: Array<{ name: s
     <ul className="space-y-4">
       {links.map((link) => (
         <li key={link.name}>
-          <a href={link.href} className="text-gray-400 hover:text-white transition-colors">
-            {link.name}
-          </a>
+          {link.href.includes("#") ? (
+            <a href={link.href} className="text-gray-400 hover:text-white transition-colors">
+              {link.name}
+            </a>
+          ) : (
+            <Link href={link.href} className="text-gray-400 hover:text-white transition-colors">
+              {link.name}
+            </Link>
+          )}
         </li>
       ))}
     </ul>
