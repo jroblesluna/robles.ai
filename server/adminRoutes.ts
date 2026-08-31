@@ -9,6 +9,7 @@ import { generateToken, verifyToken, requireAuth } from './auth.js';
 import { generateDominicalReport, getArticleContentSummary } from './jobs/generateDominical.js';
 import { publishPost, publishPostWithDocument } from './services/linkedin.js';
 import { generateCarousel, regenerateSlide } from './services/carouselGenerator.js';
+import { generateDominicalVideo } from './services/dominicalVideoGen.js';
 import { exportCarouselPdf } from './services/pdfExporter.js';
 import { composeArticleSlide } from './services/slideCompositor.js';
 import { PublishingEngine } from './services/platforms/publishingEngine.js';
@@ -1742,6 +1743,139 @@ adminRouter.get('/dominical/:id/carousel', requireAuth, (req, res) => {
     console.error('Error fetching carousel metadata:', error);
     const message = error instanceof Error ? error.message : 'Unknown error';
     res.status(500).json({ error: message });
+  }
+});
+
+// --- Dominical Video Generation ---
+
+const VIDEO_STALE_THRESHOLD_MS = 5 * 60 * 1000;
+
+/**
+ * POST /api/admin/dominical/:id/generate-video
+ * Triggers robot-narrated video generation for a report. Protected endpoint.
+ * Generation runs in the background — responds immediately with status 'generating'.
+ */
+adminRouter.post('/dominical/:id/generate-video', requireAuth, (req, res) => {
+  try {
+    const reportId = Number(req.params.id);
+
+    const report = db.prepare(
+      'SELECT id, selected_news, video_status, video_status_updated_at FROM dominical_reports WHERE id = ?'
+    ).get(reportId) as
+      | { id: number; selected_news: string | null; video_status: string | null; video_status_updated_at: string | null }
+      | undefined;
+
+    if (!report) {
+      res.status(404).json({ error: 'Report not found' });
+      return;
+    }
+
+    let selectedNews: unknown[] = [];
+    try {
+      selectedNews = report.selected_news ? JSON.parse(report.selected_news) : [];
+    } catch {
+      selectedNews = [];
+    }
+    if (!Array.isArray(selectedNews) || selectedNews.length === 0) {
+      res.status(400).json({ error: 'No selected news available to generate a video from' });
+      return;
+    }
+
+    if (report.video_status === 'generating') {
+      const updatedAt = report.video_status_updated_at ? new Date(report.video_status_updated_at).getTime() : 0;
+      const isStale = Date.now() - updatedAt > VIDEO_STALE_THRESHOLD_MS;
+      if (!isStale) {
+        res.status(409).json({ error: 'Video generation already in progress for this report' });
+        return;
+      }
+      console.log(`[DominicalVideoGen] Report ${reportId}: resetting stale 'generating' status`);
+    }
+
+    db.prepare(
+      `UPDATE dominical_reports SET video_status = 'generating', video_error = NULL, video_status_updated_at = ? WHERE id = ?`
+    ).run(new Date().toISOString(), reportId);
+
+    // Start generation in background (don't await)
+    generateDominicalVideo(reportId, 'pointing-glasses').catch((err) => {
+      console.error('[DominicalVideoGen] Unhandled background failure:', err.message);
+    });
+
+    res.json({ status: 'generating', reportId });
+  } catch (error: any) {
+    console.error('Error starting video generation:', error);
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
+
+/**
+ * GET /api/admin/dominical/:id/video
+ * Polling endpoint: status/error/script preview. Protected endpoint.
+ */
+adminRouter.get('/dominical/:id/video', requireAuth, (req, res) => {
+  const reportId = Number(req.params.id);
+  const row = db.prepare(
+    'SELECT video_status, video_error, video_script FROM dominical_reports WHERE id = ?'
+  ).get(reportId) as { video_status: string | null; video_error: string | null; video_script: string | null } | undefined;
+
+  if (!row) {
+    res.status(404).json({ error: 'Report not found' });
+    return;
+  }
+
+  let scriptPreview: string | null = null;
+  if (row.video_script) {
+    const chars = Array.from(row.video_script);
+    scriptPreview = chars.length > 280 ? chars.slice(0, 280).join('') + '…' : row.video_script;
+  }
+
+  res.json({
+    status: row.video_status || 'not_generated',
+    error: row.video_error,
+    scriptPreview,
+  });
+});
+
+/**
+ * GET /api/admin/dominical/:id/video/file
+ * Streams the generated mp4, with Range support for <video> scrubbing/Safari. Protected endpoint.
+ */
+adminRouter.get('/dominical/:id/video/file', requireAuth, (req, res) => {
+  const reportId = Number(req.params.id);
+  const row = db.prepare(
+    'SELECT video_status, video_url FROM dominical_reports WHERE id = ?'
+  ).get(reportId) as { video_status: string | null; video_url: string | null } | undefined;
+
+  if (!row || row.video_status !== 'generated' || !row.video_url || !fs.existsSync(row.video_url)) {
+    res.status(404).json({ error: 'Video not available' });
+    return;
+  }
+
+  const videoPath = row.video_url;
+  const stat = fs.statSync(videoPath);
+  const range = req.headers.range;
+
+  if (range) {
+    const match = /bytes=(\d+)-(\d*)/.exec(range);
+    const start = match ? parseInt(match[1], 10) : 0;
+    const end = match && match[2] ? parseInt(match[2], 10) : stat.size - 1;
+    if (start >= stat.size || end >= stat.size) {
+      res.status(416).setHeader('Content-Range', `bytes */${stat.size}`).end();
+      return;
+    }
+    res.status(206);
+    res.setHeader('Content-Range', `bytes ${start}-${end}/${stat.size}`);
+    res.setHeader('Accept-Ranges', 'bytes');
+    res.setHeader('Content-Length', end - start + 1);
+    res.setHeader('Content-Type', 'video/mp4');
+    fs.createReadStream(videoPath, { start, end }).pipe(res);
+  } else {
+    res.setHeader('Content-Type', 'video/mp4');
+    res.setHeader('Content-Length', stat.size);
+    res.setHeader('Accept-Ranges', 'bytes');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.setHeader('Content-Disposition', `inline; filename="dominical-video-${reportId}.mp4"`);
+    fs.createReadStream(videoPath).pipe(res);
   }
 });
 

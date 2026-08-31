@@ -101,6 +101,21 @@ try {
   if (!e.message.includes('duplicate column')) throw e;
 }
 
+// Add columns for the robot video summary feature (safe to call multiple times)
+for (const stmt of [
+  'ALTER TABLE dominical_reports ADD COLUMN video_script TEXT',
+  'ALTER TABLE dominical_reports ADD COLUMN video_status TEXT',
+  'ALTER TABLE dominical_reports ADD COLUMN video_url TEXT',
+  'ALTER TABLE dominical_reports ADD COLUMN video_error TEXT',
+  'ALTER TABLE dominical_reports ADD COLUMN video_status_updated_at TEXT',
+]) {
+  try {
+    db.exec(stmt);
+  } catch (e: any) {
+    if (!e.message.includes('duplicate column')) throw e;
+  }
+}
+
 // Run chat tables migration
 migrateChatTables(db);
 

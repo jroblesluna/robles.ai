@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import CarouselPreview from "@/components/admin/CarouselPreview";
+import VideoGenerator from "@/components/admin/VideoGenerator";
 import SlideEditor from "@/components/admin/SlideEditor";
 import PlatformPublishStatus from "@/components/admin/PlatformPublishStatus";
 import { useQueryClient } from "@tanstack/react-query";
@@ -888,6 +889,11 @@ export default function AdminDominicalDetail() {
             })
           }
         />
+      </div>
+
+      {/* Video section */}
+      <div className="border-t pt-6">
+        <VideoGenerator reportId={report.id} />
       </div>
 
       {/* Platform Publishing Status */}

@@ -10,6 +10,7 @@ const LOGO_TOP = 10;
 const LOGO_LEFT = 15;
 const WHITE_BAND_HEIGHT = 70;
 const ART_HEIGHT = SLIDE_SIZE - WHITE_BAND_HEIGHT; // 1010px
+export const VIDEO_CAPTION_BAND_HEIGHT = 420;
 
 /**
  * Escapes special characters for safe embedding in SVG/XML content.
@@ -370,4 +371,99 @@ export async function composeCTASlide(options: ComposeCTAOptions): Promise<void>
     ])
     .png()
     .toFile(outputPath);
+}
+
+/**
+ * Builds a transparent caption-band overlay (gradient + centered white bold
+ * text) for the dominical video: sized to just the bottom band, meant to be
+ * composited directly onto a robot frame via sharp — not a standalone slide.
+ */
+export function buildCaptionOverlaySvg(captionText: string): Buffer {
+  const fontSize = 44;
+  const lines = wrapText(captionText, 26, 3);
+  const lineHeight = fontSize * 1.35;
+  const lastLineY = VIDEO_CAPTION_BAND_HEIGHT - 70;
+  const startY = lastLineY - (lines.length - 1) * lineHeight;
+
+  let textSvg = '';
+  lines.forEach((line, i) => {
+    const y = startY + i * lineHeight;
+    textSvg += `  <text x="${SLIDE_SIZE / 2}" y="${y}" font-family="Arial, Helvetica, sans-serif" font-size="${fontSize}" font-weight="bold" fill="white" text-anchor="middle" filter="url(#captionTextShadow)" letter-spacing="0.5">${escapeXml(line)}</text>\n`;
+  });
+
+  const svg = `<svg width="${SLIDE_SIZE}" height="${VIDEO_CAPTION_BAND_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="captionGradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(0,0,0,0)" stop-opacity="0"/>
+      <stop offset="45%" stop-color="rgba(0,0,0,0.75)" stop-opacity="0.75"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0.85)" stop-opacity="0.85"/>
+    </linearGradient>
+    <filter id="captionTextShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="rgba(0,0,0,0.9)" flood-opacity="0.9"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="${SLIDE_SIZE}" height="${VIDEO_CAPTION_BAND_HEIGHT}" fill="url(#captionGradient)"/>
+${textSvg}</svg>`;
+
+  return Buffer.from(svg);
+}
+
+/**
+ * Builds caption text meant to be composited INSIDE the pointing robot's
+ * whiteboard (dark "marker ink" text, no dark gradient backdrop — the
+ * whiteboard itself is already the readable light background).
+ *
+ * `progress` (0-1) drives a typewriter reveal: line breaks are computed once
+ * from the FULL sentence so text never reflows/jumps as more of it appears,
+ * and lines are left-aligned (not centered) so each revealed character just
+ * extends rightward from a fixed start point instead of the whole line
+ * re-centering. A static full-sentence-per-window version was tried and
+ * looked like blinking every time the active caption window changed —
+ * this progressive reveal is the version that reads as smooth typing.
+ */
+export function buildWhiteboardCaptionSvg(
+  fullText: string,
+  progress: number,
+  boxWidth: number,
+  boxHeight: number
+): Buffer {
+  const fontSize = Math.round(boxWidth / 12);
+  const lineHeight = fontSize * 1.3;
+  const leftPad = Math.round(boxWidth * 0.06);
+
+  // Wrap width in characters, derived from the box's actual pixel width
+  // rather than a fixed guess — a fixed char count overflowed the box
+  // whenever fontSize (itself derived from boxWidth) came out large, since
+  // bold Arial glyphs average roughly 0.56x their font size in width.
+  const availableWidth = boxWidth - leftPad * 2;
+  const avgCharWidth = fontSize * 0.56;
+  const maxCharsPerLine = Math.max(6, Math.floor(availableWidth / avgCharWidth));
+  const maxLines = Math.max(3, Math.floor(boxHeight / lineHeight));
+
+  const lines = wrapText(fullText, maxCharsPerLine, maxLines);
+  const totalTextHeight = lines.length * lineHeight;
+  const startY = (boxHeight - totalTextHeight) / 2 + fontSize * 0.85;
+
+  // Reveal target is based on the wrapped/displayed text's own length (not
+  // the raw input), so progress=1 always lines up with what's actually on
+  // screen even if wrapText truncated an overly long sentence with an
+  // ellipsis.
+  const displayedLength = lines.reduce((sum, l) => sum + l.length + 1, 0);
+  const revealCount = Math.ceil(displayedLength * Math.min(1, Math.max(0, progress)));
+
+  let cumulative = 0;
+  let textSvg = '';
+  lines.forEach((line, i) => {
+    const lineStart = cumulative;
+    cumulative += line.length + 1; // +1 for the space consumed between wrapped words
+    const charsVisible = Math.max(0, Math.min(line.length, revealCount - lineStart));
+    if (charsVisible > 0) {
+      const y = startY + i * lineHeight;
+      const visiblePart = line.slice(0, charsVisible);
+      textSvg += `  <text x="${leftPad}" y="${y}" font-family="Arial, Helvetica, sans-serif" font-size="${fontSize}" font-weight="700" fill="#1e3a8a" text-anchor="start">${escapeXml(visiblePart)}</text>\n`;
+    }
+  });
+
+  return Buffer.from(`<svg width="${boxWidth}" height="${boxHeight}" xmlns="http://www.w3.org/2000/svg">
+${textSvg}</svg>`);
 }

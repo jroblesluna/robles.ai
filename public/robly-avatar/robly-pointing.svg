@@ -1,0 +1,156 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500" width="900" height="500" role="img" aria-label="Robly - pointing">
+<defs>
+  <linearGradient id="bodyGrad" x1="0.2" y1="0" x2="0.8" y2="1">
+    <stop offset="0" stop-color="#ffffff"/>
+    <stop offset="1" stop-color="#e4ecfb"/>
+  </linearGradient>
+  <radialGradient id="headSheen" cx="0.32" cy="0.22" r="0.75">
+    <stop offset="0" stop-color="#ffffff" stop-opacity="0.95"/>
+    <stop offset="0.5" stop-color="#ffffff" stop-opacity="0.18"/>
+    <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="visorGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#141b2d"/>
+    <stop offset="1" stop-color="#04070d"/>
+  </linearGradient>
+  <linearGradient id="accentGrad" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#3b82f6"/>
+    <stop offset="1" stop-color="#8b5cf6"/>
+  </linearGradient>
+  <linearGradient id="cyanGrad" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#5eead4"/>
+    <stop offset="1" stop-color="#38bdf8"/>
+  </linearGradient>
+  <radialGradient id="sphereGrad" cx="0.35" cy="0.3" r="0.75">
+    <stop offset="0" stop-color="#bff4ff"/>
+    <stop offset="0.45" stop-color="#38bdf8"/>
+    <stop offset="1" stop-color="#3b82f6"/>
+  </radialGradient>
+  <radialGradient id="ringGlow" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#38bdf8" stop-opacity="0.55"/>
+    <stop offset="0.7" stop-color="#38bdf8" stop-opacity="0.16"/>
+    <stop offset="1" stop-color="#38bdf8" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="gloveGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#2b3040"/>
+    <stop offset="1" stop-color="#12141d"/>
+  </linearGradient>
+  <filter id="glow" x="-120%" y="-120%" width="340%" height="340%">
+    <feGaussianBlur stdDeviation="5" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="softGlow" x="-150%" y="-150%" width="400%" height="400%">
+    <feGaussianBlur stdDeviation="9" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="dropShadow" x="-50%" y="-30%" width="200%" height="200%">
+    <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#1e293b" flood-opacity="0.22"/>
+  </filter>
+</defs>
+<style>
+.robot-anim{transform-origin:250px 350px;animation:robotFloat 3.2s ease-in-out infinite}
+@keyframes robotFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.base-ring{transform-origin:250px 424px;animation:ringPulse 3.2s ease-in-out infinite}
+@keyframes ringPulse{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.06);opacity:1}}
+.antenna-halo{transform-origin:250px 36px;animation:haloPulse 2.4s ease-in-out infinite}
+@keyframes haloPulse{0%,100%{transform:scale(.85);opacity:.5}50%{transform:scale(1.25);opacity:1}}
+.eyes{transform-origin:250px 190px;animation:blink 4.6s ease-in-out infinite}
+@keyframes blink{0%,44%,50%,100%{transform:scaleY(1)}47%{transform:scaleY(.08)}}
+/* Pointing gesture: a smaller, tighter nudge instead of a wide side-to-side wave */
+.arm-r{transform-origin:345px 315px;animation:point 1.8s ease-in-out infinite}
+@keyframes point{0%,100%{transform:rotate(0)}30%{transform:rotate(-4deg)}60%{transform:rotate(2deg)}}
+.mouth{transform-origin:250px 218px;animation:hablar 0.38s ease-in-out infinite}
+@keyframes hablar{
+  0%{transform:scaleY(.35)}
+  22%{transform:scaleY(1)}
+  45%{transform:scaleY(.5)}
+  68%{transform:scaleY(1.15)}
+  100%{transform:scaleY(.35)}
+}
+</style>
+
+<g class="base-ring ">
+      <ellipse cx="250" cy="424" rx="128" ry="30" fill="url(#ringGlow)"/>
+      <ellipse cx="250" cy="424" rx="108" ry="15" fill="none" stroke="url(#cyanGrad)" stroke-width="2.5" opacity="0.55"/>
+      <ellipse cx="250" cy="420" rx="76" ry="9" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.35"/>
+    </g>
+<g class="robot-anim">
+  <g class="robot">
+    <g class="torso-group">
+      <rect x="163" y="300" width="174" height="122" rx="50" fill="url(#bodyGrad)" stroke="#c7d2fe" stroke-width="5" filter="url(#dropShadow)"/>
+      <rect x="216" y="326" width="68" height="68" rx="18" fill="url(#accentGrad)"/>
+      <rect x="216" y="326" width="68" height="24" rx="12" fill="#ffffff" opacity="0.18"/>
+      <text x="250" y="374" text-anchor="middle" font-family="'IBM Plex Sans', Arial, sans-serif" font-size="46" font-weight="700" fill="white">R</text>
+    </g>
+    <g class="antenna">
+      <rect x="244" y="46" width="12" height="26" rx="6" fill="#2b3040"/>
+      <circle cx="250" cy="36" r="20" fill="url(#ringGlow)" class="antenna-halo"/>
+      <circle cx="250" cy="36" r="13" fill="url(#sphereGrad)" filter="url(#glow)"/>
+      <circle cx="245" cy="31" r="3.6" fill="#ffffff" opacity="0.9"/>
+    </g>
+    <g class="ears">
+      <rect x="85" y="148" width="30" height="72" rx="15" fill="url(#accentGrad)"/>
+      <rect x="385" y="148" width="30" height="72" rx="15" fill="url(#accentGrad)"/>
+      <rect x="91" y="156" width="8" height="56" rx="4" fill="#ffffff" opacity="0.35"/>
+      <rect x="391" y="156" width="8" height="56" rx="4" fill="#ffffff" opacity="0.35"/>
+    </g>
+    <g class="head-group">
+      <rect x="100" y="66" width="300" height="216" rx="92" fill="url(#bodyGrad)" stroke="#c7d2fe" stroke-width="5" filter="url(#dropShadow)"/>
+      <rect x="100" y="66" width="300" height="216" rx="92" fill="url(#headSheen)"/>
+      <rect x="132" y="93" width="236" height="160" rx="62" fill="url(#visorGrad)"/>
+      <rect x="132" y="93" width="236" height="160" rx="62" fill="none" stroke="#3b82f6" stroke-opacity="0.35" stroke-width="1.5"/>
+      <g class="eyes" fill="none" stroke="url(#cyanGrad)" stroke-width="12" stroke-linecap="round" filter="url(#glow)">
+      <path d="M172 190 Q198 162 224 190"/>
+      <path d="M276 190 Q302 162 328 190"/>
+    </g>
+      <g class="mouth">
+        <rect x="220" y="211" width="60" height="14" rx="7" fill="url(#cyanGrad)" filter="url(#glow)"/>
+      </g>
+    </g>
+    <g class="arm-l">
+      <rect x="134.0" y="315.0" width="42" height="56.6" rx="21.0" fill="url(#bodyGrad)" stroke="#c7d2fe" stroke-width="2" transform="rotate(20.7 155.0 315.0)"/>
+      <rect x="138.3" y="308.5" width="33.4" height="13" rx="6.5" fill="url(#accentGrad)" transform="rotate(20.7 155.0 315.0)"/>
+      <rect x="117.0" y="368.0" width="36" height="51.7" rx="18.0" fill="url(#bodyGrad)" stroke="#c7d2fe" stroke-width="2" transform="rotate(14.6 135.0 368.0)"/>
+      <rect x="120.4" y="361.5" width="29.2" height="13" rx="6.5" fill="url(#accentGrad)" transform="rotate(14.6 135.0 368.0)"/>
+      <g transform="rotate(14.6 122.0 418.0)"><rect x="105.4" y="418.9" width="7.4" height="12.9" rx="3.7" fill="url(#gloveGrad)" transform="rotate(-24 109.1 419.8)"/><rect x="111.0" y="415.2" width="22.1" height="18.4" rx="8.3" fill="url(#gloveGrad)"/><rect x="109.7" y="430.0" width="6.3" height="13.8" rx="3.1" fill="url(#gloveGrad)"/><rect x="118.9" y="430.0" width="6.3" height="15.6" rx="3.1" fill="url(#gloveGrad)"/><rect x="128.1" y="430.0" width="6.3" height="13.8" rx="3.1" fill="url(#gloveGrad)"/></g>
+    </g><g class="arm-r">
+      <!-- Arm re-aimed to reach out sideways to the right: shoulder (345,315)
+           -> elbow (392,302) -> wrist (435,297), each segment's rotate angle
+           computed as atan2(dy,dx)-90 so it actually points along that line
+           (same method as the original hand-authored angles elsewhere in
+           this file, just solved on purpose instead of eyeballed). -->
+      <rect x="325.0" y="315.0" width="40" height="48.8" rx="20.0" fill="url(#bodyGrad)" stroke="#c7d2fe" stroke-width="2" transform="rotate(-105.5 345.0 315.0)"/>
+      <rect x="329.1" y="308.5" width="31.8" height="13" rx="6.5" fill="url(#accentGrad)" transform="rotate(-105.5 345.0 315.0)"/>
+      <rect x="375.0" y="302.0" width="34" height="43.3" rx="17.0" fill="url(#bodyGrad)" stroke="#c7d2fe" stroke-width="2" transform="rotate(-96.6 392.0 302.0)"/>
+      <rect x="378.1" y="295.5" width="27.8" height="13" rx="6.5" fill="url(#accentGrad)" transform="rotate(-96.6 392.0 302.0)"/>
+      <!-- Pointing hand at the wrist (435,297), aligned with the forearm's
+           own angle: a squarer fist (not the pill-shaped palm) with two
+           curled-knuckle bumps peeking over the top, a thumb to the side,
+           and an index finger with an accent-color knuckle band so it
+           reads as an articulated finger instead of a bare stick. -->
+      <g transform="rotate(-96.6 435.0 297.0)">
+        <rect x="425.0" y="289.0" width="8" height="8" rx="3.5" fill="url(#gloveGrad)"/>
+        <rect x="434.0" y="289.0" width="8" height="8" rx="3.5" fill="url(#gloveGrad)"/>
+        <rect x="423.0" y="293.0" width="23" height="20" rx="6" fill="url(#gloveGrad)"/>
+        <rect x="439.0" y="302.0" width="9" height="13" rx="4.5" fill="url(#gloveGrad)" transform="rotate(12 443.5 308.5)"/>
+        <rect x="438.0" y="311.0" width="7" height="12" rx="3.5" fill="url(#gloveGrad)"/>
+        <rect x="437.0" y="314.5" width="8" height="5" rx="2.5" fill="url(#accentGrad)"/>
+      </g>
+    </g>
+  </g>
+</g>
+
+<!-- Classroom-style whiteboard the robot is pointing at — sits fixed (not
+     inside .robot-anim, so it doesn't bob with the body float). Frame + tray
+     + markers + eraser like a real whiteboard, but in the robot's own blue/
+     purple/cyan/navy palette instead of red, to stay on-brand. The white
+     area above the tray is left empty on purpose — that's where text goes. -->
+<g class="whiteboard">
+  <rect x="465" y="150" width="400" height="270" rx="10" fill="url(#bodyGrad)" stroke="#94a3b8" stroke-width="6" filter="url(#dropShadow)"/>
+  <rect x="450" y="420" width="430" height="18" rx="4" fill="#94a3b8"/>
+  <rect x="490" y="406" width="44" height="15" rx="7" fill="url(#accentGrad)"/>
+  <rect x="555" y="388" width="15" height="34" rx="7" fill="url(#cyanGrad)"/>
+  <rect x="600" y="397" width="55" height="25" rx="5" fill="url(#gloveGrad)"/>
+</g>
+
+</svg>
