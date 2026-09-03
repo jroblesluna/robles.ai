@@ -10,3 +10,17 @@ export const insertContactSchema = z.object({
 });
 
 export type InsertContact = z.infer<typeof insertContactSchema>;
+
+export const insertQuizLeadSchema = z.object({
+  name: z.string().min(1),
+  email: z.string().email("Please enter a valid email address"),
+  company: z.string().nullable().optional(),
+  whatsapp: z.string().nullable().optional(),
+  answers: z.record(z.string(), z.string()),
+  score: z.number().min(0).max(100),
+  profile: z.string().min(1),
+  recommendedServices: z.array(z.string()).min(1),
+  locale: z.enum(["es", "en"]).default("es"),
+});
+
+export type InsertQuizLead = z.infer<typeof insertQuizLeadSchema>;

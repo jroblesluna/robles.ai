@@ -19,6 +19,7 @@ const Careers = lazy(() => import('@/pages/Careers'));
 const Apply = lazy(() => import('@/pages/Apply'));
 const OTP = lazy(() => import('@/pages/OTP'));
 const Landing = lazy(() => import('@/pages/Landing'));
+const Quiz = lazy(() => import('@/pages/Quiz'));
 const TryIdentity = lazy(() => import('@/pages/TryIdentity'));
 const TryLangChain = lazy(() => import('@/pages/TryLangChain'));
 const TryRAG = lazy(() => import('@/pages/TryRAG'));
@@ -110,6 +111,7 @@ function App() {
               <Route path="/try-rag" component={TryRAG} />
               <Route path="/try-medical" component={TryMedical} />
               <Route path="/get-started" component={Landing} />
+              <Route path="/diagnostico-ia" component={Quiz} />
               <Route path="/otp" component={OTP} />
               <Route path="/blog" component={BlogList} />
               <Route path="/blog/:slug" component={BlogPost} />

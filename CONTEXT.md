@@ -1,0 +1,556 @@
+# Robles.AI — Contexto Completo de la Plataforma
+
+> Documento de contexto integral del proyecto `robles.ai`. Generado a partir del estado actual del repositorio (rama `main`) para dar una visión completa de negocio, arquitectura, features, datos, rutas, convenciones y despliegue. Complementa a [README.md](README.md), que se mantiene como referencia técnica principal.
+
+---
+
+## 1. Qué es Robles.AI
+
+Sitio web público de **Robles.AI**, una consultora/estudio de soluciones de Inteligencia Artificial. La plataforma cumple tres roles a la vez:
+
+1. **Sitio corporativo / landing comercial**: presenta servicios, casos de éxito, equipo, cursos y un formulario de contacto/postulación laboral.
+2. **Medio editorial autogenerado por IA**: un blog con 24 "editores" (personas IA) que publican notas sobre tecnología/IA de forma automática, indexado con búsqueda full-text.
+3. **Panel de administración interno**: gestiona un newsletter semanal ("El Dominical IA"), publicación multi-plataforma en redes sociales, generación de video, un chatbot con inbox de conversaciones, y un dashboard de analítica (GA4 + Meta).
+
+- **Sitio**: https://robles.ai
+- **Contacto**: info@robles.ai · WhatsApp/Tel +1 (408) 590-0153
+- **Ubicación**: Cupertino, CA
+- **Licencia**: MIT (c) 2025 Robles.AI
+
+---
+
+## 2. Stack tecnológico
+
+| Capa | Tecnología |
+|------|-----------|
+| Frontend | React 19 + Vite 6 + TypeScript + Tailwind CSS + framer-motion + shadcn/ui (Radix) + recharts + wouter (routing) |
+| Backend | Express 4 + Node.js ≥20 + `tsx watch` (dev) / esbuild (bundle prod) |
+| Base de datos | SQLite vía `better-sqlite3` (10 tablas, archivo único `server/data/dominical.db`) |
+| IA / LLM | OpenAI — GPT-4o, GPT-4o-mini, `gpt-image-1` (generación de imágenes) |
+| APIs sociales | LinkedIn UGC Posts API, Meta Graph API (Instagram + Facebook) |
+| Analítica | Google Analytics Data API (GA4) + Meta Graph API (Insights) |
+| Procesamiento de imagen/video | `sharp` (composición/resize), `pdfkit` (export PDF), `fluent-ffmpeg` + `@ffmpeg-installer`/`@ffprobe-installer` (generación de video) |
+| Búsqueda | SQLite FTS5 con ranking BM25 |
+| Auth | JWT (cookie httpOnly) + `bcrypt` para passwords admin; OTP (`otpauth`) |
+| Email | `nodemailer` (Gmail) |
+| i18n | `i18next` + `react-i18next` (en/es) |
+| Testing | `vitest` + `fast-check` (property-based) + `supertest` (integración) + `@testing-library/react` |
+| Despliegue | VPS + PM2, script `pull.sh` |
+
+---
+
+## 3. Funcionalidades principales
+
+- **SPA** con Vite + React, routing con `wouter`.
+- **Servidor Express** que sirve estáticos e integra middleware de Vite en desarrollo.
+- **i18n** (en/es) con carga asíncrona de `translation.json` por idioma.
+- **Landing page publicitaria** (`/get-started`): bilingüe, orientada a conversión, con pasos del proceso, servicios, tecnologías, precios, roadmap y CTA.
+- **Chatbot IA "Robly"**: widget flotante (reemplazó una burbuja de WhatsApp antigua), impulsado por GPT-4o-mini con streaming SSE, consciente del contexto de página, recolecta datos de contacto durante la conversación y guarda transcripts. Avatar SVG con 4 estados de ánimo animados (idle/listening/thinking/speaking) más variantes nuevas "pointing"/"dominical" para video (ver §7).
+- **Páginas demo**: `/try-identity`, `/try-rag`, `/try-langchain`, `/try-medical`.
+- **Blog estático**: posts en `server/data/posts/YYYY/MM/DD/*.json`, bilingües, con búsqueda full-text FTS5.
+- **SEO server-side**: middleware Express inyecta `<title>`, `<meta>`, Open Graph, Twitter Card, hreflang, canonical y JSON-LD antes de servir el HTML a crawlers (sin depender de JS del cliente).
+- **Panel Admin** (`/admin`): dashboard autenticado con JWT — gestión de El Dominical IA, publicación multi-plataforma, generación de carrusel de imágenes, generación de video, inbox de conversaciones del chatbot, y analítica.
+- **El Dominical IA**: newsletter semanal automatizado (ver §6).
+- **Dashboard de Analítica**: métricas de GA4 y Meta (Instagram/Facebook) con caché en SQLite, en pestañas Overview/Traffic/Behavior/Social (recharts).
+- **Formularios** con validación `zod` y envío por email (`nodemailer`).
+- **Analítica opcional**: GA4 y Facebook Pixel (solo en producción).
+- **Sitemaps** con anotaciones hreflang (`sitemap.xml` + archivos XML mensuales por idioma).
+
+---
+
+## 4. Estructura de directorios clave
+
+```
+src/
+  components/           # Componentes UI reutilizables
+    chat/               # ChatbotWidget, ChatPanel, MessageList, MessageInput
+    admin/               # CarouselPreview, SlideEditor, PlatformPublishStatus, VideoGenerator
+    admin/analytics/     # OverviewTab, TrafficTab, BehaviorTab, SocialTab, KpiCard
+  pages/
+    Home, Landing, Careers, Apply, BlogList, BlogPost, OTP,
+    TryIdentity, TryLangChain, TryRAG, TryMedical, not-found
+    admin/               # AdminLayout, AdminDashboard, AdminSettings, AdminDominicalList,
+                          # AdminDominicalDetail, AdminConversationList, AdminConversationDetail,
+                          # AdminAnalytics, AdminLogin, AdminSetup
+  hooks/                 # useChatSession, useSearch, useSEO
+  scripts/               # Generación de posts, limpieza, detección de huecos, sitemaps
+  i18n/                  # locales/en/ y locales/es/
+
+server/
+  adminRoutes.ts         # Todos los endpoints /api/admin/*
+  analyticsRoutes.ts     # /api/admin/analytics/*
+  chatRoutes.ts          # /api/chat/* (SSE streaming, sesiones)
+  chatAdminRoutes.ts     # /api/admin/conversations/*
+  publicRoutes.ts        # /api/public/slides/* (sin auth — acceso de imágenes para API de Meta)
+  searchRoutes.ts        # /api/blog/search (búsqueda FTS5 BM25)
+  auth.ts                # Middleware JWT (generateToken, verifyToken, requireAuth)
+  db.ts                  # Conexión SQLite + creación de todas las tablas
+  vite.ts                # Integración de Vite + singleton de índice de slugs
+  fts/                   # Indexador FTS5, script de migración, property tests
+  listing/                # Indexador blog_posts_index, property tests
+  migrations/             # Migración chatTables
+  seo/                    # MetaInjector, SlugIndex, metaBuilders, htmlInjector, types
+  jobs/
+    generateDominical.ts      # Sábado 12pm: puntuar + generar + notificar
+    autoPublishDominical.ts   # Domingo 12pm: publicar o saltar
+    chatSessionCleanup.ts     # Cada 5min: cerrar sesiones de chat inactivas
+  services/
+    dominicalScoring.ts       # Puntuación multidimensional con GPT-4o
+    imageGeneration.ts        # Imagen de portada con gpt-image-1
+    linkedin.ts                # Re-export (wrapper de compatibilidad)
+    engagementPhrases.ts       # Frases de engagement en batch con GPT-4o
+    carouselImageGen.ts        # Fondo por slide con gpt-image-1
+    slideCompositor.ts         # sharp + overlay SVG → PNG 1080×1080
+    carouselGenerator.ts       # Orquestación del carrusel (generar + regenerar)
+    pdfExporter.ts             # pdfkit → PDF Buffer
+    carouselTypes.ts           # Interfaces compartidas del carrusel
+    dominicalVideoGen.ts       # Generación de video narrado con robot IA (nuevo)
+    robotFrames.ts             # Poses/frames SVG del robot Robly para video (nuevo)
+    chatEngine.ts               # SSE streaming GPT-4o-mini + tool calls
+    chatContext.ts              # Contexto consciente de la página (blog/home/demo)
+    chatNotifier.ts             # Notificación por email del transcript
+    conversationStore.ts        # CRUD SQLite de conversaciones/mensajes/contactos
+    ga4Client.ts                 # Cliente de Google Analytics Data API
+    metaInsights.ts              # Meta Graph API (insights de Instagram + Facebook)
+    analyticsCache.ts            # Caché TTL en SQLite para respuestas de analítica
+    platforms/
+      types.ts                  # PlatformName, PlatformStatus, PlatformAdapter interface
+      contentFormatter.ts       # Truncado de texto, preservación de hashtags, selección de formato
+      linkedinAdapter.ts        # LinkedIn UGC Posts API + refresh de token
+      instagramAdapter.ts       # Meta Graph API — publicación de carrusel
+      facebookAdapter.ts        # Meta Graph API — post multi-foto
+      publishingEngine.ts       # Orquesta publicación multi-plataforma con aislamiento de fallos
+
+public/
+  images/               # Imágenes de la landing (servidas localmente)
+  avatars/              # Headshots de editores (24 editores)
+  robly-avatar/         # SVGs de Robly: idle, listening, speaking, thinking, pointing, dominical
+  case-studies/         # content.json (4 casos de éxito bilingües en HTML) + imágenes
+
+study-cases/            # Documentos PDF + DOCX de casos de éxito (EN + ES)
+scripts/                # generateCaseStudyContent.js (generación de HTML de casos de éxito)
+shared/
+  schema.ts             # Único archivo cruzado cliente/servidor (@shared/schema)
+  chatTypes.ts           # Tipos compartidos del sistema de chat
+.kiro/specs/             # Specs de features (requirements/design/tasks) — ver §11
+```
+
+---
+
+## 5. Arquitectura
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        Frontend (React)                          │
+│  Páginas SPA: Home, Landing, Blog, Demos, Panel Admin            │
+│  Componentes: ChatbotWidget (Robly), BlogSearch, CarouselPreview │
+│  Tabs admin: Dominical, Settings, Conversations, Analytics       │
+└──────────────────────────────┬──────────────────────────────────┘
+                               │ HTTP / SSE / fetch + cookie JWT
+┌──────────────────────────────▼──────────────────────────────────┐
+│                       Servidor Express                           │
+│  server/routes.ts        ← router principal + cron jobs         │
+│  server/adminRoutes.ts   ← /api/admin/* (requiere auth)         │
+│  server/chatRoutes.ts    ← /api/chat/* (streaming SSE)          │
+│  server/analyticsRoutes.ts ← /api/admin/analytics/*             │
+│  server/searchRoutes.ts  ← /api/blog/search (FTS5)              │
+│  server/publicRoutes.ts  ← /api/public/slides/* (sin auth)      │
+├──────────────────────────────────────────────────────────────────┤
+│  Middleware SEO (server/seo/)                                    │
+│  MetaInjector → SlugIndex → BlogMetaBuilder / StaticMetaBuilder │
+│  → HtmlInjector → sirve HTML modificado a crawlers               │
+├──────────────────────────────────────────────────────────────────┤
+│  Cron Jobs (node-cron, zona horaria America/Lima)                │
+│  - Cada hora:      genera posts de blog + actualiza índices FTS  │
+│  - Sábado 12pm:     generateDominical (puntuar → post → notificar)│
+│  - Domingo 12pm:    autoPublishDominical (LinkedIn/IG/FB)         │
+│  - Cada 5min:       chatSessionCleanup (cierra sesiones inactivas)│
+├──────────────────────────────────────────────────────────────────┤
+│  APIs externas                                                    │
+│  OpenAI (GPT-4o, GPT-4o-mini, gpt-image-1)                        │
+│  LinkedIn UGC Posts API + OAuth 2.0                               │
+│  Meta Graph API (carrusel Instagram + multi-foto Facebook)        │
+│  Google Analytics Data API (GA4)                                  │
+│  NewsAPI (descubrimiento de temas para posts de blog)             │
+└──────────────────────────────┬──────────────────────────────────┘
+                               │
+┌──────────────────────────────▼──────────────────────────────────┐
+│  SQLite (server/data/dominical.db)                                │
+│  10 tablas: admin, settings, dominical, carousel, platform,       │
+│             analytics_cache, chat×3, fts5, listing_index          │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 6. El Dominical IA (newsletter automatizado)
+
+Sistema gestionado desde `/admin/dominical`:
+
+**Sábado 12:00pm (America/Lima)** — job de generación:
+1. Lee todos los posts de blog de los últimos 7 días.
+2. Envía a GPT-4o para puntuación multidimensional (novedad, impacto en personas, impacto económico, potencial narrativo, escala 1–100).
+3. Selecciona el top N posts (configurable, por defecto 5).
+4. Genera borrador de post para LinkedIn (hook + opiniones + hashtags, en español).
+5. Genera variante de texto específica para Instagram.
+6. Guarda el reporte en `dominical_reports` con estado `pending_review`.
+7. Envía email de notificación al admin.
+
+**Panel de revisión admin** (`/admin/dominical/:id`):
+- Vista dividida: lista de noticias puntuadas (izquierda) + texto editable del post (derecha).
+- Generación de carrusel de imágenes: slides PNG 1080×1080 (portada + artículo×N + CTA).
+  - Fondos: ilustraciones vectoriales conceptuales con gpt-image-1.
+  - Composición: overlay SVG con banda blanca de encabezado, logo, título de 3 líneas, frase de engagement, etiquetas de categoría, selector de paleta de colores.
+  - Regeneración individual de slides, edición de texto (recompone sin regenerar el fondo).
+  - Descarga de carrusel en PDF (pdfkit).
+- **Generación de video narrado (feature nueva)**: video con un robot IA ("Robly") que narra y señala el contenido del Dominical, compuesto con `fluent-ffmpeg`, fondo generado con `gpt-image-1`, frames del robot renderizados desde SVG (`server/services/robotFrames.ts`) y subtítulos superpuestos (`server/services/dominicalVideoGen.ts`, componente `src/components/admin/VideoGenerator.tsx`).
+- Panel de estado de publicación multi-plataforma (LinkedIn/Instagram/Facebook).
+- Publicación manual o cancelación.
+
+**Domingo 12:00pm (America/Lima)** — job de auto-publicación:
+- Publica en todas las plataformas con credenciales válidas y estado `not_published`.
+- Delay de 5 segundos entre intentos por plataforma.
+- Aislamiento de fallos por plataforma.
+- Email de notificación con resumen de resultados.
+
+---
+
+## 7. Chatbot IA "Robly"
+
+Widget flotante global (`src/components/chat/ChatbotWidget.tsx`) impulsado por GPT-4o-mini:
+
+- Aparece en todas las páginas no-admin con secuencia de entrada temporizada (burbuja a los 10s, puntos de "escribiendo" a los 20s, saludo a los 22s).
+- Avatar Robly con SVGs de 4 estados de ánimo: idle, listening, thinking, speaking (`public/robly-avatar/`), más variantes nuevas `robly-pointing`, `robly-pointing-glasses` y `robly-dominical` para las escenas de video de El Dominical IA.
+- Streaming SSE para entrega de tokens en tiempo real.
+- Consciente del contexto de página: lee contenido de posts de blog, servicios de home, descripciones de demos.
+- Recolecta de forma natural datos de contacto del visitante (nombre, email/teléfono) durante la conversación.
+- Cada sesión se guarda en SQLite con transcript completo.
+- Notificación por email a `EMAIL_TO` cuando una sesión se cierra.
+- Inbox admin en `/admin/conversations` con filtros, analítica y vista de detalle.
+- Botón de fallback a WhatsApp dentro del panel de chat (`https://wa.me/14085900153`).
+- Oculto en rutas `/admin/*` y al imprimir.
+
+---
+
+## 8. Blog editorial (IA)
+
+- Ubicación: `server/data/posts/YYYY/MM/DD/*.json`.
+- Estructura del post: `slug`, `date`, `editorId`, `categories`, `keywords`, `translations` (en/es), `sources`.
+- **24 personas de editores IA** definidas en `server/data/editors.json` (id 1–24), cada una con especialidad, `systemPrompt`, perfil, firma, paleta de colores y rangos de temperatura/top_p.
+
+| IDs | Especialidades |
+|-----|-----------------|
+| 1–5 | Ciudades inteligentes, Robótica, Deep Learning, Visión por computadora, NLP |
+| 6–10 | Big Data, Computación cuántica, Edge Computing, Streaming, Vehículos autónomos |
+| 11–15 | Ética/Diversidad en IA, IA cuántica, Neurociencia, Infraestructura/Cloud, Gobernanza de IA |
+| 16–20 | IA en salud, IA musical, Ciberseguridad, AR/VR, IA en animación |
+| 21–24 | Arte con IA, Telecomunicaciones, Clima/IA, Blockchain/IA |
+
+- Avatares: `public/avatars/{id}.png` y `{id}-headshot.png`.
+- Listado respaldado por la tabla SQLite `blog_posts_index` (paginación SQL rápida, filtro O(1) por `editorId`/`category`).
+- Búsqueda full-text vía tabla virtual FTS5 con ranking BM25 (título ponderado), snippets resaltados con `<mark>`.
+- Cron horario genera nuevos posts y actualiza incrementalmente los índices FTS y de listado.
+- Scripts de utilidad: `detectGaps.ts` (encuentra posts faltantes), `fillGaps.ts` (autocompleta huecos), `cleanupDuplicates.ts`.
+
+---
+
+## 9. Casos de éxito (contenido comercial)
+
+Cuatro casos de éxito bilingües (EN/ES) en `public/case-studies/content.json`:
+
+| Industria | Caso | Resultado clave |
+|-----------|------|------------------|
+| Smart City | Sistema de vigilancia de seguridad con IA | 27% reducción de crimen, 42% respuesta de emergencia más rápida |
+| Salud | Analítica predictiva para cuidado de pacientes | 87% precisión en predicción de reingresos, 23% reducción de reingresos |
+| Finanzas | Detección de fraude para servicios financieros | 99.2% precisión, $4.5M+ ahorro anual, <300ms de respuesta |
+| Telco | Chatbot IA para atención al cliente | 78% resolución autónoma, 85% respuesta más rápida, 32% aumento de CSAT |
+
+Documentos completos (PDF + DOCX, EN + ES) en `study-cases/`.
+
+---
+
+## 10. Base de datos (SQLite)
+
+Todo el estado persistente vive en `server/data/dominical.db` (ignorado por git). Tablas:
+
+| Tabla | Propósito |
+|-------|-----------|
+| `admin_users` | Autenticación admin (passwords con bcrypt) |
+| `settings` | Almacén key-value para API keys, tokens, preferencias |
+| `dominical_reports` | Reportes semanales de El Dominical IA (texto, estado, scores) |
+| `carousel_slides` | Datos por slide para imágenes de carrusel del Dominical |
+| `platform_publish_status` | Ciclo de vida de publicación por plataforma (linkedin/instagram/facebook) |
+| `analytics_cache` | Respuestas cacheadas con TTL de APIs de GA4 y Meta |
+| `chat_conversations` | Sesiones del chatbot (abiertas/cerradas) |
+| `chat_messages` | Mensajes individuales por conversación |
+| `chat_contacts` | Datos de contacto del visitante capturados durante el chat |
+| `blog_fts` | Tabla virtual FTS5 para búsqueda full-text del blog |
+| `blog_posts_index` | Índice de listado para queries paginadas rápidas del blog |
+
+### Claves de la tabla `settings`
+
+```
+openai_api_key, linkedin_client_id, linkedin_client_secret,
+linkedin_access_token, linkedin_refresh_token, linkedin_token_expires_at,
+linkedin_person_id, image_provider, dominical_notification_email,
+dominical_auto_publish, dominical_top_n, admin_jwt_secret,
+meta_app_id, meta_app_secret, instagram_business_account_id,
+instagram_access_token, facebook_page_id, facebook_page_access_token,
+meta_token_expires_at
+```
+
+---
+
+## 11. Especificaciones de features (`.kiro/specs/`)
+
+El proyecto usa specs estilo "Kiro" (requirements/design/tasks) para features grandes. Directorios existentes:
+
+- `ai-chatbot-widget/`
+- `analytics-dashboard/`
+- `blog-fts5-search/`
+- `blog-posts-db-index/`
+- `dominical-carousel-images/`
+- `dominical-ia/`
+- `multi-platform-publishing/`
+- `seo-improvements/`
+- `whatsapp-widget-time-fix/`
+
+Cada una contiene `requirements.md`, `design.md`, `tasks.md` (+ `tasks.meta.json`). Útil como fuente de verdad histórica de decisiones de diseño por feature.
+
+---
+
+## 12. Páginas y rutas del frontend
+
+| Ruta | Página | Descripción |
+|------|--------|-------------|
+| `/` | Home | Hero, soluciones, cursos, casos de éxito, equipo |
+| `/get-started` | Landing | Landing bilingüe de diagnóstico IA |
+| `/careers` | Careers | Listado de vacantes |
+| `/apply` | Apply | Formulario de postulación |
+| `/blog` | BlogList | Blog paginado + búsqueda FTS5 |
+| `/blog/:slug` | BlogPost | Post individual con SEO inyectado server-side |
+| `/try-identity` | TryIdentity | Demo de verificación de identidad |
+| `/try-langchain` | TryLangChain | Demo de LangChain |
+| `/try-rag` | TryRAG | Demo de pipeline RAG |
+| `/try-medical` | TryMedical | Demo de análisis de imagen médica |
+| `/admin` | AdminPage | Login / setup inicial |
+| `/admin/settings` | AdminSettings | Preferencias LinkedIn, Meta, OpenAI, Dominical |
+| `/admin/dominical` | AdminDominicalList | Listado de reportes semanales |
+| `/admin/dominical/:id` | AdminDominicalDetail | Revisión, edición, carrusel, video, publicación |
+| `/admin/conversations` | AdminConversationList | Inbox de chat con filtros + analítica |
+| `/admin/conversations/:id` | AdminConversationDetail | Transcript completo + datos de contacto |
+| `/admin/analytics` | AdminAnalytics | Dashboard GA4 + Meta (4 tabs) |
+
+---
+
+## 13. API — resumen de endpoints
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| POST | `/api/contact` | No | Formulario de contacto → email |
+| POST | `/api/send-application` | No | Postulación laboral → email |
+| GET | `/api/blog` | No | Listado paginado del blog (índice SQL) |
+| GET | `/api/blog/:slug` | No | Detalle de post (archivo JSON) |
+| GET | `/api/blog/search?q=` | No | Búsqueda full-text FTS5 |
+| GET | `/api/editors` | No | Listado de editores |
+| GET | `/api/generate-posts?date=YYYY-MM-DD` | No | Disparo manual de generación de posts |
+| GET | `/api/test` | No | Health check |
+| GET | `/sitemap.xml` | No | Índice de sitemap |
+| GET | `/sitemaps/:filename` | No | Sitemaps mensuales del blog |
+| GET | `/api/public/slides/:reportId/:position` | No | Imagen de slide de carrusel (para API de Meta) |
+| POST | `/api/chat/session` | No | Crea sesión de chat (setea cookie) |
+| GET | `/api/chat/history` | Cookie | Restaura conversación |
+| POST | `/api/chat/message` | Cookie | Envía mensaje (stream SSE) |
+| POST | `/api/chat/close` | Cookie | Termina sesión |
+| GET | `/api/admin/status` | No | Chequea estado de auth/setup |
+| POST | `/api/admin/setup` | No | Setup inicial de admin |
+| POST | `/api/admin/login` | No | Login admin |
+| POST | `/api/admin/logout` | Sí | Logout admin |
+| GET/PUT | `/api/admin/settings` | Sí | Obtener/setear todas las settings |
+| GET | `/api/admin/dominical` | Sí | Listar reportes Dominical |
+| GET/PUT | `/api/admin/dominical/:id` | Sí | Detalle/actualización de reporte |
+| POST | `/api/admin/dominical/generate` | Sí | Generación manual del Dominical |
+| POST | `/api/admin/dominical/:id/publish` | Sí | Publicar (legacy, LinkedIn) |
+| POST | `/api/admin/dominical/:id/publish/:platform` | Sí | Publicar a plataforma específica |
+| POST | `/api/admin/dominical/:id/publish-all` | Sí | Publicar a todas las plataformas |
+| GET | `/api/admin/dominical/:id/publish-status` | Sí | Estado por plataforma |
+| POST | `/api/admin/dominical/:id/generate-carousel` | Sí | Generar imágenes de carrusel |
+| GET | `/api/admin/dominical/:id/carousel` | Sí | Metadata del carrusel |
+| GET | `/api/admin/dominical/:id/carousel/pdf` | Sí | Descargar PDF |
+| POST | `/api/admin/dominical/:id/generate-video` | Sí | Generar video narrado del Dominical |
+| GET | `/api/admin/conversations` | Sí | Listado de conversaciones de chat |
+| GET | `/api/admin/conversations/:id` | Sí | Detalle de conversación |
+| GET | `/api/admin/conversations/analytics` | Sí | Analítica de chat |
+| GET | `/api/admin/analytics/overview` | Sí | KPIs de overview GA4 |
+| GET | `/api/admin/analytics/traffic` | Sí | Datos de tráfico GA4 |
+| GET | `/api/admin/analytics/behavior` | Sí | Datos de comportamiento GA4 |
+| GET | `/api/admin/analytics/social/instagram` | Sí | Insights de Instagram |
+| GET | `/api/admin/analytics/social/facebook` | Sí | Insights de Facebook |
+| POST | `/api/admin/analytics/refresh` | Sí | Limpiar caché de analítica |
+| POST | `/api/admin/reindex-posts` | Sí | Forzar reconstrucción del índice del blog |
+
+> Nota: la ruta de generación de video (`generate-video`) es parte del commit más reciente (`feat: add AI-narrated robot video generation`, ver §6) y puede no figurar aún en README.md.
+
+---
+
+## 14. Autenticación
+
+- Rutas admin usan JWT en cookie httpOnly `admin_token` (expiración 7 días). El middleware `requireAuth` en `server/auth.ts` lee la cookie, verifica el JWT y adjunta `req.user`.
+- Rutas de chat usan una cookie httpOnly separada `chat_session` (TTL 1 hora, se refresca en cada mensaje).
+- Passwords admin con `bcrypt`. Soporte de OTP (`otpauth`) para segundo factor (página `/OTP`).
+
+---
+
+## 15. Variables de entorno (`.env`, no versionado)
+
+```env
+# Servidor
+PORT=5173
+HOST=0.0.0.0
+
+# Email (formularios + notificaciones del chatbot + notificaciones del Dominical)
+EMAIL_USER=...
+EMAIL_PASS=...
+EMAIL_TO=...
+
+# Analítica (solo producción)
+VITE_GA_MEASUREMENT_ID=G-XXXXXXX
+VITE_FACEBOOK_PIXEL_ID=1234567890
+
+# OpenAI (generación de blog, chatbot, scoring del Dominical, generación de imágenes/video)
+OPENAI_ORGANIZATION=org-xxx
+OPENAI_API_KEY=sk-xxx
+
+# Noticias (cron de generación de posts de blog)
+NEWS_API_KEYS=xxx
+
+# JWT admin (auto-generado y guardado en DB si no se define)
+ADMIN_JWT_SECRET=your-secret-here
+```
+
+> **Importante**: no agregar `NODE_ENV` al `.env` — el script `start` lo setea explícitamente inline. Ver bug corregido en §17.
+> Solo las variables con prefijo `VITE_` se exponen al frontend; el resto son solo del servidor.
+
+---
+
+## 16. Convenciones de código
+
+### Alias de rutas
+Configurados en `vite.config.ts` y `vitest.config.ts`:
+
+| Alias | Resuelve a |
+|-------|------------|
+| `@/` | `src/` |
+| `@shared/` | `shared/` |
+
+### Convenciones de import
+- Archivos de servidor: **ESM con extensión `.js`** incluso para código fuente `.ts` (`import db from './db.js'`).
+- Archivos de frontend: alias de ruta o imports relativos sin extensión (`import { Button } from '@/components/ui/button'`).
+- `shared/schema.ts` es el único archivo cruzado cliente/servidor, importado como `@shared/schema`.
+
+### Formato de posts de blog (JSON)
+
+```jsonc
+{
+  "slug": "2025-03-28-00-00-00-base-slug",
+  "date": "2025-03-28",
+  "image": "/images/optional-cover.jpg",
+  "editorId": 3,
+  "categories": ["Deep Learning", "NLP"],
+  "keywords": ["transformer", "fine-tuning"],
+  "translations": {
+    "en": { "slug": "...", "title": "...", "excerpt": "...", "content": [{ "heading": "...", "body": "..." }] },
+    "es": { "slug": "...", "title": "...", "excerpt": "...", "content": [{ "heading": "...", "body": "..." }] }
+  },
+  "sources": [{ "title": "...", "url": "https://...", "source": "..." }]
+}
+```
+
+### Cron schedule (America/Lima)
+
+| Horario | Job | Guard |
+|---------|-----|-------|
+| `0 * * * *` (cada hora) | Genera posts de blog + actualiza índices FTS/listado | Saltado en dev salvo disparo explícito |
+| `0 12 * * 6` (sáb 12pm) | Genera reporte de El Dominical IA | Saltado en dev |
+| `0 12 * * 0` (dom 12pm) | Auto-publica el Dominical en todas las plataformas | Saltado en dev |
+| `*/5 * * * *` (cada 5min) | Cierra sesiones de chat inactivas | Siempre corre |
+
+### Testing
+`vitest.config.ts` usa `environment: 'jsdom'` global, override a `node` para `server/**/*.test.ts`. Property tests con `fast-check` (≥100 iteraciones). Tests co-ubicados con los módulos.
+
+### Build y persistencia de datos
+`dist/` se regenera completo en cada build. El paso `postbuild` copia `server/data/` a `dist/data/` **sin sobreescribir** archivos existentes, así la base SQLite, posts, imágenes de carrusel y sitemaps persisten entre despliegues. No guardar nada que deba sobrevivir builds directamente dentro de `dist/`.
+
+---
+
+## 17. Despliegue
+
+El proyecto corre en un VPS con PM2 bajo el usuario `roblesai`. **El despliegue siempre lo hace manualmente el dueño del proyecto** — nunca disparar builds o restarts desde asistentes de código.
+
+```bash
+# En el VPS (manual):
+source ~/.nvm/nvm.sh && bash pull.sh
+```
+
+`pull.sh` hace: `git fetch` → `git reset --hard origin/main` → `npm install` → `npm run build` → `pm2 restart`.
+
+### Configuración conocida del VPS
+
+| Setting | Valor |
+|---------|-------|
+| Usuario | `roblesai` |
+| Ruta de la app | `~/htdocs/robles.ai` |
+| Nombre del proceso PM2 | `robles-ai` |
+| Binario PM2 | `~/.nvm/versions/node/v22.14.0/bin/pm2` |
+| Versión de Node | v22.14.0 (vía NVM) |
+| Puerto | 5173 |
+| Logs PM2 | `~/.pm2/logs/robles-ai-out.log` / `robles-ai-error.log` |
+
+### Bug histórico de NODE_ENV (corregido 29 ago 2026)
+El script `start` usaba `NODE_ENV=production && node dist/index.js`. El operador `&&` **no** pasa la variable al proceso hijo — ejecuta `NODE_ENV=production` como comando no-op y luego `node` sin `NODE_ENV` definido. Express asume `"development"` por defecto, lo que hacía que todos los cron jobs (generación de blog, Dominical IA) se saltaran por sus guards de modo dev. Corregido a `NODE_ENV=production node dist/index.js` (asignación inline, estándar POSIX).
+
+---
+
+## 18. Historial reciente relevante (git log, más nuevo primero)
+
+| Commit | Descripción |
+|--------|-------------|
+| `96758` | feat: generación de video narrado por robot IA para El Dominical IA |
+| `aa22f` | chore: gitignore de output generado de video/audio del Dominical |
+| `a9cb9` | fix: routing client-side para links de nav en Hero y Footer |
+| `a6b6f` | fix: corrección de asignación de NODE_ENV en script start |
+| `42319` | feat: pulido del panel admin — paginación fija abajo, vistas tabla-a-tarjeta, headers con color |
+| `b2fff` | feat: panel admin responsive con layout persistente y branding del sitio |
+| `5177d` | feat: rediseño del avatar del chatbot, fix de búsqueda de blog, paginación/filtros de blog |
+
+### Estado de trabajo en curso (no comiteado, al momento de este documento)
+Archivos SVG nuevos sin trackear en `public/robly-avatar/`: `mascot-sagemaker.svg`, `new-f1.svg`, `robot-wave.svg`, `sagemaker-fox-chatbot.svg`, `sagemaker-mascot-animated.svg`, `sagemaker-owl-assistant-x.svg`, `sagemaker-owl-assistant.svg`, `sagemaker-resource-assistant.svg`, `y.svg` — exploración de variantes visuales de mascota/avatar (posible rediseño del avatar de Robly o de un asistente relacionado a "SageMaker").
+
+---
+
+## 19. Requisitos y comandos
+
+- **Node.js ≥ 20** (recomendado)
+- **npm**
+
+| Script | Descripción |
+|--------|-------------|
+| `npm run dev` | Levanta Express con `tsx watch` y Vite en modo dev |
+| `npm run build` | Compila frontend (Vite) + empaqueta servidor (esbuild) a `dist/` |
+| `npm start` | Producción: `NODE_ENV=production node dist/index.js` |
+| `npm run check` | Type check con TypeScript (`tsc`) |
+| `npm test` | Corre todos los tests (`vitest --run`) |
+| `npm run fix-sitemap` | Corrige entradas faltantes del sitemap |
+| `npm run cleanup-duplicates` | Elimina posts duplicados |
+| `npm run detect-gaps` | Detecta huecos en la generación diaria de posts |
+| `npm run fill-gaps` | Autocompleta huecos detectados |
+
+En desarrollo, disponible en `http://localhost:5173` (ajustable con `PORT`).
+
+---
+
+## 20. Referencias
+
+- Documentación técnica detallada y siempre actualizada: [README.md](README.md)
+- Specs de features por módulo: `.kiro/specs/*/`
+- Convenciones para asistentes de código: sección "Code Assistant Reference" de README.md

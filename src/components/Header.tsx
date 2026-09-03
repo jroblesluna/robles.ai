@@ -182,6 +182,13 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
               </button>
             )
           )}
+          {/* Quiz CTA */}
+          <button
+            onClick={() => handleNavigation("/diagnostico-ia")}
+            className="text-blue-600 font-medium hover:text-blue-700 whitespace-nowrap transition-colors"
+          >
+            {t("nav.quiz")}
+          </button>
           {/* Contact Button */}
           <button
             onClick={() => handleNavigation("contact")}
@@ -266,8 +273,17 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
                 ))}
               </nav>
 
-              {/* Contacto */}
-              <div className="mt-6 pt-6 border-t border-gray-200">
+              {/* Test IA + Contacto */}
+              <div className="mt-6 pt-6 border-t border-gray-200 space-y-3">
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    handleNavigation("/diagnostico-ia");
+                  }}
+                  className="w-full px-6 py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-medium transition-colors"
+                >
+                  {t("nav.quiz")}
+                </button>
                 <button
                   onClick={() => {
                     setIsMobileMenuOpen(false);

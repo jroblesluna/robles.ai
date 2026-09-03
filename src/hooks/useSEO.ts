@@ -38,6 +38,7 @@ export function useSEO() {
 function getRouteKey(path: string): string {
   if (path === "/") return "home";
   if (path === "/get-started") return "landing";
+  if (path === "/diagnostico-ia") return "quiz";
   if (path === "/careers") return "careers";
   if (path === "/apply") return "apply";
   if (path === "/blog") return "blog";

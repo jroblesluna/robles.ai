@@ -1,6 +1,6 @@
 import type { Express, Request, Response } from 'express';
 import { createServer, type Server } from 'http';
-import { insertContactSchema } from '@shared/schema';
+import { insertContactSchema, insertQuizLeadSchema } from '@shared/schema';
 import { ZodError } from 'zod';
 import { fromZodError } from 'zod-validation-error';
 import formidable, { File } from 'formidable';
@@ -23,6 +23,7 @@ import chatRouter from './chatRoutes.js';
 import { generateDominicalReport } from './jobs/generateDominical.js';
 import { autoPublishDominical } from './jobs/autoPublishDominical.js';
 import { generateCarousel } from './services/carouselGenerator.js';
+import { generateQuizResultMessage } from './services/quizResultMessage.js';
 import { getSlugIndex } from './vite.js';
 import db from './db.js';
 import { indexNewPosts, type PostJson } from './fts/indexer.js';
@@ -112,6 +113,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/contact', async (_req: Request, res: Response) => {
     res.status(404).json({ success: false, error: 'Not Implemented' });
+  });
+
+  // 🧠 AI Diagnosis Quiz lead route - SEND EMAIL instead of storage (same pattern as /api/contact)
+  app.post('/api/quiz-lead', (req: Request, res: Response) => {
+    (async () => {
+      try {
+        const validatedData = insertQuizLeadSchema.parse(req.body);
+
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+          },
+        });
+
+        const answersHtml = Object.entries(validatedData.answers)
+          .map(([question, answer]) => `<li><strong>${question}:</strong> ${answer}</li>`)
+          .join('');
+
+        await transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: process.env.EMAIL_TO,
+          subject: `New AI Diagnosis Quiz Lead — score ${validatedData.score}/100`,
+          html: `
+            <p><strong>Name:</strong> ${validatedData.name}</p>
+            <p><strong>Email:</strong> ${validatedData.email}</p>
+            ${
+              validatedData.company
+                ? `<p><strong>Company:</strong> ${validatedData.company}</p>`
+                : ''
+            }
+            ${
+              validatedData.whatsapp
+                ? `<p><strong>WhatsApp:</strong> ${validatedData.whatsapp}</p>`
+                : ''
+            }
+            <p><strong>Score:</strong> ${validatedData.score}/100</p>
+            <p><strong>Profile:</strong> ${validatedData.profile}</p>
+            <p><strong>Recommended services:</strong> ${validatedData.recommendedServices.join(', ')}</p>
+            <p><strong>Answers:</strong></p>
+            <ul>${answersHtml}</ul>
+          `,
+        });
+
+        console.log('✅ Quiz lead email sent!');
+
+        const resultMessage = await generateQuizResultMessage({
+          answers: validatedData.answers,
+          score: validatedData.score,
+          profile: validatedData.profile,
+          recommendedServices: validatedData.recommendedServices,
+          locale: validatedData.locale,
+        });
+
+        res.status(200).json({
+          success: true,
+          message: 'Quiz lead submitted successfully',
+          resultMessage,
+        });
+      } catch (error) {
+        if (error instanceof ZodError) {
+          const validationError = fromZodError(error);
+          console.error('❌ Validation error:', validationError.message);
+          res.status(400).json({ success: false, error: validationError.message });
+        } else if (error instanceof Error) {
+          console.error('❌ Error sending quiz lead email:', error);
+          res.status(500).json({ success: false, error: 'An unexpected error occurred' });
+        }
+      }
+    })();
   });
 
   const timeZone = 'America/Lima';

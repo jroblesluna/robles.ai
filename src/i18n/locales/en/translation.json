@@ -23,6 +23,10 @@
         "demos": {
             "title": "Robles.AI | AI Demos — Try Our Technology",
             "description": "Try our AI demos: RAG pipelines, LLM integration, identity verification, and medical image analysis."
+        },
+        "quiz": {
+            "title": "Robles.AI | AI Diagnosis Quiz — Find Your Ideal Solution",
+            "description": "Answer 8 questions and discover in minutes which Artificial Intelligence solution best fits your company's needs."
         }
     },
     "nav": {
@@ -37,7 +41,8 @@
         "courses": "Courses",
         "blog": "AI News Center",
         "language": "🌐 Language",
-        "contact": "Contact Us"
+        "contact": "Contact Us",
+        "quiz": "AI Test"
     },
     "hero": {
         "title": "Robust Artificial Intelligence Solutions",
@@ -950,7 +955,8 @@
             "title": "From Opportunity to Impact:",
             "titleHighlight": "How We Bring AI to Your Operations",
             "subtitle": "A proven process from real AI/ML transformation projects: we identify opportunities, prioritize them by real impact, and implement them in measurable stages — without risking operational stability.",
-            "cta": "Book Your Diagnosis"
+            "cta": "Book Your Diagnosis",
+            "quizCta": "Take the 2-minute test"
         },
         "steps": {
             "step1": {
@@ -1206,5 +1212,186 @@
             "greeting": "Hi! Need help with the demo or want to learn more?",
             "message": "Hello, I just tried one of your demos and I'd like to know more"
         }
+    },
+    "quiz": {
+        "intro": {
+            "badge": "Free test · 2 minutes",
+            "title": "Discover which AI solution your company needs",
+            "subtitle": "Answer 8 quick questions and we'll tell you exactly which Robles.AI services fit your business, with a personalized score.",
+            "duration": "Takes less than 2 minutes",
+            "cta": "Start the test",
+            "disclaimer": "No commitment. You'll see your result before deciding if you want the full report."
+        },
+        "progress": {
+            "question": "Question {{current}} of {{total}}",
+            "back": "← Back to previous question"
+        },
+        "questions": {
+            "industry": {
+                "title": "What industry is your company in?",
+                "options": {
+                    "retail": "Retail / Commerce",
+                    "healthcare": "Healthcare",
+                    "finance": "Finance / Insurance",
+                    "manufacturing": "Manufacturing / Industry",
+                    "professionalServices": "Professional Services / Consulting",
+                    "other": "Other industry"
+                }
+            },
+            "teamSize": {
+                "title": "How many people work at your company?",
+                "options": {
+                    "small": "1 to 10",
+                    "medium": "11 to 50",
+                    "large": "51 to 200",
+                    "enterprise": "More than 200"
+                }
+            },
+            "bottleneck": {
+                "title": "What is your main bottleneck right now?",
+                "options": {
+                    "repetitiveTasks": "Repetitive tasks that eat up your team's time",
+                    "customerSupport": "Customer support is overwhelming your team",
+                    "scatteredInfo": "Information is scattered and hard to find",
+                    "gutDecisions": "Decisions are made on gut feeling, not data",
+                    "noIdea": "We don't know where to start with AI",
+                    "manualProcesses": "Manual processes that should be automated"
+                }
+            },
+            "priority": {
+                "title": "What would you like to implement first?",
+                "options": {
+                    "customerChatbot": "A customer support chatbot",
+                    "internalAssistant": "An internal assistant that answers using our documents",
+                    "automateWithLLM": "Automate tasks with language models (LLM)",
+                    "forecasting": "Forecasting or predictions with machine learning",
+                    "optimizeProcesses": "Optimize processes we already have",
+                    "needGuidance": "I don't know yet, I need guidance"
+                }
+            },
+            "maturity": {
+                "title": "How advanced is your company with AI today?",
+                "options": {
+                    "none": "We don't use any AI tools yet",
+                    "occasionalChatGPT": "We use ChatGPT or similar occasionally",
+                    "basicAutomation": "We have some basic automations",
+                    "ongoingProjects": "We already have AI projects underway"
+                }
+            },
+            "urgency": {
+                "title": "When would you like to start implementing?",
+                "options": {
+                    "asap": "As soon as possible, this quarter",
+                    "sixMonths": "In the next 6 months",
+                    "exploring": "Still exploring options"
+                }
+            },
+            "budget": {
+                "title": "What's your approximate budget for this?",
+                "options": {
+                    "lt2k": "Less than $2,000",
+                    "2kTo10k": "Between $2,000 and $10,000",
+                    "10kTo30k": "Between $10,000 and $30,000",
+                    "guidance": "I'd rather be guided first"
+                }
+            },
+            "outcome": {
+                "title": "What outcome do you expect in the next 3 months?",
+                "options": {
+                    "reduceCosts": "Reduce operating costs",
+                    "customerExperience": "Improve our customers' experience",
+                    "betterDecisions": "Make better data-driven decisions",
+                    "freeUpTime": "Free up my team's time"
+                }
+            }
+        },
+        "analyzing": {
+            "title": "We're preparing your diagnosis",
+            "steps": [
+                "Cross-referencing your answers with our services...",
+                "Calculating how ready your company is to get started...",
+                "Prioritizing the best options for your case..."
+            ]
+        },
+        "services": {
+            "diagnosis": {
+                "title": "AI Diagnosis",
+                "why": "Gives you a prioritized opportunity map in 2 weeks — ideal if you're not yet sure where to start."
+            },
+            "audit": {
+                "title": "Process Audit",
+                "why": "Identifies with real data which processes to automate first and what return to expect."
+            },
+            "chatbots": {
+                "title": "Assistants & Chatbots",
+                "why": "Automates customer or internal team support without losing response quality."
+            },
+            "llm": {
+                "title": "LLM Integration",
+                "why": "Connects language models to your current systems to automate today's manual tasks."
+            },
+            "rag": {
+                "title": "Knowledge Bases (RAG)",
+                "why": "Turns your scattered internal information into instant natural-language answers."
+            },
+            "ml": {
+                "title": "Predictive ML",
+                "why": "Helps you anticipate demand, risk, or behavior from historical data."
+            }
+        },
+        "results": {
+            "profiles": {
+                "starting": {
+                    "title": "Just starting to explore AI's potential",
+                    "desc": "You're at an early stage — the best time to start is with a clear, risk-free diagnosis, before investing in tools you may not need yet."
+                },
+                "promising": {
+                    "title": "Clear potential to take the first step",
+                    "desc": "You've already identified where it hurts. With a prioritized roadmap you can start seeing results in weeks, not months."
+                },
+                "ready": {
+                    "title": "Company ready to scale with AI",
+                    "desc": "You have the conditions — team, urgency and focus — to implement an AI solution with measurable impact soon."
+                },
+                "priority": {
+                    "title": "Ideal candidate to implement AI now",
+                    "desc": "Your combination of urgency, budget and clarity puts you in the priority group. It's worth scheduling a conversation this week."
+                }
+            },
+            "scoreLabel": "Your readiness to get started",
+            "previewLabel": "Top recommended service",
+            "lockedHint": "2 more services and your full score are locked",
+            "unlockCta": "Unlock my full report",
+            "fullTitle": "{{name}}, here's what you can achieve",
+            "servicesHeading": "The services that best fit your case",
+            "nextStep": "The next step is a free, 20-minute conversation to review these results with our team.",
+            "whatsappCta": "Chat on WhatsApp",
+            "emailCta": "Send an email",
+            "learnMore": "See how we work in more depth",
+            "whatsappMessage": "Hi, I just completed the AI Diagnosis Quiz. My profile is \"{{profile}}\" and I was recommended: {{services}}. I'd like to talk about next steps."
+        },
+        "leadForm": {
+            "title": "Unlock your full report",
+            "subtitle": "Leave us your details and we'll show you the exact services we recommend for your case, plus your full score.",
+            "name": "Name",
+            "namePlaceholder": "Your name",
+            "email": "Email",
+            "emailPlaceholder": "you@company.com",
+            "company": "Company (optional)",
+            "companyPlaceholder": "Your company name",
+            "whatsapp": "WhatsApp (optional)",
+            "whatsappPlaceholder": "+1 555 555 5555",
+            "submit": "See my full report",
+            "sending": "Sending...",
+            "privacy": "Your data is safe and only used for your report.",
+            "errorTitle": "Error",
+            "errorMessage": "There was a problem sending your details. Please try again."
+        }
+    },
+    "quizPromo": {
+        "badge": "New",
+        "title": "Not sure where to start with AI?",
+        "subtitle": "Take our 2-minute test and discover which solution you should implement first.",
+        "cta": "Take the free test"
     }
 }

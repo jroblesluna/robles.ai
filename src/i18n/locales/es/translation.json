@@ -23,6 +23,10 @@
         "demos": {
             "title": "Robles.AI | Demos de IA — Prueba Nuestra Tecnología",
             "description": "Prueba nuestros demos de IA: pipelines RAG, integración de LLM, verificación de identidad y análisis de imágenes médicas."
+        },
+        "quiz": {
+            "title": "Robles.AI | Test de Diagnóstico IA — Descubre tu solución ideal",
+            "description": "Responde 8 preguntas y descubre en minutos qué solución de Inteligencia Artificial se ajusta mejor a las necesidades de tu empresa."
         }
     },
     "nav": {
@@ -37,7 +41,8 @@
         "courses": "Cursos",
         "blog": "Centro de Noticias AI",
         "language": "🌐 Idioma",
-        "contact": "Contáctanos"
+        "contact": "Contáctanos",
+        "quiz": "Test de IA"
     },
     "hero": {
         "title": "Soluciones Robustas de Inteligencia Artificial",
@@ -950,7 +955,8 @@
             "title": "De la Oportunidad al Impacto:",
             "titleHighlight": "Cómo Llevamos la IA a tu Operación",
             "subtitle": "Un proceso probado en proyectos reales de transformación con IA/ML: identificamos oportunidades, las priorizamos por impacto real y las implementamos en etapas medibles — sin arriesgar la estabilidad de tu operación.",
-            "cta": "Agenda tu Diagnóstico"
+            "cta": "Agenda tu Diagnóstico",
+            "quizCta": "Hacer el test de 2 minutos"
         },
         "steps": {
             "step1": {
@@ -1206,5 +1212,186 @@
             "greeting": "¡Hola! ¿Necesitas ayuda con el demo o quieres saber más?",
             "message": "Hola, acabo de probar uno de sus demos y me gustaría saber más"
         }
+    },
+    "quiz": {
+        "intro": {
+            "badge": "Test gratuito · 2 minutos",
+            "title": "Descubre qué solución de IA necesita tu empresa",
+            "subtitle": "Responde 8 preguntas rápidas y te diremos exactamente qué servicios de Robles.AI se ajustan a tu negocio, con un score personalizado.",
+            "duration": "Toma menos de 2 minutos",
+            "cta": "Empezar el test",
+            "disclaimer": "Sin compromiso. Verás tu resultado antes de decidir si quieres el reporte completo."
+        },
+        "progress": {
+            "question": "Pregunta {{current}} de {{total}}",
+            "back": "← Volver a la pregunta anterior"
+        },
+        "questions": {
+            "industry": {
+                "title": "¿En qué rubro opera tu empresa?",
+                "options": {
+                    "retail": "Retail / Comercio",
+                    "healthcare": "Salud",
+                    "finance": "Finanzas / Seguros",
+                    "manufacturing": "Manufactura / Industria",
+                    "professionalServices": "Servicios profesionales / Consultoría",
+                    "other": "Otro rubro"
+                }
+            },
+            "teamSize": {
+                "title": "¿Cuántas personas trabajan en tu empresa?",
+                "options": {
+                    "small": "1 a 10",
+                    "medium": "11 a 50",
+                    "large": "51 a 200",
+                    "enterprise": "Más de 200"
+                }
+            },
+            "bottleneck": {
+                "title": "¿Cuál es el principal cuello de botella hoy?",
+                "options": {
+                    "repetitiveTasks": "Tareas repetitivas que consumen tiempo del equipo",
+                    "customerSupport": "La atención al cliente satura a mi equipo",
+                    "scatteredInfo": "La información está dispersa y cuesta encontrarla",
+                    "gutDecisions": "Tomamos decisiones más por intuición que por datos",
+                    "noIdea": "No sabemos por dónde empezar con IA",
+                    "manualProcesses": "Procesos manuales que deberían estar automatizados"
+                }
+            },
+            "priority": {
+                "title": "¿Qué te gustaría implementar primero?",
+                "options": {
+                    "customerChatbot": "Un chatbot de atención al cliente",
+                    "internalAssistant": "Un asistente interno que responda con nuestros documentos",
+                    "automateWithLLM": "Automatizar tareas con modelos de lenguaje (LLM)",
+                    "forecasting": "Predicciones o forecasting con machine learning",
+                    "optimizeProcesses": "Optimizar procesos que ya existen",
+                    "needGuidance": "Aún no lo sé, necesito que me orienten"
+                }
+            },
+            "maturity": {
+                "title": "¿Qué tan avanzados están hoy con IA?",
+                "options": {
+                    "none": "No usamos ninguna herramienta de IA todavía",
+                    "occasionalChatGPT": "Usamos ChatGPT u otra IA ocasionalmente",
+                    "basicAutomation": "Tenemos algunas automatizaciones básicas",
+                    "ongoingProjects": "Ya tenemos proyectos de IA en curso"
+                }
+            },
+            "urgency": {
+                "title": "¿Para cuándo te gustaría empezar a implementar?",
+                "options": {
+                    "asap": "Lo antes posible, este trimestre",
+                    "sixMonths": "En los próximos 6 meses",
+                    "exploring": "Aún estoy explorando opciones"
+                }
+            },
+            "budget": {
+                "title": "¿Qué presupuesto aproximado manejan para esto?",
+                "options": {
+                    "lt2k": "Menos de $2,000",
+                    "2kTo10k": "Entre $2,000 y $10,000",
+                    "10kTo30k": "Entre $10,000 y $30,000",
+                    "guidance": "Prefiero que me orienten primero"
+                }
+            },
+            "outcome": {
+                "title": "¿Qué resultado esperas ver en los próximos 3 meses?",
+                "options": {
+                    "reduceCosts": "Reducir costos operativos",
+                    "customerExperience": "Mejorar la experiencia de nuestros clientes",
+                    "betterDecisions": "Tomar mejores decisiones con datos",
+                    "freeUpTime": "Liberar tiempo de mi equipo"
+                }
+            }
+        },
+        "analyzing": {
+            "title": "Estamos preparando tu diagnóstico",
+            "steps": [
+                "Cruzando tus respuestas con nuestros servicios...",
+                "Calculando qué tan lista está tu empresa para empezar...",
+                "Priorizando las mejores opciones para tu caso..."
+            ]
+        },
+        "services": {
+            "diagnosis": {
+                "title": "Diagnóstico IA",
+                "why": "Te da un mapa priorizado de oportunidades en 2 semanas, ideal si aún no tienes claridad de por dónde empezar."
+            },
+            "audit": {
+                "title": "Auditoría de Procesos",
+                "why": "Identifica con datos reales qué procesos automatizar primero y con qué retorno esperado."
+            },
+            "chatbots": {
+                "title": "Asistentes y Chatbots",
+                "why": "Automatiza la atención de tus clientes o de tu equipo interno sin perder calidad de respuesta."
+            },
+            "llm": {
+                "title": "Integración de LLM",
+                "why": "Conecta modelos de lenguaje a tus sistemas actuales para automatizar tareas hoy manuales."
+            },
+            "rag": {
+                "title": "Bases de Conocimiento (RAG)",
+                "why": "Convierte tu información interna dispersa en respuestas instantáneas en lenguaje natural."
+            },
+            "ml": {
+                "title": "Machine Learning Predictivo",
+                "why": "Te ayuda a anticipar demanda, riesgo o comportamiento a partir de datos históricos."
+            }
+        },
+        "results": {
+            "profiles": {
+                "starting": {
+                    "title": "Recién explorando el potencial de la IA",
+                    "desc": "Estás en una etapa inicial — es el mejor momento para empezar con un diagnóstico claro y sin riesgo, antes de invertir en herramientas que quizá no necesites."
+                },
+                "promising": {
+                    "title": "Con potencial claro para dar el primer paso",
+                    "desc": "Ya identificaste dónde duele. Con una hoja de ruta priorizada puedes empezar a ver resultados en semanas, no meses."
+                },
+                "ready": {
+                    "title": "Empresa lista para escalar con IA",
+                    "desc": "Tienes las condiciones —equipo, urgencia y foco— para implementar una solución de IA con impacto medible pronto."
+                },
+                "priority": {
+                    "title": "Candidato ideal para implementar IA ya",
+                    "desc": "Tu combinación de urgencia, presupuesto y claridad te pone en el grupo prioritario. Te conviene agendar una conversación esta semana."
+                }
+            },
+            "scoreLabel": "Tu nivel de preparación para empezar",
+            "previewLabel": "Servicio principal recomendado",
+            "lockedHint": "2 servicios más y tu score completo están bloqueados",
+            "unlockCta": "Desbloquear mi reporte completo",
+            "fullTitle": "{{name}}, esto es lo que puedes lograr",
+            "servicesHeading": "Los servicios que más se ajustan a tu caso",
+            "nextStep": "El siguiente paso es una conversación de 20 minutos, sin costo, para revisar estos resultados junto a nuestro equipo.",
+            "whatsappCta": "Hablar por WhatsApp",
+            "emailCta": "Escribir un correo",
+            "learnMore": "Conoce cómo trabajamos en profundidad",
+            "whatsappMessage": "Hola, acabo de completar el Test de Diagnóstico IA. Mi perfil es \"{{profile}}\" y me recomendaron: {{services}}. Me gustaría conversar sobre los siguientes pasos."
+        },
+        "leadForm": {
+            "title": "Desbloquea tu reporte completo",
+            "subtitle": "Déjanos tus datos y te mostramos los servicios exactos que recomendamos para tu caso, además de tu score completo.",
+            "name": "Nombre",
+            "namePlaceholder": "Tu nombre",
+            "email": "Correo electrónico",
+            "emailPlaceholder": "tu@empresa.com",
+            "company": "Empresa (opcional)",
+            "companyPlaceholder": "Nombre de tu empresa",
+            "whatsapp": "WhatsApp (opcional)",
+            "whatsappPlaceholder": "+51 999 999 999",
+            "submit": "Ver mi reporte completo",
+            "sending": "Enviando...",
+            "privacy": "Tus datos están seguros y solo los usamos para tu reporte.",
+            "errorTitle": "Error",
+            "errorMessage": "Hubo un problema al enviar tus datos. Por favor, intenta de nuevo."
+        }
+    },
+    "quizPromo": {
+        "badge": "Nuevo",
+        "title": "¿No sabes por dónde empezar con IA?",
+        "subtitle": "Responde nuestro test de 2 minutos y descubre qué solución te conviene implementar primero.",
+        "cta": "Hacer el test gratis"
     }
 }

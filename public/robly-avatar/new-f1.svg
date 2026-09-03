@@ -1,0 +1,203 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 440" role="img" aria-labelledby="fox-title fox-desc" width="400" height="440"> <title id="fox-title">AI Resource Fox Assistant</title> <desc id="fox-desc">Friendly futuristic robotic fox assistant for machine learning and cloud resource management.</desc> <defs> <linearGradient id="shellA" x1="0.2" y1="0" x2="0.85" y2="1"> <stop offset="0" stop-color="#FFFFFF"/> <stop offset="0.5" stop-color="#F5F7FA"/> <stop offset="1" stop-color="#DDE5ED"/> </linearGradient> <radialGradient id="shellDome" cx="0.36" cy="0.24" r="0.86"> <stop offset="0" stop-color="#FFFFFF"/> <stop offset="0.5" stop-color="#F5F7FA"/> <stop offset="0.8" stop-color="#EEF2F6"/> <stop offset="1" stop-color="#DDE5ED"/> </radialGradient> <radialGradient id="bodyDome" cx="0.38" cy="0.22" r="0.9"> <stop offset="0" stop-color="#FFFFFF"/> <stop offset="0.5" stop-color="#F5F7FA"/> <stop offset="0.82" stop-color="#EEF2F6"/> <stop offset="1" stop-color="#DDE5ED"/> </radialGradient> <linearGradient id="shellLimb" x1="0" y1="0" x2="1" y2="0.7"> <stop offset="0" stop-color="#FFFFFF"/> <stop offset="0.5" stop-color="#F5F7FA"/> <stop offset="1" stop-color="#DDE5ED"/> </linearGradient> <linearGradient id="visorG" x1="0.25" y1="0" x2="0.78" y2="1"> <stop offset="0" stop-color="#16233D"/> <stop offset="0.45" stop-color="#101C32"/> <stop offset="0.82" stop-color="#07101F"/> <stop offset="1" stop-color="#020712"/> </linearGradient> <linearGradient id="earInG" x1="0.3" y1="0" x2="0.7" y2="1"> <stop offset="0" stop-color="#16233D"/> <stop offset="0.6" stop-color="#101C32"/> <stop offset="1" stop-color="#07101F"/> </linearGradient> <linearGradient id="panelG" x1="0.2" y1="0" x2="0.85" y2="1"> <stop offset="0" stop-color="#16233D"/> <stop offset="0.55" stop-color="#101C32"/> <stop offset="1" stop-color="#07101F"/> </linearGradient> <radialGradient id="jointG" cx="0.35" cy="0.28" r="0.85"> <stop offset="0" stop-color="#FFFFFF"/> <stop offset="0.6" stop-color="#EEF2F6"/> <stop offset="1" stop-color="#C7D0DA"/> </radialGradient> <radialGradient id="shadowG" cx="0.5" cy="0.5" r="0.5"> <stop offset="0" stop-color="#8494A6" stop-opacity="0.34"/> <stop offset="0.6" stop-color="#8494A6" stop-opacity="0.13"/> <stop offset="1" stop-color="#8494A6" stop-opacity="0"/> </radialGradient> <radialGradient id="cyanGlow" cx="0.5" cy="0.5" r="0.5"> <stop offset="0" stop-color="#22E5D0" stop-opacity="0.42"/> <stop offset="0.6" stop-color="#22E5D0" stop-opacity="0.12"/> <stop offset="1" stop-color="#22E5D0" stop-opacity="0"/> </radialGradient>
+
+<filter id="blurL" x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation="6"/></filter>
+<filter id="blurM" x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation="3.2"/></filter>
+
+<clipPath id="clipVisor"> <path d="M104 168 C104 124 140 100 200 100 C260 100 296 124 296 168 C296 214 259 240 200 240 C141 240 104 214 104 168 Z"/> </clipPath> <clipPath id="clipHead"> <path d="M200 44 C272 44 314 96 314 160 C314 226 271 264 200 264 C129 264 86 226 86 160 C86 96 128 44 200 44 Z"/> </clipPath> <clipPath id="clipBody"> <path d="M200 276 C258 276 288 306 288 348 C288 388 258 408 200 408 C142 408 112 388 112 348 C112 306 142 276 200 276 Z"/> </clipPath> </defs> <style> #mascot{animation:float 3.6s ease-in-out infinite} @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}} #arm-right{transform-box:fill-box;transform-origin:22px 20px;animation:wave 2.8s ease-in-out infinite} @keyframes wave{0%,100%{transform:rotate(0deg)}28%{transform:rotate(-7deg)}62%{transform:rotate(5deg)}} #paw-right{transform-box:fill-box;transform-origin:50% 92%;animation:pawflex 2.8s ease-in-out infinite} @keyframes pawflex{0%,100%{transform:rotate(0deg)}30%{transform:rotate(-6deg)}66%{transform:rotate(5deg)}} #arm-left{transform-box:fill-box;transform-origin:26px 18px;animation:armidle 4.6s ease-in-out infinite} @keyframes armidle{0%,100%{transform:rotate(0deg)}50%{transform:rotate(1.8deg)}} #eyes{transform-box:fill-box;transform-origin:50% 50%;animation:blink 5.4s ease-in-out infinite} @keyframes blink{0%,93%,100%{transform:scaleY(1)}95.5%{transform:scaleY(0.07)}97.5%{transform:scaleY(1)}} .eyeglow{animation:eyeglow 3.6s ease-in-out infinite} @keyframes eyeglow{0%,100%{opacity:0.16}50%{opacity:0.3}} #tail{transform-box:fill-box;transform-origin:88% 82%;animation:tailsway 4.4s ease-in-out infinite} @keyframes tailsway{0%,100%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}} #logo-glow{animation:panelbreath 3.8s ease-in-out infinite} @keyframes panelbreath{0%,100%{opacity:0.28}50%{opacity:0.5}} #sensor-core{animation:sensorpulse 2.8s ease-in-out infinite} @keyframes sensorpulse{0%,100%{opacity:0.5}50%{opacity:1}} #halo{transform-box:fill-box;transform-origin:50% 50%;animation:halospin 34s linear infinite} @keyframes halospin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}} #shadow{transform-box:fill-box;transform-origin:50% 50%;animation:shd 3.6s ease-in-out infinite} @keyframes shd{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.8;transform:scale(0.94)}} @media (prefers-reduced-motion: reduce){ #mascot,#arm-right,#arm-left,#paw-right,#eyes,#tail,#halo,#shadow,#logo-glow,#sensor-core,.eyeglow{animation:none} } </style> <g id="scene"> <g id="halo" opacity="0.16"> <circle cx="200" cy="212" r="172" fill="none" stroke="#22E5D0" stroke-width="1.2" stroke-dasharray="6 14"/> </g> <ellipse id="shadow" cx="200" cy="424" rx="108" ry="14" fill="url(#shadowG)"/> <g id="mascot">
+<!-- TAIL — small tip only -->
+<g id="tail">
+  <path d="M134 374 C113 368 100 353 100 336 C100 325 109 316 120 319 C130 322 134 331 133 341 C132 351 134 362 140 372 Z"
+        fill="url(#shellLimb)" stroke="#C7D0DA" stroke-width="2.6" stroke-linejoin="round"/>
+  <path d="M106 334 C105 344 109 354 116 360" fill="none" stroke="#22E5D0" stroke-width="2.6" stroke-linecap="round" opacity="0.65"/>
+  <ellipse cx="113" cy="330" rx="7" ry="4" fill="#FFFFFF" opacity="0.5"/>
+</g>
+
+<!-- LEGS + FEET -->
+<g id="legs">
+  <rect x="155" y="386" width="32" height="18" rx="9" fill="url(#shellA)" stroke="#C7D0DA" stroke-width="2.4"/>
+  <rect x="213" y="386" width="32" height="18" rx="9" fill="url(#shellA)" stroke="#C7D0DA" stroke-width="2.4"/>
+
+  <g id="foot-left">
+    <ellipse cx="167" cy="411" rx="34" ry="18" fill="url(#shellDome)" stroke="#C7D0DA" stroke-width="2.8"/>
+    <ellipse cx="159" cy="403" rx="14" ry="5" fill="#FFFFFF" opacity="0.7"/>
+    <g stroke="#22E5D0" stroke-width="3" stroke-linecap="round" opacity="0.8">
+      <line x1="160" y1="409" x2="160" y2="416"/>
+      <line x1="175" y1="409" x2="175" y2="416"/>
+    </g>
+  </g>
+  <g id="foot-right">
+    <ellipse cx="233" cy="411" rx="34" ry="18" fill="url(#shellDome)" stroke="#C7D0DA" stroke-width="2.8"/>
+    <ellipse cx="225" cy="403" rx="14" ry="5" fill="#FFFFFF" opacity="0.7"/>
+    <g stroke="#22E5D0" stroke-width="3" stroke-linecap="round" opacity="0.8">
+      <line x1="225" y1="409" x2="225" y2="416"/>
+      <line x1="240" y1="409" x2="240" y2="416"/>
+    </g>
+  </g>
+</g>
+
+<!-- NECK -->
+<g id="neck">
+  <path d="M174 252 L226 252 L226 268 C226 277 214 281 200 281 C186 281 174 277 174 268 Z"
+        fill="url(#shellA)" stroke="#C7D0DA" stroke-width="2.4" stroke-linejoin="round"/>
+</g>
+
+<!-- BODY -->
+<g id="body">
+  <path d="M200 276 C258 276 288 306 288 348 C288 388 258 408 200 408 C142 408 112 388 112 348 C112 306 142 276 200 276 Z"
+        fill="url(#bodyDome)" stroke="#C7D0DA" stroke-width="3" stroke-linejoin="round"/>
+  <g clip-path="url(#clipBody)">
+    <path d="M138 296 C124 312 118 332 118 350" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" opacity="0.85"/>
+    <ellipse cx="200" cy="418" rx="86" ry="24" fill="#AAB6C4" opacity="0.16" filter="url(#blurM)"/>
+  </g>
+
+  <!-- single discreet status node -->
+  <circle cx="200" cy="292" r="5.4" fill="url(#panelG)"/>
+  <circle id="sensor-core" cx="200" cy="292" r="2.6" fill="#22E5D0"/>
+
+  <!-- CHEST PANEL -->
+  <g id="custom-logo-area">
+    <rect id="logo-glow" x="158" y="306" width="84" height="84" rx="24" fill="url(#cyanGlow)" filter="url(#blurL)" opacity="0.4"/>
+    <rect id="custom-logo-background" x="166" y="310" width="68" height="68" rx="18" fill="url(#panelG)"/>
+    <rect id="custom-logo-frame" x="166" y="310" width="68" height="68" rx="18" fill="none" stroke="#22E5D0" stroke-width="1.8" opacity="0.9"/>
+    <path d="M173 322 C177 315 186 311 196 311 L176 348 L170 338 Z" fill="#FFFFFF" opacity="0.05"/>
+    <image id="custom-logo" href="data:image/png;base64,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" x="178" y="322" width="44" height="44" preserveAspectRatio="xMidYMid meet"/>
+  </g>
+</g>
+
+<!-- LEFT ARM -->
+<g id="arm-left">
+  <g id="shoulder-left">
+    <circle cx="126" cy="322" r="20" fill="url(#jointG)" stroke="#C7D0DA" stroke-width="2.8"/>
+    <circle cx="126" cy="322" r="10" fill="none" stroke="#00D9FF" stroke-width="3.4" opacity="0.9"/>
+    <circle cx="126" cy="322" r="3.6" fill="#101C32"/>
+    <ellipse cx="119" cy="314" rx="6" ry="3.6" fill="#FFFFFF" opacity="0.8"/>
+  </g>
+  <path d="M116 340 C107 352 100 366 96 379 C93 390 99 399 108 400 C117 401 123 395 126 386 C130 373 135 360 141 351 Z"
+        fill="url(#shellLimb)" stroke="#C7D0DA" stroke-width="2.8" stroke-linejoin="round"/>
+  <path d="M116 348 C110 358 105 368 101 378" fill="none" stroke="#FFFFFF" stroke-width="3.6" stroke-linecap="round" opacity="0.7"/>
+  <g id="paw-left">
+    <ellipse cx="103" cy="404" rx="20" ry="18" fill="url(#shellDome)" stroke="#C7D0DA" stroke-width="2.8"/>
+    <ellipse cx="97" cy="397" rx="8" ry="4" fill="#FFFFFF" opacity="0.7"/>
+    <g fill="#C7D0DA">
+      <circle cx="95" cy="400" r="2.8"/>
+      <circle cx="103" cy="398.5" r="2.8"/>
+      <circle cx="111" cy="400" r="2.8"/>
+    </g>
+    <circle cx="103" cy="408" r="3.6" fill="#22E5D0" opacity="0.85"/>
+  </g>
+</g>
+
+<!-- RIGHT ARM (waving) -->
+<g id="arm-right">
+  <g id="shoulder-right">
+    <circle cx="274" cy="322" r="20" fill="url(#jointG)" stroke="#C7D0DA" stroke-width="2.8"/>
+    <circle cx="274" cy="322" r="10" fill="none" stroke="#00D9FF" stroke-width="3.4" opacity="0.9"/>
+    <circle cx="274" cy="322" r="3.6" fill="#101C32"/>
+    <ellipse cx="267" cy="314" rx="6" ry="3.6" fill="#FFFFFF" opacity="0.8"/>
+  </g>
+  <path d="M286 308 C296 296 306 282 314 269 C321 258 332 258 338 265 C344 273 341 283 335 291 C326 304 314 317 303 328 Z"
+        fill="url(#shellLimb)" stroke="#C7D0DA" stroke-width="2.8" stroke-linejoin="round"/>
+  <path d="M292 306 C300 295 308 284 315 275" fill="none" stroke="#FFFFFF" stroke-width="3.6" stroke-linecap="round" opacity="0.7"/>
+  <g id="paw-right">
+    <ellipse cx="342" cy="253" rx="20" ry="18" fill="url(#shellDome)" stroke="#C7D0DA" stroke-width="2.8"/>
+    <ellipse cx="336" cy="246" rx="8" ry="4" fill="#FFFFFF" opacity="0.7"/>
+    <g fill="#C7D0DA">
+      <circle cx="334" cy="249" r="2.8"/>
+      <circle cx="342" cy="247.5" r="2.8"/>
+      <circle cx="350" cy="249" r="2.8"/>
+    </g>
+    <circle cx="342" cy="257" r="3.6" fill="#22E5D0" opacity="0.85"/>
+  </g>
+</g>
+
+<!-- HEAD -->
+<g id="head">
+
+  <!-- EARS -->
+  <g id="ear-left">
+    <path d="M112 96 C100 68 92 40 96 20 C112 30 142 56 168 86 C148 92 128 100 116 110 C114 106 113 101 112 96 Z"
+          fill="url(#shellA)" stroke="#C7D0DA" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M119 90 C110 68 105 48 107 35 C120 44 141 64 159 87 C144 92 132 97 123 104 C121 100 120 95 119 90 Z"
+          fill="url(#earInG)"/>
+    <g stroke="#22E5D0" stroke-width="3.2" stroke-linecap="round" opacity="0.85">
+      <line x1="118" y1="54" x2="133" y2="71"/>
+      <line x1="120" y1="72" x2="135" y2="87"/>
+    </g>
+    <path d="M100 28 C106 44 112 60 119 74" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+  </g>
+  <g id="ear-right">
+    <path d="M288 96 C300 68 308 40 304 20 C288 30 258 56 232 86 C252 92 272 100 284 110 C286 106 287 101 288 96 Z"
+          fill="url(#shellA)" stroke="#C7D0DA" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M281 90 C290 68 295 48 293 35 C280 44 259 64 241 87 C256 92 268 97 277 104 C279 100 280 95 281 90 Z"
+          fill="url(#earInG)"/>
+    <g stroke="#22E5D0" stroke-width="3.2" stroke-linecap="round" opacity="0.85">
+      <line x1="282" y1="54" x2="267" y2="71"/>
+      <line x1="280" y1="72" x2="265" y2="87"/>
+    </g>
+  </g>
+
+  <!-- HEAD SHELL -->
+  <path d="M200 44 C272 44 314 96 314 160 C314 226 271 264 200 264 C129 264 86 226 86 160 C86 96 128 44 200 44 Z"
+        fill="url(#shellDome)" stroke="#C7D0DA" stroke-width="3.2" stroke-linejoin="round"/>
+  <g clip-path="url(#clipHead)">
+    <path d="M116 118 C126 88 152 66 180 56" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" opacity="0.85"/>
+    <ellipse cx="200" cy="266" rx="118" ry="28" fill="#AAB6C4" opacity="0.14" filter="url(#blurM)"/>
+  </g>
+
+  <!-- FOREHEAD SENSOR -->
+  <g id="sensor">
+    <circle cx="200" cy="78" r="9" fill="url(#panelG)" stroke="#C7D0DA" stroke-width="2"/>
+    <circle cx="200" cy="78" r="3.2" fill="#22E5D0"/>
+  </g>
+
+  <!-- VISOR -->
+  <g id="visor">
+    <path d="M104 168 C104 124 140 100 200 100 C260 100 296 124 296 168 C296 214 259 240 200 240 C141 240 104 214 104 168 Z"
+          fill="url(#visorG)" stroke="#07101F" stroke-width="2"/>
+    <g clip-path="url(#clipVisor)">
+      <path d="M112 138 C128 112 160 100 196 100 L150 246 L100 216 Z" fill="#FFFFFF" opacity="0.05"/>
+      <path d="M104 116 C140 96 260 96 296 118 L296 100 L104 100 Z" fill="#00D9FF" opacity="0.05"/>
+    </g>
+
+    <!-- BROW BARS -->
+    <path d="M141 132 L184 122 L186 132 L143 142 Z" fill="#CFF7FA"/>
+    <path d="M259 132 L216 122 L214 132 L257 142 Z" fill="#CFF7FA"/>
+
+    <!-- EYES (simplified) -->
+    <g id="eyes">
+      <g id="eye-left">
+        <ellipse class="eyeglow" cx="165" cy="176" rx="38" ry="34" fill="#22E5D0" filter="url(#blurL)" opacity="0.2"/>
+        <ellipse cx="165" cy="176" rx="30" ry="27" fill="none" stroke="#00D9FF" stroke-width="4.5"/>
+        <ellipse cx="165" cy="176" rx="22" ry="19" fill="#07101F"/>
+        <circle cx="160" cy="170" r="5" fill="#FFFFFF"/>
+      </g>
+      <g id="eye-right">
+        <ellipse class="eyeglow" cx="235" cy="176" rx="38" ry="34" fill="#22E5D0" filter="url(#blurL)" opacity="0.2"/>
+        <ellipse cx="235" cy="176" rx="30" ry="27" fill="none" stroke="#00D9FF" stroke-width="4.5"/>
+        <ellipse cx="235" cy="176" rx="22" ry="19" fill="#07101F"/>
+        <circle cx="230" cy="170" r="5" fill="#FFFFFF"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- CHEEK LINES -->
+  <g stroke="#22E5D0" stroke-width="3.2" stroke-linecap="round" opacity="0.45">
+    <line x1="98" y1="188" x2="120" y2="184"/>
+    <line x1="100" y1="204" x2="122" y2="201"/>
+    <line x1="280" y1="184" x2="302" y2="188"/>
+    <line x1="278" y1="201" x2="300" y2="204"/>
+  </g>
+
+  <!-- MUZZLE -->
+  <g id="muzzle">
+    <ellipse cx="200" cy="222" rx="56" ry="39" fill="url(#shellDome)" stroke="#C7D0DA" stroke-width="2.8"/>
+    <ellipse cx="182" cy="209" rx="23" ry="12" fill="#FFFFFF" opacity="0.6"/>
+    <g id="nose">
+      <ellipse cx="200" cy="208" rx="18" ry="13" fill="url(#panelG)"/>
+      <circle cx="206" cy="205" r="3.2" fill="#22E5D0"/>
+    </g>
+    <path d="M185 231 C192 240 208 240 215 231" fill="none" stroke="#101C32" stroke-width="3.4" stroke-linecap="round"/>
+  </g>
+
+</g>
+</g> </g> </svg>

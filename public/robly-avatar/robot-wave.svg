@@ -1,0 +1,183 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500" role="img" aria-label="Robot - waving">
+<defs>
+  <linearGradient id="bodyGrad" x1="0.2" y1="0" x2="0.8" y2="1">
+    <stop offset="0" stop-color="#ffffff"/>
+    <stop offset="1" stop-color="#e7edf8"/>
+  </linearGradient>
+  <radialGradient id="headSheen" cx="0.32" cy="0.22" r="0.75">
+    <stop offset="0" stop-color="#ffffff" stop-opacity="0.95"/>
+    <stop offset="0.5" stop-color="#ffffff" stop-opacity="0.18"/>
+    <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="visorGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#141b2d"/>
+    <stop offset="1" stop-color="#04070d"/>
+  </linearGradient>
+  <linearGradient id="cyanGrad" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#5eead4"/>
+    <stop offset="1" stop-color="#38bdf8"/>
+  </linearGradient>
+  <linearGradient id="chipGrad" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#22d3ee"/>
+    <stop offset="1" stop-color="#4ade80"/>
+  </linearGradient>
+  <radialGradient id="sphereGrad" cx="0.35" cy="0.3" r="0.75">
+    <stop offset="0" stop-color="#bff4ff"/>
+    <stop offset="0.45" stop-color="#38bdf8"/>
+    <stop offset="1" stop-color="#3b82f6"/>
+  </radialGradient>
+  <radialGradient id="ringGlow" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#38bdf8" stop-opacity="0.55"/>
+    <stop offset="0.7" stop-color="#38bdf8" stop-opacity="0.16"/>
+    <stop offset="1" stop-color="#38bdf8" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="handGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#f1f5f9"/>
+    <stop offset="1" stop-color="#b9c3d4"/>
+  </linearGradient>
+  <linearGradient id="jointGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#d7deea"/>
+    <stop offset="1" stop-color="#98a3b8"/>
+  </linearGradient>
+  <linearGradient id="wheelGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#eef2f8"/>
+    <stop offset="1" stop-color="#aab4c6"/>
+  </linearGradient>
+  <filter id="glow" x="-120%" y="-120%" width="340%" height="340%">
+    <feGaussianBlur stdDeviation="5" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="dropShadow" x="-50%" y="-30%" width="200%" height="200%">
+    <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#1e293b" flood-opacity="0.20"/>
+  </filter>
+</defs>
+<style>
+.robot-anim{transform-origin:250px 340px;animation:robotFloat 3.2s ease-in-out infinite}
+@keyframes robotFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.base-ring{transform-origin:250px 452px;animation:ringPulse 3.2s ease-in-out infinite}
+@keyframes ringPulse{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.06);opacity:1}}
+.eyes{transform-origin:250px 128px;animation:blink 4.6s ease-in-out infinite}
+@keyframes blink{0%,44%,50%,100%{transform:scaleY(1)}47%{transform:scaleY(.1)}}
+.node-l{transform-origin:132px 18px;animation:nodePulse 2.6s ease-in-out infinite}
+.node-r{transform-origin:368px 18px;animation:nodePulse 2.6s ease-in-out infinite .5s}
+@keyframes nodePulse{0%,100%{transform:scale(.9);opacity:.7}50%{transform:scale(1.15);opacity:1}}
+.arm-r{transform-origin:320px 270px;animation:wave 1.9s ease-in-out infinite}
+@keyframes wave{0%,100%{transform:rotate(0)}20%{transform:rotate(-14deg)}45%{transform:rotate(8deg)}70%{transform:rotate(-10deg)}100%{transform:rotate(0)}}
+.deco{animation:decoFloat 3.6s ease-in-out infinite}
+.deco-b{animation-delay:.9s}
+.deco-c{animation-delay:1.8s}
+.deco-d{animation-delay:2.7s}
+@keyframes decoFloat{0%,100%{transform:translateY(0);opacity:.55}50%{transform:translateY(-6px);opacity:.95}}
+.chip{transform-origin:250px 316px;animation:chipGlow 2.4s ease-in-out infinite}
+@keyframes chipGlow{0%,100%{opacity:.85}50%{opacity:1}}
+</style>
+
+<g class="base-ring">
+  <ellipse cx="250" cy="452" rx="118" ry="26" fill="url(#ringGlow)"/>
+  <ellipse cx="250" cy="452" rx="98" ry="13" fill="none" stroke="url(#cyanGrad)" stroke-width="2.5" opacity="0.5"/>
+</g>
+
+<g class="robot-anim">
+  <g class="robot">
+
+    <g class="legs">
+      <rect x="182" y="404" width="66" height="50" rx="25" fill="url(#wheelGrad)" stroke="#98a3b8" stroke-width="2.5"/>
+      <ellipse cx="215" cy="416" rx="20" ry="8" fill="#ffffff" opacity="0.55"/>
+      <circle cx="215" cy="432" r="7" fill="url(#cyanGrad)" opacity="0.85"/>
+      <rect x="252" y="404" width="66" height="50" rx="25" fill="url(#wheelGrad)" stroke="#98a3b8" stroke-width="2.5"/>
+      <ellipse cx="285" cy="416" rx="20" ry="8" fill="#ffffff" opacity="0.55"/>
+      <circle cx="285" cy="432" r="7" fill="url(#cyanGrad)" opacity="0.85"/>
+    </g>
+
+    <g class="arm-l">
+      <circle cx="180" cy="270" r="17" fill="url(#jointGrad)" stroke="#98a3b8" stroke-width="1.5"/>
+      <rect x="163" y="266" width="30" height="60" rx="15" fill="url(#bodyGrad)" stroke="#c7d2fe" stroke-width="2.5" transform="rotate(9 178 266)"/>
+      <rect x="158" y="320" width="27" height="52" rx="13.5" fill="url(#bodyGrad)" stroke="#c7d2fe" stroke-width="2.5" transform="rotate(4 171 320)"/>
+      <ellipse cx="172" cy="383" rx="18" ry="15" fill="url(#handGrad)" stroke="#98a3b8" stroke-width="2"/>
+    </g>
+
+    <g class="torso-group">
+      <rect x="175" y="246" width="150" height="145" rx="54" fill="url(#bodyGrad)" stroke="#c7d2fe" stroke-width="5" filter="url(#dropShadow)"/>
+      <rect x="175" y="246" width="150" height="46" rx="30" fill="#ffffff" opacity="0.28"/>
+      <g class="chip">
+        <path d="M250 278 L286 297 L286 335 L250 354 L214 335 L214 297 Z" fill="#eaf6ff" fill-opacity="0.55" stroke="url(#chipGrad)" stroke-width="3.5"/>
+        <path d="M216 316 C216 302 226 292 238 294 C241 289 249 289 252 294 C264 292 274 302 274 316 C274 328 267 336 257 338 C254 343 245 344 240 339 C229 341 216 330 216 316 Z" fill="none" stroke="url(#chipGrad)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+        <path d="M235 302 Q243 310 235 318" fill="none" stroke="url(#chipGrad)" stroke-width="2" stroke-linecap="round"/>
+        <path d="M255 302 Q247 310 255 318" fill="none" stroke="url(#chipGrad)" stroke-width="2" stroke-linecap="round"/>
+        <path d="M245 291 L245 341" fill="none" stroke="url(#chipGrad)" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+        <circle cx="220" cy="308" r="2.5" fill="url(#chipGrad)"/>
+        <circle cx="270" cy="308" r="2.5" fill="url(#chipGrad)"/>
+        <circle cx="238" cy="296" r="2.5" fill="url(#chipGrad)"/>
+        <circle cx="252" cy="296" r="2.5" fill="url(#chipGrad)"/>
+        <circle cx="245" cy="340" r="2.5" fill="url(#chipGrad)"/>
+      </g>
+    </g>
+
+    <g class="deco deco-a">
+      <path d="M136 268 a10 10 0 1 1 3 7" fill="none" stroke="#60a5fa" stroke-width="3" stroke-linecap="round"/>
+      <path d="M135 271 l4 6 6 -3" fill="none" stroke="#60a5fa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <g class="deco deco-b">
+      <circle cx="368" cy="282" r="4" fill="none" stroke="#60a5fa" stroke-width="2.5"/>
+      <path d="M368 286 L368 296 M368 296 L360 304 M368 296 L376 304" fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="360" cy="308" r="3" fill="#60a5fa"/>
+      <circle cx="376" cy="308" r="3" fill="#60a5fa"/>
+    </g>
+    <g class="deco deco-c">
+      <path d="M355 344 q-4 -10 6 -12 q2 -8 10 -6 q8 -2 9 6 q7 1 5 9 q1 6 -6 6 l-18 0 q-8 0 -6 -3 Z" fill="none" stroke="#60a5fa" stroke-width="2.5"/>
+    </g>
+    <g class="deco deco-d">
+      <path d="M132 340 l9 -5 9 5 l0 10 -9 5 -9 -5 Z" fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-linejoin="round"/>
+    </g>
+
+    <g class="antenna-l">
+      <path d="M185 58 Q158 40 138 22" fill="none" stroke="#98a3b8" stroke-width="6.5" stroke-linecap="round"/>
+      <g class="node-l">
+        <circle cx="132" cy="18" r="16" fill="url(#ringGlow)"/>
+        <path d="M132 18 L149 5 M132 18 L118 3" stroke="#7dd3fc" stroke-width="2" opacity="0.75"/>
+        <circle cx="132" cy="18" r="8.5" fill="url(#sphereGrad)" filter="url(#glow)"/>
+        <circle cx="149" cy="5" r="4.5" fill="url(#sphereGrad)"/>
+        <circle cx="118" cy="3" r="4.5" fill="url(#sphereGrad)"/>
+      </g>
+    </g>
+    <g class="antenna-r">
+      <path d="M315 58 Q342 40 362 22" fill="none" stroke="#98a3b8" stroke-width="6.5" stroke-linecap="round"/>
+      <g class="node-r">
+        <circle cx="368" cy="18" r="16" fill="url(#ringGlow)"/>
+        <path d="M368 18 L351 5 M368 18 L382 3" stroke="#7dd3fc" stroke-width="2" opacity="0.75"/>
+        <circle cx="368" cy="18" r="8.5" fill="url(#sphereGrad)" filter="url(#glow)"/>
+        <circle cx="351" cy="5" r="4.5" fill="url(#sphereGrad)"/>
+        <circle cx="382" cy="3" r="4.5" fill="url(#sphereGrad)"/>
+      </g>
+    </g>
+
+    <g class="head-group">
+      <rect x="145" y="52" width="210" height="185" rx="74" fill="url(#bodyGrad)" stroke="#c7d2fe" stroke-width="5" filter="url(#dropShadow)"/>
+      <rect x="145" y="52" width="210" height="185" rx="74" fill="url(#headSheen)"/>
+      <rect x="170" y="78" width="160" height="128" rx="50" fill="url(#visorGrad)"/>
+      <rect x="170" y="78" width="160" height="128" rx="50" fill="none" stroke="#3b82f6" stroke-opacity="0.35" stroke-width="1.5"/>
+      <g class="eyes" fill="none" stroke="url(#cyanGrad)" stroke-width="10" stroke-linecap="round" filter="url(#glow)">
+        <path d="M198 128 Q214 148 230 128"/>
+        <path d="M270 128 Q286 148 302 128"/>
+      </g>
+      <path d="M212 168 Q250 190 288 168" fill="none" stroke="url(#cyanGrad)" stroke-width="7" stroke-linecap="round" opacity="0.9"/>
+    </g>
+
+    <g class="arm-r">
+      <path d="M320 270 Q368 214 402 122" fill="none" stroke="#c7d2fe" stroke-width="34" stroke-linecap="round"/>
+      <path d="M320 270 Q368 214 402 122" fill="none" stroke="url(#bodyGrad)" stroke-width="27" stroke-linecap="round"/>
+      <circle cx="364" cy="204" r="12" fill="url(#jointGrad)" stroke="#98a3b8" stroke-width="1.5"/>
+      <circle cx="320" cy="270" r="17" fill="url(#jointGrad)" stroke="#98a3b8" stroke-width="1.5"/>
+      <g transform="translate(402 122) rotate(15)">
+        <ellipse cx="0" cy="8" rx="16" ry="15" fill="url(#handGrad)" stroke="#98a3b8" stroke-width="2"/>
+        <rect x="-6" y="-24" width="9" height="24" rx="4.5" fill="url(#handGrad)" stroke="#98a3b8" stroke-width="1.5" transform="rotate(-16 -1 0)"/>
+        <rect x="4" y="-27" width="9" height="27" rx="4.5" fill="url(#handGrad)" stroke="#98a3b8" stroke-width="1.5" transform="rotate(-4 8 0)"/>
+        <rect x="14" y="-25" width="9" height="25" rx="4.5" fill="url(#handGrad)" stroke="#98a3b8" stroke-width="1.5" transform="rotate(10 18 0)"/>
+        <rect x="23" y="-19" width="9" height="20" rx="4.5" fill="url(#handGrad)" stroke="#98a3b8" stroke-width="1.5" transform="rotate(26 27 0)"/>
+        <rect x="-16" y="-2" width="9" height="20" rx="4.5" fill="url(#handGrad)" stroke="#98a3b8" stroke-width="1.5" transform="rotate(-48 -11 0)"/>
+      </g>
+    </g>
+
+  </g>
+</g>
+</svg>

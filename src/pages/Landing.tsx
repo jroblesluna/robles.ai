@@ -18,7 +18,9 @@ import {
   ArrowRight,
   Phone,
   Mail,
+  Sparkles,
 } from "lucide-react";
+import { Link } from "wouter";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -101,15 +103,26 @@ export default function DiagnosticoIA() {
             >
               {t("landing.hero.subtitle")}
             </motion.p>
-            <motion.a
-              href="#contacto"
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-colors"
+              className="flex flex-col sm:flex-row items-center lg:items-start gap-4"
             >
-              {t("landing.hero.cta")} <ArrowRight className="w-5 h-5" />
-            </motion.a>
+              <a
+                href="#contacto"
+                className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-colors"
+              >
+                {t("landing.hero.cta")} <ArrowRight className="w-5 h-5" />
+              </a>
+              <Link
+                href="/diagnostico-ia"
+                className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/20 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-colors"
+              >
+                <Sparkles className="w-5 h-5 text-emerald-400" />
+                {t("landing.hero.quizCta")}
+              </Link>
+            </motion.div>
           </div>
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
