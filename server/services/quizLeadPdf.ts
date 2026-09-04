@@ -1,15 +1,14 @@
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 import PDFDocument from "pdfkit";
 import { drawServiceIconBadge } from "./pdfIcons.js";
 import esCopy from "../../src/i18n/locales/es/translation.json";
 import enCopy from "../../src/i18n/locales/en/translation.json";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const LOGO_PATH = path.resolve(__dirname, "../../public/images/logo.png");
+// process.cwd() (project root) instead of __dirname — esbuild bundles all of
+// server/**/*.ts into a single flat dist/index.js in production, so a
+// __dirname-relative path computed from this file's dev location breaks once built.
+const LOGO_PATH = path.resolve(process.cwd(), "public/images/logo.png");
 
 const COPY = { es: esCopy, en: enCopy } as const;
 

@@ -1,10 +1,10 @@
 import path from "path";
-import { fileURLToPath } from "url";
 import nodemailer from "nodemailer";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const LOGO_PATH = path.resolve(__dirname, "../../public/images/logo.png");
+// process.cwd() (project root) instead of __dirname — esbuild bundles all of
+// server/**/*.ts into a single flat dist/index.js in production, so a
+// __dirname-relative path computed from this file's dev location breaks once built.
+const LOGO_PATH = path.resolve(process.cwd(), "public/images/logo.png");
 
 const COPY = {
   es: {
