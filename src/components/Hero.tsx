@@ -1,18 +1,133 @@
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "wouter";
+import { ChevronLeft, ChevronRight, Sparkles, ArrowRight, Fingerprint, Database, HeartPulse, Link2 } from "lucide-react";
 import { fadeIn, staggerContainer } from "@/utils/animations";
 import ParticleBackground from './ParticleBackground';
 import { useTranslation } from 'react-i18next';
 
+const SLIDE_COUNT = 3;
+const SLIDE_MS = 7000;
+
 const Hero = () => {
   const { t } = useTranslation();
+  const [slide, setSlide] = useState(0);
+
+  // ponytail: interval keyed on `slide` so any manual nav restarts the 7s clock
+  useEffect(() => {
+    const id = setInterval(() => setSlide((s) => (s + 1) % SLIDE_COUNT), SLIDE_MS);
+    return () => clearInterval(id);
+  }, [slide]);
+
+  const go = (n: number) => setSlide((n + SLIDE_COUNT) % SLIDE_COUNT);
+
+  const slides = [
+    // 0 — main pitch
+    {
+      mascot: "/robly-avatar/robly-dominical.svg",
+      mascotSize: "w-40 h-40 md:w-56 md:h-56",
+      content: (
+        <>
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 drop-shadow-[0_4px_4px_rgba(0,0,0,0.6)]">
+            {t("hero.title")}
+          </h1>
+          <p className="text-sm md:text-xl text-white mb-4 drop-shadow-[0_2px_3px_rgba(0,0,0,0.5)]">
+            {t("hero.subtitle")}
+          </p>
+          <div className="flex flex-wrap justify-center md:justify-start gap-3">
+            <a
+              href="#features"
+              className="px-4 py-2 bg-white text-blue-700 font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+            >
+              {t("hero.cta1")}
+            </a>
+            <Link
+              href="/blog"
+              className="px-4 py-2 bg-blue-500 text-white font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-white/20"
+            >
+              {t("hero.cta2")}
+            </Link>
+            <Link
+              href="/get-started"
+              className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+            >
+              {t("hero.cta3")}
+            </Link>
+          </div>
+        </>
+      ),
+    },
+
+    // 1 — quiz promo
+    {
+      mascot: "/robly-avatar/robly-thinking.svg",
+      mascotSize: "w-40 h-40 md:w-56 md:h-56",
+      content: (
+        <>
+          <div className="inline-flex items-center gap-2 bg-white/15 text-white px-3 py-1 rounded-full text-xs font-medium mb-3">
+            <Sparkles className="h-3.5 w-3.5" />
+            {t("quizPromo.badge")}
+          </div>
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 drop-shadow-[0_4px_4px_rgba(0,0,0,0.6)]">
+            {t("quizPromo.title")}
+          </h2>
+          <p className="text-sm md:text-xl text-white mb-4 drop-shadow-[0_2px_3px_rgba(0,0,0,0.5)]">
+            {t("quizPromo.subtitle")}
+          </p>
+          <div className="flex flex-wrap justify-center md:justify-start gap-3">
+            <Link
+              href="/diagnostico-ia"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white text-blue-700 font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+            >
+              {t("quizPromo.cta")}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </>
+      ),
+    },
+
+    // 2 — live demos
+    {
+      mascot: "/robly-avatar/robly-pointing.svg",
+      mascotSize: "w-56 h-56 md:w-72 md:h-72",
+      mascotClass: "md:-ml-6",
+      content: (
+        <>
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 drop-shadow-[0_4px_4px_rgba(0,0,0,0.6)]">
+            {t("demosPromo.title")}
+          </h2>
+          <p className="text-sm md:text-xl text-white mb-4 drop-shadow-[0_2px_3px_rgba(0,0,0,0.5)]">
+            {t("demosPromo.subtitle")}
+          </p>
+          <div className="flex flex-wrap justify-center md:justify-start gap-3">
+            {[
+              { href: "/try-identity", key: "identity", icon: Fingerprint, from: "from-violet-500", to: "to-purple-600" },
+              { href: "/try-rag", key: "rag", icon: Database, from: "from-cyan-500", to: "to-blue-600" },
+              { href: "/try-medical", key: "medical", icon: HeartPulse, from: "from-rose-500", to: "to-pink-600" },
+              { href: "/try-langchain", key: "langchain", icon: Link2, from: "from-amber-500", to: "to-orange-600" },
+            ].map(({ href, key, icon: Icon, from, to }) => (
+              <Link
+                key={href}
+                href={href}
+                className={`inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${from} ${to} text-white font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300`}
+              >
+                <Icon className="h-4 w-4" />
+                {t(`demosPromo.${key}`)}
+              </Link>
+            ))}
+          </div>
+        </>
+      ),
+    },
+  ];
 
   return (
     <motion.section
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
-      className="relative overflow-hidden animated-bg py-5 md:py-8"
+      className="group relative overflow-hidden animated-bg py-5 md:py-8"
     >
       <div className="absolute inset-0 z-0 overflow-hidden">
         <ParticleBackground />
@@ -32,49 +147,60 @@ const Hero = () => {
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-3xl mx-auto text-center">
-          <motion.h1 
-            variants={fadeIn}
-            custom={0}
-            className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 drop-shadow-[0_4px_4px_rgba(0,0,0,0.6)]"
-          >
-            {t("hero.title")}
-          </motion.h1>
+        <motion.div
+          variants={fadeIn}
+          className="max-w-4xl mx-auto h-[260px] md:h-[300px] flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4"
+        >
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={slide}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.4 }}
+              className="flex flex-col md:flex-row items-center gap-2 md:gap-4"
+            >
+              <div className={`shrink-0 order-1 md:order-2 ${slides[slide].mascotClass ?? ""}`}>
+                <img
+                  src={slides[slide].mascot}
+                  alt=""
+                  className={`${slides[slide].mascotSize} drop-shadow-[0_8px_16px_rgba(0,0,0,0.35)]`}
+                />
+              </div>
+              <div className="text-center md:text-left order-2 md:order-1">{slides[slide].content}</div>
+            </motion.div>
+          </AnimatePresence>
+        </motion.div>
 
-          <motion.p 
-            variants={fadeIn}
-            custom={0.2}
-            className="text-sm md:text-xl text-white mb-4 drop-shadow-[0_2px_3px_rgba(0,0,0,0.5)]"
-          >
-            {t("hero.subtitle")}
-          </motion.p>
-
-          <motion.div 
-            variants={fadeIn}
-            custom={0.4}
-            className="flex flex-wrap justify-center gap-3"
-          >
-            <a 
-              href="#features" 
-              className="px-4 py-2 mb-4 bg-white text-blue-700 font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-            >
-              {t("hero.cta1")}
-            </a>
-            <Link
-              href="/blog"
-              className="px-4 py-2 mb-4 bg-blue-500 text-white font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-white/20"
-            >
-              {t("hero.cta2")}
-            </Link>
-            <Link
-              href="/get-started"
-              className="px-4 py-2 mb-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-            >
-              {t("hero.cta3")}
-            </Link>
-          </motion.div>
+        <div className="flex justify-center gap-2 mt-4">
+          {slides.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => go(i)}
+              aria-label={`Slide ${i + 1}`}
+              aria-current={i === slide}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                i === slide ? "w-6 bg-white" : "w-2 bg-white/40 hover:bg-white/70"
+              }`}
+            />
+          ))}
         </div>
       </div>
+
+      <button
+        onClick={() => go(slide - 1)}
+        aria-label="Previous slide"
+        className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full text-white/70 bg-white/5 hover:bg-white/20 hover:text-white opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity duration-300"
+      >
+        <ChevronLeft className="h-6 w-6" />
+      </button>
+      <button
+        onClick={() => go(slide + 1)}
+        aria-label="Next slide"
+        className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full text-white/70 bg-white/5 hover:bg-white/20 hover:text-white opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity duration-300"
+      >
+        <ChevronRight className="h-6 w-6" />
+      </button>
 
       <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-gray-50 to-transparent"></div>
     </motion.section>

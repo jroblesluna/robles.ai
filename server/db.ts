@@ -91,6 +91,32 @@ db.exec(`
     fetched_at TEXT NOT NULL,
     ttl_seconds INTEGER NOT NULL
   );
+
+  CREATE TABLE IF NOT EXISTS quiz_leads (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    company TEXT,
+    whatsapp TEXT,
+    answers TEXT NOT NULL,
+    score INTEGER NOT NULL,
+    profile TEXT NOT NULL,
+    recommended_services TEXT NOT NULL,
+    locale TEXT NOT NULL DEFAULT 'es',
+    result_message TEXT,
+    verified INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    verified_at TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS quiz_verification_tokens (
+    token TEXT PRIMARY KEY,
+    lead_id INTEGER NOT NULL,
+    expires_at TEXT NOT NULL,
+    used_at TEXT,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (lead_id) REFERENCES quiz_leads(id)
+  );
 `);
 
 // Add new columns for platform-specific text (safe to call multiple times)

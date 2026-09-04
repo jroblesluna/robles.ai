@@ -1,6 +1,7 @@
 // src/components/LangChainFileUploader.tsx
 "use client";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const getBaseApi = () => {
   if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
@@ -12,6 +13,7 @@ const getBaseApi = () => {
 const BASE_API = getBaseApi();
 
 export default function LangChainFileUploader({ sessionId }: { sessionId: string }) {
+  const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
   const backend = BASE_API;
@@ -24,7 +26,7 @@ export default function LangChainFileUploader({ sessionId }: { sessionId: string
     Array.from(files).forEach((f) => fd.append("files", f));
 
     setBusy(true);
-    setStatusMessage("Subiendo archivo…");
+    setStatusMessage(t("try-langchain.upload_uploading"));
 
     try {
       const saved = await fetch(`${backend}/upload`, {
@@ -32,7 +34,7 @@ export default function LangChainFileUploader({ sessionId }: { sessionId: string
         body: fd,
       }).then((r) => r.json());
 
-      setStatusMessage("Obteniendo embeddings y almacenando en Pinecone…");
+      setStatusMessage(t("try-langchain.upload_ingesting"));
 
       await fetch(`${backend}/ingest`, {
         method: "POST",
@@ -40,25 +42,25 @@ export default function LangChainFileUploader({ sessionId }: { sessionId: string
         body: JSON.stringify({ files: saved.saved, session_id: sessionId }),
       });
 
-      setStatusMessage("Ingesta completada.");
+      setStatusMessage(t("try-langchain.upload_done"));
     } catch (err) {
-      setStatusMessage("Ocurrió un error durante la carga.");
+      setStatusMessage(t("try-langchain.upload_error"));
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <div className="border p-3 rounded space-y-2">
+    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2">
       <input
         type="file"
         multiple
         disabled={busy}
         onChange={handleUpload}
-        className="disabled:opacity-50"
+        className="text-sm text-gray-700 disabled:opacity-50"
       />
       {statusMessage && (
-        <div className="text-sm text-gray-700">
+        <div className="text-sm text-gray-600">
           {busy && <span className="animate-pulse mr-2">⏳</span>}
           {statusMessage}
         </div>

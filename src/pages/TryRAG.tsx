@@ -3,9 +3,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
-import { FileUp, Loader2 } from "lucide-react";
+import { Database, Loader2, Search, ArrowUpDown, Sparkles, Upload } from "lucide-react";
 import sha256 from "crypto-js/sha256";
 import encHex from "crypto-js/enc-hex";
+import { useTranslation } from "react-i18next";
 
 const getBaseApi = () => {
   if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
@@ -40,6 +41,7 @@ async function calculatePdfHash(file: File): Promise<string> {
 }
 
 export default function TryRAG() {
+  const { t } = useTranslation();
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [extractedText, setExtractedText] = useState<string>("");
   const [chunks, setChunks] = useState<string[]>([]);
@@ -103,7 +105,7 @@ export default function TryRAG() {
       setLoading(null);
     } catch (error) {
       console.error("Upload error:", error);
-      alert("No se pudo calcular el hash del archivo. Usa un navegador compatible.");
+      alert(t("try-rag.hash_error"));
       setLoading(null);
     }
   };
@@ -182,7 +184,7 @@ export default function TryRAG() {
     console.log("Rerank response:", json);
 
     if (!(json.status == "success") || !json.data?.reranked) {
-      alert("Error al hacer reranking");
+      alert(t("try-rag.rerank_error"));
       setLoading(null);
       return;
     }
@@ -219,105 +221,149 @@ export default function TryRAG() {
     stepNumber: number,
     disabled: boolean = false
   ) => (
-    <Button onClick={action} disabled={disabled || loading !== null}>
+    <Button
+      onClick={action}
+      disabled={disabled || loading !== null}
+      className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-sm"
+    >
       {loading === stepNumber ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : null}
       {label}
     </Button>
   );
 
-  return (
-    <div className="p-6 max-w-5xl mx-auto space-y-10">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-slate-800">RAG Pipeline 🔍📄</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Desde PDF hasta respuesta generada con embeddings, búsqueda, reranking y LLM
-        </p>
+  const StepCard = ({
+    icon: Icon,
+    number,
+    title,
+    children,
+  }: {
+    icon: React.ElementType;
+    number: number;
+    title: string;
+    children: React.ReactNode;
+  }) => (
+    <motion.section
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-white rounded-xl shadow-md border border-gray-200 p-6 space-y-3"
+    >
+      <div className="flex items-center gap-3 mb-1">
+        <div className="w-9 h-9 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white flex items-center justify-center text-sm font-bold shrink-0">
+          {number}
+        </div>
+        <Icon className="h-5 w-5 text-blue-600" />
+        <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
       </div>
+      {children}
+    </motion.section>
+  );
 
-      <motion.section className="bg-blue-50 rounded-xl p-6 shadow space-y-2">
-        <h2 className="text-xl font-semibold text-blue-700 mb-2">1️⃣ Subir archivo PDF</h2>
-        <Input
-          type="file"
-          accept="application/pdf"
-          onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
-        />
-        {renderButton(handleUpload, "Extraer texto y generar chunks", 1, !pdfFile)}
-        {step >= 2 && (
-          <>
-            {extractedText && (<Textarea className="text-sm mt-4" rows={4} value={extractedText} readOnly />)}
-            <p className="text-sm text-blue-700 mt-2">
-              Chunks extraídos: <strong>{chunkCount ?? "¿?"}</strong>
-              {wasAlreadyIndexed && " — Archivo ya está indexado en Pinecone."}
-            </p>
-          </>
-        )}
-      </motion.section>
-
-      {showStep2 && (
-        <motion.section className="bg-green-50 rounded-xl p-6 shadow space-y-2">
-          <h2 className="text-xl font-semibold text-green-700 mb-2">2️⃣ Embeddings y subida a Pinecone</h2>
-          {!wasAlreadyIndexed
-            ? <>
-              <p className="text-sm text-green-700 mt-2">Se enviarán <strong>{chunkCount ?? "?"}</strong> vectores a Pinecone usando el namespace <strong>{namespace}</strong>.</p>
-              {renderButton(handleEmbedAndIndex, "Generar embeddings y subir", 3)}
-            </>
-            : <p className="text-sm text-green-700 mt-2">Embeddings ya se encuentran indexados en Pinecone. El índice contiene <strong>{chunkCount ?? "?"}</strong> vectores.</p>
-          }
-          {wasAlreadyIndexed && renderButton(() => setStep(4), "Ir a consulta", 4)}
-        </motion.section>
-      )}
-
-      {step >= 4 && (
-        <motion.section className="bg-yellow-50 rounded-xl p-6 shadow space-y-2">
-          <h2 className="text-xl font-semibold text-yellow-700 mb-2">3️⃣ Consulta al vector DB (top 65)</h2>
-          <Input
-            placeholder="Escribe tu pregunta..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-          {renderButton(handleQuery, "Consultar", 5, !query)}
-          {topResults.length > 0 && (
-            <ul className="mt-4 list-disc pl-5 text-sm text-slate-700 space-y-1">
-              {topResults.map((r, i) => (
-                <li key={i}>{r.text} (score: {r.score})</li>
-              ))}
-            </ul>
-          )}
-        </motion.section>
-      )}
-
-      {step >= 6 && (
-        <motion.section className="bg-purple-50 rounded-xl p-6 shadow space-y-2">
-          <h2 className="text-xl font-semibold text-purple-700 mb-2">4️⃣ Reranking MonoT5 ➜ BGE</h2>
-          {renderButton(handleRerank, "Aplicar reranking", 7)}
-          {rerankedResults.length > 0 && (
-            <ul className="mt-4 list-decimal pl-5 text-sm text-slate-700 space-y-1">
-              {rerankedResults.map((r, i) => (
-                <li key={i}>{r.text} (score: {r.score})</li>
-              ))}
-            </ul>
-          )}
-        </motion.section>
-      )}
-
-      {step >= 8 && (
-        <motion.section className="bg-pink-50 rounded-xl p-6 shadow space-y-2">
-          <h2 className="text-xl font-semibold text-pink-700 mb-2">5️⃣ Generación con LLMs</h2>
-          {renderButton(handleGenerateAnswers, "Generar Respuestas (Llama & GPT)", 9)}
-          <div className="mt-4 space-y-2 text-sm">
-            {hfAnswer && (
-              <div className="bg-white border-l-4 border-pink-500 p-3 rounded">
-                <strong className="text-pink-600">Llama:</strong> {hfAnswer}
-              </div>
-            )}
-            {gptAnswer && (
-              <div className="bg-white border-l-4 border-slate-500 p-3 rounded">
-                <strong className="text-slate-800">GPT-4:</strong> {gptAnswer}
-              </div>
-            )}
+  return (
+    <div className="bg-white min-h-screen py-12">
+      <div className="container mx-auto px-6 max-w-6xl">
+        <div className="mb-10">
+          <div className="flex flex-col sm:flex-row items-center sm:items-center text-center sm:text-left gap-4 sm:gap-5">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-[6.5rem] md:h-[6.5rem] rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white flex items-center justify-center shadow-sm shrink-0">
+              <Database className="h-10 w-10 sm:h-12 sm:w-12 md:h-[3.25rem] md:w-[3.25rem]" />
+            </div>
+            <div className="flex flex-col justify-center">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">{t("try-rag.title")}</h1>
+              <p className="text-gray-600 text-sm sm:text-base">{t("try-rag.description")}</p>
+            </div>
           </div>
-        </motion.section>
-      )}
+        </div>
+
+        <div className="space-y-6">
+          <StepCard icon={Upload} number={1} title={t("try-rag.step1_title")}>
+            <Input
+              type="file"
+              accept="application/pdf"
+              onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+              className="rounded-lg border-gray-300"
+            />
+            {renderButton(handleUpload, t("try-rag.step1_button"), 1, !pdfFile)}
+            {step >= 2 && (
+              <>
+                {extractedText && (
+                  <Textarea className="text-sm mt-2 border-gray-300 rounded-lg" rows={4} value={extractedText} readOnly />
+                )}
+                <p className="text-sm text-gray-600 mt-2">
+                  {t("try-rag.chunks_extracted")}: <strong className="text-gray-900">{chunkCount ?? "¿?"}</strong>
+                  {wasAlreadyIndexed && ` ${t("try-rag.already_indexed")}`}
+                </p>
+              </>
+            )}
+          </StepCard>
+
+          {showStep2 && (
+            <StepCard icon={Database} number={2} title={t("try-rag.step2_title")}>
+              {!wasAlreadyIndexed ? (
+                <>
+                  <p className="text-sm text-gray-600">
+                    {t("try-rag.step2_pending", { count: chunkCount ?? "?", namespace })}
+                  </p>
+                  {renderButton(handleEmbedAndIndex, t("try-rag.step2_button"), 3)}
+                </>
+              ) : (
+                <p className="text-sm text-gray-600">
+                  {t("try-rag.step2_done", { count: chunkCount ?? "?" })}
+                </p>
+              )}
+              {wasAlreadyIndexed && renderButton(() => setStep(4), t("try-rag.go_to_query"), 4)}
+            </StepCard>
+          )}
+
+          {step >= 4 && (
+            <StepCard icon={Search} number={3} title={t("try-rag.step3_title")}>
+              <Input
+                placeholder={t("try-rag.query_placeholder")}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="rounded-lg border-gray-300"
+              />
+              {renderButton(handleQuery, t("try-rag.query_button"), 5, !query)}
+              {topResults.length > 0 && (
+                <ul className="bg-gray-50 border border-gray-200 rounded-lg p-3 list-disc pl-8 text-sm text-gray-700 space-y-1">
+                  {topResults.map((r, i) => (
+                    <li key={i}>{r.text} ({t("try-rag.score_label")}: {r.score})</li>
+                  ))}
+                </ul>
+              )}
+            </StepCard>
+          )}
+
+          {step >= 6 && (
+            <StepCard icon={ArrowUpDown} number={4} title={t("try-rag.step4_title")}>
+              {renderButton(handleRerank, t("try-rag.rerank_button"), 7)}
+              {rerankedResults.length > 0 && (
+                <ul className="bg-gray-50 border border-gray-200 rounded-lg p-3 list-decimal pl-8 text-sm text-gray-700 space-y-1">
+                  {rerankedResults.map((r, i) => (
+                    <li key={i}>{r.text} ({t("try-rag.score_label")}: {r.score})</li>
+                  ))}
+                </ul>
+              )}
+            </StepCard>
+          )}
+
+          {step >= 8 && (
+            <StepCard icon={Sparkles} number={5} title={t("try-rag.step5_title")}>
+              {renderButton(handleGenerateAnswers, t("try-rag.generate_button"), 9)}
+              <div className="space-y-2 text-sm">
+                {hfAnswer && (
+                  <div className="bg-blue-50 border border-blue-100 p-3 rounded-lg">
+                    <strong className="text-blue-700">Llama:</strong> <span className="text-gray-700">{hfAnswer}</span>
+                  </div>
+                )}
+                {gptAnswer && (
+                  <div className="bg-gray-50 border border-gray-200 p-3 rounded-lg">
+                    <strong className="text-gray-900">GPT-4:</strong> <span className="text-gray-700">{gptAnswer}</span>
+                  </div>
+                )}
+              </div>
+            </StepCard>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

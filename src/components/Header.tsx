@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronRight } from "lucide-react";
+import { Menu, X, ChevronRight, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "wouter";
 
@@ -15,6 +15,14 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
   const [, setLocation] = useLocation();
   const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
   let hoverTimeout: NodeJS.Timeout;
+
+  const [quizTextIndex, setQuizTextIndex] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setQuizTextIndex((i) => (i + 1) % 3);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -112,16 +120,23 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
   };
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white ${isScrolled ? "shadow-sm" : ""}`}>
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white shadow-sm ${isScrolled ? "shadow-md" : ""}`}>
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo */}
         <div className="flex items-center space-x-3">
-          <button onClick={() => handleNavigation("/")} className="flex items-center space-x-3 focus:outline-none">
+          <a
+            href="/"
+            onClick={(e) => {
+              e.preventDefault();
+              handleNavigation("/");
+            }}
+            className="flex items-center space-x-3 focus:outline-none"
+          >
             <img src="/favicon.svg" alt="Robles.AI Logo" className="w-10 h-10" />
             <span className="text-xl font-bold text-gray-900">
               Robles<span className="text-blue-500">.AI</span>
             </span>
-          </button>
+          </a>
         </div>
 
         {/* Desktop Navigation */}
@@ -185,9 +200,21 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
           {/* Quiz CTA */}
           <button
             onClick={() => handleNavigation("/diagnostico-ia")}
-            className="text-blue-600 font-medium hover:text-blue-700 whitespace-nowrap transition-colors"
+            className="w-60 shrink-0 flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-violet-50 hover:bg-violet-100 text-violet-700 text-sm font-medium transition-colors overflow-hidden"
           >
-            {t("nav.quiz")}
+            <Sparkles className="h-4 w-4 shrink-0" />
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={quizTextIndex}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.3 }}
+                className="whitespace-nowrap"
+              >
+                {t(`nav.quiz_${quizTextIndex + 1}`)}
+              </motion.span>
+            </AnimatePresence>
           </button>
           {/* Contact Button */}
           <button
@@ -280,9 +307,10 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
                     setIsMobileMenuOpen(false);
                     handleNavigation("/diagnostico-ia");
                   }}
-                  className="w-full px-6 py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-medium transition-colors"
+                  className="w-full flex items-center justify-center gap-1.5 px-6 py-3 bg-violet-50 hover:bg-violet-100 text-violet-700 rounded-lg font-medium transition-colors"
                 >
-                  {t("nav.quiz")}
+                  <Sparkles className="h-4 w-4 shrink-0" />
+                  {t(`nav.quiz_${quizTextIndex + 1}`)}
                 </button>
                 <button
                   onClick={() => {

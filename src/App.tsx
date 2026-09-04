@@ -32,6 +32,7 @@ const AdminDominicalDetail = lazy(() => import('@/pages/admin/AdminDominicalDeta
 const AdminAnalytics = lazy(() => import('@/pages/admin/AdminAnalytics'));
 const AdminConversationList = lazy(() => import('@/pages/admin/AdminConversationList'));
 const AdminConversationDetail = lazy(() => import('@/pages/admin/AdminConversationDetail'));
+const AdminQuizLeads = lazy(() => import('@/pages/admin/AdminQuizLeads'));
 
 function App() {
   const [location] = useLocation(); // 👈 de wouter
@@ -83,6 +84,7 @@ function App() {
               <Route path="/admin/analytics" component={AdminAnalytics} />
               <Route path="/admin/conversations/:id" component={AdminConversationDetail} />
               <Route path="/admin/conversations" component={AdminConversationList} />
+              <Route path="/admin/quiz-leads" component={AdminQuizLeads} />
               <Route component={NotFound} />
             </Switch>
           </AdminLayout>

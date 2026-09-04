@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { BarChart3, MessageSquare, Newspaper, Settings } from "lucide-react";
+import { BarChart3, ClipboardList, MessageSquare, Newspaper, Settings } from "lucide-react";
 import {
   Card,
   CardDescription,
@@ -19,6 +19,12 @@ const quickActions = [
     title: "Conversations",
     description: "AI chatbot conversations and lead capture analytics",
     icon: MessageSquare,
+  },
+  {
+    href: "/admin/quiz-leads",
+    title: "Quiz Leads",
+    description: "AI Diagnosis Quiz leads from your interested clients",
+    icon: ClipboardList,
   },
   {
     href: "/admin/dominical",

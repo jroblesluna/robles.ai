@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isDisposableEmailDomain } from "./disposableEmailDomains";
 
 export const insertContactSchema = z.object({
   name: z.string().min(1),
@@ -13,7 +14,12 @@ export type InsertContact = z.infer<typeof insertContactSchema>;
 
 export const insertQuizLeadSchema = z.object({
   name: z.string().min(1),
-  email: z.string().email("Please enter a valid email address"),
+  email: z
+    .string()
+    .email("Please enter a valid email address")
+    .refine((email) => !isDisposableEmailDomain(email), {
+      message: "Please use a permanent email address, not a temporary/disposable one",
+    }),
   company: z.string().nullable().optional(),
   whatsapp: z.string().nullable().optional(),
   answers: z.record(z.string(), z.string()),

@@ -10,9 +10,10 @@ import QuizQuestionCard from "@/components/quiz/QuizQuestionCard";
 import QuizAnalyzing from "@/components/quiz/QuizAnalyzing";
 import QuizResultPreview from "@/components/quiz/QuizResultPreview";
 import QuizLeadForm, { type QuizLeadFormValues } from "@/components/quiz/QuizLeadForm";
+import QuizWaitingVerification from "@/components/quiz/QuizWaitingVerification";
 import QuizResultFull from "@/components/quiz/QuizResultFull";
 
-type QuizStep = "intro" | "question" | "analyzing" | "preview" | "form" | "full";
+type QuizStep = "intro" | "question" | "analyzing" | "preview" | "form" | "waiting" | "full";
 
 const Quiz = () => {
   const { t, i18n } = useTranslation();
@@ -22,6 +23,8 @@ const Quiz = () => {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [result, setResult] = useState<QuizResult | null>(null);
   const [leadName, setLeadName] = useState("");
+  const [leadEmail, setLeadEmail] = useState("");
+  const [leadId, setLeadId] = useState<number | null>(null);
   const [resultMessage, setResultMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -62,9 +65,10 @@ const Quiz = () => {
         locale: i18n.language.startsWith("en") ? "en" : "es",
       });
       const body = await res.json().catch(() => null);
-      setResultMessage(body?.resultMessage ?? null);
       setLeadName(data.name);
-      setStep("full");
+      setLeadEmail(data.email);
+      setLeadId(body?.leadId ?? null);
+      setStep("waiting");
     } catch (error) {
       toast({
         title: t("quiz.leadForm.errorTitle"),
@@ -76,9 +80,14 @@ const Quiz = () => {
     }
   };
 
+  const handleVerified = (message: string | null) => {
+    setResultMessage(message);
+    setStep("full");
+  };
+
   return (
-    <section className="py-16 md:py-24 bg-white min-h-[70vh]">
-      <div className="container mx-auto px-6">
+    <section className="py-16 md:py-24 bg-white min-h-[calc(100vh-68px)] flex items-center">
+      <div className="container mx-auto px-6 w-full -translate-y-8">
         <AnimatePresence mode="wait">
           {step === "intro" && (
             <motion.div key="intro" exit={{ opacity: 0 }}>
@@ -87,7 +96,7 @@ const Quiz = () => {
           )}
 
           {step === "question" && currentQuestion && (
-            <motion.div key="question" exit={{ opacity: 0 }}>
+            <motion.div key="question" exit={{ opacity: 0 }} className="-translate-y-6">
               <QuizProgressBar current={questionIndex + 1} total={QUIZ_QUESTIONS.length} />
               <QuizQuestionCard
                 question={currentQuestion}
@@ -130,9 +139,15 @@ const Quiz = () => {
             </motion.div>
           )}
 
+          {step === "waiting" && leadId && (
+            <motion.div key="waiting" exit={{ opacity: 0 }}>
+              <QuizWaitingVerification leadId={leadId} email={leadEmail} onVerified={handleVerified} />
+            </motion.div>
+          )}
+
           {step === "full" && result && (
             <motion.div key="full" exit={{ opacity: 0 }}>
-              <QuizResultFull result={result} leadName={leadName} resultMessage={resultMessage} />
+              <QuizResultFull leadId={leadId} result={result} leadName={leadName} resultMessage={resultMessage} />
             </motion.div>
           )}
         </AnimatePresence>
