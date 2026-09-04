@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { ShieldCheck, Send } from "lucide-react";
+import { ShieldCheck, Send, Loader2 } from "lucide-react";
 
 const quizLeadFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -100,13 +100,24 @@ const QuizLeadForm = ({ onSubmit, isSubmitting }: QuizLeadFormProps) => {
 
           <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isSubmitting}>
             {isSubmitting ? t("quiz.leadForm.sending") : t("quiz.leadForm.submit")}
-            <Send className="ml-2 h-4 w-4" />
+            {isSubmitting ? (
+              <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="ml-2 h-4 w-4" />
+            )}
           </Button>
 
-          <p className="flex items-center justify-center gap-1.5 text-xs text-gray-400 pt-1">
-            <ShieldCheck className="h-3.5 w-3.5" />
-            {t("quiz.leadForm.privacy")}
-          </p>
+          {isSubmitting ? (
+            <p className="flex items-center justify-center gap-1.5 text-xs text-amber-600 pt-1">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              {t("quiz.leadForm.dontClose")}
+            </p>
+          ) : (
+            <p className="flex items-center justify-center gap-1.5 text-xs text-gray-400 pt-1">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              {t("quiz.leadForm.privacy")}
+            </p>
+          )}
         </form>
       </Form>
     </motion.div>

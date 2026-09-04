@@ -1444,6 +1444,7 @@
             "submit": "See my full report",
             "sending": "Sending...",
             "privacy": "Your data is safe and only used for your report.",
+            "dontClose": "Don't close this tab, we're processing your request...",
             "errorTitle": "Error",
             "errorMessage": "There was a problem sending your details. Please try again."
         }

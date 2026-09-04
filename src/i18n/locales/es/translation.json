@@ -1444,6 +1444,7 @@
             "submit": "Ver mi reporte completo",
             "sending": "Enviando...",
             "privacy": "Tus datos están seguros y solo los usamos para tu reporte.",
+            "dontClose": "No cierres esta pestaña, estamos procesando tu solicitud...",
             "errorTitle": "Error",
             "errorMessage": "Hubo un problema al enviar tus datos. Por favor, intenta de nuevo."
         }
