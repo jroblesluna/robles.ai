@@ -11,6 +11,7 @@ import {
   Phone,
   Mail,
   ArrowRight,
+  Download,
   type LucideIcon,
 } from "lucide-react";
 import { getReportServiceTags, type QuizResult, type ServiceTag } from "@/lib/quizData";
@@ -27,10 +28,11 @@ const SERVICE_ICONS: Record<ServiceTag, LucideIcon> = {
 interface QuizResultFullProps {
   result: QuizResult;
   leadName: string;
+  leadId: number | null;
   resultMessage?: string | null;
 }
 
-const QuizResultFull = ({ result, leadName, resultMessage }: QuizResultFullProps) => {
+const QuizResultFull = ({ result, leadName, leadId, resultMessage }: QuizResultFullProps) => {
   const { t } = useTranslation();
 
   const services = getReportServiceTags(result);
@@ -92,6 +94,18 @@ const QuizResultFull = ({ result, leadName, resultMessage }: QuizResultFullProps
           );
         })}
       </div>
+
+      {leadId && (
+        <div className="text-center mb-8">
+          <a
+            href={`/api/quiz-lead/pdf?leadId=${leadId}`}
+            className="inline-flex items-center justify-center gap-2 bg-white border-2 border-blue-600 hover:bg-blue-50 text-blue-600 font-semibold px-6 py-3 rounded-lg transition-colors"
+          >
+            <Download className="h-5 w-5" />
+            {t("quiz.results.downloadPdf")}
+          </a>
+        </div>
+      )}
 
       <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 text-center mb-8">
         <p className="text-gray-700 mb-4">{t("quiz.results.nextStep")}</p>

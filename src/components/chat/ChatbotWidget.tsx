@@ -16,6 +16,9 @@ import ChatPanel from './ChatPanel.js';
 const NOTIFICATION_DELAY = 3_000; // Phase 3→4: typing dots at 3s
 const GREETING_DELAY = 5_000; // Phase 4→5: greeting text at 5s
 
+// Persists whether the panel is open across reloads and tabs
+const CHAT_OPEN_STORAGE_KEY = 'robly-chat-open';
+
 type EntrancePhase = 'hidden' | 'bubble' | 'blinking' | 'typing' | 'greeting';
 export type RobotMood = 'idle' | 'listening' | 'thinking' | 'speaking';
 
@@ -44,7 +47,32 @@ function TypingDots() {
 export default function ChatbotWidget({ hideForMobileMenu = false }: { hideForMobileMenu?: boolean }) {
   const [location] = useLocation();
   const { t } = useTranslation();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(() => {
+    try {
+      return localStorage.getItem(CHAT_OPEN_STORAGE_KEY) === '1';
+    } catch {
+      return false;
+    }
+  });
+
+  // Persist open/closed state, and keep it in sync across tabs
+  useEffect(() => {
+    try {
+      localStorage.setItem(CHAT_OPEN_STORAGE_KEY, isOpen ? '1' : '0');
+    } catch {
+      // localStorage unavailable (private mode, disabled) — state just won't persist
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === CHAT_OPEN_STORAGE_KEY) {
+        setIsOpen(e.newValue === '1');
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
   // Bubble is visible immediately on every page load/reload; only the
   // proactive notification balloon (typing/greeting) is delayed below.
   const [phase, setPhase] = useState<EntrancePhase>('bubble');

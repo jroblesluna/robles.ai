@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import Hero from "@/components/Hero";
-import QuizPromo from "@/components/QuizPromo";
 import Features from "@/components/Features";
 import Solutions from "@/components/Solutions";
 import CaseStudies from "@/components/CaseStudies";
@@ -40,7 +39,6 @@ const Home = () => {
   return (
     <>
       <Hero />
-      <QuizPromo />
       <Features />
       <Solutions />
       <CaseStudies />

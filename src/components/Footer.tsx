@@ -4,8 +4,8 @@ import { useTranslation } from "react-i18next";
 
 const FooterSection = ({ title, links }: { title: string, links: Array<{ name: string, href: string }> }) => (
   <div>
-    <h3 className="text-lg font-semibold text-white mb-6">{title}</h3>
-    <ul className="space-y-4">
+    <h3 className="text-sm font-semibold text-white mb-3">{title}</h3>
+    <ul className="space-y-2 text-sm">
       {links.map((link) => (
         <li key={link.name}>
           {link.href.includes("#") ? (
@@ -52,21 +52,20 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-gray-900 text-white pt-16 pb-8">
+    <footer className="bg-gray-900 text-white pt-10 pb-6">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Company Info */}
           <div>
-            <Link href="/" className="flex items-center space-x-2 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-violet-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">R</span>
+            <Link href="/" className="flex items-center space-x-2 mb-3">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-violet-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">R</span>
               </div>
-              <span className="text-xl font-bold text-white">Robles<span className="text-blue-400">.AI</span></span>
+              <span className="text-lg font-bold text-white">Robles<span className="text-blue-400">.AI</span></span>
             </Link>
-            <p className="text-gray-400 mb-6">
+            <p className="text-gray-400 text-sm">
               {t("footer.description")}
             </p>
-            <p className="text-gray-400">© {currentYear} Robles.AI. {t("footer.rights")}</p>
           </div>
 
           {/* Solutions */}
@@ -79,18 +78,18 @@ const Footer = () => {
           <FooterSection title={t("footer.titles.legal")} links={legalLinks} />
         </div>
 
-        <div className="border-t border-gray-800 pt-8">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center">
-            <p className="text-gray-500 mb-4 md:mb-0">{t("footer.tagline")}</p>
-            <div className="flex space-x-6">
+        <div className="border-t border-gray-800 pt-4">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
+            <p className="text-gray-500 text-sm">© {currentYear} Robles.AI. {t("footer.rights")}</p>
+            <div className="flex space-x-5">
               <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <Twitter className="h-5 w-5" />
+                <Twitter className="h-4 w-4" />
               </a>
               <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <Linkedin className="h-5 w-5" />
+                <Linkedin className="h-4 w-4" />
               </a>
               <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <Github className="h-5 w-5" />
+                <Github className="h-4 w-4" />
               </a>
             </div>
           </div>

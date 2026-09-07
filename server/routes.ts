@@ -8,6 +8,9 @@ import nodemailer from 'nodemailer';
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
+import { generateQuizLeadPdf } from './services/quizLeadPdf.js';
+import { sendQuizVerificationEmail } from './services/quizVerificationEmail.js';
 import { readdir, readFile, stat } from 'fs/promises';
 import { fileURLToPath } from 'url';
 import editorsData from './data/editors.json';
@@ -115,50 +118,103 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.status(404).json({ success: false, error: 'Not Implemented' });
   });
 
-  // 🧠 AI Diagnosis Quiz lead route - SEND EMAIL instead of storage (same pattern as /api/contact)
+  // 🧠 AI Diagnosis Quiz lead route — persists the lead and requires email verification
+  // before the report/PDF unlock (see /api/quiz-lead/verify, /status, /resend, /pdf below).
+
+  const QUIZ_TOKEN_TTL_MS = 30 * 60 * 1000; // 30 minutes
+  const QUIZ_RESEND_COOLDOWN_MS = 60 * 1000; // 60 seconds between resend requests
+
+  function getRequestBaseUrl(req: Request): string {
+    const proto = (req.headers['x-forwarded-proto'] as string) || req.protocol;
+    let host = (req.headers['x-forwarded-host'] as string) || req.get('host') || 'localhost';
+    host = host.replace('0.0.0.0', 'localhost');
+    return `${proto}://${host}`;
+  }
+
+  interface QuizLeadRow {
+    id: number;
+    name: string;
+    email: string;
+    company: string | null;
+    whatsapp: string | null;
+    answers: string;
+    score: number;
+    profile: string;
+    recommended_services: string;
+    locale: string;
+    result_message: string | null;
+    verified: number;
+    created_at: string;
+    verified_at: string | null;
+  }
+
+  function createQuizVerificationToken(leadId: number): { token: string; expiresAt: string } {
+    const token = crypto.randomBytes(32).toString('hex');
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + QUIZ_TOKEN_TTL_MS).toISOString();
+    db.prepare(
+      'INSERT INTO quiz_verification_tokens (token, lead_id, expires_at, created_at) VALUES (?, ?, ?, ?)'
+    ).run(token, leadId, expiresAt, now.toISOString());
+    return { token, expiresAt };
+  }
+
+  function renderQuizVerifyPage(
+    status: 'success' | 'expired' | 'invalid',
+    locale: 'es' | 'en'
+  ): string {
+    const copy = {
+      es: {
+        success: {
+          title: '¡Correo confirmado!',
+          body: 'Ya puedes volver a la pestaña donde estabas completando el diagnóstico — tu reporte se desbloqueará automáticamente.',
+        },
+        expired: {
+          title: 'Este enlace expiró',
+          body: 'Los enlaces de confirmación duran 30 minutos. Vuelve a la pestaña del diagnóstico y pide que te reenviemos el correo.',
+        },
+        invalid: {
+          title: 'Enlace inválido',
+          body: 'Este enlace ya no es válido. Vuelve a la pestaña del diagnóstico e inténtalo de nuevo.',
+        },
+      },
+      en: {
+        success: {
+          title: 'Email confirmed!',
+          body: 'You can go back to the tab where you were completing your diagnosis — your report will unlock automatically.',
+        },
+        expired: {
+          title: 'This link expired',
+          body: 'Confirmation links last 30 minutes. Go back to the diagnosis tab and ask us to resend the email.',
+        },
+        invalid: {
+          title: 'Invalid link',
+          body: 'This link is no longer valid. Go back to the diagnosis tab and try again.',
+        },
+      },
+    } as const;
+
+    const c = (copy[locale] ?? copy.es)[status];
+    const icon = status === 'success' ? '✅' : status === 'expired' ? '⏱️' : '⚠️';
+
+    return `<!DOCTYPE html>
+<html lang="${locale}">
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Robles.AI</title></head>
+<body style="margin:0;padding:0;background:#F1F5F9;font-family:Helvetica,Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;">
+  <div style="max-width:420px;margin:40px auto;background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(15,23,42,0.08);padding:40px 32px;text-align:center;">
+    <div style="height:4px;background:linear-gradient(90deg,#4F6EF5,#8B5CF6);border-radius:4px;margin:-40px -32px 24px -32px;"></div>
+    <div style="font-size:40px;margin-bottom:12px;">${icon}</div>
+    <h1 style="font-size:20px;color:#0F172A;margin:0 0 12px 0;">${c.title}</h1>
+    <p style="font-size:14px;color:#64748B;line-height:1.6;margin:0;">${c.body}</p>
+  </div>
+</body>
+</html>`;
+  }
+
   app.post('/api/quiz-lead', (req: Request, res: Response) => {
     (async () => {
       try {
         const validatedData = insertQuizLeadSchema.parse(req.body);
-
-        const transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
-          },
-        });
-
-        const answersHtml = Object.entries(validatedData.answers)
-          .map(([question, answer]) => `<li><strong>${question}:</strong> ${answer}</li>`)
-          .join('');
-
-        await transporter.sendMail({
-          from: process.env.EMAIL_USER,
-          to: process.env.EMAIL_TO,
-          subject: `New AI Diagnosis Quiz Lead — score ${validatedData.score}/100`,
-          html: `
-            <p><strong>Name:</strong> ${validatedData.name}</p>
-            <p><strong>Email:</strong> ${validatedData.email}</p>
-            ${
-              validatedData.company
-                ? `<p><strong>Company:</strong> ${validatedData.company}</p>`
-                : ''
-            }
-            ${
-              validatedData.whatsapp
-                ? `<p><strong>WhatsApp:</strong> ${validatedData.whatsapp}</p>`
-                : ''
-            }
-            <p><strong>Score:</strong> ${validatedData.score}/100</p>
-            <p><strong>Profile:</strong> ${validatedData.profile}</p>
-            <p><strong>Recommended services:</strong> ${validatedData.recommendedServices.join(', ')}</p>
-            <p><strong>Answers:</strong></p>
-            <ul>${answersHtml}</ul>
-          `,
-        });
-
-        console.log('✅ Quiz lead email sent!');
+        const now = new Date().toISOString();
 
         const resultMessage = await generateQuizResultMessage({
           answers: validatedData.answers,
@@ -168,20 +224,238 @@ export async function registerRoutes(app: Express): Promise<Server> {
           locale: validatedData.locale,
         });
 
-        res.status(200).json({
-          success: true,
-          message: 'Quiz lead submitted successfully',
-          resultMessage,
+        const insertResult = db
+          .prepare(
+            `INSERT INTO quiz_leads
+              (name, email, company, whatsapp, answers, score, profile, recommended_services, locale, result_message, verified, created_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)`
+          )
+          .run(
+            validatedData.name,
+            validatedData.email,
+            validatedData.company || null,
+            validatedData.whatsapp || null,
+            JSON.stringify(validatedData.answers),
+            validatedData.score,
+            validatedData.profile,
+            JSON.stringify(validatedData.recommendedServices),
+            validatedData.locale,
+            resultMessage,
+            now
+          );
+
+        const leadId = insertResult.lastInsertRowid as number;
+        const { token } = createQuizVerificationToken(leadId);
+        const verifyUrl = `${getRequestBaseUrl(req)}/api/quiz-lead/verify?token=${token}`;
+
+        await sendQuizVerificationEmail({
+          to: validatedData.email,
+          name: validatedData.name,
+          verifyUrl,
+          locale: validatedData.locale,
         });
+
+        // Internal notification — sent immediately so the team sees new leads right away.
+        try {
+          const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+          });
+          const answersHtml = Object.entries(validatedData.answers)
+            .map(([question, answer]) => `<li><strong>${question}:</strong> ${answer}</li>`)
+            .join('');
+          await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: process.env.EMAIL_TO,
+            subject: `New AI Diagnosis Quiz Lead — score ${validatedData.score}/100 (pending email verification)`,
+            html: `
+              <p><strong>Name:</strong> ${validatedData.name}</p>
+              <p><strong>Email:</strong> ${validatedData.email}</p>
+              ${validatedData.company ? `<p><strong>Company:</strong> ${validatedData.company}</p>` : ''}
+              ${validatedData.whatsapp ? `<p><strong>WhatsApp:</strong> ${validatedData.whatsapp}</p>` : ''}
+              <p><strong>Score:</strong> ${validatedData.score}/100</p>
+              <p><strong>Profile:</strong> ${validatedData.profile}</p>
+              <p><strong>Recommended services:</strong> ${validatedData.recommendedServices.join(', ')}</p>
+              <p><strong>Answers:</strong></p>
+              <ul>${answersHtml}</ul>
+            `,
+          });
+        } catch (notifyError) {
+          console.error('⚠️ Internal quiz lead notification failed (non-fatal):', notifyError);
+        }
+
+        res.status(200).json({ success: true, leadId });
       } catch (error) {
         if (error instanceof ZodError) {
           const validationError = fromZodError(error);
           console.error('❌ Validation error:', validationError.message);
           res.status(400).json({ success: false, error: validationError.message });
         } else if (error instanceof Error) {
-          console.error('❌ Error sending quiz lead email:', error);
+          console.error('❌ Error creating quiz lead:', error);
           res.status(500).json({ success: false, error: 'An unexpected error occurred' });
         }
+      }
+    })();
+  });
+
+  // Polled by the quiz page while the visitor waits to click the verification link.
+  app.get('/api/quiz-lead/status', (req: Request, res: Response) => {
+    try {
+      const leadId = Number(req.query.leadId);
+      if (!leadId) {
+        res.status(400).json({ error: 'leadId is required' });
+        return;
+      }
+
+      const lead = db.prepare('SELECT * FROM quiz_leads WHERE id = ?').get(leadId) as QuizLeadRow | undefined;
+      if (!lead) {
+        res.status(404).json({ error: 'Lead not found' });
+        return;
+      }
+
+      if (lead.verified) {
+        res.json({ verified: true, expired: false, resultMessage: lead.result_message });
+        return;
+      }
+
+      const latestToken = db
+        .prepare('SELECT expires_at FROM quiz_verification_tokens WHERE lead_id = ? ORDER BY created_at DESC LIMIT 1')
+        .get(leadId) as { expires_at: string } | undefined;
+
+      const expired = !latestToken || new Date(latestToken.expires_at).getTime() < Date.now();
+
+      res.json({ verified: false, expired, resultMessage: null });
+    } catch (error) {
+      console.error('❌ Error checking quiz lead status:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Visitor clicks this from the verification email.
+  app.get('/api/quiz-lead/verify', (req: Request, res: Response) => {
+    try {
+      const token = req.query.token as string | undefined;
+      if (!token) {
+        res.status(400).send(renderQuizVerifyPage('invalid', 'es'));
+        return;
+      }
+
+      const tokenRow = db
+        .prepare('SELECT * FROM quiz_verification_tokens WHERE token = ?')
+        .get(token) as { token: string; lead_id: number; expires_at: string; used_at: string | null } | undefined;
+
+      if (!tokenRow) {
+        res.status(400).send(renderQuizVerifyPage('invalid', 'es'));
+        return;
+      }
+
+      const lead = db.prepare('SELECT * FROM quiz_leads WHERE id = ?').get(tokenRow.lead_id) as
+        | QuizLeadRow
+        | undefined;
+      const locale: 'es' | 'en' = lead?.locale === 'en' ? 'en' : 'es';
+
+      if (lead?.verified) {
+        res.send(renderQuizVerifyPage('success', locale));
+        return;
+      }
+
+      if (new Date(tokenRow.expires_at).getTime() < Date.now()) {
+        res.status(410).send(renderQuizVerifyPage('expired', locale));
+        return;
+      }
+
+      const now = new Date().toISOString();
+      db.prepare('UPDATE quiz_verification_tokens SET used_at = ? WHERE token = ?').run(now, token);
+      db.prepare('UPDATE quiz_leads SET verified = 1, verified_at = ? WHERE id = ?').run(now, tokenRow.lead_id);
+
+      res.send(renderQuizVerifyPage('success', locale));
+    } catch (error) {
+      console.error('❌ Error verifying quiz lead token:', error);
+      res.status(500).send(renderQuizVerifyPage('invalid', 'es'));
+    }
+  });
+
+  // Resend the verification email if the visitor's link expired.
+  app.post('/api/quiz-lead/resend', (req: Request, res: Response) => {
+    (async () => {
+      try {
+        const leadId = Number(req.body?.leadId);
+        if (!leadId) {
+          res.status(400).json({ error: 'leadId is required' });
+          return;
+        }
+
+        const lead = db.prepare('SELECT * FROM quiz_leads WHERE id = ?').get(leadId) as QuizLeadRow | undefined;
+        if (!lead) {
+          res.status(404).json({ error: 'Lead not found' });
+          return;
+        }
+        if (lead.verified) {
+          res.json({ success: true, verified: true });
+          return;
+        }
+
+        const latestToken = db
+          .prepare('SELECT created_at FROM quiz_verification_tokens WHERE lead_id = ? ORDER BY created_at DESC LIMIT 1')
+          .get(leadId) as { created_at: string } | undefined;
+
+        if (latestToken && Date.now() - new Date(latestToken.created_at).getTime() < QUIZ_RESEND_COOLDOWN_MS) {
+          res.status(429).json({ error: 'Please wait a bit before requesting another email' });
+          return;
+        }
+
+        const { token } = createQuizVerificationToken(leadId);
+        const verifyUrl = `${getRequestBaseUrl(req)}/api/quiz-lead/verify?token=${token}`;
+        const locale: 'es' | 'en' = lead.locale === 'en' ? 'en' : 'es';
+
+        await sendQuizVerificationEmail({ to: lead.email, name: lead.name, verifyUrl, locale });
+
+        res.json({ success: true, verified: false });
+      } catch (error) {
+        console.error('❌ Error resending quiz verification email:', error);
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    })();
+  });
+
+  // Downloadable PDF report — only served once the lead's email is verified.
+  app.get('/api/quiz-lead/pdf', (req: Request, res: Response) => {
+    (async () => {
+      try {
+        const leadId = Number(req.query.leadId);
+        if (!leadId) {
+          res.status(400).json({ error: 'leadId is required' });
+          return;
+        }
+
+        const lead = db.prepare('SELECT * FROM quiz_leads WHERE id = ?').get(leadId) as QuizLeadRow | undefined;
+        if (!lead) {
+          res.status(404).json({ error: 'Lead not found' });
+          return;
+        }
+        if (!lead.verified) {
+          res.status(403).json({ error: 'Email not verified yet' });
+          return;
+        }
+
+        const pdfBuffer = await generateQuizLeadPdf({
+          name: lead.name,
+          company: lead.company,
+          score: lead.score,
+          profile: lead.profile as 'starting' | 'promising' | 'ready' | 'priority',
+          recommendedServices: JSON.parse(lead.recommended_services),
+          resultMessage: lead.result_message,
+          locale: lead.locale === 'en' ? 'en' : 'es',
+          createdAt: lead.created_at,
+        });
+
+        const safeName = lead.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="diagnostico-ia-${safeName}.pdf"`);
+        res.send(pdfBuffer);
+      } catch (error) {
+        console.error('❌ Error generating quiz lead PDF:', error);
+        res.status(500).json({ error: 'Internal server error' });
       }
     })();
   });

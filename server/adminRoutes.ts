@@ -2246,4 +2246,60 @@ adminRouter.post('/settings/ga4-service-account', requireAuth, (req, res) => {
   }
 });
 
+// --- AI Diagnosis Quiz Leads ---
+
+/**
+ * GET /api/admin/quiz-leads
+ * Lists AI Diagnosis Quiz leads (from /diagnostico-ia), newest first. Protected endpoint.
+ */
+adminRouter.get('/quiz-leads', requireAuth, (_req, res) => {
+  try {
+    const rows = db.prepare('SELECT * FROM quiz_leads ORDER BY created_at DESC').all() as Array<{
+      id: number;
+      name: string;
+      email: string;
+      company: string | null;
+      whatsapp: string | null;
+      answers: string;
+      score: number;
+      profile: string;
+      recommended_services: string;
+      locale: string;
+      result_message: string | null;
+      verified: number;
+      created_at: string;
+      verified_at: string | null;
+    }>;
+
+    const leads = rows.map((row) => {
+      let answers: Record<string, string> = {};
+      let recommendedServices: string[] = [];
+      try { answers = JSON.parse(row.answers); } catch { answers = {}; }
+      try { recommendedServices = JSON.parse(row.recommended_services); } catch { recommendedServices = []; }
+
+      return {
+        id: row.id,
+        name: row.name,
+        email: row.email,
+        company: row.company,
+        whatsapp: row.whatsapp,
+        answers,
+        score: row.score,
+        profile: row.profile,
+        recommendedServices,
+        locale: row.locale,
+        resultMessage: row.result_message,
+        verified: !!row.verified,
+        createdAt: row.created_at,
+        verifiedAt: row.verified_at,
+      };
+    });
+
+    res.json({ leads });
+  } catch (error) {
+    console.error('Error listing quiz leads:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default adminRouter;

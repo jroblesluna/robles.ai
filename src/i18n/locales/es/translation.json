@@ -42,7 +42,10 @@
         "blog": "Centro de Noticias AI",
         "language": "🌐 Idioma",
         "contact": "Contáctanos",
-        "quiz": "Test de IA"
+        "quiz": "Test de IA",
+        "quiz_1": "¿Qué IA necesitas?",
+        "quiz_2": "Encuentra tu solución IA",
+        "quiz_3": "Evalúa tu empresa"
     },
     "hero": {
         "title": "Soluciones Robustas de Inteligencia Artificial",
@@ -881,6 +884,8 @@
         "verify_processing": "Enviando Imágenes...",
         "verify_sent": "Imágenes Enviadas",
         "log": "Historial de Comunicaciones al API",
+        "log_empty_title": "Sin Actividad",
+        "log_empty": "El registro está vacío.",
         "status_label": "Estado del Analisis:",
         "status_pending": "🟡 Pendiente",
         "status_pending_description": "La solicitud ha sido recibida y está en espera de ser procesada.",
@@ -908,6 +913,23 @@
         "results_updated_at": "Fecha de Actualización",
         "reset": "Reiniciar Proceso"
     },
+    "try-langchain": {
+        "title": "LangChain Full-Stack Demo",
+        "description": "Sube documentos y consulta con RAG o prueba el agente con tools.",
+        "session_label": "Sesión",
+        "new_session": "Nueva sesión",
+        "mode_rag": "RAG",
+        "mode_tools": "Agente (Tools)",
+        "mode_json": "JSON Estructurado",
+        "chat_placeholder": "Escribe tu pregunta…",
+        "send": "Enviar",
+        "show_history": "Mostrar historial",
+        "hide_history": "Ocultar historial",
+        "upload_uploading": "Subiendo archivo…",
+        "upload_ingesting": "Obteniendo embeddings y almacenando en Pinecone…",
+        "upload_done": "Ingesta completada.",
+        "upload_error": "Ocurrió un error durante la carga."
+    },
     "try-medical": {
         "title": "Prueba la Demostración de IA Médica",
         "description": "Selecciona el tipo de imagen médica que deseas analizar. Nuestra IA proporcionará información diagnóstica basada en tu modalidad y enfoque clínico seleccionados.",
@@ -916,23 +938,28 @@
         "modalities": {
             "xray": {
                 "title": "Radiografía",
-                "description": "Análisis radiográfico de tórax y huesos"
+                "description": "Análisis radiográfico de tórax y huesos",
+                "subtypes": ["Tórax", "Huesos"]
             },
             "ultrasound": {
                 "title": "Ultrasonido",
-                "description": "Imágenes tiroidea, mamaria y cardíaca"
+                "description": "Imágenes tiroidea, mamaria y cardíaca",
+                "subtypes": ["Tiroides", "Mama", "Cardíaco"]
             },
             "retina": {
                 "title": "Retina",
-                "description": "Análisis de imágenes de fondo de ojo"
+                "description": "Análisis de imágenes de fondo de ojo",
+                "subtypes": ["Retinopatía Diabética", "Degeneración Macular"]
             },
             "dermatology": {
                 "title": "Dermatología",
-                "description": "Detección de lesiones cutáneas"
+                "description": "Detección de lesiones cutáneas",
+                "subtypes": ["Lesión Cutánea", "Melanoma"]
             },
             "histopathology": {
                 "title": "Histopatología",
-                "description": "Detección de cáncer en tejidos"
+                "description": "Detección de cáncer en tejidos",
+                "subtypes": ["Cáncer de Mama", "Cáncer de Pulmón", "Cáncer de Colon"]
             }
         },
         "select": "Seleccionar {{modality}}",
@@ -949,6 +976,29 @@
             "start_new": "Iniciar Nuevo Caso"
         },
         "disclaimer": "⚠️ Esta demostración es solo para uso educativo y no es un dispositivo médico."
+    },
+    "try-rag": {
+        "title": "RAG Pipeline",
+        "description": "Desde PDF hasta respuesta generada: embeddings, búsqueda vectorial, reranking y LLM.",
+        "step1_title": "Subir archivo PDF",
+        "step1_button": "Analizar documento",
+        "chunks_extracted": "Fragmentos de texto identificados",
+        "already_indexed": "— Archivo ya está indexado en Pinecone.",
+        "step2_title": "Embeddings y subida a Pinecone",
+        "step2_pending": "Se enviarán {{count}} vectores a Pinecone usando el namespace {{namespace}}.",
+        "step2_button": "Generar embeddings y subir",
+        "step2_done": "Embeddings ya se encuentran indexados en Pinecone. El índice contiene {{count}} vectores.",
+        "go_to_query": "Ir a consulta",
+        "step3_title": "Consulta al vector DB (top 65)",
+        "query_placeholder": "Escribe tu pregunta...",
+        "query_button": "Consultar",
+        "score_label": "score",
+        "step4_title": "Reranking MonoT5 ➜ BGE",
+        "rerank_button": "Aplicar reranking",
+        "rerank_error": "Error al hacer reranking",
+        "step5_title": "Generación con LLMs",
+        "generate_button": "Generar Respuestas (Llama & GPT)",
+        "hash_error": "No se pudo calcular el hash del archivo. Usa un navegador compatible."
     },
     "landing": {
         "hero": {
@@ -1360,7 +1410,7 @@
             },
             "scoreLabel": "Tu nivel de preparación para empezar",
             "previewLabel": "Servicio principal recomendado",
-            "lockedHint": "2 servicios más y tu score completo están bloqueados",
+            "lockedHint": "Desbloquea 2 servicios adicionales y tu puntaje completo",
             "unlockCta": "Desbloquear mi reporte completo",
             "fullTitle": "{{name}}, esto es lo que puedes lograr",
             "servicesHeading": "Los servicios que más se ajustan a tu caso",
@@ -1368,7 +1418,17 @@
             "whatsappCta": "Hablar por WhatsApp",
             "emailCta": "Escribir un correo",
             "learnMore": "Conoce cómo trabajamos en profundidad",
-            "whatsappMessage": "Hola, acabo de completar el Test de Diagnóstico IA. Mi perfil es \"{{profile}}\" y me recomendaron: {{services}}. Me gustaría conversar sobre los siguientes pasos."
+            "whatsappMessage": "Hola, acabo de completar el Test de Diagnóstico IA. Mi perfil es \"{{profile}}\" y me recomendaron: {{services}}. Me gustaría conversar sobre los siguientes pasos.",
+            "downloadPdf": "Descargar reporte en PDF"
+        },
+        "waiting": {
+            "title": "Revisa tu correo",
+            "subtitle": "Te enviamos un enlace de confirmación a {{email}}. Ábrelo para desbloquear tu reporte — esta pestaña se actualiza sola.",
+            "expiredTitle": "El enlace expiró",
+            "expiredSubtitle": "Los enlaces duran 30 minutos. Pide que te enviemos uno nuevo.",
+            "resend": "Reenviar correo",
+            "resending": "Enviando...",
+            "resent": "¡Reenviado! Revisa tu bandeja de entrada."
         },
         "leadForm": {
             "title": "Desbloquea tu reporte completo",
@@ -1384,6 +1444,7 @@
             "submit": "Ver mi reporte completo",
             "sending": "Enviando...",
             "privacy": "Tus datos están seguros y solo los usamos para tu reporte.",
+            "dontClose": "No cierres esta pestaña, estamos procesando tu solicitud...",
             "errorTitle": "Error",
             "errorMessage": "Hubo un problema al enviar tus datos. Por favor, intenta de nuevo."
         }
@@ -1393,5 +1454,13 @@
         "title": "¿No sabes por dónde empezar con IA?",
         "subtitle": "Responde nuestro test de 2 minutos y descubre qué solución te conviene implementar primero.",
         "cta": "Hacer el test gratis"
+    },
+    "demosPromo": {
+        "title": "Prueba nuestros ejemplos",
+        "subtitle": "Ejecuta nuestros modelos en vivo con datos de ejemplo — sin registrarte.",
+        "identity": "Verificación de Identidad",
+        "rag": "Búsqueda RAG",
+        "medical": "IA Médica",
+        "langchain": "Agente LangChain"
     }
 }

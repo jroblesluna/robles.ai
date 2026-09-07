@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500" role="img" aria-label="Robly - standby">
+<defs>
+  <linearGradient id="bodyGrad" x1="0.2" y1="0" x2="0.8" y2="1">
+    <stop offset="0" stop-color="#ffffff"/>
+    <stop offset="1" stop-color="#e4ecfb"/>
+  </linearGradient>
+  <radialGradient id="headSheen" cx="0.32" cy="0.22" r="0.75">
+    <stop offset="0" stop-color="#ffffff" stop-opacity="0.95"/>
+    <stop offset="0.5" stop-color="#ffffff" stop-opacity="0.18"/>
+    <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="visorGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#141b2d"/>
+    <stop offset="1" stop-color="#04070d"/>
+  </linearGradient>
+  <linearGradient id="accentGrad" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#3b82f6"/>
+    <stop offset="1" stop-color="#8b5cf6"/>
+  </linearGradient>
+  <linearGradient id="cyanGrad" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#5eead4"/>
+    <stop offset="1" stop-color="#38bdf8"/>
+  </linearGradient>
+  <radialGradient id="sphereGrad" cx="0.35" cy="0.3" r="0.75">
+    <stop offset="0" stop-color="#bff4ff"/>
+    <stop offset="0.45" stop-color="#38bdf8"/>
+    <stop offset="1" stop-color="#3b82f6"/>
+  </radialGradient>
+  <radialGradient id="ringGlow" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#38bdf8" stop-opacity="0.55"/>
+    <stop offset="0.7" stop-color="#38bdf8" stop-opacity="0.16"/>
+    <stop offset="1" stop-color="#38bdf8" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="gloveGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#2b3040"/>
+    <stop offset="1" stop-color="#12141d"/>
+  </linearGradient>
+  <filter id="glow" x="-120%" y="-120%" width="340%" height="340%">
+    <feGaussianBlur stdDeviation="5" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="softGlow" x="-150%" y="-150%" width="400%" height="400%">
+    <feGaussianBlur stdDeviation="9" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="dropShadow" x="-50%" y="-30%" width="200%" height="200%">
+    <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#1e293b" flood-opacity="0.22"/>
+  </filter>
+</defs>
+<style>
+
+.robot-anim{transform-origin:250px 350px;animation:robotFloat 3.8s ease-in-out infinite}
+@keyframes robotFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.base-ring{transform-origin:250px 424px;animation:ringPulse 3.8s ease-in-out infinite}
+@keyframes ringPulse{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.04);opacity:1}}
+.antenna-halo{transform-origin:250px 36px;animation:haloPulse 3s ease-in-out infinite}
+@keyframes haloPulse{0%,100%{transform:scale(.85);opacity:.5}50%{transform:scale(1.15);opacity:.9}}
+
+.eyes{transform-origin:250px 186px;animation:blink 6s ease-in-out infinite}
+@keyframes blink{0%,42%,50%,100%{transform:scaleY(1)}46%{transform:scaleY(.1)}}
+.pupils{animation:glance 4s ease-in-out infinite}
+@keyframes glance{0%,20%{transform:translateX(0)}35%,55%{transform:translateX(-9px)}70%,90%{transform:translateX(8px)}100%{transform:translateX(0)}}
+
+</style>
+
+<g class="base-ring ">
+      <ellipse cx="250" cy="424" rx="128" ry="30" fill="url(#ringGlow)"/>
+      <ellipse cx="250" cy="424" rx="108" ry="15" fill="none" stroke="url(#cyanGrad)" stroke-width="2.5" opacity="0.55"/>
+      <ellipse cx="250" cy="420" rx="76" ry="9" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.35"/>
+    </g>
+<g class="robot-anim">
+  <g class="robot">
+    <g class="torso-group">
+      <rect x="163" y="300" width="174" height="122" rx="50" fill="url(#bodyGrad)" stroke="#c7d2fe" stroke-width="5" filter="url(#dropShadow)"/>
+      <rect x="216" y="326" width="68" height="68" rx="18" fill="url(#accentGrad)"/>
+      <rect x="216" y="326" width="68" height="24" rx="12" fill="#ffffff" opacity="0.18"/>
+      <text x="250" y="374" text-anchor="middle" font-family="'IBM Plex Sans', Arial, sans-serif" font-size="46" font-weight="700" fill="white">R</text>
+    </g>
+    <g class="antenna">
+      <rect x="244" y="46" width="12" height="26" rx="6" fill="#2b3040"/>
+      <circle cx="250" cy="36" r="20" fill="url(#ringGlow)" class="antenna-halo"/>
+      <circle cx="250" cy="36" r="13" fill="url(#sphereGrad)" filter="url(#glow)"/>
+      <circle cx="245" cy="31" r="3.6" fill="#ffffff" opacity="0.9"/>
+    </g>
+    <g class="ears">
+      <rect x="85" y="148" width="30" height="72" rx="15" fill="url(#accentGrad)"/>
+      <rect x="385" y="148" width="30" height="72" rx="15" fill="url(#accentGrad)"/>
+      <rect x="91" y="156" width="8" height="56" rx="4" fill="#ffffff" opacity="0.35"/>
+      <rect x="391" y="156" width="8" height="56" rx="4" fill="#ffffff" opacity="0.35"/>
+    </g>
+    <g class="head-group" transform="rotate(-3 250 174)">
+      <rect x="100" y="66" width="300" height="216" rx="92" fill="url(#bodyGrad)" stroke="#c7d2fe" stroke-width="5" filter="url(#dropShadow)"/>
+      <rect x="100" y="66" width="300" height="216" rx="92" fill="url(#headSheen)"/>
+      <rect x="132" y="93" width="236" height="160" rx="62" fill="url(#visorGrad)"/>
+      <rect x="132" y="93" width="236" height="160" rx="62" fill="none" stroke="#3b82f6" stroke-opacity="0.35" stroke-width="1.5"/>
+      <path d="M178 156 L214 149" fill="none" stroke="#8b5cf6" stroke-width="6" stroke-linecap="round" opacity="0.8"/>
+      <path d="M286 149 L322 156" fill="none" stroke="#8b5cf6" stroke-width="6" stroke-linecap="round" opacity="0.8"/>
+      <g class="eyes" fill="none" stroke="url(#cyanGrad)" stroke-width="7" filter="url(#glow)">
+        <rect x="172" y="172" width="52" height="28" rx="14"/>
+        <rect x="276" y="172" width="52" height="28" rx="14"/>
+        <g class="pupils" fill="url(#cyanGrad)" stroke="none">
+          <circle cx="198" cy="186" r="7"/>
+          <circle cx="302" cy="186" r="7"/>
+        </g>
+      </g>
+      <path d="M220 228 L280 228" fill="none" stroke="url(#cyanGrad)" stroke-width="7" stroke-linecap="round" opacity="0.85"/>
+    </g>
+    <g class="wait-bubble" filter="url(#dropShadow)">
+      <rect x="352" y="58" width="80" height="42" rx="21" fill="#0b1220" stroke="url(#accentGrad)" stroke-width="2.6"/>
+      <circle class="wait-dot wd1" cx="376" cy="79" r="5" fill="url(#cyanGrad)"/>
+      <circle class="wait-dot wd2" cx="392" cy="79" r="5" fill="url(#cyanGrad)"/>
+      <circle class="wait-dot wd3" cx="408" cy="79" r="5" fill="url(#cyanGrad)"/>
+      <style>.wait-dot{animation:waitDot 1.4s ease-in-out infinite}.wd1{animation-delay:0s}.wd2{animation-delay:.2s}.wd3{animation-delay:.4s}@keyframes waitDot{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}</style>
+    </g>
+    <g class="arm-l">
+      <rect x="134.0" y="315.0" width="42" height="51.5" rx="21.0" fill="url(#bodyGrad)" stroke="#c7d2fe" stroke-width="2" transform="rotate(61 155 315)"/>
+      <rect x="138.3" y="308.5" width="33.4" height="13" rx="6.5" fill="url(#accentGrad)" transform="rotate(61 155 315)"/>
+      <rect x="92.0" y="340.0" width="36" height="65.6" rx="18.0" fill="url(#bodyGrad)" stroke="#c7d2fe" stroke-width="2" transform="rotate(-37.6 110 340)"/>
+      <rect x="95.4" y="333.5" width="29.2" height="13" rx="6.5" fill="url(#accentGrad)" transform="rotate(-37.6 110 340)"/>
+      <g transform="rotate(-37.6 150 392)"><rect x="133.4" y="392.9" width="7.4" height="12.9" rx="3.7" fill="url(#gloveGrad)" transform="rotate(-24 137.1 393.8)"/><rect x="139.0" y="389.2" width="22.1" height="18.4" rx="8.3" fill="url(#gloveGrad)"/><rect x="137.7" y="404.0" width="6.3" height="13.8" rx="3.1" fill="url(#gloveGrad)"/><rect x="146.9" y="404.0" width="6.3" height="15.6" rx="3.1" fill="url(#gloveGrad)"/><rect x="156.1" y="404.0" width="6.3" height="13.8" rx="3.1" fill="url(#gloveGrad)"/></g>
+    </g><g class="arm-r">
+      <rect x="324.0" y="315.0" width="42" height="51.5" rx="21.0" fill="url(#bodyGrad)" stroke="#c7d2fe" stroke-width="2" transform="rotate(-61 345 315)"/>
+      <rect x="328.3" y="308.5" width="33.4" height="13" rx="6.5" fill="url(#accentGrad)" transform="rotate(-61 345 315)"/>
+      <rect x="372.0" y="340.0" width="36" height="65.6" rx="18.0" fill="url(#bodyGrad)" stroke="#c7d2fe" stroke-width="2" transform="rotate(37.6 390 340)"/>
+      <rect x="375.4" y="333.5" width="29.2" height="13" rx="6.5" fill="url(#accentGrad)" transform="rotate(37.6 390 340)"/>
+      <g transform="rotate(37.6 350 392)"><rect x="359.2" y="392.9" width="7.4" height="12.9" rx="3.7" fill="url(#gloveGrad)" transform="rotate(24 362.9 393.8)"/><rect x="338.9" y="389.2" width="22.1" height="18.4" rx="8.3" fill="url(#gloveGrad)"/><rect x="356.0" y="404.0" width="6.3" height="13.8" rx="3.1" fill="url(#gloveGrad)"/><rect x="346.8" y="404.0" width="6.3" height="15.6" rx="3.1" fill="url(#gloveGrad)"/><rect x="337.6" y="404.0" width="6.3" height="13.8" rx="3.1" fill="url(#gloveGrad)"/></g>
+    </g>
+  </g>
+</g>
+
+</svg>
