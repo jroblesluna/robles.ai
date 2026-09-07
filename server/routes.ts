@@ -348,9 +348,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     { timezone: timeZone }
   );
 
-  // Sunday 12pm: Auto-publish El Dominical IA to LinkedIn
+  // Sunday 6pm (America/Lima): Auto-publish El Dominical IA to LinkedIn
   cron.schedule(
-    '0 12 * * 0',
+    '0 18 * * 0',
     async () => {
       try {
         console.log('[CRON] Starting Dominical IA auto-publish...');

@@ -26,6 +26,34 @@ import { getArticleContentSummary } from '../jobs/generateDominical.js';
 /** CTA default message */
 const CTA_MESSAGE = 'Síguenos para más insights de IA cada semana';
 
+/**
+ * Resolves the palette and image style configs.
+ * If a value is explicitly provided, it is used. Otherwise, a RANDOM
+ * palette and/or style is chosen so each carousel varies visually.
+ */
+function resolvePaletteAndStyle(
+  palette?: CarouselPalette,
+  imageStyle?: CarouselImageStyle
+): { paletteConfig: PaletteConfig; styleConfig: ImageStyleConfig; palette: CarouselPalette; imageStyle: CarouselImageStyle } {
+  const paletteKeys = Object.keys(PALETTE_CONFIGS) as CarouselPalette[];
+  const styleKeys = Object.keys(IMAGE_STYLE_CONFIGS) as CarouselImageStyle[];
+
+  const chosenPalette = palette ?? paletteKeys[Math.floor(Math.random() * paletteKeys.length)];
+  const chosenStyle = imageStyle ?? styleKeys[Math.floor(Math.random() * styleKeys.length)];
+
+  console.log(
+    `[Carousel] Palette: ${chosenPalette}${palette ? ' (selected)' : ' (random)'}, ` +
+    `Style: ${chosenStyle}${imageStyle ? ' (selected)' : ' (random)'}`
+  );
+
+  return {
+    paletteConfig: PALETTE_CONFIGS[chosenPalette],
+    styleConfig: IMAGE_STYLE_CONFIGS[chosenStyle],
+    palette: chosenPalette,
+    imageStyle: chosenStyle,
+  };
+}
+
 /** Logo path resolved from project root */
 const LOGO_PATH = path.resolve(process.cwd(), 'public/images/logo.png');
 
@@ -217,8 +245,8 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
   const report = fetchReport(reportId);
   const articles = report.articles;
 
-  const paletteConfig: PaletteConfig | undefined = palette ? PALETTE_CONFIGS[palette] : undefined;
-  const styleConfig: ImageStyleConfig | undefined = imageStyle ? IMAGE_STYLE_CONFIGS[imageStyle] : undefined;
+  // Resolve palette + style. If not explicitly selected, pick both at random.
+  const { paletteConfig, styleConfig } = resolvePaletteAndStyle(palette, imageStyle);
 
   const backgroundsDir = ensureBackgroundsDir(reportId);
   const compositesDir = ensureCompositesDir(reportId);
@@ -586,8 +614,8 @@ export async function regenerateSlide(reportId: number, position: number, palett
   const articles = report.articles;
   const totalSlides = articles.length + 2;
 
-  const paletteConfig: PaletteConfig | undefined = palette ? PALETTE_CONFIGS[palette] : undefined;
-  const styleConfig: ImageStyleConfig | undefined = imageStyle ? IMAGE_STYLE_CONFIGS[imageStyle] : undefined;
+  // Resolve palette + style. If not explicitly selected, pick both at random.
+  const { paletteConfig, styleConfig } = resolvePaletteAndStyle(palette, imageStyle);
 
   if (position < 0 || position >= totalSlides) {
     const error = new Error(`Invalid slide position ${position}. Valid range: 0-${totalSlides - 1}`);

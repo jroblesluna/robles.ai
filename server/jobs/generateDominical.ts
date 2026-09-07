@@ -78,14 +78,15 @@ async function generateLinkedInPost(selectedPosts: ScoredPost[], apiKey: string)
 ${newsList}
 
 Formato del post:
-1. Presentación breve: "Aquí el resumen de nuestro Dominical IA con las noticias más relevantes de esta semana" o similar (1-2 líneas con gancho)
+1. GANCHO DE APERTURA (1-2 líneas): NO uses una frase de plantilla. Abre con un hook ÚNICO y específico anclado en la noticia MÁS impactante de esta semana (la de mayor score): una pregunta provocadora, un dato sorprendente, una cifra concreta, o una afirmación audaz que despierte curiosidad. El lector debe querer seguir leyendo. Puedes mencionar que es "El Dominical IA" de forma natural DESPUÉS del gancho, no como primera frase.
 2. Para cada noticia seleccionada: 1-2 líneas con opinión/análisis usando primera persona plural ("en nuestro artículo exploramos...", "como vemos en...", "analizamos cómo...")
 3. Cierre con reflexión y call-to-action: "Síguenos para más insights cada semana" (NO "sigue al Dominical" porque se publica desde nuestra cuenta)
 4. Hashtags relevantes al final (máximo 5)
 
 Reglas:
 - Máximo 2800 caracteres
-- USA UN EMOJI al inicio de cada párrafo/sección para dar ritmo visual (🚗, 🔐, 🤖, 💡, 🌍, 📊, 🔬, 🏭, etc.)
+- PROHIBIDO empezar el post con "Aquí el resumen de nuestro Dominical IA con las noticias más relevantes de esta semana" o cualquier variante de esa frase. Cada semana el gancho debe ser DIFERENTE y original, basado en el contenido real de las noticias de esa semana.
+- USA UN EMOJI al inicio de cada párrafo/sección para dar ritmo visual (🚗, 🔐, 🤖, 💡, 🌍, 📊, 🔬, 🏭, etc.). El emoji de apertura debe reflejar el tema del gancho, no repetir el de semanas anteriores por defecto.
 - Tono profesional pero cercano
 - No uses bullet points genéricos, cada opinión debe ser específica y valiosa
 - OBLIGATORIO: Menciona datos concretos de cada artículo (empresas, cifras, hallazgos, nombres, tecnologías específicas). NO escribas resúmenes vagos como "promete revolucionar" o "podría redefinir". Cita hechos reales del contenido proporcionado.
@@ -93,14 +94,14 @@ Reglas:
 - El post debe fluir como una narrativa, no como una lista
 - INCLUYE los enlaces a cada artículo de robles.ai en el texto de forma natural
 - VOZ: Escribe en primera persona del plural. Los artículos son NUESTROS. NO digas "según el artículo de Robles AI" ni "el artículo menciona" — di "en nuestro artículo exploramos", "como analizamos en", "vemos que", etc.
-- PRESENTACIÓN: El post es "El Dominical IA" publicado por Robles.AI. Preséntalo como tal al inicio.
+- PRESENTACIÓN: El post es "El Dominical IA" publicado por Robles.AI. Menciónalo de forma natural, pero NO como la primera frase plantillada.
 - CTA: Usa "síguenos" (no "sigue a El Dominical"). Se publica desde la cuenta de Robles.AI.
 
 Devuelve SOLO el texto del post, sin markdown ni explicaciones adicionales.`;
 
   const response = await openai.chat.completions.create({
     model: 'gpt-4o',
-    temperature: 0.7,
+    temperature: 0.85,
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt },
@@ -142,7 +143,7 @@ ${newsList}
 ESTILO: Escribe como una HISTORIA CORTA que enganche al lector. NO hagas una lista de noticias ni párrafos separados por noticia. En cambio, cuenta una narrativa fluida de lo que el lector encontrará esta semana — como si le estuvieras contando a un amigo qué hay de nuevo en el mundo de la IA.
 
 ESTRUCTURA:
-- Empieza con "🗞️ El Dominical IA" y un gancho narrativo
+- Empieza con un GANCHO NARRATIVO ÚNICO anclado en la noticia más fuerte de esta semana (pregunta, dato o afirmación audaz). Menciona "El Dominical IA" de forma natural, pero el gancho debe variar cada semana — NO uses siempre la misma frase de apertura.
 - Dedica 2-3 oraciones extra a la noticia más importante (la primera de la lista, la de mayor puntaje) — profundiza un poco más en ella como ejemplo concreto de lo que encontrarán
 - Luego conecta el resto de temas en 2-3 oraciones fluidas que enganchen al lector a querer leer más
 - Cierra invitando a leer más en robles.ai
@@ -181,7 +182,7 @@ Devuelve SOLO el caption, sin explicaciones ni markdown.`;
 
   const response = await openai.chat.completions.create({
     model: 'gpt-4o',
-    temperature: 0.7,
+    temperature: 0.85,
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt },
