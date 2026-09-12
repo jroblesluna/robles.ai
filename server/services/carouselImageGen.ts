@@ -57,6 +57,8 @@ export function buildArticleImagePrompt(articleTitle: string, categories: string
 /**
  * Generates an AI background image for an article slide.
  * Calls gpt-image-1 and saves the result as a 1080x1080 PNG.
+ * Returns the exact prompt string that was used.
+ * If `promptOverride` is provided, it is used verbatim instead of building one.
  */
 export async function generateCarouselBackgroundImage(
   articleTitle: string,
@@ -65,24 +67,25 @@ export async function generateCarouselBackgroundImage(
   outputPath: string,
   palette?: PaletteConfig,
   imageStyle?: ImageStyleConfig,
-  contentSummary?: string
-): Promise<void> {
-  const prompt = buildArticleImagePrompt(articleTitle, categories, palette, imageStyle, contentSummary);
+  contentSummary?: string,
+  promptOverride?: string
+): Promise<string> {
+  const prompt = promptOverride ?? buildArticleImagePrompt(articleTitle, categories, palette, imageStyle, contentSummary);
   const imageBuffer = await callGptImage(prompt, apiKey);
   await resizeAndSave(imageBuffer, outputPath);
+  return prompt;
 }
 
 /**
- * Generates a branded cover background for the first slide.
- * Uses a contextual illustration style based on the week's news topics.
+ * Builds the prompt for the cover slide.
+ * Rotates between creative cover concepts based on the current week for variety,
+ * and incorporates the week's topics, style and palette.
  */
-export async function generateCoverBackground(
-  apiKey: string,
-  outputPath: string,
+export function buildCoverImagePrompt(
   palette?: PaletteConfig,
   imageStyle?: ImageStyleConfig,
   topics?: string[]
-): Promise<void> {
+): string {
   const colorDesc = palette
     ? `${palette.backgroundDesc} background with ${palette.primaryAccent} and ${palette.secondaryAccent} accent elements`
     : 'dark navy background (#1a1a2e) with electric cyan, purple, and white accent elements';
@@ -111,7 +114,7 @@ export async function generateCoverBackground(
     ? `The news/content being discussed or shown should visually hint at: ${topics.slice(0, 2).join(' and ')}. Include subtle visual references to these themes in the background or on screens/papers shown in the scene.`
     : '';
 
-  const prompt = (
+  return (
     `Cover illustration for "El Dominical IA", a weekly AI newsletter. ` +
     `Scene concept: ${baseConcept} ` +
     `${topicHint} ` +
@@ -124,25 +127,39 @@ export async function generateCoverBackground(
     `Square format 1:1 ratio. ` +
     `Lower-left area should be slightly darker for overlaying a title text.`
   );
-
-  const imageBuffer = await callGptImage(prompt, apiKey);
-  await resizeAndSave(imageBuffer, outputPath);
 }
 
 /**
- * Generates a conceptual background for the CTA (call-to-action) slide.
+ * Generates a branded cover background for the first slide.
+ * Returns the exact prompt string that was used.
+ * If `promptOverride` is provided, it is used verbatim instead of building one.
  */
-export async function generateCTABackground(
+export async function generateCoverBackground(
   apiKey: string,
   outputPath: string,
   palette?: PaletteConfig,
+  imageStyle?: ImageStyleConfig,
+  topics?: string[],
+  promptOverride?: string
+): Promise<string> {
+  const prompt = promptOverride ?? buildCoverImagePrompt(palette, imageStyle, topics);
+  const imageBuffer = await callGptImage(prompt, apiKey);
+  await resizeAndSave(imageBuffer, outputPath);
+  return prompt;
+}
+
+/**
+ * Builds the prompt for the CTA (call-to-action) slide.
+ */
+export function buildCTAImagePrompt(
+  palette?: PaletteConfig,
   imageStyle?: ImageStyleConfig
-): Promise<void> {
+): string {
   const colorDesc = palette
     ? `${palette.backgroundDesc} background with ${palette.primaryAccent} and ${palette.secondaryAccent} accent elements`
     : 'dark navy background (#1a1a2e) with warm purple, gold/amber, and cyan accent elements';
 
-  const prompt = (
+  return (
     `Conceptual illustration for a LinkedIn carousel call-to-action slide about following and engaging with an AI community. ` +
     `Style: ${imageStyle?.stylePrompt || 'clean flat-design vector illustration'}. ` +
     `Show visual metaphors for connection and community: stylized notification bell, follow/subscribe icons, connected profile silhouettes, upward arrows suggesting growth, a "thumbs up" or heart icon. ` +
@@ -152,9 +169,24 @@ export async function generateCTABackground(
     `Square format 1:1 ratio. ` +
     `Center area slightly darker for text readability.`
   );
+}
 
+/**
+ * Generates a conceptual background for the CTA (call-to-action) slide.
+ * Returns the exact prompt string that was used.
+ * If `promptOverride` is provided, it is used verbatim instead of building one.
+ */
+export async function generateCTABackground(
+  apiKey: string,
+  outputPath: string,
+  palette?: PaletteConfig,
+  imageStyle?: ImageStyleConfig,
+  promptOverride?: string
+): Promise<string> {
+  const prompt = promptOverride ?? buildCTAImagePrompt(palette, imageStyle);
   const imageBuffer = await callGptImage(prompt, apiKey);
   await resizeAndSave(imageBuffer, outputPath);
+  return prompt;
 }
 
 /**

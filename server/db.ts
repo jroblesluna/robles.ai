@@ -142,6 +142,19 @@ for (const stmt of [
   }
 }
 
+// Add columns for per-slide carousel generation metadata (safe to call multiple times)
+for (const stmt of [
+  'ALTER TABLE carousel_slides ADD COLUMN palette TEXT',
+  'ALTER TABLE carousel_slides ADD COLUMN image_style TEXT',
+  'ALTER TABLE carousel_slides ADD COLUMN image_prompt TEXT',
+]) {
+  try {
+    db.exec(stmt);
+  } catch (e: any) {
+    if (!e.message.includes('duplicate column')) throw e;
+  }
+}
+
 // Run chat tables migration
 migrateChatTables(db);
 

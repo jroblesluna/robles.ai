@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import RegenerateModal from "@/components/admin/RegenerateModal";
 
 interface CarouselSlide {
   id: number;
@@ -17,6 +18,9 @@ interface CarouselSlide {
   compositeImagePath: string | null;
   status: "pending" | "generating" | "generated" | "failed";
   errorMessage: string | null;
+  palette: string | null;
+  imageStyle: string | null;
+  imagePrompt: string | null;
   createdAt: string;
   updatedAt: string | null;
 }
@@ -61,6 +65,7 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
   const [enlargedSlide, setEnlargedSlide] = useState<CarouselSlide | null>(null);
   const [selectedPalette, setSelectedPalette] = useState<string>("tech-blue");
   const [selectedStyle, setSelectedStyle] = useState<string>("flat-vector");
+  const [regenSlide, setRegenSlide] = useState<CarouselSlide | null>(null);
 
   const palettes = [
     { value: "tech-blue", label: "Tech Blue" },
@@ -112,28 +117,6 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
     onError: (err: Error) => {
       toast({
         title: "Error generating carousel",
-        description: err.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const regenerateMutation = useMutation({
-    mutationFn: async (position: number) => {
-      const res = await apiRequest(
-        "POST",
-        `/api/admin/dominical/${reportId}/carousel/slides/${position}/regenerate`,
-        { palette: selectedPalette, imageStyle: selectedStyle }
-      );
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.refetchQueries({ queryKey: carouselQueryKey });
-      toast({ title: "Slide regenerated" });
-    },
-    onError: (err: Error) => {
-      toast({
-        title: "Error regenerating slide",
         description: err.message,
         variant: "destructive",
       });
@@ -355,16 +338,10 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
                         variant="outline"
                         size="sm"
                         className="flex-1 gap-1 text-xs h-7"
-                        onClick={() => regenerateMutation.mutate(slide.position)}
-                        disabled={
-                          regenerateMutation.isPending || isGenerating
-                        }
+                        onClick={() => setRegenSlide(slide)}
+                        disabled={isGenerating}
                       >
-                        {regenerateMutation.isPending ? (
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                        ) : (
-                          <RefreshCw className="h-3 w-3" />
-                        )}
+                        <RefreshCw className="h-3 w-3" />
                         Regenerate
                       </Button>
                     </div>
@@ -446,6 +423,17 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
           </div>
         </div>
       )}
+
+      {/* Regenerate modal */}
+      <RegenerateModal
+        reportId={reportId}
+        position={regenSlide ? regenSlide.position : null}
+        slideType={regenSlide?.slideType}
+        onClose={() => setRegenSlide(null)}
+        onRegenerated={() =>
+          queryClient.refetchQueries({ queryKey: carouselQueryKey })
+        }
+      />
     </div>
   );
 }

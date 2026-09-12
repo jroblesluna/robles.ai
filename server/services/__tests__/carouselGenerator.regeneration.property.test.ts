@@ -28,21 +28,27 @@ vi.mock('openai', () => ({
 
 // Mock image generation functions
 vi.mock('../carouselImageGen.js', () => ({
-  generateCarouselBackgroundImage: vi.fn(async (_title: string, _cats: string[], _key: string, outputPath: string) => {
+  buildArticleImagePrompt: vi.fn((title: string) => `fake-article-prompt-${title}`),
+  buildCoverImagePrompt: vi.fn(() => `fake-cover-prompt`),
+  buildCTAImagePrompt: vi.fn(() => `fake-cta-prompt`),
+  generateCarouselBackgroundImage: vi.fn(async (title: string, _cats: string[], _key: string, outputPath: string) => {
     // Write a fake file to simulate background generation
     const fs = await import('node:fs');
     fs.mkdirSync(await import('node:path').then(p => p.dirname(outputPath)), { recursive: true });
     fs.writeFileSync(outputPath, `fake-bg-${outputPath}`);
+    return `fake-article-prompt-${title}`;
   }),
   generateCoverBackground: vi.fn(async (_key: string, outputPath: string) => {
     const fs = await import('node:fs');
     fs.mkdirSync(await import('node:path').then(p => p.dirname(outputPath)), { recursive: true });
     fs.writeFileSync(outputPath, `fake-cover-bg-${outputPath}`);
+    return `fake-cover-prompt`;
   }),
   generateCTABackground: vi.fn(async (_key: string, outputPath: string) => {
     const fs = await import('node:fs');
     fs.mkdirSync(await import('node:path').then(p => p.dirname(outputPath)), { recursive: true });
     fs.writeFileSync(outputPath, `fake-cta-bg-${outputPath}`);
+    return `fake-cta-prompt`;
   }),
   ensureBackgroundsDir: vi.fn((reportId: number) => {
     const path = require('node:path');
@@ -134,6 +140,9 @@ describe('CarouselGenerator Regeneration Property Tests', () => {
         composite_image_path TEXT,
         status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'generating', 'generated', 'failed')),
         error_message TEXT,
+        palette TEXT,
+        image_style TEXT,
+        image_prompt TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT,
         FOREIGN KEY (report_id) REFERENCES dominical_reports(id),

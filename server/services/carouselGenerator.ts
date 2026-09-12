@@ -6,6 +6,9 @@ import {
   generateCoverBackground,
   generateCTABackground,
   ensureBackgroundsDir,
+  buildArticleImagePrompt,
+  buildCoverImagePrompt,
+  buildCTAImagePrompt,
 } from './carouselImageGen.js';
 import { composeArticleSlide, composeCoverSlide, composeCTASlide } from './slideCompositor.js';
 import type {
@@ -183,13 +186,17 @@ function upsertSlide(params: {
   compositeImagePath: string | null;
   status: string;
   errorMessage: string | null;
+  palette?: CarouselPalette | null;
+  imageStyle?: CarouselImageStyle | null;
+  imagePrompt?: string | null;
 }): void {
   const now = new Date().toISOString();
   db.prepare(`
     INSERT OR REPLACE INTO carousel_slides
       (report_id, position, slide_type, article_slug, title_text, engagement_phrase,
-       background_image_path, composite_image_path, status, error_message, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       background_image_path, composite_image_path, status, error_message,
+       palette, image_style, image_prompt, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     params.reportId,
     params.position,
@@ -201,6 +208,9 @@ function upsertSlide(params: {
     params.compositeImagePath,
     params.status,
     params.errorMessage,
+    params.palette ?? null,
+    params.imageStyle ?? null,
+    params.imagePrompt ?? null,
     now,
     now,
   );
@@ -246,7 +256,7 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
   const articles = report.articles;
 
   // Resolve palette + style. If not explicitly selected, pick both at random.
-  const { paletteConfig, styleConfig } = resolvePaletteAndStyle(palette, imageStyle);
+  const { paletteConfig, styleConfig, palette: resolvedPalette, imageStyle: resolvedStyle } = resolvePaletteAndStyle(palette, imageStyle);
 
   const backgroundsDir = ensureBackgroundsDir(reportId);
   const compositesDir = ensureCompositesDir(reportId);
@@ -331,9 +341,10 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
 
     // Generate background
     let bgSuccess = true;
+    const articleTopics = articles.map(a => a.title);
+    let usedPrompt: string | null = buildCoverImagePrompt(paletteConfig, styleConfig, articleTopics);
     try {
-      const articleTopics = articles.map(a => a.title);
-      await generateCoverBackground(apiKey, bgPath, paletteConfig, styleConfig, articleTopics);
+      usedPrompt = await generateCoverBackground(apiKey, bgPath, paletteConfig, styleConfig, articleTopics);
     } catch (err: any) {
       bgSuccess = false;
       console.error(`[CarouselGenerator] Cover background failed:`, err.message);
@@ -352,6 +363,9 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
       weekStart: report.week_start,
       weekEnd: report.week_end,
       paletteConfig,
+      palette: resolvedPalette,
+      imageStyle: resolvedStyle,
+      imagePrompt: usedPrompt,
     });
   });
 
@@ -370,9 +384,10 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
 
       // Generate background
       let bgSuccess = true;
+      const contentSummary = getArticleContentSummary(article.slug);
+      let usedPrompt: string | null = buildArticleImagePrompt(article.title, article.categories || [], paletteConfig, styleConfig, contentSummary);
       try {
-        const contentSummary = getArticleContentSummary(article.slug);
-        await generateCarouselBackgroundImage(
+        usedPrompt = await generateCarouselBackgroundImage(
           article.title,
           article.categories || [],
           apiKey,
@@ -400,6 +415,9 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
         weekEnd: report.week_end,
         categories: article.categories || [],
         paletteConfig,
+        palette: resolvedPalette,
+        imageStyle: resolvedStyle,
+        imagePrompt: usedPrompt,
       });
     });
   }
@@ -415,8 +433,9 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
 
     // Generate background
     let bgSuccess = true;
+    let usedPrompt: string | null = buildCTAImagePrompt(paletteConfig, styleConfig);
     try {
-      await generateCTABackground(apiKey, bgPath, paletteConfig, styleConfig);
+      usedPrompt = await generateCTABackground(apiKey, bgPath, paletteConfig, styleConfig);
     } catch (err: any) {
       bgSuccess = false;
       console.error(`[CarouselGenerator] CTA background failed:`, err.message);
@@ -435,6 +454,9 @@ export async function generateCarousel(reportId: number, palette?: CarouselPalet
       weekStart: report.week_start,
       weekEnd: report.week_end,
       paletteConfig,
+      palette: resolvedPalette,
+      imageStyle: resolvedStyle,
+      imagePrompt: usedPrompt,
     });
   });
 
@@ -471,8 +493,11 @@ async function composeSingleSlide(params: {
   weekEnd: string;
   categories?: string[];
   paletteConfig?: PaletteConfig;
+  palette?: CarouselPalette;
+  imageStyle?: CarouselImageStyle;
+  imagePrompt?: string | null;
 }): Promise<{ slide: SlideResult; error?: SlideError }> {
-  const { reportId, position, slideType, articleSlug, titleText, engagementPhrase, bgPath, compositesDir, weekStart, weekEnd, categories, paletteConfig } = params;
+  const { reportId, position, slideType, articleSlug, titleText, engagementPhrase, bgPath, compositesDir, weekStart, weekEnd, categories, paletteConfig, palette, imageStyle, imagePrompt } = params;
 
   // If background generation failed, mark slide as failed
   if (!bgPath || !fs.existsSync(bgPath)) {
@@ -488,6 +513,9 @@ async function composeSingleSlide(params: {
       compositeImagePath: null,
       status: 'failed',
       errorMessage: errorMsg,
+      palette,
+      imageStyle,
+      imagePrompt,
     });
     return {
       slide: {
@@ -559,6 +587,9 @@ async function composeSingleSlide(params: {
       compositeImagePath: compositePath,
       status: 'generated',
       errorMessage: null,
+      palette,
+      imageStyle,
+      imagePrompt,
     });
 
     return {
@@ -585,6 +616,9 @@ async function composeSingleSlide(params: {
       compositeImagePath: null,
       status: 'failed',
       errorMessage: errorMsg,
+      palette,
+      imageStyle,
+      imagePrompt,
     });
 
     return {
@@ -605,7 +639,80 @@ async function composeSingleSlide(params: {
 /**
  * Regenerates only the specified slide for a report.
  */
-export async function regenerateSlide(reportId: number, position: number, palette?: CarouselPalette, imageStyle?: CarouselImageStyle): Promise<SlideResult> {
+/**
+ * Builds the prompt + resolved metadata for a slide WITHOUT generating an image.
+ * Used by the editor modal to preview the prompt that would be used given a
+ * palette/style selection. If the slide already has a stored prompt and no
+ * palette/style override is requested, callers can prefer the stored value.
+ */
+export function buildSlidePromptPreview(
+  reportId: number,
+  position: number,
+  palette?: CarouselPalette,
+  imageStyle?: CarouselImageStyle,
+): { prompt: string; palette: CarouselPalette; imageStyle: CarouselImageStyle; slideType: SlideType; titleText: string; engagementPhrase: string | null } {
+  const report = fetchReport(reportId);
+  const articles = report.articles;
+  const totalSlides = articles.length + 2;
+
+  if (position < 0 || position >= totalSlides) {
+    const error = new Error(`Invalid slide position ${position}. Valid range: 0-${totalSlides - 1}`);
+    (error as any).statusCode = 400;
+    throw error;
+  }
+
+  const { paletteConfig, styleConfig, palette: resolvedPalette, imageStyle: resolvedStyle } = resolvePaletteAndStyle(palette, imageStyle);
+
+  // Pull any existing text from DB so preview reflects current slide content.
+  const existing = db
+    .prepare('SELECT title_text, engagement_phrase FROM carousel_slides WHERE report_id = ? AND position = ?')
+    .get(reportId, position) as { title_text: string | null; engagement_phrase: string | null } | undefined;
+
+  let slideType: SlideType;
+  let titleText: string;
+  let engagementPhrase: string | null = existing?.engagement_phrase ?? null;
+  let prompt: string;
+
+  if (position === 0) {
+    slideType = 'cover';
+    titleText = existing?.title_text || 'El Dominical IA';
+    prompt = buildCoverImagePrompt(paletteConfig, styleConfig, articles.map(a => a.title));
+  } else if (position === totalSlides - 1) {
+    slideType = 'cta';
+    titleText = existing?.title_text || CTA_MESSAGE;
+    prompt = buildCTAImagePrompt(paletteConfig, styleConfig);
+  } else {
+    slideType = 'article';
+    const article = articles[position - 1];
+    titleText = existing?.title_text || article.title;
+    prompt = buildArticleImagePrompt(
+      article.title,
+      article.categories || [],
+      paletteConfig,
+      styleConfig,
+      getArticleContentSummary(article.slug),
+    );
+  }
+
+  return { prompt, palette: resolvedPalette, imageStyle: resolvedStyle, slideType, titleText, engagementPhrase };
+}
+
+/** Overrides accepted when regenerating a single slide from the editor modal. */
+export interface RegenerateSlideOverrides {
+  /** Verbatim prompt to feed the image model. When set, palette/style are stored for reference only. */
+  customPrompt?: string;
+  /** Override the title/engagement text used when composing the slide. */
+  titleText?: string;
+  engagementPhrase?: string | null;
+}
+
+export async function regenerateSlide(
+  reportId: number,
+  position: number,
+  palette?: CarouselPalette,
+  imageStyle?: CarouselImageStyle,
+  overrides?: RegenerateSlideOverrides,
+): Promise<SlideResult> {
   // Concurrency guard
   assertNotGenerating(reportId);
 
@@ -615,7 +722,7 @@ export async function regenerateSlide(reportId: number, position: number, palett
   const totalSlides = articles.length + 2;
 
   // Resolve palette + style. If not explicitly selected, pick both at random.
-  const { paletteConfig, styleConfig } = resolvePaletteAndStyle(palette, imageStyle);
+  const { paletteConfig, styleConfig, palette: resolvedPalette, imageStyle: resolvedStyle } = resolvePaletteAndStyle(palette, imageStyle);
 
   if (position < 0 || position >= totalSlides) {
     const error = new Error(`Invalid slide position ${position}. Valid range: 0-${totalSlides - 1}`);
@@ -623,6 +730,7 @@ export async function regenerateSlide(reportId: number, position: number, palett
     throw error;
   }
 
+  const customPrompt = overrides?.customPrompt?.trim() || undefined;
   const backgroundsDir = ensureBackgroundsDir(reportId);
   const compositesDir = ensureCompositesDir(reportId);
 
@@ -645,23 +753,33 @@ export async function regenerateSlide(reportId: number, position: number, palett
     titleText = article.title;
     articleSlug = article.slug || null;
 
-    // Generate a fresh engagement phrase for this single article
-    try {
-      const articleInput: ArticleInput = {
-        title: article.title,
-        excerpt: article.excerpt || '',
-        categories: article.categories || [],
-      };
-      const result = await generateEngagementPhrases([articleInput], apiKey);
-      engagementPhrase = result.phrases[0] || null;
-    } catch (err: any) {
-      console.error('[CarouselGenerator] Engagement phrase regen failed:', err.message);
-      // Try to keep existing phrase from DB
-      const existing = db
-        .prepare('SELECT engagement_phrase FROM carousel_slides WHERE report_id = ? AND position = ?')
-        .get(reportId, position) as { engagement_phrase: string | null } | undefined;
-      engagementPhrase = existing?.engagement_phrase || null;
+    if (overrides?.engagementPhrase !== undefined) {
+      // Caller supplied an explicit phrase — respect it (no LLM call).
+      engagementPhrase = overrides.engagementPhrase;
+    } else {
+      // Generate a fresh engagement phrase for this single article
+      try {
+        const articleInput: ArticleInput = {
+          title: article.title,
+          excerpt: article.excerpt || '',
+          categories: article.categories || [],
+        };
+        const result = await generateEngagementPhrases([articleInput], apiKey);
+        engagementPhrase = result.phrases[0] || null;
+      } catch (err: any) {
+        console.error('[CarouselGenerator] Engagement phrase regen failed:', err.message);
+        // Try to keep existing phrase from DB
+        const existing = db
+          .prepare('SELECT engagement_phrase FROM carousel_slides WHERE report_id = ? AND position = ?')
+          .get(reportId, position) as { engagement_phrase: string | null } | undefined;
+        engagementPhrase = existing?.engagement_phrase || null;
+      }
     }
+  }
+
+  // Apply explicit title override if provided.
+  if (overrides?.titleText !== undefined && overrides.titleText.trim().length > 0) {
+    titleText = overrides.titleText;
   }
 
   // Mark slide as generating
@@ -676,23 +794,27 @@ export async function regenerateSlide(reportId: number, position: number, palett
     compositeImagePath: null,
     status: 'generating',
     errorMessage: null,
+    palette: resolvedPalette,
+    imageStyle: resolvedStyle,
+    imagePrompt: null,
   });
 
-  // Generate background
+  // Generate background — capture the exact prompt used (custom or freshly built).
   let bgPath: string | null = null;
+  let usedPrompt: string | null = null;
   try {
     if (slideType === 'cover') {
       bgPath = path.join(backgroundsDir, 'cover.png');
       const articleTopics = articles.map(a => a.title);
-      await generateCoverBackground(apiKey, bgPath, paletteConfig, styleConfig, articleTopics);
+      usedPrompt = await generateCoverBackground(apiKey, bgPath, paletteConfig, styleConfig, articleTopics, customPrompt);
     } else if (slideType === 'cta') {
       bgPath = path.join(backgroundsDir, 'cta.png');
-      await generateCTABackground(apiKey, bgPath, paletteConfig, styleConfig);
+      usedPrompt = await generateCTABackground(apiKey, bgPath, paletteConfig, styleConfig, customPrompt);
     } else {
       const articleIndex = position - 1;
       bgPath = path.join(backgroundsDir, `slide-${position}.png`);
       const contentSummary = getArticleContentSummary(articles[articleIndex].slug);
-      await generateCarouselBackgroundImage(
+      usedPrompt = await generateCarouselBackgroundImage(
         articles[articleIndex].title,
         articles[articleIndex].categories || [],
         apiKey,
@@ -700,11 +822,32 @@ export async function regenerateSlide(reportId: number, position: number, palett
         paletteConfig,
         styleConfig,
         contentSummary,
+        customPrompt,
       );
     }
   } catch (err: any) {
     bgPath = null;
     console.error('[CarouselGenerator] Background regen failed:', err.message);
+  }
+
+  // If generation threw, still record the prompt that would have been used.
+  if (!usedPrompt) {
+    if (customPrompt) {
+      usedPrompt = customPrompt;
+    } else if (slideType === 'cover') {
+      usedPrompt = buildCoverImagePrompt(paletteConfig, styleConfig, articles.map(a => a.title));
+    } else if (slideType === 'cta') {
+      usedPrompt = buildCTAImagePrompt(paletteConfig, styleConfig);
+    } else {
+      const articleIndex = position - 1;
+      usedPrompt = buildArticleImagePrompt(
+        articles[articleIndex].title,
+        articles[articleIndex].categories || [],
+        paletteConfig,
+        styleConfig,
+        getArticleContentSummary(articles[articleIndex].slug),
+      );
+    }
   }
 
   // Compose the slide
@@ -722,6 +865,9 @@ export async function regenerateSlide(reportId: number, position: number, palett
     weekEnd: report.week_end,
     categories: articleCategories,
     paletteConfig,
+    palette: resolvedPalette,
+    imageStyle: resolvedStyle,
+    imagePrompt: usedPrompt,
   });
 
   return result.slide;

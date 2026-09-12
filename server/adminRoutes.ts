@@ -8,7 +8,8 @@ import db from './db.js';
 import { generateToken, verifyToken, requireAuth } from './auth.js';
 import { generateDominicalReport, getArticleContentSummary } from './jobs/generateDominical.js';
 import { publishPost, publishPostWithDocument } from './services/linkedin.js';
-import { generateCarousel, regenerateSlide } from './services/carouselGenerator.js';
+import { generateCarousel, regenerateSlide, buildSlidePromptPreview } from './services/carouselGenerator.js';
+import type { CarouselPalette, CarouselImageStyle } from './services/carouselTypes.js';
 import { generateDominicalVideo } from './services/dominicalVideoGen.js';
 import { exportCarouselPdf } from './services/pdfExporter.js';
 import { composeArticleSlide } from './services/slideCompositor.js';
@@ -1421,6 +1422,95 @@ adminRouter.post('/dominical/:id/generate-carousel', requireAuth, async (req, re
 });
 
 /**
+ * GET /api/admin/dominical/:id/carousel/slides/:position/generation-info
+ * Returns the generation metadata for a single slide: stored palette/style/prompt/text.
+ * Optional query params `palette` and `imageStyle` return a freshly-built prompt PREVIEW
+ * for that combination (without touching the DB or generating an image).
+ * Protected endpoint.
+ */
+adminRouter.get('/dominical/:id/carousel/slides/:position/generation-info', requireAuth, (req, res) => {
+  try {
+    const { id, position } = req.params;
+    const reportId = Number(id);
+    const slidePosition = Number(position);
+
+    if (isNaN(slidePosition) || slidePosition < 0) {
+      res.status(400).json({ error: 'Invalid slide position' });
+      return;
+    }
+
+    const slide = db.prepare(
+      `SELECT slide_type, title_text, engagement_phrase, palette, image_style, image_prompt
+       FROM carousel_slides WHERE report_id = ? AND position = ?`
+    ).get(reportId, slidePosition) as
+      | {
+          slide_type: string;
+          title_text: string;
+          engagement_phrase: string | null;
+          palette: string | null;
+          image_style: string | null;
+          image_prompt: string | null;
+        }
+      | undefined;
+
+    if (!slide) {
+      res.status(404).json({ error: 'Slide not found' });
+      return;
+    }
+
+    // If the caller requested a specific palette/style, build a preview prompt.
+    // Otherwise, use the stored values (falling back to a preview built from
+    // whatever palette/style was stored, so the prompt is never empty).
+    const requestedPalette = (req.query.palette as string | undefined) as CarouselPalette | undefined;
+    const requestedStyle = (req.query.imageStyle as string | undefined) as CarouselImageStyle | undefined;
+
+    const wantsPreview = Boolean(requestedPalette || requestedStyle);
+
+    let effectivePalette = slide.palette;
+    let effectiveStyle = slide.image_style;
+    let effectivePrompt = slide.image_prompt;
+
+    if (wantsPreview || !slide.image_prompt) {
+      const preview = buildSlidePromptPreview(
+        reportId,
+        slidePosition,
+        requestedPalette ?? (slide.palette as CarouselPalette | undefined),
+        requestedStyle ?? (slide.image_style as CarouselImageStyle | undefined),
+      );
+      effectivePalette = preview.palette;
+      effectiveStyle = preview.imageStyle;
+      effectivePrompt = preview.prompt;
+    }
+
+    res.json({
+      position: slidePosition,
+      slideType: slide.slide_type,
+      titleText: slide.title_text,
+      engagementPhrase: slide.engagement_phrase,
+      palette: effectivePalette,
+      imageStyle: effectiveStyle,
+      // The prompt actually stored from the last generation (may be null on old slides)
+      storedPrompt: slide.image_prompt,
+      // The prompt to display/edit (stored, or a freshly-built preview)
+      prompt: effectivePrompt,
+      isPreview: wantsPreview || !slide.image_prompt,
+    });
+  } catch (error: any) {
+    console.error('Error fetching slide generation info:', error);
+    if (error.statusCode === 400) {
+      res.status(400).json({ error: error.message });
+      return;
+    }
+    if (error.statusCode === 404) {
+      res.status(404).json({ error: error.message });
+      return;
+    }
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
+
+/**
  * POST /api/admin/dominical/:id/carousel/slides/:position/regenerate
  * Regenerates a single slide at the specified position. Protected endpoint.
  */
@@ -1445,8 +1535,17 @@ adminRouter.post('/dominical/:id/carousel/slides/:position/regenerate', requireA
       return;
     }
 
-    const { palette, imageStyle } = req.body || {};
-    const result = await regenerateSlide(reportId, slidePosition, palette, imageStyle);
+    const { palette, imageStyle, customPrompt, titleText, engagementPhrase } = req.body || {};
+    const overrides: {
+      customPrompt?: string;
+      titleText?: string;
+      engagementPhrase?: string | null;
+    } = {};
+    if (typeof customPrompt === 'string') overrides.customPrompt = customPrompt;
+    if (typeof titleText === 'string') overrides.titleText = titleText;
+    if (engagementPhrase !== undefined) overrides.engagementPhrase = engagementPhrase;
+
+    const result = await regenerateSlide(reportId, slidePosition, palette, imageStyle, overrides);
     res.json(result);
   } catch (error: any) {
     console.error('Error regenerating slide:', error);
@@ -1687,7 +1786,8 @@ adminRouter.get('/dominical/:id/carousel', requireAuth, (req, res) => {
     // Get all slides for this report ordered by position
     const slides = db.prepare(
       `SELECT id, position, slide_type, article_slug, title_text, engagement_phrase,
-              background_image_path, composite_image_path, status, error_message, created_at, updated_at
+              background_image_path, composite_image_path, status, error_message,
+              palette, image_style, image_prompt, created_at, updated_at
        FROM carousel_slides
        WHERE report_id = ?
        ORDER BY position ASC`
@@ -1702,6 +1802,9 @@ adminRouter.get('/dominical/:id/carousel', requireAuth, (req, res) => {
       composite_image_path: string | null;
       status: string;
       error_message: string | null;
+      palette: string | null;
+      image_style: string | null;
+      image_prompt: string | null;
       created_at: string;
       updated_at: string | null;
     }>;
@@ -1735,6 +1838,9 @@ adminRouter.get('/dominical/:id/carousel', requireAuth, (req, res) => {
         compositeImagePath: s.composite_image_path,
         status: s.status,
         errorMessage: s.error_message,
+        palette: s.palette,
+        imageStyle: s.image_style,
+        imagePrompt: s.image_prompt,
         createdAt: s.created_at,
         updatedAt: s.updated_at,
       })),
