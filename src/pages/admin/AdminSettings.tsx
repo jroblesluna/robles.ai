@@ -13,6 +13,37 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { Linkedin, Save, CheckCircle2, Loader2, XCircle, Camera, ShieldCheck } from "lucide-react";
 
+// 30-minute publish slots: "00:00", "00:30", ..., "23:30"
+const TIME_SLOTS: string[] = Array.from({ length: 48 }, (_, i) => {
+  const hours = String(Math.floor(i / 2)).padStart(2, "0");
+  const minutes = i % 2 === 0 ? "00" : "30";
+  return `${hours}:${minutes}`;
+});
+
+// Common IANA timezones offered for auto-publish scheduling.
+const TIMEZONES: string[] = [
+  "America/Lima",
+  "America/Bogota",
+  "America/Mexico_City",
+  "America/New_York",
+  "America/Chicago",
+  "America/Denver",
+  "America/Los_Angeles",
+  "America/Sao_Paulo",
+  "America/Argentina/Buenos_Aires",
+  "America/Santiago",
+  "UTC",
+  "Europe/Madrid",
+  "Europe/London",
+  "Europe/Paris",
+  "Europe/Berlin",
+  "Asia/Dubai",
+  "Asia/Kolkata",
+  "Asia/Shanghai",
+  "Asia/Tokyo",
+  "Australia/Sydney",
+];
+
 export default function AdminSettings() {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -671,15 +702,58 @@ export default function AdminSettings() {
           <div className="flex items-center space-x-2">
             <Checkbox
               id="auto_publish"
-              checked={settings.auto_publish === "true"}
+              checked={settings.auto_publish !== "false"}
               onCheckedChange={(checked) =>
                 updateSetting("auto_publish", checked ? "true" : "false")
               }
             />
             <Label htmlFor="auto_publish" className="cursor-pointer">
-              Auto-publish on Sundays at 12pm (Lima time)
+              Auto-publish every Sunday
             </Label>
           </div>
+
+          {settings.auto_publish !== "false" && (
+            <div className="grid gap-4 sm:grid-cols-2 rounded-md border p-4">
+              <div className="space-y-2">
+                <Label htmlFor="auto_publish_time">Publish time</Label>
+                <select
+                  id="auto_publish_time"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  value={settings.auto_publish_time || "18:00"}
+                  onChange={(e) =>
+                    updateSetting("auto_publish_time", e.target.value)
+                  }
+                >
+                  {TIME_SLOTS.map((slot) => (
+                    <option key={slot} value={slot}>
+                      {slot}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-muted-foreground">
+                  The report is published on Sunday at this time (in the timezone below).
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="auto_publish_timezone">Timezone</Label>
+                <select
+                  id="auto_publish_timezone"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  value={settings.auto_publish_timezone || "America/Lima"}
+                  onChange={(e) =>
+                    updateSetting("auto_publish_timezone", e.target.value)
+                  }
+                >
+                  {TIMEZONES.map((tz) => (
+                    <option key={tz} value={tz}>
+                      {tz}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="dominical_top_n">

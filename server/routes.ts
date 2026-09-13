@@ -24,7 +24,7 @@ import publicRouter from './publicRoutes.js';
 import searchRouter from './searchRoutes.js';
 import chatRouter from './chatRoutes.js';
 import { generateDominicalReport } from './jobs/generateDominical.js';
-import { autoPublishDominical } from './jobs/autoPublishDominical.js';
+import { autoPublishDominical, shouldRunAutoPublishNow } from './jobs/autoPublishDominical.js';
 import { generateCarousel } from './services/carouselGenerator.js';
 import { generateQuizResultMessage } from './services/quizResultMessage.js';
 import { getSlugIndex } from './vite.js';
@@ -623,22 +623,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   );
 
   // Sunday 6pm (America/Lima): Auto-publish El Dominical IA to LinkedIn
+  // Auto-publish El Dominical IA. Runs every 30 minutes and only fires when the
+  // current time (in the admin-configured timezone) matches the configured
+  // publish slot on Sunday. The day/time/timezone are read from settings:
+  //   auto_publish (on/off), auto_publish_time (e.g. "18:00"), auto_publish_timezone.
   cron.schedule(
-    '0 18 * * 0',
+    '*/30 * * * *',
     async () => {
       try {
-        console.log('[CRON] Starting Dominical IA auto-publish...');
         if (process.env.NODE_ENV === 'development') {
-          console.log('[CRON] Skipping Dominical auto-publish in development mode.');
+          // Skip in development mode.
           return;
         }
+        if (!shouldRunAutoPublishNow()) {
+          return;
+        }
+        console.log('[CRON] Starting Dominical IA auto-publish (scheduled slot matched)...');
         await autoPublishDominical();
         console.log('[CRON] Dominical IA auto-publish completed.');
       } catch (error) {
         console.error('[CRON] Error auto-publishing Dominical IA:', error);
       }
     },
-    { timezone: timeZone }
+    { timezone: 'UTC' }
   );
 
   app.get('/api/generate-posts', async (req: Request, res: Response) => {

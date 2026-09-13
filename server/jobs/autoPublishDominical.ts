@@ -27,6 +27,87 @@ function getSetting(key: string): string | null {
   return row?.value ?? null;
 }
 
+/** Default publish schedule when the settings are not configured. */
+export const DEFAULT_AUTO_PUBLISH_TIME = '18:00';
+export const DEFAULT_AUTO_PUBLISH_TIMEZONE = 'America/Lima';
+
+/**
+ * Normalize a stored time string into a valid 30-minute slot ("HH:MM").
+ * Falls back to the default when the value is missing or malformed.
+ */
+function normalizePublishTime(value: string | null): string {
+  if (!value) return DEFAULT_AUTO_PUBLISH_TIME;
+  const match = /^(\d{1,2}):(\d{2})$/.exec(value.trim());
+  if (!match) return DEFAULT_AUTO_PUBLISH_TIME;
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  if (hours < 0 || hours > 23) return DEFAULT_AUTO_PUBLISH_TIME;
+  // Snap to the nearest valid 30-minute slot (00 or 30).
+  const slotMinutes = minutes < 30 ? 0 : 30;
+  return `${String(hours).padStart(2, '0')}:${String(slotMinutes).padStart(2, '0')}`;
+}
+
+/**
+ * Validate an IANA timezone string. Falls back to the default if invalid.
+ */
+function normalizeTimezone(value: string | null): string {
+  const tz = value?.trim() || DEFAULT_AUTO_PUBLISH_TIMEZONE;
+  try {
+    // Throws RangeError for an invalid timezone identifier.
+    new Intl.DateTimeFormat('en-US', { timeZone: tz });
+    return tz;
+  } catch {
+    return DEFAULT_AUTO_PUBLISH_TIMEZONE;
+  }
+}
+
+/**
+ * Extract the weekday (0 = Sunday) and "HH:MM" for a given instant in a timezone.
+ */
+function getZonedDayAndTime(date: Date, timeZone: string): { day: number; hhmm: string } {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(date);
+
+  const lookup = (type: string) => parts.find((p) => p.type === type)?.value ?? '';
+  const weekdayMap: Record<string, number> = {
+    Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6,
+  };
+  const day = weekdayMap[lookup('weekday')] ?? -1;
+  // Intl may emit "24" for midnight with hour12:false; normalize to "00".
+  let hour = lookup('hour');
+  if (hour === '24') hour = '00';
+  const hhmm = `${hour.padStart(2, '0')}:${lookup('minute').padStart(2, '0')}`;
+  return { day, hhmm };
+}
+
+/**
+ * Determine whether the auto-publish job should run at the given instant,
+ * based on the configured day (Sunday), time slot, and timezone in settings.
+ *
+ * This is meant to be called from a cron that ticks every 30 minutes.
+ * It matches when the current zoned time equals the configured "HH:MM" slot
+ * on Sunday.
+ */
+export function shouldRunAutoPublishNow(now: Date = new Date()): boolean {
+  // Respect the on/off toggle (default ON when unset).
+  const autoPublishSetting = getSetting('auto_publish');
+  if (autoPublishSetting === 'false' || autoPublishSetting === '0') {
+    return false;
+  }
+
+  const targetTime = normalizePublishTime(getSetting('auto_publish_time'));
+  const timeZone = normalizeTimezone(getSetting('auto_publish_timezone'));
+  const { day, hhmm } = getZonedDayAndTime(now, timeZone);
+
+  // Publish only on Sunday at the configured slot.
+  return day === 0 && hhmm === targetTime;
+}
+
 /**
  * Sends a notification email to the admin with per-platform publishing results.
  */
