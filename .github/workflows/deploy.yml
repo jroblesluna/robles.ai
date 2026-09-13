@@ -1,0 +1,29 @@
+name: Deploy to VPS
+
+# Runs on every push to main (i.e. when push.sh commits & pushes).
+# Connects to the VPS via SSH and triggers pull.sh there — no agent needed.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}   # allow manual runs from the Actions tab
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host:     ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key:      ${{ secrets.VPS_SSH_KEY }}
+          port:     22
+          # pull.sh fetches origin/main, inspects which files changed, and only
+          # runs npm install / build / restart when the changes justify it.
+          # Adjust the path if the repo lives elsewhere on your server.
+          script: |
+            set -e
+            cd ${{ secrets.VPS_REPO_PATH }}
+            bash pull.sh

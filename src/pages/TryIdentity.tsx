@@ -184,6 +184,8 @@ export default function TryIdentity() {
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
   const [showVideo, setShowVideo] = useState(false);
   const [showTech, setShowTech] = useState(false);
+  // Service warm/cold state (Cloud Run cold-start awareness)
+  const [serviceStatus, setServiceStatus] = useState<"checking" | "warm" | "warming" | "cold">("checking");
 
   useEffect(() => {
     const translatedSrc = t("try-identity.videoSrc");
@@ -191,6 +193,64 @@ export default function TryIdentity() {
       setVideoSrc(translatedSrc);
     }
   }, [t, i18n.language]);
+
+  // Lightweight health check on mount: hit GET / and infer warm vs cold from
+  // latency. A fast reply means an instance is already running (warm); a slow
+  // reply or timeout means Cloud Run had scaled to zero (cold start).
+  useEffect(() => {
+    let cancelled = false;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 3000); // 3s: warm should be well under this
+    const started = Date.now();
+
+    fetch(`${BASE_API}/`, { signal: controller.signal })
+      .then(() => {
+        clearTimeout(timer);
+        if (cancelled) return;
+        const elapsed = Date.now() - started;
+        setServiceStatus(elapsed < 2500 ? "warm" : "cold");
+      })
+      .catch(() => {
+        clearTimeout(timer);
+        if (!cancelled) setServiceStatus("cold"); // timeout/abort ⇒ likely cold
+      });
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, []);
+
+  /**
+   * Wakes the service and resolves only once it responds quickly (warm).
+   * Pings GET / with retries; the first ping also triggers the cold start.
+   * Returns true if warm within the retry budget.
+   */
+  const warmUpService = async (): Promise<boolean> => {
+    setServiceStatus("warming");
+    const maxAttempts = 12; // ~ up to 60s total
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const started = Date.now();
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 8000);
+        const res = await fetch(`${BASE_API}/`, { signal: controller.signal });
+        clearTimeout(timer);
+        const elapsed = Date.now() - started;
+        if (res.ok && elapsed < 2500) {
+          setServiceStatus("warm");
+          return true;
+        }
+        // Responded but slowly (still spinning up) — give it a moment and retry.
+        await new Promise((r) => setTimeout(r, 2000));
+      } catch {
+        // Timed out/aborted while cold — wait and retry.
+        await new Promise((r) => setTimeout(r, 2000));
+      }
+    }
+    return false;
+  };
 
   useEffect(() => {
     if (!requestId || !submitted) return;
@@ -229,6 +289,23 @@ export default function TryIdentity() {
 
     try {
       setLoading(true);
+
+      // Hybrid warm-up: if the service isn't confirmed warm, wake it and wait
+      // until it responds fast BEFORE running the real verification. This
+      // prevents the cold start from causing a timeout on verify-id.
+      if (serviceStatus !== "warm") {
+        const ready = await warmUpService();
+        if (!ready) {
+          toast({
+            title: t("try-identity.service_cold_title"),
+            description: t("try-identity.service_warm_failed"),
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
+      }
+
       const uploadId = uuidv4();
       const selfiePath = `demo-uploads/${uploadId}/selfie.jpg`;
       const docPath = `demo-uploads/${uploadId}/document.jpg`;
@@ -367,12 +444,39 @@ export default function TryIdentity() {
                 <p className="mt-1.5 text-xs text-gray-400">{t("try-identity.webhook_hint")}</p>
               </div>
 
+              {/* Service status banner (Cloud Run cold-start awareness) */}
+              {serviceStatus === "warm" && (
+                <div className="mt-4 flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
+                  <span className="relative flex h-2 w-2">
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                  </span>
+                  {t("try-identity.service_ready")}
+                </div>
+              )}
+              {(serviceStatus === "cold" || serviceStatus === "checking") && !loading && (
+                <div className="mt-4 flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                  <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" />
+                  <span>{t("try-identity.service_cold_hint")}</span>
+                </div>
+              )}
+              {serviceStatus === "warming" && (
+                <div className="mt-4 flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                  <Loader2 className="mt-0.5 h-3.5 w-3.5 shrink-0 animate-spin text-amber-500" />
+                  <span>{t("try-identity.service_warming")}</span>
+                </div>
+              )}
+
               <Button
                 onClick={handleSubmit}
-                disabled={loading || submitted || !selfie || !document}
+                disabled={loading || submitted || !selfie || !document || serviceStatus === "checking"}
                 className="mt-5 w-full rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 py-6 text-sm font-semibold text-white shadow-md shadow-violet-500/20 transition-all hover:from-violet-700 hover:to-purple-700 disabled:opacity-50"
               >
-                {loading ? (
+                {serviceStatus === "warming" ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {t("try-identity.verify_warming")}
+                  </span>
+                ) : loading ? (
                   <span className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     {t("try-identity.verify_processing")}
