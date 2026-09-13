@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import Hero from "@/components/Hero";
 import Features from "@/components/Features";
 import Solutions from "@/components/Solutions";
+import DemosCatalog from "@/components/DemosCatalog";
 import CaseStudies from "@/components/CaseStudies";
 import Testimonials from "@/components/Testimonials";
 import Courses from "@/components/Courses";
@@ -41,6 +42,7 @@ const Home = () => {
       <Hero />
       <Features />
       <Solutions />
+      <DemosCatalog limit={8} showViewAll />
       <CaseStudies />
       <Courses />
       {/* <Testimonials /> */}

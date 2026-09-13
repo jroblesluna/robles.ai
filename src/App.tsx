@@ -20,6 +20,7 @@ const Apply = lazy(() => import('@/pages/Apply'));
 const OTP = lazy(() => import('@/pages/OTP'));
 const Landing = lazy(() => import('@/pages/Landing'));
 const Quiz = lazy(() => import('@/pages/Quiz'));
+const Demos = lazy(() => import('@/pages/Demos'));
 const TryIdentity = lazy(() => import('@/pages/TryIdentity'));
 const TryLangChain = lazy(() => import('@/pages/TryLangChain'));
 const TryRAG = lazy(() => import('@/pages/TryRAG'));
@@ -106,6 +107,7 @@ function App() {
           <Suspense fallback={<div className="flex items-center justify-center min-h-[50vh]"><div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>}>
             <Switch>
               <Route path="/" component={Home} />
+              <Route path="/demos" component={Demos} />
               <Route path="/careers" component={Careers} />
               <Route path="/apply" component={Apply} />
               <Route path="/try-identity" component={TryIdentity} />

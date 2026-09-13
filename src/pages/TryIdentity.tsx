@@ -17,9 +17,35 @@ import {
   PlayCircle,
   RotateCcw,
   Terminal,
+  ChevronDown,
+  Cpu,
+  Workflow,
+  ShieldCheck,
 } from "lucide-react";
 import VideoModal from "@/components/VideoModal";
 import { useTranslation } from "react-i18next";
+
+/** Lightweight, dependency-free info tooltip (hover + keyboard focus). */
+function InfoTip({ text, label }: { text: string; label?: string }) {
+  return (
+    <span className="group/tip relative inline-flex items-center align-middle">
+      <button
+        type="button"
+        aria-label={label || text}
+        className="inline-flex h-4 w-4 items-center justify-center rounded-full text-gray-400 transition-colors hover:text-violet-600 focus:text-violet-600 focus:outline-none"
+      >
+        <Info className="h-3.5 w-3.5" />
+      </button>
+      <span
+        role="tooltip"
+        className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 w-60 -translate-x-1/2 rounded-lg bg-gray-900 px-3 py-2 text-left text-xs font-normal leading-relaxed text-gray-100 opacity-0 shadow-xl transition-opacity duration-150 group-hover/tip:opacity-100 group-focus-within/tip:opacity-100"
+      >
+        {text}
+        <span className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+      </span>
+    </span>
+  );
+}
 
 const getBaseApi = () => {
   if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
@@ -157,6 +183,7 @@ export default function TryIdentity() {
   const { t, i18n } = useTranslation();
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
   const [showVideo, setShowVideo] = useState(false);
+  const [showTech, setShowTech] = useState(false);
 
   useEffect(() => {
     const translatedSrc = t("try-identity.videoSrc");
@@ -302,6 +329,7 @@ export default function TryIdentity() {
                   1
                 </span>
                 <h2 className="text-sm font-semibold text-gray-900">{t("try-identity.step_upload")}</h2>
+                <InfoTip text={t("try-identity.tip_upload")} />
               </div>
 
               <div className="space-y-4">
@@ -329,8 +357,9 @@ export default function TryIdentity() {
 
               {/* Callback URL */}
               <div className="mt-5">
-                <h3 className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <h3 className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
                   {t("try-identity.webhook")}
+                  <InfoTip text={t("try-identity.tip_webhook")} />
                 </h3>
                 <div className="break-all rounded-lg border border-gray-200 bg-gray-50 p-2.5 font-mono text-xs text-gray-500">
                   {callbackUrl}
@@ -389,7 +418,10 @@ export default function TryIdentity() {
                   exit={{ opacity: 0 }}
                   className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
                 >
-                  <h2 className="mb-4 text-sm font-semibold text-gray-900">{t("try-identity.results_label")}</h2>
+                  <h2 className="mb-4 flex items-center gap-1.5 text-sm font-semibold text-gray-900">
+                    {t("try-identity.results_label")}
+                    <InfoTip text={t("try-identity.tip_results")} />
+                  </h2>
 
                   {/* Headline cards */}
                   {result.data?.output && (
@@ -408,6 +440,7 @@ export default function TryIdentity() {
                             <XCircle className="h-5 w-5 text-red-600" />
                           )}
                           <span className="text-xs font-medium text-gray-600">{t("try-identity.results_match")}</span>
+                          <InfoTip text={t("try-identity.tip_match")} />
                         </div>
                         <p
                           className={`mt-1 text-lg font-bold ${
@@ -419,7 +452,10 @@ export default function TryIdentity() {
                       </div>
 
                       <div className="rounded-xl border border-violet-200 bg-violet-50 p-4">
-                        <span className="text-xs font-medium text-gray-600">{t("try-identity.results_distance")}</span>
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-600">
+                          {t("try-identity.results_distance")}
+                          <InfoTip text={t("try-identity.tip_distance")} />
+                        </span>
                         <p className="mt-1 text-lg font-bold text-violet-700">
                           {(result.data.output.distance * 100).toFixed(2)}%
                         </p>
@@ -452,7 +488,10 @@ export default function TryIdentity() {
                   {/* Processed images */}
                   {result.data?.output && (
                     <div className="mt-5">
-                      <h3 className="mb-1 text-xs font-semibold text-gray-900">{t("try-identity.results_images")}</h3>
+                      <h3 className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-gray-900">
+                        {t("try-identity.results_images")}
+                        <InfoTip text={t("try-identity.tip_images")} />
+                      </h3>
                       <p className="mb-3 text-xs text-gray-400">{t("try-identity.results_images_hint")}</p>
                       <div className="grid grid-cols-2 gap-3">
                         {["FaceImageCV2", "CardImageCV2", "FaceLandMarksImage", "CardLandMarksImage"].map((key, idx) => {
@@ -514,7 +553,10 @@ export default function TryIdentity() {
                 <Terminal className="h-4 w-4 text-emerald-400" />
               </div>
               <div>
-                <h2 className="text-sm font-semibold text-gray-900">{t("try-identity.log")}</h2>
+                <h2 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900">
+                  {t("try-identity.log")}
+                  <InfoTip text={t("try-identity.tip_log")} />
+                </h2>
                 <p className="text-xs text-gray-400">{t("try-identity.log_subtitle")}</p>
               </div>
             </div>
@@ -554,6 +596,99 @@ export default function TryIdentity() {
               </LayoutGroup>
             </div>
           </div>
+        </div>
+
+        {/* Technical definition — collapsible */}
+        <div className="mt-8 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <button
+            type="button"
+            onClick={() => setShowTech((v) => !v)}
+            aria-expanded={showTech}
+            className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-gray-50"
+          >
+            <span className="flex items-center gap-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-100">
+                <Cpu className="h-4 w-4 text-violet-600" />
+              </span>
+              <span>
+                <span className="block text-sm font-semibold text-gray-900">{t("try-identity.tech_title")}</span>
+                <span className="block text-xs text-gray-400">{t("try-identity.tech_subtitle")}</span>
+              </span>
+            </span>
+            <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform ${showTech ? "rotate-180" : ""}`} />
+          </button>
+
+          <AnimatePresence initial={false}>
+            {showTech && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                className="overflow-hidden"
+              >
+                <div className="grid grid-cols-1 gap-6 border-t border-gray-100 px-6 py-6 md:grid-cols-3">
+                  {/* How it works */}
+                  <div>
+                    <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-900">
+                      <Workflow className="h-4 w-4 text-violet-600" />
+                      {t("try-identity.tech_flow_title")}
+                    </h3>
+                    <ol className="space-y-2 text-xs text-gray-600">
+                      <li className="flex gap-2"><span className="font-semibold text-violet-600">1.</span>{t("try-identity.tech_flow_1")}</li>
+                      <li className="flex gap-2"><span className="font-semibold text-violet-600">2.</span>{t("try-identity.tech_flow_2")}</li>
+                      <li className="flex gap-2"><span className="font-semibold text-violet-600">3.</span>{t("try-identity.tech_flow_3")}</li>
+                      <li className="flex gap-2"><span className="font-semibold text-violet-600">4.</span>{t("try-identity.tech_flow_4")}</li>
+                    </ol>
+                  </div>
+
+                  {/* Model */}
+                  <div>
+                    <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-900">
+                      <Cpu className="h-4 w-4 text-violet-600" />
+                      {t("try-identity.tech_model_title")}
+                    </h3>
+                    <dl className="space-y-1.5 text-xs">
+                      <div className="flex justify-between gap-2 border-b border-gray-100 pb-1.5">
+                        <dt className="text-gray-500">{t("try-identity.tech_model_name_label")}</dt>
+                        <dd className="text-right font-medium text-gray-900">InsightFace buffalo_l</dd>
+                      </div>
+                      <div className="flex justify-between gap-2 border-b border-gray-100 pb-1.5">
+                        <dt className="text-gray-500">{t("try-identity.tech_model_detector_label")}</dt>
+                        <dd className="text-right font-medium text-gray-900">SCRFD</dd>
+                      </div>
+                      <div className="flex justify-between gap-2 border-b border-gray-100 pb-1.5">
+                        <dt className="text-gray-500">{t("try-identity.tech_model_embed_label")}</dt>
+                        <dd className="text-right font-medium text-gray-900">ArcFace ResNet-50 · 512-d</dd>
+                      </div>
+                      <div className="flex justify-between gap-2 border-b border-gray-100 pb-1.5">
+                        <dt className="text-gray-500">{t("try-identity.tech_model_metric_label")}</dt>
+                        <dd className="text-right font-medium text-gray-900">{t("try-identity.tech_model_metric_value")}</dd>
+                      </div>
+                      <div className="flex justify-between gap-2">
+                        <dt className="text-gray-500">{t("try-identity.tech_model_threshold_label")}</dt>
+                        <dd className="text-right font-medium text-gray-900">0.35</dd>
+                      </div>
+                    </dl>
+                    <p className="mt-2 text-[11px] leading-relaxed text-gray-400">{t("try-identity.tech_model_note")}</p>
+                  </div>
+
+                  {/* Privacy / API */}
+                  <div>
+                    <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-900">
+                      <ShieldCheck className="h-4 w-4 text-violet-600" />
+                      {t("try-identity.tech_api_title")}
+                    </h3>
+                    <ul className="space-y-2 text-xs text-gray-600">
+                      <li>{t("try-identity.tech_api_1")}</li>
+                      <li>{t("try-identity.tech_api_2")}</li>
+                      <li>{t("try-identity.tech_api_3")}</li>
+                    </ul>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 

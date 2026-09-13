@@ -79,10 +79,21 @@ function getHomepageContext(): string {
       .map((f: any) => `- ${f.title}: ${f.description}`)
       .join('\n');
 
+    const demos = (data.demosCatalog?.items || [])
+      .map((d: any) => {
+        const status = d.status === 'live' ? 'LIVE, try now' : 'coming soon';
+        const path = d.href ? ` (${d.href})` : '';
+        return `- ${d.title} [${d.modelType}] — ${status}${path}: ${d.description}`;
+      })
+      .join('\n');
+
     return `The visitor is on the Robles.AI homepage. Robles.AI provides robust artificial intelligence solutions that transform businesses with cutting-edge AI technology.
 
 AI Solutions Offered:
 ${solutions}
+
+Interactive AI Demos (the "AI Demos Playground" — visitors can try these live in the browser with no signup, at /demos):
+${demos}
 
 Case Studies (proven results):
 ${caseStudies}
@@ -249,6 +260,8 @@ function getRouteDescription(pagePath: string): string {
     '/apply': `The visitor is on the Robles.AI job application page, submitting their application to join the team.`,
 
     '/get-started': `The visitor is on the "Get Started with AI" landing page. Robles.AI offers a proven process for AI/ML transformation: identifying opportunities, prioritizing by real impact, and implementing in measurable stages. Services include AI diagnosis, auditing, chatbot development, LLM integration, RAG pipelines, and custom ML solutions.`,
+
+    '/demos': `The visitor is on the "AI Demos Playground" — a catalog of interactive AI demos they can try live in the browser with no signup. Live demos available now: Identity Verification (computer vision / face recognition, at /try-identity), RAG Pipeline (NLP / retrieval-augmented generation, at /try-rag), Medical Image Analysis (computer vision / medical imaging, at /try-medical), and LangChain Agent (LLM / agents & tools, at /try-langchain). More demos are coming soon across speech-to-text, sentiment analysis, demand forecasting, object detection, document extraction, image generation, recommendation systems, and fraud/anomaly detection. If a visitor is interested in a "coming soon" demo or wants a custom one for their use case, invite them to get in touch.`,
 
     '/otp': `The visitor is on a utility page for one-time password generation.`,
   };

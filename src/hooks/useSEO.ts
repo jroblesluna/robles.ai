@@ -42,6 +42,7 @@ function getRouteKey(path: string): string {
   if (path === "/careers") return "careers";
   if (path === "/apply") return "apply";
   if (path === "/blog") return "blog";
+  if (path === "/demos") return "demos";
   if (path.startsWith("/try-")) return "demos";
   return "home";
 }
