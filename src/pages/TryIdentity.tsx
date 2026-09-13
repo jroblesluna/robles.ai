@@ -1,12 +1,23 @@
 import { useState, useEffect, useRef } from "react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebaseConfig";
 import { AnimatePresence, motion, LayoutGroup } from "framer-motion";
-import { Fingerprint, Info } from "lucide-react";
+import {
+  Fingerprint,
+  Info,
+  UploadCloud,
+  UserRound,
+  IdCard,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+  PlayCircle,
+  RotateCcw,
+  Terminal,
+} from "lucide-react";
 import VideoModal from "@/components/VideoModal";
 import { useTranslation } from "react-i18next";
 
@@ -20,6 +31,113 @@ const getBaseApi = () => {
 const BASE_API = getBaseApi();
 const VERIFY_ENDPOINT = `${BASE_API}/recognition/verify-id`;
 const STATUS_ENDPOINT = (id: string) => `${BASE_API}/recognition/get/${id}`;
+
+type StatusKey =
+  | "pending"
+  | "started"
+  | "partially_completed"
+  | "completed"
+  | "completed_with_errors"
+  | "failed";
+
+const STATUS_META: Record<
+  StatusKey,
+  { progress: number; tone: string; bar: string; dot: string }
+> = {
+  pending: { progress: 20, tone: "text-amber-700 bg-amber-50 border-amber-200", bar: "bg-amber-400", dot: "bg-amber-400" },
+  started: { progress: 45, tone: "text-blue-700 bg-blue-50 border-blue-200", bar: "bg-blue-500", dot: "bg-blue-500" },
+  partially_completed: { progress: 75, tone: "text-indigo-700 bg-indigo-50 border-indigo-200", bar: "bg-indigo-500", dot: "bg-indigo-500" },
+  completed: { progress: 100, tone: "text-emerald-700 bg-emerald-50 border-emerald-200", bar: "bg-emerald-500", dot: "bg-emerald-500" },
+  completed_with_errors: { progress: 100, tone: "text-orange-700 bg-orange-50 border-orange-200", bar: "bg-orange-500", dot: "bg-orange-500" },
+  failed: { progress: 100, tone: "text-red-700 bg-red-50 border-red-200", bar: "bg-red-500", dot: "bg-red-500" },
+};
+
+/** Styled upload dropzone with live image preview. */
+function ImageDropzone({
+  id,
+  label,
+  hint,
+  icon,
+  file,
+  disabled,
+  inputRef,
+  onSelect,
+}: {
+  id: string;
+  label: string;
+  hint: string;
+  icon: React.ReactNode;
+  file: File | null;
+  disabled?: boolean;
+  inputRef: React.RefObject<HTMLInputElement>;
+  onSelect: (f: File | null) => void;
+}) {
+  const { t } = useTranslation();
+  const [preview, setPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!file) {
+      setPreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    setPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
+
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-violet-600">{icon}</span>
+        <label htmlFor={id} className="text-sm font-semibold text-gray-900">
+          {label}
+        </label>
+      </div>
+      <input
+        id={id}
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg, image/png"
+        disabled={disabled}
+        className="sr-only"
+        onChange={(e) => onSelect(e.target.files?.[0] || null)}
+      />
+      <label
+        htmlFor={id}
+        className={`group relative flex items-center gap-4 rounded-2xl border-2 border-dashed p-4 transition-all ${
+          disabled
+            ? "cursor-not-allowed opacity-60 border-gray-200"
+            : "cursor-pointer border-gray-200 hover:border-violet-400 hover:bg-violet-50/40"
+        }`}
+      >
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gray-100 ring-1 ring-gray-200">
+          {preview ? (
+            <img src={preview} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <UploadCloud className="h-6 w-6 text-gray-400 transition-colors group-hover:text-violet-500" />
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          {file ? (
+            <>
+              <p className="truncate text-sm font-medium text-gray-900">{file.name}</p>
+              <p className="mt-0.5 text-xs text-violet-600">{t("try-identity.change_file")}</p>
+            </>
+          ) : (
+            <>
+              <p className="text-sm font-medium text-gray-700">{t("try-identity.dropzone_cta")}</p>
+              <p className="mt-0.5 text-xs text-gray-400">{hint}</p>
+              <span className="mt-1 inline-block rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-500">
+                {t("try-identity.dropzone_formats")}
+              </span>
+            </>
+          )}
+        </div>
+        {file && <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-500" />}
+      </label>
+    </div>
+  );
+}
 
 export default function TryIdentity() {
   const [selfie, setSelfie] = useState<File | null>(null);
@@ -39,22 +157,13 @@ export default function TryIdentity() {
   const { t, i18n } = useTranslation();
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
   const [showVideo, setShowVideo] = useState(false);
-  
+
   useEffect(() => {
     const translatedSrc = t("try-identity.videoSrc");
     if (translatedSrc && typeof translatedSrc === "string") {
       setVideoSrc(translatedSrc);
     }
-  }, [t, i18n.language]); // vuelve a ejecutar si cambia el idioma
-
-  const STATUS_MAP: Record<string, { text: string; progress: number }> = {
-    pending: { text: t("try-identity.status_pending"), progress: 20 },
-    started: { text: t("try-identity.status_started"), progress: 40 },
-    partially_completed: { text: t("try-identity.status_partially_completed"), progress: 75 },
-    completed: { text: t("try-identity.status_completed"), progress: 100 },
-    completed_with_errors: { text: t("try-identity.status_completed_with_errors"), progress: 100 },
-    failed: { text: t("try-identity.status_failed"), progress: 0 },
-  };
+  }, [t, i18n.language]);
 
   useEffect(() => {
     if (!requestId || !submitted) return;
@@ -156,189 +265,308 @@ export default function TryIdentity() {
     setCallbackUrl(`${window.location.origin}/webhook/${uuidv4()}`);
   };
 
+  const statusMeta = status ? STATUS_META[status as StatusKey] : null;
+  const showResult =
+    result && ["partially_completed", "completed", "completed_with_errors", "failed"].includes(result.status);
+
   return (
-    <div className="bg-white min-h-screen py-12">
-      <div className="container mx-auto px-6 max-w-6xl">
+    <div className="min-h-screen bg-gradient-to-b from-violet-50/60 via-white to-white py-12">
+      <div className="container mx-auto max-w-6xl px-6">
+        {/* Header */}
         <div className="mb-10">
-          <div className="flex flex-col sm:flex-row items-center sm:items-center text-center sm:text-left gap-4 sm:gap-5">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-[6.5rem] md:h-[6.5rem] rounded-2xl bg-gradient-to-r from-violet-500 to-purple-600 text-white flex items-center justify-center shadow-sm shrink-0">
-              <Fingerprint className="h-10 w-10 sm:h-12 sm:w-12 md:h-[3.25rem] md:w-[3.25rem]" />
+          <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/30 sm:h-24 sm:w-24">
+              <Fingerprint className="h-10 w-10 sm:h-12 sm:w-12" />
             </div>
-            <div className="flex flex-col justify-center">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">{t("try-identity.title")}</h1>
-              <p className="text-gray-600 text-sm sm:text-base">{t("try-identity.description")}</p>
+            <div>
+              <span className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700">
+                <span className="h-1.5 w-1.5 rounded-full bg-violet-500" />
+                Live API demo
+              </span>
+              <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl md:text-4xl">
+                {t("try-identity.title")}
+              </h1>
+              <p className="mt-2 max-w-2xl text-sm text-gray-600 sm:text-base">
+                {t("try-identity.description")}
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-start gap-3 bg-blue-50 border border-blue-100 text-blue-800 text-xs rounded-lg p-4 mb-6">
-          <Info className="h-4 w-4 shrink-0 text-blue-500 mt-0.5" />
-          <p>{t("try-identity.instructions")}</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 space-y-5">
-            <div>
-              <h2 className="text-sm font-semibold text-gray-900 mb-1.5">{t("try-identity.webhook")}</h2>
-              <div className="text-xs bg-gray-50 border border-gray-200 text-gray-600 p-2.5 rounded-lg break-all font-mono">{callbackUrl}</div>
-            </div>
-
-            <div>
-              <h2 className="text-sm font-semibold text-gray-900 mb-1.5">{t("try-identity.selfie")}</h2>
-              <Input type="file" accept="image/jpeg, image/png" ref={selfieInputRef} onChange={(e) => setSelfie(e.target.files?.[0] || null)} disabled={submitted} className="rounded-lg border-gray-300" />
-            </div>
-
-            <div>
-              <h2 className="text-sm font-semibold text-gray-900 mb-1.5">{t("try-identity.document")}</h2>
-              <Input type="file" accept="image/jpeg, image/png" ref={documentInputRef} onChange={(e) => setDocument(e.target.files?.[0] || null)} disabled={submitted} className="rounded-lg border-gray-300" />
-            </div>
-
-            <Button
-              onClick={handleSubmit}
-              disabled={loading || submitted || !selfie || !document}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-sm"
-            >
-              {loading ? t("try-identity.verify_processing") : submitted ? t("try-identity.verify_sent") : t("try-identity.verify")}
-            </Button>
-
-            {status && (
-              <div>
-                <div className="text-sm font-medium text-gray-700 mb-1">{STATUS_MAP[status]?.text}</div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div className="bg-blue-600 h-2.5 rounded-full transition-all duration-500" style={{ width: `${STATUS_MAP[status]?.progress}%` }}></div>
-                </div>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+          {/* Left column: form + results */}
+          <div className="space-y-6">
+            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="mb-5 flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-violet-600 text-xs font-bold text-white">
+                  1
+                </span>
+                <h2 className="text-sm font-semibold text-gray-900">{t("try-identity.step_upload")}</h2>
               </div>
-            )}
 
-            {result && ["partially_completed", "completed", "completed_with_errors", "failed"].includes(result.status) && (
-              <div className="bg-gray-50 border border-gray-200 text-xs p-4 rounded-lg">
-                <h2 className="font-semibold text-gray-900 mb-2">{t("try-identity.results_label")}</h2>
-                <div className="space-y-2 text-gray-600">
-                  <div>
-                    <span className="font-medium text-gray-900">{t("try-identity.results_status")}: </span>
-                    <span className="capitalize">{t(`try-identity.status_${result.status}`)}</span>
+              <div className="space-y-4">
+                <ImageDropzone
+                  id="selfie-input"
+                  label={t("try-identity.selfie")}
+                  hint={t("try-identity.selfie_hint")}
+                  icon={<UserRound className="h-4 w-4" />}
+                  file={selfie}
+                  disabled={submitted}
+                  inputRef={selfieInputRef}
+                  onSelect={setSelfie}
+                />
+                <ImageDropzone
+                  id="document-input"
+                  label={t("try-identity.document")}
+                  hint={t("try-identity.document_hint")}
+                  icon={<IdCard className="h-4 w-4" />}
+                  file={document}
+                  disabled={submitted}
+                  inputRef={documentInputRef}
+                  onSelect={setDocument}
+                />
+              </div>
+
+              {/* Callback URL */}
+              <div className="mt-5">
+                <h3 className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  {t("try-identity.webhook")}
+                </h3>
+                <div className="break-all rounded-lg border border-gray-200 bg-gray-50 p-2.5 font-mono text-xs text-gray-500">
+                  {callbackUrl}
+                </div>
+                <p className="mt-1.5 text-xs text-gray-400">{t("try-identity.webhook_hint")}</p>
+              </div>
+
+              <Button
+                onClick={handleSubmit}
+                disabled={loading || submitted || !selfie || !document}
+                className="mt-5 w-full rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 py-6 text-sm font-semibold text-white shadow-md shadow-violet-500/20 transition-all hover:from-violet-700 hover:to-purple-700 disabled:opacity-50"
+              >
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {t("try-identity.verify_processing")}
+                  </span>
+                ) : submitted ? (
+                  t("try-identity.verify_sent")
+                ) : (
+                  t("try-identity.verify")
+                )}
+              </Button>
+
+              {/* Progress */}
+              {status && statusMeta && (
+                <div className="mt-5">
+                  <div className="mb-2 flex items-center justify-between">
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold ${statusMeta.tone}`}
+                    >
+                      <span className={`h-1.5 w-1.5 rounded-full ${statusMeta.dot} ${status !== "completed" && status !== "failed" && status !== "completed_with_errors" ? "animate-pulse" : ""}`} />
+                      {t(`try-identity.status_${status}`)}
+                    </span>
+                    <span className="text-xs font-medium text-gray-400">{statusMeta.progress}%</span>
                   </div>
-                  <div>
-                    <span className="font-medium text-gray-900">{t("try-identity.results_completed_ok")}: </span>
-                    <span className={result.success ? "text-emerald-600" : "text-red-600"}>{t(`try-identity.results_completed_ok_${result.success ? "yes" : "no"}`)}</span>
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+                    <motion.div
+                      className={`h-full rounded-full ${statusMeta.bar}`}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${statusMeta.progress}%` }}
+                      transition={{ duration: 0.5, ease: "easeOut" }}
+                    />
                   </div>
+                  <p className="mt-2 text-xs text-gray-500">{t(`try-identity.status_${status}_description`)}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Results */}
+            <AnimatePresence>
+              {showResult && (
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+                >
+                  <h2 className="mb-4 text-sm font-semibold text-gray-900">{t("try-identity.results_label")}</h2>
+
+                  {/* Headline cards */}
                   {result.data?.output && (
-                    <>
-                      <div>
-                        <span className="font-medium text-gray-900">{t("try-identity.results_match")}: </span>
-                        <span className={`${result.data.output.result_match ? "text-emerald-600" : "text-red-600"} font-bold`}>{t(`try-identity.results_match_${result.data.output.result_match}`)}</span>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-900">{t("try-identity.results_distance")}: </span>
-                        <span>{(result.data.output.distance * 100).toFixed(2)}%</span>
-                      </div>
-                      <div className="mt-4">
-                        <h3 className="font-medium text-gray-900 mb-2">{t("try-identity.results_images")}</h3>
-                        <div className="grid grid-cols-2 gap-2">
-                          {["FaceImageCV2", "CardImageCV2", "FaceLandMarksImage", "CardLandMarksImage"].map((key, idx) => {
-                            const imageUrl = result.data.output[key];
-                            const isPending = !imageUrl || imageUrl === "pending";
-
-                            return (
-                              <div key={idx} className="cursor-pointer" onClick={() => !isPending && setModalImage(imageUrl)}>
-                                <div className="w-full h-24 relative overflow-hidden rounded-xl bg-gray-200">
-                                  <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/60 to-transparent" />
-                                  {isPending ? (
-                                    <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/60 to-transparent" />
-
-                                  ) : (
-                                    <img
-                                      src={imageUrl}
-                                      alt={key}
-                                      className="w-full h-24 object-cover rounded opacity-90"
-                                    />
-                                  )}
-                                </div>
-
-                                <p className="text-center mt-1 text-gray-600">{key}</p>
-                              </div>
-                            );
-                          })}
+                    <div className="mb-5 grid grid-cols-2 gap-3">
+                      <div
+                        className={`rounded-xl border p-4 ${
+                          result.data.output.result_match
+                            ? "border-emerald-200 bg-emerald-50"
+                            : "border-red-200 bg-red-50"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          {result.data.output.result_match ? (
+                            <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                          ) : (
+                            <XCircle className="h-5 w-5 text-red-600" />
+                          )}
+                          <span className="text-xs font-medium text-gray-600">{t("try-identity.results_match")}</span>
                         </div>
+                        <p
+                          className={`mt-1 text-lg font-bold ${
+                            result.data.output.result_match ? "text-emerald-700" : "text-red-700"
+                          }`}
+                        >
+                          {t(`try-identity.results_match_${result.data.output.result_match}`)}
+                        </p>
                       </div>
-                    </>
-                  )}
-                  <div>
-                    <span className="font-medium text-gray-900">{t("try-identity.results_created_at")}: </span>
-                    <span>{new Date(result.created_at).toLocaleString()}</span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-900">{t("try-identity.results_updated_at")}: </span>
-                    <span>{new Date(result.updated_at).toLocaleString()}</span>
-                  </div>
-                </div>
-              </div>
-            )}
 
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                      <div className="rounded-xl border border-violet-200 bg-violet-50 p-4">
+                        <span className="text-xs font-medium text-gray-600">{t("try-identity.results_distance")}</span>
+                        <p className="mt-1 text-lg font-bold text-violet-700">
+                          {(result.data.output.distance * 100).toFixed(2)}%
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Meta rows */}
+                  <dl className="space-y-2 text-xs">
+                    <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                      <dt className="text-gray-500">{t("try-identity.results_status")}</dt>
+                      <dd className="font-medium capitalize text-gray-900">{t(`try-identity.status_${result.status}`)}</dd>
+                    </div>
+                    <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                      <dt className="text-gray-500">{t("try-identity.results_completed_ok")}</dt>
+                      <dd className={`font-medium ${result.success ? "text-emerald-600" : "text-red-600"}`}>
+                        {t(`try-identity.results_completed_ok_${result.success ? "yes" : "no"}`)}
+                      </dd>
+                    </div>
+                    <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                      <dt className="text-gray-500">{t("try-identity.results_created_at")}</dt>
+                      <dd className="text-gray-700">{new Date(result.created_at).toLocaleString()}</dd>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <dt className="text-gray-500">{t("try-identity.results_updated_at")}</dt>
+                      <dd className="text-gray-700">{new Date(result.updated_at).toLocaleString()}</dd>
+                    </div>
+                  </dl>
+
+                  {/* Processed images */}
+                  {result.data?.output && (
+                    <div className="mt-5">
+                      <h3 className="mb-1 text-xs font-semibold text-gray-900">{t("try-identity.results_images")}</h3>
+                      <p className="mb-3 text-xs text-gray-400">{t("try-identity.results_images_hint")}</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        {["FaceImageCV2", "CardImageCV2", "FaceLandMarksImage", "CardLandMarksImage"].map((key, idx) => {
+                          const imageUrl = result.data.output[key];
+                          const isPending = !imageUrl || imageUrl === "pending";
+                          return (
+                            <div
+                              key={idx}
+                              className={`overflow-hidden rounded-xl border border-gray-200 ${!isPending ? "cursor-pointer transition-shadow hover:shadow-md" : ""}`}
+                              onClick={() => !isPending && setModalImage(imageUrl)}
+                            >
+                              <div className="relative h-28 w-full bg-gray-100">
+                                {isPending ? (
+                                  <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/70 to-transparent" />
+                                ) : (
+                                  <img src={imageUrl} alt={key} className="h-full w-full object-cover" />
+                                )}
+                              </div>
+                              <p className="truncate px-2 py-1.5 text-center text-[11px] font-medium text-gray-500">
+                                {key}
+                              </p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Actions */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
               {(requestId || payloadPreview) && (
                 <Button
                   variant="outline"
                   onClick={handleReset}
-                  className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg"
+                  className="rounded-xl border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
+                  <RotateCcw className="mr-2 h-4 w-4" />
                   {t("try-identity.reset")}
                 </Button>
               )}
-
               <Button
-                variant="link"
-                className="text-blue-600 hover:text-blue-700 text-sm"
+                variant="ghost"
+                className="ml-auto text-violet-600 hover:bg-violet-50 hover:text-violet-700"
                 onClick={() => setShowVideo(true)}
               >
+                <PlayCircle className="mr-2 h-4 w-4" />
                 {t("try-identity.watch_demo")}
               </Button>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 overflow-auto max-h-[80vh]">
-            <h2 className="text-sm font-semibold text-gray-900 mb-3">{t("try-identity.log")}</h2>
-            {queryHistory.length === 0 && (
-              <div className="flex flex-col items-center justify-center text-center py-16">
-                <div className="w-48 h-48 -mb-4 flex items-center justify-center">
-                  <img src="/robly-avatar/robly-standby.svg" alt="" className="w-48 h-48 opacity-60" />
-                </div>
-                <p className="font-semibold text-gray-700 opacity-60">{t("try-identity.log_empty_title")}</p>
-                <p className="text-sm text-gray-400 mt-1 opacity-60">{t("try-identity.log_empty")}</p>
+          {/* Right column: log */}
+          <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <div className="flex items-center gap-2 border-b border-gray-100 px-6 py-4">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-900">
+                <Terminal className="h-4 w-4 text-emerald-400" />
               </div>
-            )}
-            <LayoutGroup>
-              <AnimatePresence initial={false}>
-                {queryHistory.map((entry) => (
-                  <motion.div
-                    key={entry.key}
-                    layout
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 20 }}
-                    transition={{ duration: 0.3 }}
-                    className="mb-4"
-                  >
-                    <div className="mb-1 break-all text-blue-600 font-mono text-xs">{entry.url}</div>
-                    <pre className="bg-gray-50 border border-gray-200 text-gray-700 text-xs p-2 rounded-lg overflow-x-auto">{JSON.stringify(entry.response, null, 2)}</pre>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </LayoutGroup>
+              <div>
+                <h2 className="text-sm font-semibold text-gray-900">{t("try-identity.log")}</h2>
+                <p className="text-xs text-gray-400">{t("try-identity.log_subtitle")}</p>
+              </div>
+            </div>
+
+            <div className="max-h-[70vh] overflow-auto p-6">
+              {queryHistory.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <img src="/robly-avatar/robly-standby.svg" alt="" className="mb-2 h-40 w-40 opacity-50" />
+                  <p className="font-semibold text-gray-600 opacity-70">{t("try-identity.log_empty_title")}</p>
+                  <p className="mt-1 max-w-xs text-sm text-gray-400">{t("try-identity.log_empty")}</p>
+                </div>
+              )}
+              <LayoutGroup>
+                <AnimatePresence initial={false}>
+                  {queryHistory.map((entry) => (
+                    <motion.div
+                      key={entry.key}
+                      layout
+                      initial={{ opacity: 0, y: -16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 16 }}
+                      transition={{ duration: 0.3 }}
+                      className="mb-4"
+                    >
+                      <div className="mb-1.5 flex items-center gap-2">
+                        <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-emerald-700">
+                          {entry.url.includes("verify-id") ? "POST" : "GET"}
+                        </span>
+                        <span className="break-all font-mono text-xs text-violet-600">{entry.url}</span>
+                      </div>
+                      <pre className="overflow-x-auto rounded-lg border border-gray-800 bg-gray-900 p-3 text-xs leading-relaxed text-gray-100">
+                        {JSON.stringify(entry.response, null, 2)}
+                      </pre>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </LayoutGroup>
+            </div>
           </div>
         </div>
       </div>
 
       {modalImage && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]" onClick={() => setModalImage(null)}>
-          <img src={modalImage} alt="Modal" className="max-w-full max-h-full" />
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-6 backdrop-blur-sm"
+          onClick={() => setModalImage(null)}
+        >
+          <img src={modalImage} alt="" className="max-h-full max-w-full rounded-lg shadow-2xl" />
         </div>
       )}
 
-      {showVideo && videoSrc && (
-        <VideoModal videoSrc={videoSrc} onClose={() => setShowVideo(false)} />
-      )}
+      {showVideo && videoSrc && <VideoModal videoSrc={videoSrc} onClose={() => setShowVideo(false)} />}
     </div>
   );
 }
-
