@@ -43,10 +43,11 @@ const Hero = () => {
   };
 
   // Slide variants: enter from the side we're heading to, exit to the opposite.
+  // Use full-width (%) so the slide travels the entire container, not a fixed px.
   const slideVariants = {
-    enter: (dir: number) => ({ x: dir > 0 ? 320 : -320, opacity: 0 }),
-    center: { x: 0, opacity: 1 },
-    exit: (dir: number) => ({ x: dir > 0 ? -320 : 320, opacity: 0 }),
+    enter: (dir: number) => ({ x: dir > 0 ? "100%" : "-100%", opacity: 0 }),
+    center: { x: "0%", opacity: 1 },
+    exit: (dir: number) => ({ x: dir > 0 ? "-100%" : "100%", opacity: 0 }),
   };
 
   const slides = [
