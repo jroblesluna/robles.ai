@@ -416,22 +416,57 @@ npm start
 
 ## Deployment
 
-The project runs on a VPS with PM2 under user `roblesai`. **Deploy is always done manually by the project owner** — never trigger builds or restarts from code assistants.
+The project runs on a VPS with PM2 under user `roblesai`. Deployment is
+automated with **GitHub Actions**:
 
-```bash
-# Run on the VPS (manually):
-./pull.sh
+```
+bash push.sh (local)  →  git commit + push to main
+                             ↓
+        GitHub Actions (.github/workflows/deploy.yml)
+                             ↓
+        SSH into VPS  →  bash pull.sh (fetch + selective build + pm2 restart)
 ```
 
-`pull.sh` requires NVM in PATH. Run it with a login shell or prefix manually:
+After the one-time setup, the full cycle is just `bash push.sh` — the deploy
+runs automatically.
+
+### `pull.sh` — selective build by change type
+
+`pull.sh` fetches `origin/main` and inspects **which files changed** to do only
+the work that's justified:
+
+| Changed files | Action |
+|---------------|--------|
+| `package.json` / `package-lock.json` | `npm install` + build + pm2 restart |
+| `src/`, `server/`, `shared/`, configs, `index.html` | build + pm2 restart |
+| only `server/data/` (blog posts) | sync data into `dist/` + pm2 restart (no compile) |
+| only docs / `*.sh` / `.gitignore` | nothing (server left running) |
+| no new commits | no-op |
+
+It handles: `git fetch` → `git reset --hard origin/main` → (npm install) →
+(build) → pm2 restart. It requires NVM loaded (the script sources
+`~/.nvm/nvm.sh`).
+
+### CI/CD setup (GitHub Secrets)
+
+The workflow authenticates to the VPS via SSH key. Four repo secrets are needed
+(Settings → Secrets and variables → Actions): `VPS_HOST` (`robles.ai`),
+`VPS_USER` (`roblesai`), `VPS_SSH_KEY` (private SSH key authorized on the VPS),
+`VPS_REPO_PATH` (`/home/roblesai/htdocs/robles.ai`).
 
 ```bash
+ssh-keygen -t ed25519 -C "github-actions-deploy" -f ~/.ssh/github_deploy -N ""
+ssh-copy-id -i ~/.ssh/github_deploy.pub roblesai@robles.ai
+gh secret set VPS_SSH_KEY --repo jroblesluna/robles.ai < ~/.ssh/github_deploy
+# + VPS_HOST, VPS_USER, VPS_REPO_PATH
+```
+
+### Manual deploy (fallback)
+
+```bash
+# On the VPS, or via SSH from your Mac:
 source ~/.nvm/nvm.sh && bash pull.sh
 ```
-
-`pull.sh` handles: `git fetch` → `git reset --hard origin/main` → `npm install` → `npm run build` → `pm2 restart`.
-
-> **Important:** `pull.sh` uses `pm2` and `npm` which require NVM to be loaded first. The script itself does not source NVM — always invoke it from a login shell (`bash -l pull.sh`) or after `source ~/.nvm/nvm.sh`.
 
 ### Known VPS configuration
 

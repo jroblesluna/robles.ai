@@ -25,6 +25,51 @@ import {
 import VideoModal from "@/components/VideoModal";
 import { useTranslation } from "react-i18next";
 
+/**
+ * Lightweight, dependency-free JSON syntax highlighter.
+ * Tokenizes a pretty-printed JSON string and colors keys, strings, numbers,
+ * booleans and null with a VS Code "One Dark"–style palette.
+ */
+function JsonHighlight({ data }: { data: unknown }) {
+  const json = JSON.stringify(data, null, 2);
+  // Match strings (incl. keys), numbers, booleans and null.
+  const tokenRegex =
+    /("(?:\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(?:\s*:)?|\b(?:true|false)\b|\bnull\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g;
+
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let key = 0;
+
+  while ((match = tokenRegex.exec(json)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(json.slice(lastIndex, match.index)); // punctuation/whitespace
+    }
+    const token = match[0];
+    let cls = "text-cyan-300"; // number default
+    if (/^"/.test(token)) {
+      cls = /:\s*$/.test(token) ? "text-sky-300" : "text-emerald-300"; // key vs string
+    } else if (/true|false/.test(token)) {
+      cls = "text-orange-300"; // boolean
+    } else if (/null/.test(token)) {
+      cls = "text-rose-300"; // null
+    }
+    parts.push(
+      <span key={key++} className={cls}>
+        {token}
+      </span>
+    );
+    lastIndex = tokenRegex.lastIndex;
+  }
+  if (lastIndex < json.length) parts.push(json.slice(lastIndex));
+
+  return (
+    <pre className="max-w-full overflow-x-auto whitespace-pre-wrap break-all rounded-lg border border-slate-700/60 bg-slate-800/90 p-3 font-mono text-xs leading-relaxed text-slate-300 shadow-inner">
+      {parts}
+    </pre>
+  );
+}
+
 /** Lightweight, dependency-free info tooltip (hover + keyboard focus). */
 function InfoTip({ text, label }: { text: string; label?: string }) {
   return (
@@ -693,14 +738,18 @@ export default function TryIdentity() {
                       className="mb-4"
                     >
                       <div className="mb-1.5 flex items-center gap-2">
-                        <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-emerald-700">
+                        <span
+                          className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                            entry.url.includes("verify-id")
+                              ? "bg-amber-100 text-amber-700"
+                              : "bg-sky-100 text-sky-700"
+                          }`}
+                        >
                           {entry.url.includes("verify-id") ? "POST" : "GET"}
                         </span>
                         <span className="break-all font-mono text-xs text-violet-600">{entry.url}</span>
                       </div>
-                      <pre className="max-w-full overflow-x-auto whitespace-pre-wrap break-all rounded-lg border border-gray-800 bg-gray-900 p-3 text-xs leading-relaxed text-gray-100">
-                        {JSON.stringify(entry.response, null, 2)}
-                      </pre>
+                      <JsonHighlight data={entry.response} />
                     </motion.div>
                   ))}
                 </AnimatePresence>

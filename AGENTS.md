@@ -1,6 +1,9 @@
-# Robles.AI — Contexto Completo de la Plataforma
+# AGENTS.md — Contexto para asistentes de código
 
-> Documento de contexto integral del proyecto `robles.ai`. Generado a partir del estado actual del repositorio (rama `main`) para dar una visión completa de negocio, arquitectura, features, datos, rutas, convenciones y despliegue. Complementa a [README.md](README.md), que se mantiene como referencia técnica principal.
+> Documento de contexto integral del proyecto `robles.ai` para agentes de IA y
+> nuevos contribuidores: negocio, arquitectura, features, datos, rutas,
+> convenciones, CI/CD y despliegue. Léelo antes de hacer cambios. El
+> [README.md](README.md) es la referencia técnica orientada a humanos.
 
 ---
 
@@ -483,16 +486,64 @@ Configurados en `vite.config.ts` y `vitest.config.ts`:
 
 ---
 
-## 17. Despliegue
+## 17. Despliegue (CI/CD)
 
-El proyecto corre en un VPS con PM2 bajo el usuario `roblesai`. **El despliegue siempre lo hace manualmente el dueño del proyecto** — nunca disparar builds o restarts desde asistentes de código.
+El proyecto corre en un **VPS con PM2** bajo el usuario `roblesai`. El despliegue
+está automatizado con GitHub Actions:
 
-```bash
-# En el VPS (manual):
-source ~/.nvm/nvm.sh && bash pull.sh
+```
+bash push.sh (local)  →  git commit + push a main
+                              ↓
+        GitHub Actions (.github/workflows/deploy.yml)
+                              ↓
+        SSH al VPS  →  bash pull.sh (fetch + build selectivo + pm2 restart)
 ```
 
-`pull.sh` hace: `git fetch` → `git reset --hard origin/main` → `npm install` → `npm run build` → `pm2 restart`.
+Tras el setup inicial, el ciclo completo es: `bash push.sh` (commitea, pushea y
+el deploy arranca solo).
+
+### `pull.sh` — build selectivo por tipo de cambio
+
+`pull.sh` hace `git fetch` de `origin/main`, inspecciona **qué archivos
+cambiaron** y hace solo lo justificado (no recompila a ciegas):
+
+| Cambió | Acción |
+|--------|--------|
+| `package.json` / `package-lock.json` | `npm install` + build + pm2 restart |
+| `src/`, `server/`, `shared/`, configs (vite/tailwind/tsconfig), `index.html` | build + pm2 restart |
+| solo `server/data/` (posts del blog) | sync de data a `dist/` + pm2 restart (sin compilar) |
+| solo docs / `*.sh` / `.gitignore` | nada (servidor sigue corriendo) |
+| sin commits nuevos | no-op |
+
+Requiere NVM cargado (el script hace `source ~/.nvm/nvm.sh`).
+
+### Setup único del CI/CD (GitHub Secrets)
+
+El workflow se autentica al VPS por **llave SSH**. Cuatro secretos en el repo
+(Settings → Secrets and variables → Actions):
+
+| Secreto | Valor |
+|---------|-------|
+| `VPS_HOST` | IP o host del VPS (`robles.ai`) |
+| `VPS_USER` | usuario SSH (`roblesai`) |
+| `VPS_SSH_KEY` | clave **privada** SSH autorizada en el VPS |
+| `VPS_REPO_PATH` | ruta absoluta del repo en el VPS (`/home/roblesai/htdocs/robles.ai`) |
+
+Generar la llave dedicada y registrarla:
+
+```bash
+ssh-keygen -t ed25519 -C "github-actions-deploy" -f ~/.ssh/github_deploy -N ""
+ssh-copy-id -i ~/.ssh/github_deploy.pub roblesai@robles.ai
+gh secret set VPS_SSH_KEY --repo jroblesluna/robles.ai < ~/.ssh/github_deploy
+# + VPS_HOST, VPS_USER, VPS_REPO_PATH via `gh secret set` o la UI
+```
+
+### Deploy manual (fallback)
+
+```bash
+# En el VPS, o por SSH desde el Mac:
+source ~/.nvm/nvm.sh && bash pull.sh
+```
 
 ### Configuración conocida del VPS
 
@@ -551,6 +602,7 @@ En desarrollo, disponible en `http://localhost:5173` (ajustable con `PORT`).
 
 ## 20. Referencias
 
-- Documentación técnica detallada y siempre actualizada: [README.md](README.md)
-- Specs de features por módulo: `.kiro/specs/*/`
-- Convenciones para asistentes de código: sección "Code Assistant Reference" de README.md
+- Referencia técnica orientada a humanos: [README.md](README.md)
+- Specs de features por módulo (fuente de verdad histórica de diseño): `.kiro/specs/*/`
+  (contienen `requirements.md` / `design.md` / `tasks.md` — NO son documentación
+  del proyecto, son artefactos del flujo de specs; no borrar).
