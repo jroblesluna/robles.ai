@@ -203,6 +203,8 @@ export default function TryIdentity() {
     const timer = setTimeout(() => controller.abort(), 3000); // 3s: warm should be well under this
     const started = Date.now();
 
+    // Any HTTP reply (even 404) means an instance is up. We only care that the
+    // request resolved and how long it took — not the status code.
     fetch(`${BASE_API}/`, { signal: controller.signal })
       .then(() => {
         clearTimeout(timer);
@@ -235,10 +237,12 @@ export default function TryIdentity() {
       try {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 8000);
-        const res = await fetch(`${BASE_API}/`, { signal: controller.signal });
+        await fetch(`${BASE_API}/`, { signal: controller.signal });
         clearTimeout(timer);
         const elapsed = Date.now() - started;
-        if (res.ok && elapsed < 2500) {
+        // Any HTTP reply means the instance is up. A fast reply means it's warm.
+        // (The root path may return 404 — that still proves the server is awake.)
+        if (elapsed < 2500) {
           setServiceStatus("warm");
           return true;
         }
