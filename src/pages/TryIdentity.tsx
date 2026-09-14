@@ -203,9 +203,11 @@ export default function TryIdentity() {
     const timer = setTimeout(() => controller.abort(), 3000); // 3s: warm should be well under this
     const started = Date.now();
 
-    // Any HTTP reply (even 404) means an instance is up. We only care that the
-    // request resolved and how long it took — not the status code.
-    fetch(`${BASE_API}/`, { signal: controller.signal })
+    // Any reply means an instance is up. We only care that the request resolved
+    // and how long it took — not the status/body. Using no-cors so the health
+    // ping isn't blocked by the backend's CORS config (it returns an opaque
+    // response, which is fine: we only measure latency / that it resolved).
+    fetch(`${BASE_API}/`, { signal: controller.signal, mode: "no-cors" })
       .then(() => {
         clearTimeout(timer);
         if (cancelled) return;
@@ -237,11 +239,12 @@ export default function TryIdentity() {
       try {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 8000);
-        await fetch(`${BASE_API}/`, { signal: controller.signal });
+        await fetch(`${BASE_API}/`, { signal: controller.signal, mode: "no-cors" });
         clearTimeout(timer);
         const elapsed = Date.now() - started;
-        // Any HTTP reply means the instance is up. A fast reply means it's warm.
-        // (The root path may return 404 — that still proves the server is awake.)
+        // Any reply means the instance is up. A fast reply means it's warm.
+        // no-cors returns an opaque response; we only rely on latency + that it
+        // resolved (avoids being blocked by the backend's CORS headers).
         if (elapsed < 2500) {
           setServiceStatus("warm");
           return true;
