@@ -406,7 +406,7 @@ export default function TryIdentity() {
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           {/* Left column: form + results */}
-          <div className="space-y-6">
+          <div className="min-w-0 space-y-6">
             <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
               <div className="mb-5 flex items-center gap-2">
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-violet-600 text-xs font-bold text-white">
@@ -658,7 +658,7 @@ export default function TryIdentity() {
           </div>
 
           {/* Right column: log */}
-          <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <div className="min-w-0 rounded-2xl border border-gray-200 bg-white shadow-sm">
             <div className="flex items-center gap-2 border-b border-gray-100 px-6 py-4">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-900">
                 <Terminal className="h-4 w-4 text-emerald-400" />
@@ -698,7 +698,7 @@ export default function TryIdentity() {
                         </span>
                         <span className="break-all font-mono text-xs text-violet-600">{entry.url}</span>
                       </div>
-                      <pre className="overflow-x-auto rounded-lg border border-gray-800 bg-gray-900 p-3 text-xs leading-relaxed text-gray-100">
+                      <pre className="max-w-full overflow-x-auto whitespace-pre-wrap break-all rounded-lg border border-gray-800 bg-gray-900 p-3 text-xs leading-relaxed text-gray-100">
                         {JSON.stringify(entry.response, null, 2)}
                       </pre>
                     </motion.div>
