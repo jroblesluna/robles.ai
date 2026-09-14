@@ -12,14 +12,42 @@ const SLIDE_MS = 7000;
 const Hero = () => {
   const { t } = useTranslation();
   const [slide, setSlide] = useState(0);
+  // +1 = next (incoming from right), -1 = prev (incoming from left)
+  const [direction, setDirection] = useState(1);
 
-  // ponytail: interval keyed on `slide` so any manual nav restarts the 7s clock
+  // interval keyed on `slide` so any manual nav restarts the 7s clock
   useEffect(() => {
-    const id = setInterval(() => setSlide((s) => (s + 1) % SLIDE_COUNT), SLIDE_MS);
+    const id = setInterval(() => {
+      setDirection(1);
+      setSlide((s) => (s + 1) % SLIDE_COUNT);
+    }, SLIDE_MS);
     return () => clearInterval(id);
   }, [slide]);
 
-  const go = (n: number) => setSlide((n + SLIDE_COUNT) % SLIDE_COUNT);
+  // Jump to a specific slide (dots): infer direction from index order.
+  const go = (n: number) => {
+    const target = (n + SLIDE_COUNT) % SLIDE_COUNT;
+    if (target === slide) return;
+    setDirection(target > slide ? 1 : -1);
+    setSlide(target);
+  };
+
+  // Explicit prev/next (arrows): force direction so wraparound slides correctly.
+  const next = () => {
+    setDirection(1);
+    setSlide((s) => (s + 1) % SLIDE_COUNT);
+  };
+  const prev = () => {
+    setDirection(-1);
+    setSlide((s) => (s - 1 + SLIDE_COUNT) % SLIDE_COUNT);
+  };
+
+  // Slide variants: enter from the side we're heading to, exit to the opposite.
+  const slideVariants = {
+    enter: (dir: number) => ({ x: dir > 0 ? 320 : -320, opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (dir: number) => ({ x: dir > 0 ? -320 : 320, opacity: 0 }),
+  };
 
   const slides = [
     // 0 — main pitch
@@ -149,16 +177,18 @@ const Hero = () => {
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
           variants={fadeIn}
-          className="max-w-4xl mx-auto h-[260px] md:h-[300px] flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4"
+          className="relative w-full max-w-4xl mx-auto h-[260px] md:h-[300px] overflow-hidden"
         >
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="popLayout" custom={direction} initial={false}>
             <motion.div
               key={slide}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.4 }}
-              className="flex flex-col md:flex-row items-center gap-2 md:gap-4"
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ x: { type: "spring", stiffness: 300, damping: 30 }, opacity: { duration: 0.25 } }}
+              className="absolute inset-0 flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4"
             >
               <div className={`shrink-0 order-1 md:order-2 ${slides[slide].mascotClass ?? ""}`}>
                 <img
@@ -188,14 +218,14 @@ const Hero = () => {
       </div>
 
       <button
-        onClick={() => go(slide - 1)}
+        onClick={prev}
         aria-label="Previous slide"
         className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full text-white/70 bg-white/5 hover:bg-white/20 hover:text-white opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity duration-300"
       >
         <ChevronLeft className="h-6 w-6" />
       </button>
       <button
-        onClick={() => go(slide + 1)}
+        onClick={next}
         aria-label="Next slide"
         className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full text-white/70 bg-white/5 hover:bg-white/20 hover:text-white opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity duration-300"
       >
