@@ -178,7 +178,7 @@ const Hero = () => {
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
           variants={fadeIn}
-          className="relative w-full max-w-4xl mx-auto h-[260px] md:h-[300px] overflow-hidden"
+          className="relative w-full h-[260px] md:h-[300px] overflow-hidden"
         >
           <AnimatePresence mode="popLayout" custom={direction} initial={false}>
             <motion.div
@@ -189,16 +189,18 @@ const Hero = () => {
               animate="center"
               exit="exit"
               transition={{ x: { type: "spring", stiffness: 300, damping: 30 }, opacity: { duration: 0.25 } }}
-              className="absolute inset-0 flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4"
+              className="absolute inset-0 flex items-center justify-center"
             >
-              <div className={`shrink-0 order-1 md:order-2 ${slides[slide].mascotClass ?? ""}`}>
-                <img
-                  src={slides[slide].mascot}
-                  alt=""
-                  className={`${slides[slide].mascotSize} drop-shadow-[0_8px_16px_rgba(0,0,0,0.35)]`}
-                />
+              <div className="w-full max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 px-4">
+                <div className={`shrink-0 order-1 md:order-2 ${slides[slide].mascotClass ?? ""}`}>
+                  <img
+                    src={slides[slide].mascot}
+                    alt=""
+                    className={`${slides[slide].mascotSize} drop-shadow-[0_8px_16px_rgba(0,0,0,0.35)]`}
+                  />
+                </div>
+                <div className="text-center md:text-left order-2 md:order-1">{slides[slide].content}</div>
               </div>
-              <div className="text-center md:text-left order-2 md:order-1">{slides[slide].content}</div>
             </motion.div>
           </AnimatePresence>
         </motion.div>
