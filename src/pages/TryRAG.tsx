@@ -104,6 +104,7 @@ export default function TryRAG() {
   const [showStep2, setShowStep2] = useState<boolean>(false);
   const [namespace, setNamespace] = useState<string>("");
   const [queryHistory, setQueryHistory] = useState<LogEntry[]>([]);
+  const [uploadSkipped, setUploadSkipped] = useState(false); // namespace already existed
   const [showTech, setShowTech] = useState(false);
   const [serviceStatus, setServiceStatus] = useState<"checking" | "warm" | "warming" | "cold">("checking");
 
@@ -172,6 +173,7 @@ export default function TryRAG() {
     setRerankedResults([]);
     setHfAnswer("");
     setGptAnswer("");
+    setUploadSkipped(false);
     setLoading(1);
 
     try {
@@ -187,9 +189,12 @@ export default function TryRAG() {
       setWasAlreadyIndexed(checkJson.data.exists);
 
       if (checkJson.data.exists) {
+        // Document already indexed under this hash → skip the upload entirely
+        // and jump straight to the query step.
+        setUploadSkipped(true);
         setChunkCount(checkJson.data.vector_count);
         setShowStep2(true);
-        setStep(2);
+        setStep(4); // skip embed step too — it's already indexed
         setLoading(null);
         return;
       }
@@ -424,6 +429,30 @@ export default function TryRAG() {
                 {pdfFile && <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-500" />}
               </label>
               <div className="mt-3">{renderButton(handleUpload, t("try-rag.step1_button"), 1, !pdfFile)}</div>
+
+              {/* Hash / namespace info: show the computed hash and whether the
+                  document is already indexed (upload skipped) or new. */}
+              {namespace && step >= 2 && (
+                <div
+                  className={`mt-3 rounded-lg border p-3 text-xs ${
+                    uploadSkipped ? "border-emerald-200 bg-emerald-50" : "border-cyan-200 bg-cyan-50"
+                  }`}
+                >
+                  <div className="mb-1 flex items-center gap-1.5 font-medium text-gray-700">
+                    <span className="text-gray-500">{t("try-rag.hash_label")}:</span>
+                    <code className="rounded bg-white/70 px-1.5 py-0.5 font-mono text-gray-900">{namespace}</code>
+                  </div>
+                  {uploadSkipped ? (
+                    <p className="flex items-start gap-1.5 text-emerald-700">
+                      <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                      {t("try-rag.hash_exists")}
+                    </p>
+                  ) : (
+                    <p className="text-cyan-700">{t("try-rag.hash_new")}</p>
+                  )}
+                </div>
+              )}
+
               {step >= 2 && (
                 <>
                   {extractedText && (
