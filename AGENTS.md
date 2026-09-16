@@ -49,7 +49,7 @@ Sitio web público de **Robles.AI**, una consultora/estudio de soluciones de Int
 - **i18n** (en/es) con carga asíncrona de `translation.json` por idioma.
 - **Landing page publicitaria** (`/get-started`): bilingüe, orientada a conversión, con pasos del proceso, servicios, tecnologías, precios, roadmap y CTA.
 - **Chatbot IA "Robly"**: widget flotante (reemplazó una burbuja de WhatsApp antigua), impulsado por GPT-4o-mini con streaming SSE, consciente del contexto de página, recolecta datos de contacto durante la conversación y guarda transcripts. Avatar SVG con 4 estados de ánimo animados (idle/listening/thinking/speaking) más variantes nuevas "pointing"/"dominical" para video (ver §7).
-- **Páginas demo**: `/try-identity`, `/try-rag`, `/try-langchain`, `/try-medical`.
+- **Páginas demo**: `/try-identity`, `/try-rag`, `/try-langchain`, `/try-medical`, más un catálogo `/demos` (`DemosCatalog.tsx`). Las demos consumen APIs propias en Cloud Run (`identity-api`, `rag-api`, `medical-api`) que escalan a cero, por lo que `TryIdentity`/`TryRAG` incluyen un **warm-up** (ping a `/` con `mode:"no-cors"`) que despierta el servicio antes de la primera llamada, con banner de estado y tooltips explicativos + log JSON con resaltado de sintaxis. `TryRAG` extrae el texto del PDF **en el navegador** con `pdfjs-dist` (el archivo nunca se sube; solo el texto va a la API), lo que elimina el límite de 32 MB de Cloud Run.
 - **Blog estático**: posts en `server/data/posts/YYYY/MM/DD/*.json`, bilingües, con búsqueda full-text FTS5.
 - **SEO server-side**: middleware Express inyecta `<title>`, `<meta>`, Open Graph, Twitter Card, hreflang, canonical y JSON-LD antes de servir el HTML a crawlers (sin depender de JS del cliente).
 - **Panel Admin** (`/admin`): dashboard autenticado con JWT — gestión de El Dominical IA, publicación multi-plataforma, generación de carrusel de imágenes, generación de video, inbox de conversaciones del chatbot, y analítica.
@@ -574,8 +574,11 @@ El script `start` usaba `NODE_ENV=production && node dist/index.js`. El operador
 | `b2fff` | feat: panel admin responsive con layout persistente y branding del sitio |
 | `5177d` | feat: rediseño del avatar del chatbot, fix de búsqueda de blog, paginación/filtros de blog |
 
-### Estado de trabajo en curso (no comiteado, al momento de este documento)
-Archivos SVG nuevos sin trackear en `public/robly-avatar/`: `mascot-sagemaker.svg`, `new-f1.svg`, `robot-wave.svg`, `sagemaker-fox-chatbot.svg`, `sagemaker-mascot-animated.svg`, `sagemaker-owl-assistant-x.svg`, `sagemaker-owl-assistant.svg`, `sagemaker-resource-assistant.svg`, `y.svg` — exploración de variantes visuales de mascota/avatar (posible rediseño del avatar de Robly o de un asistente relacionado a "SageMaker").
+### Cambios recientes de las páginas demo (2026-09)
+- **Sección/página de catálogo de demos**: `src/components/DemosCatalog.tsx` (usada en el home y en la ruta `/demos`, `src/pages/Demos.tsx`), con demos "live" y placeholders "coming soon". El chatbot Robly conoce el catálogo (contexto inyectado en `server/services/chatContext.ts`).
+- **`TryIdentity` y `TryRAG` rediseñadas** al mismo nivel: header con badge, tooltips por bloque (`InfoTip`), log JSON con resaltado de sintaxis (`JsonHighlight`), sección técnica colapsable, y **warm-up del servicio** (ping `mode:"no-cors"` a `/`, para el cold-start de Cloud Run que escala a cero).
+- **`TryRAG` extrae el texto del PDF en el navegador** con `pdfjs-dist` (dependencia nueva); solo envía el texto a `rag-api` (no el archivo), eliminando el límite de 32 MB de Cloud Run. El hash del namespace se calcula sobre el texto (cliente y backend coinciden). Sin OCR — PDFs escaneados sin capa de texto no producen texto.
+- **CI/CD del sitio**: push a `main` → GitHub Actions (`.github/workflows/deploy.yml`) → SSH al VPS → `pull.sh` (build selectivo por tipo de archivo). Ver §17.
 
 ---
 
