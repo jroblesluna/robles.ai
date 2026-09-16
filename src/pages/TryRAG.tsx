@@ -42,15 +42,22 @@ const BASE_API = getBaseApi();
  * (a 60 MB scanned-heavy PDF yields a few KB of text). Note: no OCR — scanned
  * pages without a text layer produce no text (same as the old backend path).
  */
-async function extractPdfText(file: File): Promise<string> {
+async function extractPdfText(
+  file: File,
+  onProgress?: (page: number, total: number) => void
+): Promise<string> {
   const buf = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  const total = pdf.numPages;
   const pages: string[] = [];
-  for (let i = 1; i <= pdf.numPages; i++) {
+  for (let i = 1; i <= total; i++) {
     const page = await pdf.getPage(i);
     const content = await page.getTextContent();
     const pageText = content.items.map((it: any) => ("str" in it ? it.str : "")).join(" ");
     pages.push(pageText);
+    onProgress?.(i, total);
+    // Yield to the event loop so the progress bar can repaint between pages.
+    if (i % 5 === 0) await new Promise((r) => setTimeout(r, 0));
   }
   return pages.join("\n").trim();
 }
@@ -108,7 +115,71 @@ function InfoTip({ text, label }: { text: string; label?: string }) {
   );
 }
 
+/**
+ * A numbered pipeline step card. Defined at module scope (NOT inside TryRAG) so
+ * it isn't recreated on every render — otherwise React would remount its
+ * children on each keystroke, stealing focus from inputs inside it.
+ */
+function StepCard({
+  icon: Icon,
+  number,
+  title,
+  tip,
+  children,
+}: {
+  icon: React.ElementType;
+  number: number;
+  title: string;
+  tip?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-3 rounded-xl border border-gray-200 bg-white p-6 shadow-md"
+    >
+      <div className="mb-1 flex items-center gap-3">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-sm font-bold text-white">
+          {number}
+        </div>
+        <Icon className="h-5 w-5 text-blue-600" />
+        <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+        {tip && <InfoTip text={tip} />}
+      </div>
+      {children}
+    </motion.section>
+  );
+}
+
+/** Determinate progress bar with a label and percentage. */
+function ProgressBar({ label, current, total }: { label: string; current: number; total: number }) {
+  const pct = total > 0 ? Math.min(100, Math.round((current / total) * 100)) : 0;
+  return (
+    <div className="mt-3 space-y-1">
+      <div className="flex items-center justify-between text-xs text-gray-600">
+        <span className="flex items-center gap-1.5">
+          <Loader2 className="h-3.5 w-3.5 animate-spin text-cyan-500" />
+          {label}
+        </span>
+        <span className="font-mono tabular-nums text-gray-500">
+          {current}/{total} · {pct}%
+        </span>
+      </div>
+      <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+        <motion.div
+          className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-600"
+          initial={{ width: 0 }}
+          animate={{ width: `${pct}%` }}
+          transition={{ duration: 0.25 }}
+        />
+      </div>
+    </div>
+  );
+}
+
 type LogEntry = { url: string; method: string; response: any; key: string };
+type Progress = { current: number; total: number } | null;
 
 export default function TryRAG() {
   const { t } = useTranslation();
@@ -130,6 +201,8 @@ export default function TryRAG() {
   const [uploadSkipped, setUploadSkipped] = useState(false); // namespace already existed
   const [showTech, setShowTech] = useState(false);
   const [serviceStatus, setServiceStatus] = useState<"checking" | "warm" | "warming" | "cold">("checking");
+  const [extractProgress, setExtractProgress] = useState<Progress>(null); // PDF text extraction (pages)
+  const [embedProgress, setEmbedProgress] = useState<Progress>(null); // embedding + indexing (chunk batches)
 
   const logCall = (url: string, method: string, response: any) =>
     setQueryHistory((prev) => [{ url, method, response, key: uuidv4() }, ...prev]);
@@ -198,6 +271,7 @@ export default function TryRAG() {
     setHfAnswer("");
     setGptAnswer("");
     setUploadSkipped(false);
+    setExtractProgress({ current: 0, total: 0 });
     setLoading(1);
 
     // 1) Extract the PDF text IN THE BROWSER (pdf.js) and hash that text.
@@ -205,10 +279,14 @@ export default function TryRAG() {
     let text: string;
     let shortNamespace: string;
     try {
-      text = await extractPdfText(pdfFile);
+      text = await extractPdfText(pdfFile, (page, total) =>
+        setExtractProgress({ current: page, total })
+      );
+      setExtractProgress(null);
       if (!text) {
         // No selectable text (likely a scanned PDF — no OCR here).
         alert(t("try-rag.no_text"));
+        setExtractProgress(null);
         setLoading(null);
         return;
       }
@@ -221,6 +299,7 @@ export default function TryRAG() {
     } catch (error) {
       console.error("PDF text extraction error:", error);
       alert(t("try-rag.hash_error"));
+      setExtractProgress(null);
       setLoading(null);
       return;
     }
@@ -265,7 +344,7 @@ export default function TryRAG() {
       setLoading(null);
     } catch (error) {
       console.error("Upload error:", error);
-      alert(t("try-rag.upload_error"));
+      alert(t("try-rag.process_error"));
       setLoading(null);
     }
   };
@@ -278,17 +357,49 @@ export default function TryRAG() {
     setHfAnswer("");
     setGptAnswer("");
     setLoading(3);
-    const res = await fetch(`${BASE_API}/rag/embed`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ namespace, chunks }),
-    });
-    const json = await res.json();
-    logCall(`${BASE_API}/rag/embed`, "POST", json);
-    if (json.success && json.data.namespace) {
-      const countMatch = json.data.message.match(/\d+/);
-      if (countMatch) setChunkCount(parseInt(countMatch[0]));
+
+    // Send chunks to the backend in batches so we can show REAL progress
+    // (each batch is one request). Ids are offset-based on the backend, so the
+    // batches don't collide, and the skip/eviction bookkeeping only runs on the
+    // first batch (chunk_offset 0).
+    const EMBED_BATCH = 200;
+    const total = chunks.length;
+    setEmbedProgress({ current: 0, total });
+
+    try {
+      for (let offset = 0; offset < total; offset += EMBED_BATCH) {
+        const batch = chunks.slice(offset, offset + EMBED_BATCH);
+        const res = await fetch(`${BASE_API}/rag/embed`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            namespace,
+            chunks: batch,
+            chunk_offset: offset,
+            total_chunks: total,
+          }),
+        });
+        const json = await res.json();
+        logCall(`${BASE_API}/rag/embed`, "POST", json);
+
+        // If the whole document was already indexed, the first batch returns
+        // done=true immediately — stop early.
+        if (offset === 0 && json.data?.done && json.data?.indexed >= total) {
+          setChunkCount(json.data.indexed);
+          break;
+        }
+        setEmbedProgress({ current: Math.min(offset + batch.length, total), total });
+      }
+      setChunkCount(total);
+    } catch (error) {
+      console.error("Embedding error:", error);
+      alert(t("try-rag.process_error"));
+      setEmbedProgress(null);
+      setLoading(null);
+      return;
     }
+
+    setEmbedProgress(null);
     setWasAlreadyIndexed(true);
     setStep(4);
     setLoading(null);
@@ -371,36 +482,6 @@ export default function TryRAG() {
     </Button>
   );
 
-  const StepCard = ({
-    icon: Icon,
-    number,
-    title,
-    tip,
-    children,
-  }: {
-    icon: React.ElementType;
-    number: number;
-    title: string;
-    tip?: string;
-    children: React.ReactNode;
-  }) => (
-    <motion.section
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-3 rounded-xl border border-gray-200 bg-white p-6 shadow-md"
-    >
-      <div className="mb-1 flex items-center gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-sm font-bold text-white">
-          {number}
-        </div>
-        <Icon className="h-5 w-5 text-blue-600" />
-        <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-        {tip && <InfoTip text={tip} />}
-      </div>
-      {children}
-    </motion.section>
-  );
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-cyan-50/50 via-white to-white py-12">
       <div className="container mx-auto max-w-6xl px-6">
@@ -469,20 +550,33 @@ export default function TryRAG() {
                   {pdfFile ? (
                     <>
                       <p className="truncate text-sm font-medium text-gray-900">{pdfFile.name}</p>
-                      <p className="mt-0.5 text-xs text-cyan-600">Cambiar archivo</p>
+                      <p className="mt-0.5 text-xs text-cyan-600">{t("try-rag.dropzone_change")}</p>
                     </>
                   ) : (
                     <>
-                      <p className="text-sm font-medium text-gray-700">Haz clic para subir o arrastra un PDF</p>
-                      <span className="mt-1 inline-block rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-500">
-                        PDF
-                      </span>
+                      <p className="text-sm font-medium text-gray-700">{t("try-rag.dropzone_idle")}</p>
+                      <span className="mt-1 block text-xs text-gray-500">{t("try-rag.dropzone_hint")}</span>
                     </>
                   )}
                 </div>
                 {pdfFile && <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-500" />}
               </label>
               <div className="mt-3">{renderButton(handleUpload, t("try-rag.step1_button"), 1, !pdfFile)}</div>
+
+              {extractProgress && (
+                <ProgressBar
+                  label={
+                    extractProgress.total > 0
+                      ? t("try-rag.progress_extract", {
+                          current: extractProgress.current,
+                          total: extractProgress.total,
+                        })
+                      : t("try-rag.progress_extract_start")
+                  }
+                  current={extractProgress.current}
+                  total={extractProgress.total || 1}
+                />
+              )}
 
               {/* Hash / namespace info: show the computed hash and whether the
                   document is already indexed (upload skipped) or new. */}
@@ -521,7 +615,7 @@ export default function TryRAG() {
                     </div>
                   )}
                   <p className="mt-2 text-sm text-gray-600">
-                    {t("try-rag.chunks_extracted")}: <strong className="text-gray-900">{chunkCount ?? "¿?"}</strong>
+                    {t("try-rag.chunks_extracted")}: <strong className="text-gray-900">{chunkCount ?? "…"}</strong>
                     {wasAlreadyIndexed && ` ${t("try-rag.already_indexed")}`}
                   </p>
                 </>
@@ -534,6 +628,16 @@ export default function TryRAG() {
                   <>
                     <p className="text-sm text-gray-600">{t("try-rag.step2_pending", { count: chunkCount ?? "?", namespace })}</p>
                     {renderButton(handleEmbedAndIndex, t("try-rag.step2_button"), 3)}
+                    {embedProgress && (
+                      <ProgressBar
+                        label={t("try-rag.progress_embed", {
+                          current: embedProgress.current,
+                          total: embedProgress.total,
+                        })}
+                        current={embedProgress.current}
+                        total={embedProgress.total || 1}
+                      />
+                    )}
                   </>
                 ) : (
                   <p className="text-sm text-gray-600">{t("try-rag.step2_done", { count: chunkCount ?? "?" })}</p>
