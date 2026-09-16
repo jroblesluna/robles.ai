@@ -18,8 +18,8 @@ import {
   FileText,
   CheckCircle2,
 } from "lucide-react";
-import sha256 from "crypto-js/sha256";
-import encHex from "crypto-js/enc-hex";
+import CryptoJS from "crypto-js";
+import "crypto-js/lib-typedarrays"; // enables WordArray.create(ArrayBuffer)
 import { useTranslation } from "react-i18next";
 import { v4 as uuidv4 } from "uuid";
 
@@ -199,6 +199,11 @@ export default function TryRAG() {
       const res = await fetch(`${BASE_API}/rag/upload`, { method: "POST", body: formData });
       const json = await res.json();
       logCall(`${BASE_API}/rag/upload`, "POST", json);
+      // The backend re-hashes the uploaded content and returns the authoritative
+      // namespace. Adopt it (instead of trusting the client-side hash) so all
+      // subsequent steps use the server's source-of-truth namespace — this
+      // guards against a client hash mismatch or tampering.
+      if (json.data?.namespace) setNamespace(json.data.namespace);
       setExtractedText(json.data.chunks.join("\n"));
       setChunks(json.data.chunks);
       setChunkCount(json.data.n_chunks);
@@ -628,21 +633,23 @@ export default function TryRAG() {
 }
 
 async function calculatePdfHash(file: File): Promise<string> {
+  // Hash the FULL file content so ANY change (even a single character) yields a
+  // different Pinecone namespace and triggers re-indexing. To support large
+  // PDFs (tens of MB) without loading everything into memory at once, we stream
+  // the file in chunks and feed a running SHA-256 hasher incrementally.
   try {
-    if (typeof window !== "undefined" && window.crypto?.subtle) {
-      const arrayBuffer = await file.arrayBuffer();
-      const digest = await window.crypto.subtle.digest("SHA-256", arrayBuffer);
-      const hashArray = Array.from(new Uint8Array(digest));
-      return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 16);
-    } else {
-      const buffer = await file.arrayBuffer();
-      const uint8Array = new Uint8Array(buffer);
-      const wordArray = encHex.parse(
-        Array.prototype.map.call(uint8Array, (x: number) => ("00" + x.toString(16)).slice(-2)).join("")
-      );
-      const hash = sha256(wordArray);
-      return hash.toString(encHex).slice(0, 16);
+    const CHUNK = 2 * 1024 * 1024; // read 2 MB at a time
+    const hasher = CryptoJS.algo.SHA256.create();
+
+    for (let offset = 0; offset < file.size; offset += CHUNK) {
+      const slice = file.slice(offset, Math.min(offset + CHUNK, file.size));
+      const buf = await slice.arrayBuffer();
+      // Convert the chunk to a CryptoJS WordArray and update the hasher.
+      const wordArray = CryptoJS.lib.WordArray.create(buf as any);
+      hasher.update(wordArray);
     }
+
+    return hasher.finalize().toString(CryptoJS.enc.Hex).slice(0, 16);
   } catch (e) {
     console.error("Hash calculation failed:", e);
     throw new Error("Hash calculation failed.");
