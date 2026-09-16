@@ -1,12 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { motion } from "framer-motion";
-import { Database, Loader2, Search, ArrowUpDown, Sparkles, Upload } from "lucide-react";
+import { AnimatePresence, motion, LayoutGroup } from "framer-motion";
+import {
+  Database,
+  Loader2,
+  Search,
+  ArrowUpDown,
+  Sparkles,
+  Upload,
+  Info,
+  Terminal,
+  ChevronDown,
+  Cpu,
+  Workflow,
+} from "lucide-react";
 import sha256 from "crypto-js/sha256";
 import encHex from "crypto-js/enc-hex";
 import { useTranslation } from "react-i18next";
+import { v4 as uuidv4 } from "uuid";
 
 const getBaseApi = () => {
   if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
@@ -17,28 +30,60 @@ const getBaseApi = () => {
 
 const BASE_API = getBaseApi();
 
-async function calculatePdfHash(file: File): Promise<string> {
-  try {
-    if (typeof window !== "undefined" && window.crypto?.subtle) {
-      const arrayBuffer = await file.arrayBuffer();
-      const digest = await window.crypto.subtle.digest("SHA-256", arrayBuffer);
-      const hashArray = Array.from(new Uint8Array(digest));
-      return hashArray.map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 16);
-    } else {
-      const buffer = await file.arrayBuffer();
-      // Convert Uint8Array to CryptoJS WordArray
-      const uint8Array = new Uint8Array(buffer);
-      const wordArray = encHex.parse(Array.prototype.map.call(uint8Array, (x: number) => ('00' + x.toString(16)).slice(-2)).join(''));
-      const hash = sha256(wordArray);
-      const answeredHash = hash.toString(encHex).slice(0, 16);
-      console.log("Calculated hash:", answeredHash);
-      return answeredHash;
-    }
-  } catch (e) {
-    console.error("Hash calculation failed:", e);
-    throw new Error("Hash calculation failed.");
+/** Lightweight JSON syntax highlighter (VS Code "One Dark"–style palette). */
+function JsonHighlight({ data }: { data: unknown }) {
+  const json = JSON.stringify(data, null, 2);
+  const tokenRegex =
+    /("(?:\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(?:\s*:)?|\b(?:true|false)\b|\bnull\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g;
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let key = 0;
+  while ((match = tokenRegex.exec(json)) !== null) {
+    if (match.index > lastIndex) parts.push(json.slice(lastIndex, match.index));
+    const token = match[0];
+    let cls = "text-cyan-300";
+    if (/^"/.test(token)) cls = /:\s*$/.test(token) ? "text-sky-300" : "text-emerald-300";
+    else if (/true|false/.test(token)) cls = "text-orange-300";
+    else if (/null/.test(token)) cls = "text-rose-300";
+    parts.push(
+      <span key={key++} className={cls}>
+        {token}
+      </span>
+    );
+    lastIndex = tokenRegex.lastIndex;
   }
+  if (lastIndex < json.length) parts.push(json.slice(lastIndex));
+  return (
+    <pre className="max-w-full overflow-x-auto whitespace-pre-wrap break-all rounded-lg border border-slate-700/60 bg-slate-800/90 p-3 font-mono text-xs leading-relaxed text-slate-300 shadow-inner">
+      {parts}
+    </pre>
+  );
 }
+
+/** Dependency-free info tooltip (hover + keyboard focus). */
+function InfoTip({ text, label }: { text: string; label?: string }) {
+  return (
+    <span className="group/tip relative inline-flex items-center align-middle">
+      <button
+        type="button"
+        aria-label={label || text}
+        className="inline-flex h-4 w-4 items-center justify-center rounded-full text-gray-400 transition-colors hover:text-cyan-600 focus:text-cyan-600 focus:outline-none"
+      >
+        <Info className="h-3.5 w-3.5" />
+      </button>
+      <span
+        role="tooltip"
+        className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 w-60 -translate-x-1/2 rounded-lg bg-gray-900 px-3 py-2 text-left text-xs font-normal leading-relaxed text-gray-100 opacity-0 shadow-xl transition-opacity duration-150 group-hover/tip:opacity-100 group-focus-within/tip:opacity-100"
+      >
+        {text}
+        <span className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+      </span>
+    </span>
+  );
+}
+
+type LogEntry = { url: string; method: string; response: any; key: string };
 
 export default function TryRAG() {
   const { t } = useTranslation();
@@ -56,9 +101,68 @@ export default function TryRAG() {
   const [wasAlreadyIndexed, setWasAlreadyIndexed] = useState<boolean>(false);
   const [showStep2, setShowStep2] = useState<boolean>(false);
   const [namespace, setNamespace] = useState<string>("");
+  const [queryHistory, setQueryHistory] = useState<LogEntry[]>([]);
+  const [showTech, setShowTech] = useState(false);
+  const [serviceStatus, setServiceStatus] = useState<"checking" | "warm" | "warming" | "cold">("checking");
+
+  const logCall = (url: string, method: string, response: any) =>
+    setQueryHistory((prev) => [{ url, method, response, key: uuidv4() }, ...prev]);
+
+  // Health check on mount (warm vs cold from latency).
+  useEffect(() => {
+    let cancelled = false;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 3000);
+    const started = Date.now();
+    fetch(`${BASE_API}/`, { signal: controller.signal, mode: "no-cors" })
+      .then(() => {
+        clearTimeout(timer);
+        if (cancelled) return;
+        setServiceStatus(Date.now() - started < 2500 ? "warm" : "cold");
+      })
+      .catch(() => {
+        clearTimeout(timer);
+        if (!cancelled) setServiceStatus("cold");
+      });
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, []);
+
+  const warmUpService = async (): Promise<boolean> => {
+    setServiceStatus("warming");
+    for (let attempt = 0; attempt < 15; attempt++) {
+      const started = Date.now();
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 10000);
+        await fetch(`${BASE_API}/`, { signal: controller.signal, mode: "no-cors" });
+        clearTimeout(timer);
+        if (Date.now() - started < 2500) {
+          setServiceStatus("warm");
+          return true;
+        }
+        await new Promise((r) => setTimeout(r, 2000));
+      } catch {
+        await new Promise((r) => setTimeout(r, 2000));
+      }
+    }
+    return false;
+  };
+
+  const ensureWarm = async (): Promise<boolean> => {
+    if (serviceStatus === "warm") return true;
+    return warmUpService();
+  };
 
   const handleUpload = async () => {
     if (!pdfFile) return;
+    if (!(await ensureWarm())) {
+      alert(t("try-rag.service_warm_failed"));
+      return;
+    }
     setChunks([]);
     setExtractedText("");
     setQuery("");
@@ -77,7 +181,7 @@ export default function TryRAG() {
         body: new URLSearchParams({ namespace: shortNamespace }),
       });
       const checkJson = await checkRes.json();
-      console.log("Namespace check response:", checkJson);
+      logCall(`${BASE_API}/rag/check-namespace`, "POST", checkJson);
       setWasAlreadyIndexed(checkJson.data.exists);
 
       if (checkJson.data.exists) {
@@ -90,13 +194,9 @@ export default function TryRAG() {
 
       const formData = new FormData();
       formData.append("file", pdfFile);
-
-      const res = await fetch(`${BASE_API}/rag/upload`, {
-        method: "POST",
-        body: formData,
-      });
-
+      const res = await fetch(`${BASE_API}/rag/upload`, { method: "POST", body: formData });
       const json = await res.json();
+      logCall(`${BASE_API}/rag/upload`, "POST", json);
       setExtractedText(json.data.chunks.join("\n"));
       setChunks(json.data.chunks);
       setChunkCount(json.data.n_chunks);
@@ -117,24 +217,17 @@ export default function TryRAG() {
     setRerankedResults([]);
     setHfAnswer("");
     setGptAnswer("");
-
     setLoading(3);
-
-    //const formData = new FormData();
-    //formData.append("namespace", namespace);
-
     const res = await fetch(`${BASE_API}/rag/embed`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ namespace, chunks }),
     });
-
     const json = await res.json();
+    logCall(`${BASE_API}/rag/embed`, "POST", json);
     if (json.success && json.data.namespace) {
       const countMatch = json.data.message.match(/\d+/);
-      if (countMatch) {
-        setChunkCount(parseInt(countMatch[0]));
-      }
+      if (countMatch) setChunkCount(parseInt(countMatch[0]));
     }
     setWasAlreadyIndexed(true);
     setStep(4);
@@ -151,13 +244,9 @@ export default function TryRAG() {
     const formData = new FormData();
     formData.append("question", query);
     formData.append("namespace", namespace);
-
-    const res = await fetch(`${BASE_API}/rag/query`, {
-      method: "POST",
-      body: formData,
-    });
-
+    const res = await fetch(`${BASE_API}/rag/query`, { method: "POST", body: formData });
     const json = await res.json();
+    logCall(`${BASE_API}/rag/query`, "POST", json);
     setTopResults(json.data.results);
     setStep(6);
     setLoading(null);
@@ -169,20 +258,13 @@ export default function TryRAG() {
     setHfAnswer("");
     setGptAnswer("");
     setLoading(7);
-    //const formData = new FormData();
-    //formData.append("question", query);
-    //formData.append("namespace", namespace);
-
     const res = await fetch(`${BASE_API}/rag/rerank`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ question: query, top_results: topResults }),
     });
-
     const json = await res.json();
-
-    console.log("Rerank response:", json);
-
+    logCall(`${BASE_API}/rag/rerank`, "POST", json);
     if (!(json.status == "success") || !json.data?.reranked) {
       alert(t("try-rag.rerank_error"));
       setLoading(null);
@@ -198,17 +280,13 @@ export default function TryRAG() {
     setHfAnswer("");
     setGptAnswer("");
     setLoading(9);
-
     const res = await fetch(`${BASE_API}/rag/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        question: query,
-        reranked: rerankedResults,
-      }),
+      body: JSON.stringify({ question: query, reranked: rerankedResults }),
     });
-
     const json = await res.json();
+    logCall(`${BASE_API}/rag/generate`, "POST", json);
     setHfAnswer(json.data.llama);
     setGptAnswer(json.data.gpt);
     setStep(10);
@@ -223,11 +301,13 @@ export default function TryRAG() {
   ) => (
     <Button
       onClick={action}
-      disabled={disabled || loading !== null}
-      className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-sm"
+      disabled={disabled || loading !== null || serviceStatus === "warming"}
+      className="rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 font-medium text-white shadow-sm hover:from-cyan-700 hover:to-blue-700 disabled:opacity-50"
     >
-      {loading === stepNumber ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : null}
-      {label}
+      {loading === stepNumber || serviceStatus === "warming" ? (
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      ) : null}
+      {serviceStatus === "warming" ? t("try-rag.service_warming").slice(0, 24) + "…" : label}
     </Button>
   );
 
@@ -235,135 +315,309 @@ export default function TryRAG() {
     icon: Icon,
     number,
     title,
+    tip,
     children,
   }: {
     icon: React.ElementType;
     number: number;
     title: string;
+    tip?: string;
     children: React.ReactNode;
   }) => (
     <motion.section
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-xl shadow-md border border-gray-200 p-6 space-y-3"
+      className="space-y-3 rounded-xl border border-gray-200 bg-white p-6 shadow-md"
     >
-      <div className="flex items-center gap-3 mb-1">
-        <div className="w-9 h-9 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white flex items-center justify-center text-sm font-bold shrink-0">
+      <div className="mb-1 flex items-center gap-3">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-sm font-bold text-white">
           {number}
         </div>
         <Icon className="h-5 w-5 text-blue-600" />
         <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+        {tip && <InfoTip text={tip} />}
       </div>
       {children}
     </motion.section>
   );
 
   return (
-    <div className="bg-white min-h-screen py-12">
-      <div className="container mx-auto px-6 max-w-6xl">
+    <div className="min-h-screen bg-gradient-to-b from-cyan-50/50 via-white to-white py-12">
+      <div className="container mx-auto max-w-6xl px-6">
+        {/* Header */}
         <div className="mb-10">
-          <div className="flex flex-col sm:flex-row items-center sm:items-center text-center sm:text-left gap-4 sm:gap-5">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-[6.5rem] md:h-[6.5rem] rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white flex items-center justify-center shadow-sm shrink-0">
-              <Database className="h-10 w-10 sm:h-12 sm:w-12 md:h-[3.25rem] md:w-[3.25rem]" />
+          <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30 sm:h-24 sm:w-24">
+              <Database className="h-10 w-10 sm:h-12 sm:w-12" />
             </div>
-            <div className="flex flex-col justify-center">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">{t("try-rag.title")}</h1>
-              <p className="text-gray-600 text-sm sm:text-base">{t("try-rag.description")}</p>
+            <div>
+              <span className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-cyan-100 px-3 py-1 text-xs font-semibold text-cyan-700">
+                <span className="h-1.5 w-1.5 rounded-full bg-cyan-500" />
+                Live API demo
+              </span>
+              <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl md:text-4xl">{t("try-rag.title")}</h1>
+              <p className="mt-2 max-w-2xl text-sm text-gray-600 sm:text-base">{t("try-rag.description")}</p>
             </div>
           </div>
         </div>
 
-        <div className="space-y-6">
-          <StepCard icon={Upload} number={1} title={t("try-rag.step1_title")}>
-            <Input
-              type="file"
-              accept="application/pdf"
-              onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
-              className="rounded-lg border-gray-300"
-            />
-            {renderButton(handleUpload, t("try-rag.step1_button"), 1, !pdfFile)}
-            {step >= 2 && (
-              <>
-                {extractedText && (
-                  <Textarea className="text-sm mt-2 border-gray-300 rounded-lg" rows={4} value={extractedText} readOnly />
-                )}
-                <p className="text-sm text-gray-600 mt-2">
-                  {t("try-rag.chunks_extracted")}: <strong className="text-gray-900">{chunkCount ?? "¿?"}</strong>
-                  {wasAlreadyIndexed && ` ${t("try-rag.already_indexed")}`}
-                </p>
-              </>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+          {/* Left: pipeline steps */}
+          <div className="min-w-0 space-y-6">
+            {/* Service status banner */}
+            {serviceStatus === "warm" && (
+              <div className="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
+                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                {t("try-rag.service_ready")}
+              </div>
             )}
-          </StepCard>
+            {(serviceStatus === "cold" || serviceStatus === "checking") && (
+              <div className="flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" />
+                <span>{t("try-rag.service_cold_hint")}</span>
+              </div>
+            )}
+            {serviceStatus === "warming" && (
+              <div className="flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                <Loader2 className="mt-0.5 h-3.5 w-3.5 shrink-0 animate-spin text-amber-500" />
+                <span>{t("try-rag.service_warming")}</span>
+              </div>
+            )}
 
-          {showStep2 && (
-            <StepCard icon={Database} number={2} title={t("try-rag.step2_title")}>
-              {!wasAlreadyIndexed ? (
-                <>
-                  <p className="text-sm text-gray-600">
-                    {t("try-rag.step2_pending", { count: chunkCount ?? "?", namespace })}
-                  </p>
-                  {renderButton(handleEmbedAndIndex, t("try-rag.step2_button"), 3)}
-                </>
-              ) : (
-                <p className="text-sm text-gray-600">
-                  {t("try-rag.step2_done", { count: chunkCount ?? "?" })}
-                </p>
-              )}
-              {wasAlreadyIndexed && renderButton(() => setStep(4), t("try-rag.go_to_query"), 4)}
-            </StepCard>
-          )}
-
-          {step >= 4 && (
-            <StepCard icon={Search} number={3} title={t("try-rag.step3_title")}>
+            <StepCard icon={Upload} number={1} title={t("try-rag.step1_title")} tip={t("try-rag.tip_step1")}>
               <Input
-                placeholder={t("try-rag.query_placeholder")}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                type="file"
+                accept="application/pdf"
+                onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
                 className="rounded-lg border-gray-300"
               />
-              {renderButton(handleQuery, t("try-rag.query_button"), 5, !query)}
-              {topResults.length > 0 && (
-                <ul className="bg-gray-50 border border-gray-200 rounded-lg p-3 list-disc pl-8 text-sm text-gray-700 space-y-1">
-                  {topResults.map((r, i) => (
-                    <li key={i}>{r.text} ({t("try-rag.score_label")}: {r.score})</li>
-                  ))}
-                </ul>
+              {renderButton(handleUpload, t("try-rag.step1_button"), 1, !pdfFile)}
+              {step >= 2 && (
+                <>
+                  {extractedText && (
+                    <Textarea className="mt-2 rounded-lg border-gray-300 text-sm" rows={4} value={extractedText} readOnly />
+                  )}
+                  <p className="mt-2 text-sm text-gray-600">
+                    {t("try-rag.chunks_extracted")}: <strong className="text-gray-900">{chunkCount ?? "¿?"}</strong>
+                    {wasAlreadyIndexed && ` ${t("try-rag.already_indexed")}`}
+                  </p>
+                </>
               )}
             </StepCard>
-          )}
 
-          {step >= 6 && (
-            <StepCard icon={ArrowUpDown} number={4} title={t("try-rag.step4_title")}>
-              {renderButton(handleRerank, t("try-rag.rerank_button"), 7)}
-              {rerankedResults.length > 0 && (
-                <ul className="bg-gray-50 border border-gray-200 rounded-lg p-3 list-decimal pl-8 text-sm text-gray-700 space-y-1">
-                  {rerankedResults.map((r, i) => (
-                    <li key={i}>{r.text} ({t("try-rag.score_label")}: {r.score})</li>
-                  ))}
-                </ul>
-              )}
-            </StepCard>
-          )}
+            {showStep2 && (
+              <StepCard icon={Database} number={2} title={t("try-rag.step2_title")} tip={t("try-rag.tip_step2")}>
+                {!wasAlreadyIndexed ? (
+                  <>
+                    <p className="text-sm text-gray-600">{t("try-rag.step2_pending", { count: chunkCount ?? "?", namespace })}</p>
+                    {renderButton(handleEmbedAndIndex, t("try-rag.step2_button"), 3)}
+                  </>
+                ) : (
+                  <p className="text-sm text-gray-600">{t("try-rag.step2_done", { count: chunkCount ?? "?" })}</p>
+                )}
+                {wasAlreadyIndexed && renderButton(() => setStep(4), t("try-rag.go_to_query"), 4)}
+              </StepCard>
+            )}
 
-          {step >= 8 && (
-            <StepCard icon={Sparkles} number={5} title={t("try-rag.step5_title")}>
-              {renderButton(handleGenerateAnswers, t("try-rag.generate_button"), 9)}
-              <div className="space-y-2 text-sm">
-                {hfAnswer && (
-                  <div className="bg-blue-50 border border-blue-100 p-3 rounded-lg">
-                    <strong className="text-blue-700">Llama:</strong> <span className="text-gray-700">{hfAnswer}</span>
-                  </div>
+            {step >= 4 && (
+              <StepCard icon={Search} number={3} title={t("try-rag.step3_title")} tip={t("try-rag.tip_step3")}>
+                <Input
+                  placeholder={t("try-rag.query_placeholder")}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="rounded-lg border-gray-300"
+                />
+                {renderButton(handleQuery, t("try-rag.query_button"), 5, !query)}
+                {topResults.length > 0 && (
+                  <ul className="list-disc space-y-1 rounded-lg border border-gray-200 bg-gray-50 p-3 pl-8 text-sm text-gray-700">
+                    {topResults.map((r, i) => (
+                      <li key={i}>
+                        {r.text} ({t("try-rag.score_label")}: {r.score})
+                      </li>
+                    ))}
+                  </ul>
                 )}
-                {gptAnswer && (
-                  <div className="bg-gray-50 border border-gray-200 p-3 rounded-lg">
-                    <strong className="text-gray-900">GPT-4:</strong> <span className="text-gray-700">{gptAnswer}</span>
-                  </div>
+              </StepCard>
+            )}
+
+            {step >= 6 && (
+              <StepCard icon={ArrowUpDown} number={4} title={t("try-rag.step4_title")} tip={t("try-rag.tip_step4")}>
+                {renderButton(handleRerank, t("try-rag.rerank_button"), 7)}
+                {rerankedResults.length > 0 && (
+                  <ul className="list-decimal space-y-1 rounded-lg border border-gray-200 bg-gray-50 p-3 pl-8 text-sm text-gray-700">
+                    {rerankedResults.map((r, i) => (
+                      <li key={i}>
+                        {r.text} ({t("try-rag.score_label")}: {r.score})
+                      </li>
+                    ))}
+                  </ul>
                 )}
+              </StepCard>
+            )}
+
+            {step >= 8 && (
+              <StepCard icon={Sparkles} number={5} title={t("try-rag.step5_title")} tip={t("try-rag.tip_step5")}>
+                {renderButton(handleGenerateAnswers, t("try-rag.generate_button"), 9)}
+                <div className="space-y-2 text-sm">
+                  {hfAnswer && (
+                    <div className="rounded-lg border border-blue-100 bg-blue-50 p-3">
+                      <strong className="text-blue-700">Llama:</strong> <span className="text-gray-700">{hfAnswer}</span>
+                    </div>
+                  )}
+                  {gptAnswer && (
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                      <strong className="text-gray-900">GPT-4:</strong> <span className="text-gray-700">{gptAnswer}</span>
+                    </div>
+                  )}
+                </div>
+              </StepCard>
+            )}
+          </div>
+
+          {/* Right: API log */}
+          <div className="min-w-0 rounded-2xl border border-gray-200 bg-white shadow-sm lg:sticky lg:top-24 lg:self-start">
+            <div className="flex items-center gap-2 border-b border-gray-100 px-6 py-4">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-900">
+                <Terminal className="h-4 w-4 text-cyan-400" />
               </div>
-            </StepCard>
-          )}
+              <div>
+                <h2 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900">
+                  {t("try-rag.log")}
+                  <InfoTip text={t("try-rag.log_subtitle")} />
+                </h2>
+                <p className="text-xs text-gray-400">{t("try-rag.log_subtitle")}</p>
+              </div>
+            </div>
+            <div className="p-6">
+              {queryHistory.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <img src="/robly-avatar/robly-standby.svg" alt="" className="mb-2 h-40 w-40 opacity-50" />
+                  <p className="font-semibold text-gray-600 opacity-70">{t("try-rag.log_empty_title")}</p>
+                  <p className="mt-1 max-w-xs text-sm text-gray-400">{t("try-rag.log_empty")}</p>
+                </div>
+              )}
+              <LayoutGroup>
+                <AnimatePresence initial={false}>
+                  {queryHistory.map((entry) => (
+                    <motion.div
+                      key={entry.key}
+                      layout
+                      initial={{ opacity: 0, y: -16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 16 }}
+                      transition={{ duration: 0.3 }}
+                      className="mb-4"
+                    >
+                      <div className="mb-1.5 flex items-center gap-2">
+                        <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-700">
+                          {entry.method}
+                        </span>
+                        <span className="break-all font-mono text-xs text-cyan-600">{entry.url}</span>
+                      </div>
+                      <JsonHighlight data={entry.response} />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </LayoutGroup>
+            </div>
+          </div>
+        </div>
+
+        {/* Technical definition — collapsible */}
+        <div className="mt-8 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <button
+            type="button"
+            onClick={() => setShowTech((v) => !v)}
+            aria-expanded={showTech}
+            className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-gray-50"
+          >
+            <span className="flex items-center gap-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-100">
+                <Cpu className="h-4 w-4 text-cyan-600" />
+              </span>
+              <span>
+                <span className="block text-sm font-semibold text-gray-900">{t("try-rag.tech_title")}</span>
+                <span className="block text-xs text-gray-400">{t("try-rag.tech_subtitle")}</span>
+              </span>
+            </span>
+            <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform ${showTech ? "rotate-180" : ""}`} />
+          </button>
+          <AnimatePresence initial={false}>
+            {showTech && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                className="overflow-hidden"
+              >
+                <div className="grid grid-cols-1 gap-6 border-t border-gray-100 px-6 py-6 md:grid-cols-2">
+                  <div>
+                    <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-900">
+                      <Workflow className="h-4 w-4 text-cyan-600" />
+                      {t("try-rag.tech_flow_title")}
+                    </h3>
+                    <ol className="space-y-2 text-xs text-gray-600">
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <li key={n} className="flex gap-2">
+                          <span className="font-semibold text-cyan-600">{n}.</span>
+                          {t(`try-rag.tech_flow_${n}`)}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                  <div>
+                    <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-900">
+                      <Cpu className="h-4 w-4 text-cyan-600" />
+                      {t("try-rag.tech_stack_title")}
+                    </h3>
+                    <dl className="space-y-1.5 text-xs">
+                      {[
+                        ["tech_stack_vectordb_label", "Pinecone"],
+                        ["tech_stack_embed_label", "sentence-transformers"],
+                        ["tech_stack_rerank_label", "MonoT5 → BGE"],
+                        ["tech_stack_llm_label", "Llama + GPT-4"],
+                        ["tech_stack_framework_label", "LangChain · FastAPI"],
+                      ].map(([labelKey, value], i, arr) => (
+                        <div
+                          key={labelKey}
+                          className={`flex justify-between gap-2 ${i < arr.length - 1 ? "border-b border-gray-100 pb-1.5" : ""}`}
+                        >
+                          <dt className="text-gray-500">{t(`try-rag.${labelKey}`)}</dt>
+                          <dd className="text-right font-medium text-gray-900">{value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                    <p className="mt-2 text-[11px] leading-relaxed text-gray-400">{t("try-rag.tech_note")}</p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>
   );
+}
+
+async function calculatePdfHash(file: File): Promise<string> {
+  try {
+    if (typeof window !== "undefined" && window.crypto?.subtle) {
+      const arrayBuffer = await file.arrayBuffer();
+      const digest = await window.crypto.subtle.digest("SHA-256", arrayBuffer);
+      const hashArray = Array.from(new Uint8Array(digest));
+      return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 16);
+    } else {
+      const buffer = await file.arrayBuffer();
+      const uint8Array = new Uint8Array(buffer);
+      const wordArray = encHex.parse(
+        Array.prototype.map.call(uint8Array, (x: number) => ("00" + x.toString(16)).slice(-2)).join("")
+      );
+      const hash = sha256(wordArray);
+      return hash.toString(encHex).slice(0, 16);
+    }
+  } catch (e) {
+    console.error("Hash calculation failed:", e);
+    throw new Error("Hash calculation failed.");
+  }
 }
