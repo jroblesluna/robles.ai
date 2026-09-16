@@ -15,6 +15,8 @@ import {
   ChevronDown,
   Cpu,
   Workflow,
+  FileText,
+  CheckCircle2,
 } from "lucide-react";
 import sha256 from "crypto-js/sha256";
 import encHex from "crypto-js/enc-hex";
@@ -385,13 +387,38 @@ export default function TryRAG() {
             )}
 
             <StepCard icon={Upload} number={1} title={t("try-rag.step1_title")} tip={t("try-rag.tip_step1")}>
-              <Input
+              <input
+                id="rag-pdf-input"
                 type="file"
                 accept="application/pdf"
+                className="sr-only"
                 onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
-                className="rounded-lg border-gray-300"
               />
-              {renderButton(handleUpload, t("try-rag.step1_button"), 1, !pdfFile)}
+              <label
+                htmlFor="rag-pdf-input"
+                className="group flex cursor-pointer items-center gap-4 rounded-2xl border-2 border-dashed border-gray-200 p-4 transition-all hover:border-cyan-400 hover:bg-cyan-50/40"
+              >
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gray-100 ring-1 ring-gray-200">
+                  <FileText className="h-6 w-6 text-gray-400 transition-colors group-hover:text-cyan-500" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  {pdfFile ? (
+                    <>
+                      <p className="truncate text-sm font-medium text-gray-900">{pdfFile.name}</p>
+                      <p className="mt-0.5 text-xs text-cyan-600">Cambiar archivo</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm font-medium text-gray-700">Haz clic para subir o arrastra un PDF</p>
+                      <span className="mt-1 inline-block rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-500">
+                        PDF
+                      </span>
+                    </>
+                  )}
+                </div>
+                {pdfFile && <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-500" />}
+              </label>
+              <div className="mt-3">{renderButton(handleUpload, t("try-rag.step1_button"), 1, !pdfFile)}</div>
               {step >= 2 && (
                 <>
                   {extractedText && (
