@@ -19,9 +19,13 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import CryptoJS from "crypto-js";
-import "crypto-js/lib-typedarrays"; // enables WordArray.create(ArrayBuffer)
 import { useTranslation } from "react-i18next";
 import { v4 as uuidv4 } from "uuid";
+import * as pdfjsLib from "pdfjs-dist";
+// Vite: load the pdf.js worker as a URL so text extraction runs off the main thread.
+import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 const getBaseApi = () => {
   if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
@@ -31,6 +35,25 @@ const getBaseApi = () => {
 };
 
 const BASE_API = getBaseApi();
+
+/**
+ * Extract selectable text from a PDF entirely in the browser (pdf.js).
+ * Only the text is sent to the backend, so PDF file size no longer matters
+ * (a 60 MB scanned-heavy PDF yields a few KB of text). Note: no OCR — scanned
+ * pages without a text layer produce no text (same as the old backend path).
+ */
+async function extractPdfText(file: File): Promise<string> {
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  const pages: string[] = [];
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const pageText = content.items.map((it: any) => ("str" in it ? it.str : "")).join(" ");
+    pages.push(pageText);
+  }
+  return pages.join("\n").trim();
+}
 
 /** Lightweight JSON syntax highlighter (VS Code "One Dark"–style palette). */
 function JsonHighlight({ data }: { data: unknown }) {
@@ -162,6 +185,7 @@ export default function TryRAG() {
 
   const handleUpload = async () => {
     if (!pdfFile) return;
+
     if (!(await ensureWarm())) {
       alert(t("try-rag.service_warm_failed"));
       return;
@@ -176,10 +200,33 @@ export default function TryRAG() {
     setUploadSkipped(false);
     setLoading(1);
 
+    // 1) Extract the PDF text IN THE BROWSER (pdf.js) and hash that text.
+    //    Only the text is sent to the backend, so PDF file size is irrelevant.
+    let text: string;
+    let shortNamespace: string;
     try {
-      const shortNamespace = await calculatePdfHash(pdfFile);
+      text = await extractPdfText(pdfFile);
+      if (!text) {
+        // No selectable text (likely a scanned PDF — no OCR here).
+        alert(t("try-rag.no_text"));
+        setLoading(null);
+        return;
+      }
+      // Hash the extracted text — matches the backend's own text hash.
+      shortNamespace = CryptoJS.SHA256(CryptoJS.enc.Utf8.parse(text))
+        .toString(CryptoJS.enc.Hex)
+        .slice(0, 16);
       setNamespace(shortNamespace);
+      setExtractedText(text);
+    } catch (error) {
+      console.error("PDF text extraction error:", error);
+      alert(t("try-rag.hash_error"));
+      setLoading(null);
+      return;
+    }
 
+    // 2) Check if already indexed, then send the TEXT if new.
+    try {
       const checkRes = await fetch(`${BASE_API}/rag/check-namespace`, {
         method: "POST",
         body: new URLSearchParams({ namespace: shortNamespace }),
@@ -189,27 +236,28 @@ export default function TryRAG() {
       setWasAlreadyIndexed(checkJson.data.exists);
 
       if (checkJson.data.exists) {
-        // Document already indexed under this hash → skip the upload entirely
-        // and jump straight to the query step.
+        // Already indexed under this hash → skip upload, jump to query step.
         setUploadSkipped(true);
         setChunkCount(checkJson.data.vector_count);
         setShowStep2(true);
-        setStep(4); // skip embed step too — it's already indexed
+        setStep(4);
         setLoading(null);
         return;
       }
 
-      const formData = new FormData();
-      formData.append("file", pdfFile);
-      const res = await fetch(`${BASE_API}/rag/upload`, { method: "POST", body: formData });
+      const res = await fetch(`${BASE_API}/rag/upload`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, namespace: shortNamespace }),
+      });
+      if (!res.ok) {
+        throw new Error(`Upload failed with HTTP ${res.status}`);
+      }
       const json = await res.json();
       logCall(`${BASE_API}/rag/upload`, "POST", json);
-      // The backend re-hashes the uploaded content and returns the authoritative
-      // namespace. Adopt it (instead of trusting the client-side hash) so all
-      // subsequent steps use the server's source-of-truth namespace — this
-      // guards against a client hash mismatch or tampering.
+      // Adopt the backend's authoritative namespace (it re-hashes the text).
       if (json.data?.namespace) setNamespace(json.data.namespace);
-      setExtractedText(json.data.chunks.join("\n"));
+      // Keep the browser-extracted text shown; use the backend's chunks.
       setChunks(json.data.chunks);
       setChunkCount(json.data.n_chunks);
       setShowStep2(true);
@@ -217,7 +265,7 @@ export default function TryRAG() {
       setLoading(null);
     } catch (error) {
       console.error("Upload error:", error);
-      alert(t("try-rag.hash_error"));
+      alert(t("try-rag.upload_error"));
       setLoading(null);
     }
   };
@@ -371,6 +419,12 @@ export default function TryRAG() {
               <p className="mt-2 max-w-2xl text-sm text-gray-600 sm:text-base">{t("try-rag.description")}</p>
             </div>
           </div>
+
+          {/* Instructions / privacy note */}
+          <div className="mt-6 flex items-start gap-3 rounded-lg border border-cyan-100 bg-cyan-50 p-4 text-xs text-cyan-800">
+            <Info className="mt-0.5 h-4 w-4 shrink-0 text-cyan-500" />
+            <p>{t("try-rag.instructions")}</p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
@@ -456,7 +510,15 @@ export default function TryRAG() {
               {step >= 2 && (
                 <>
                   {extractedText && (
-                    <Textarea className="mt-2 rounded-lg border-gray-300 text-sm" rows={4} value={extractedText} readOnly />
+                    <div className="mt-3">
+                      <div className="mb-1 flex items-center gap-1.5">
+                        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                          {t("try-rag.extracted_label")}
+                        </span>
+                        <InfoTip text={t("try-rag.tip_extracted")} />
+                      </div>
+                      <Textarea className="rounded-lg border-gray-300 text-sm" rows={4} value={extractedText} readOnly />
+                    </div>
                   )}
                   <p className="mt-2 text-sm text-gray-600">
                     {t("try-rag.chunks_extracted")}: <strong className="text-gray-900">{chunkCount ?? "¿?"}</strong>
@@ -659,28 +721,4 @@ export default function TryRAG() {
       </div>
     </div>
   );
-}
-
-async function calculatePdfHash(file: File): Promise<string> {
-  // Hash the FULL file content so ANY change (even a single character) yields a
-  // different Pinecone namespace and triggers re-indexing. To support large
-  // PDFs (tens of MB) without loading everything into memory at once, we stream
-  // the file in chunks and feed a running SHA-256 hasher incrementally.
-  try {
-    const CHUNK = 2 * 1024 * 1024; // read 2 MB at a time
-    const hasher = CryptoJS.algo.SHA256.create();
-
-    for (let offset = 0; offset < file.size; offset += CHUNK) {
-      const slice = file.slice(offset, Math.min(offset + CHUNK, file.size));
-      const buf = await slice.arrayBuffer();
-      // Convert the chunk to a CryptoJS WordArray and update the hasher.
-      const wordArray = CryptoJS.lib.WordArray.create(buf as any);
-      hasher.update(wordArray);
-    }
-
-    return hasher.finalize().toString(CryptoJS.enc.Hex).slice(0, 16);
-  } catch (e) {
-    console.error("Hash calculation failed:", e);
-    throw new Error("Hash calculation failed.");
-  }
 }
