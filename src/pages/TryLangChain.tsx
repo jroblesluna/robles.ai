@@ -21,7 +21,6 @@ import { v4 as uuidv4 } from "uuid";
 import { JsonHighlight } from "@/components/demo/JsonHighlight";
 import { InfoTip } from "@/components/demo/InfoTip";
 import { StepCard } from "@/components/demo/StepCard";
-import type { ChatResponse, AgentResponse, JSONResponse } from "@/pages/types/api-types";
 
 const getBaseApi = () => {
   if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
@@ -157,42 +156,39 @@ export default function TryLangChain() {
     }
     setLoading(true);
     setAnswer("");
+
+    const url =
+      mode === "rag" ? `${BASE_API}/chat` : mode === "tools" ? `${BASE_API}/agent` : `${BASE_API}/json`;
+    const body =
+      mode === "rag"
+        ? { session_id: sessionId, question }
+        : mode === "tools"
+          ? { mode: "tools", input: question }
+          : { query: question };
+
     try {
-      if (mode === "rag") {
-        const url = `${BASE_API}/chat`;
-        const body = { session_id: sessionId, question };
-        const r: ChatResponse = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        }).then((res) => res.json());
-        logCall(url, "POST", r);
-        setAnswer(r.answer);
-      } else if (mode === "tools") {
-        const url = `${BASE_API}/agent`;
-        const body = { mode: "tools", input: question };
-        const r: AgentResponse = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        }).then((res) => res.json());
-        logCall(url, "POST", r);
-        setAnswer(r.answer);
-      } else {
-        const url = `${BASE_API}/json`;
-        const body = { query: question };
-        const r: JSONResponse = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        }).then((res) => res.json());
-        logCall(url, "POST", r);
-        setAnswer(JSON.stringify(r, null, 2));
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const json = await res.json().catch(() => null);
+
+      // The backend returns { error: { code, message } } on failure. Surface the
+      // real reason (bad LLM key, quota, etc.) instead of a generic message.
+      if (!res.ok || (json && json.error)) {
+        const backendMsg = json?.error?.message || json?.detail || `HTTP ${res.status}`;
+        logCall(url, "POST", json ?? { error: backendMsg });
+        setAnswer(backendMsg);
+        return;
       }
+
+      logCall(url, "POST", json);
+      setAnswer(mode === "json" ? JSON.stringify(json, null, 2) : json.answer);
     } catch {
-      const errUrl = `${BASE_API}/${mode === "rag" ? "chat" : mode === "tools" ? "agent" : "json"}`;
-      logCall(errUrl, "POST", { error: t("try-langchain.request_error") });
-      setAnswer(t("try-langchain.request_error"));
+      // Only true network failures land here (service unreachable / cold start).
+      logCall(url, "POST", { error: t("try-langchain.network_error") });
+      setAnswer(t("try-langchain.network_error"));
     } finally {
       setLoading(false);
     }

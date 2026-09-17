@@ -977,6 +977,7 @@
         "upload_uploading": "Uploading and ingesting…",
         "upload_error": "Upload failed. Please try again.",
         "request_error": "The request failed. The service may be waking up — try again.",
+        "network_error": "Couldn't reach the service. It may be waking up (cold start) or offline — try again in a moment.",
         "placeholder_rag": "Ask a question about your uploaded documents…",
         "placeholder_tools": "Ask the agent to compute or look something up…",
         "placeholder_json": "Describe what you want summarized as structured JSON…",
