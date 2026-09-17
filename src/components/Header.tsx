@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronRight, Sparkles } from "lucide-react";
+import { Menu, X, ChevronRight, Sparkles, FlaskConical } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "wouter";
 
@@ -197,6 +197,14 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
               </button>
             )
           )}
+          {/* Demos Lab CTA */}
+          <button
+            onClick={() => handleNavigation("/demos")}
+            className="shrink-0 flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-cyan-50 hover:bg-cyan-100 text-cyan-700 text-sm font-medium transition-colors"
+          >
+            <FlaskConical className="h-4 w-4 shrink-0" />
+            <span className="whitespace-nowrap">{t("nav.demos")}</span>
+          </button>
           {/* Quiz CTA */}
           <button
             onClick={() => handleNavigation("/diagnostico-ia")}
@@ -300,8 +308,18 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
                 ))}
               </nav>
 
-              {/* Test IA + Contacto */}
+              {/* Demos Lab + Test IA + Contacto */}
               <div className="mt-6 pt-6 border-t border-gray-200 space-y-3">
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    handleNavigation("/demos");
+                  }}
+                  className="w-full flex items-center justify-center gap-1.5 px-6 py-3 bg-cyan-50 hover:bg-cyan-100 text-cyan-700 rounded-lg font-medium transition-colors"
+                >
+                  <FlaskConical className="h-4 w-4 shrink-0" />
+                  {t("nav.demos")}
+                </button>
                 <button
                   onClick={() => {
                     setIsMobileMenuOpen(false);

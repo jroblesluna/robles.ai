@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "wouter";
-import { ChevronLeft, ChevronRight, Sparkles, ArrowRight, Fingerprint, Database, HeartPulse, Link2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Sparkles, ArrowRight, Fingerprint, Database, HeartPulse, Link2, FlaskConical } from "lucide-react";
 import { fadeIn, staggerContainer } from "@/utils/animations";
 import ParticleBackground from './ParticleBackground';
 import { useTranslation } from 'react-i18next';
@@ -145,6 +145,16 @@ const Hero = () => {
                 {t(`demosPromo.${key}`)}
               </Link>
             ))}
+          </div>
+          <div className="mt-4 flex justify-center md:justify-start">
+            <Link
+              href="/demos"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/90 hover:bg-white text-slate-800 font-semibold rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+            >
+              <FlaskConical className="h-4 w-4" />
+              {t("demosPromo.viewAll")}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
         </>
       ),
