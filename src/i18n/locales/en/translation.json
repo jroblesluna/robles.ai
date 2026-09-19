@@ -1084,6 +1084,7 @@
         "query_placeholder": "Type your question...",
         "query_button": "Query",
         "score_label": "score",
+        "results_label": "results (scroll to see all)",
         "step4_title": "Reranking MonoT5 ➜ BGE",
         "rerank_button": "Apply reranking",
         "rerank_error": "Error while reranking",

@@ -21,6 +21,7 @@ import {
 import CryptoJS from "crypto-js";
 import { useTranslation } from "react-i18next";
 import { v4 as uuidv4 } from "uuid";
+import { JsonHighlight } from "@/components/demo/JsonHighlight";
 import * as pdfjsLib from "pdfjs-dist";
 // Vite: load the pdf.js worker as a URL so text extraction runs off the main thread.
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
@@ -60,37 +61,6 @@ async function extractPdfText(
     if (i % 5 === 0) await new Promise((r) => setTimeout(r, 0));
   }
   return pages.join("\n").trim();
-}
-
-/** Lightweight JSON syntax highlighter (VS Code "One Dark"–style palette). */
-function JsonHighlight({ data }: { data: unknown }) {
-  const json = JSON.stringify(data, null, 2);
-  const tokenRegex =
-    /("(?:\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(?:\s*:)?|\b(?:true|false)\b|\bnull\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g;
-  const parts: React.ReactNode[] = [];
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
-  let key = 0;
-  while ((match = tokenRegex.exec(json)) !== null) {
-    if (match.index > lastIndex) parts.push(json.slice(lastIndex, match.index));
-    const token = match[0];
-    let cls = "text-cyan-300";
-    if (/^"/.test(token)) cls = /:\s*$/.test(token) ? "text-sky-300" : "text-emerald-300";
-    else if (/true|false/.test(token)) cls = "text-orange-300";
-    else if (/null/.test(token)) cls = "text-rose-300";
-    parts.push(
-      <span key={key++} className={cls}>
-        {token}
-      </span>
-    );
-    lastIndex = tokenRegex.lastIndex;
-  }
-  if (lastIndex < json.length) parts.push(json.slice(lastIndex));
-  return (
-    <pre className="max-w-full overflow-x-auto whitespace-pre-wrap break-all rounded-lg border border-slate-700/60 bg-slate-800/90 p-3 font-mono text-xs leading-relaxed text-slate-300 shadow-inner">
-      {parts}
-    </pre>
-  );
 }
 
 /** Dependency-free info tooltip (hover + keyboard focus). */
@@ -656,13 +626,18 @@ export default function TryRAG() {
                 />
                 {renderButton(handleQuery, t("try-rag.query_button"), 5, !query)}
                 {topResults.length > 0 && (
-                  <ul className="list-disc space-y-1 rounded-lg border border-gray-200 bg-gray-50 p-3 pl-8 text-sm text-gray-700">
-                    {topResults.map((r, i) => (
-                      <li key={i}>
-                        {r.text} ({t("try-rag.score_label")}: {r.score})
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="rounded-lg border border-gray-200 bg-gray-50">
+                    <div className="border-b border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-500">
+                      {topResults.length} {t("try-rag.results_label")}
+                    </div>
+                    <ul className="max-h-64 list-disc space-y-1 overflow-y-auto p-3 pl-8 text-sm text-gray-700">
+                      {topResults.map((r, i) => (
+                        <li key={i}>
+                          {r.text} ({t("try-rag.score_label")}: {r.score})
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
               </StepCard>
             )}
@@ -671,13 +646,18 @@ export default function TryRAG() {
               <StepCard icon={ArrowUpDown} number={4} title={t("try-rag.step4_title")} tip={t("try-rag.tip_step4")}>
                 {renderButton(handleRerank, t("try-rag.rerank_button"), 7)}
                 {rerankedResults.length > 0 && (
-                  <ul className="list-decimal space-y-1 rounded-lg border border-gray-200 bg-gray-50 p-3 pl-8 text-sm text-gray-700">
-                    {rerankedResults.map((r, i) => (
-                      <li key={i}>
-                        {r.text} ({t("try-rag.score_label")}: {r.score})
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="rounded-lg border border-gray-200 bg-gray-50">
+                    <div className="border-b border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-500">
+                      {rerankedResults.length} {t("try-rag.results_label")}
+                    </div>
+                    <ul className="max-h-64 list-decimal space-y-1 overflow-y-auto p-3 pl-8 text-sm text-gray-700">
+                      {rerankedResults.map((r, i) => (
+                        <li key={i}>
+                          {r.text} ({t("try-rag.score_label")}: {r.score})
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
               </StepCard>
             )}
