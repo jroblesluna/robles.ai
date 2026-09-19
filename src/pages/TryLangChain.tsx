@@ -396,7 +396,7 @@ export default function TryLangChain() {
                     {t("try-langchain.answer_label")}
                     <InfoTip text={t("try-langchain.tip_answer")} hoverColor={TIP_HOVER} />
                   </div>
-                  <pre className="whitespace-pre-wrap break-words rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
+                  <pre className="max-h-80 overflow-auto whitespace-pre-wrap break-words rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
                     {answer}
                   </pre>
                 </div>
