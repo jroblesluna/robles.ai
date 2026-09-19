@@ -25,6 +25,8 @@ const TryIdentity = lazy(() => import('@/pages/TryIdentity'));
 const TryLangChain = lazy(() => import('@/pages/TryLangChain'));
 const TryRAG = lazy(() => import('@/pages/TryRAG'));
 const TryMedical = lazy(() => import('@/pages/TryMedical'));
+const TryObjectDetection = lazy(() => import('@/pages/TryObjectDetection'));
+const TryEmotion = lazy(() => import('@/pages/TryEmotion'));
 const AdminLayout = lazy(() => import('@/pages/admin/AdminLayout'));
 const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
 const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
@@ -114,6 +116,8 @@ function App() {
               <Route path="/try-langchain" component={TryLangChain} />
               <Route path="/try-rag" component={TryRAG} />
               <Route path="/try-medical" component={TryMedical} />
+              <Route path="/try-object-detection" component={TryObjectDetection} />
+              <Route path="/try-emotion" component={TryEmotion} />
               <Route path="/get-started" component={Landing} />
               <Route path="/diagnostico-ia" component={Quiz} />
               <Route path="/otp" component={OTP} />

@@ -241,6 +241,10 @@ function getDemoContext(pagePath: string): string {
     '/try-rag': `The visitor is on the RAG Pipeline Demo page. This demo walks users through a complete Retrieval Augmented Generation pipeline: uploading a PDF document, extracting text and generating chunks, creating embeddings and indexing them in a vector database (Pinecone), querying the vector DB, applying reranking (MonoT5 and BGE), and generating answers with multiple LLMs (Llama and GPT-4).`,
 
     '/try-medical': `The visitor is on the Medical AI Demo page. This demo allows users to analyze medical images using AI. Users select an imaging modality (such as X-ray, MRI, CT scan, or ultrasound) and upload clinical images for AI-powered diagnostic insights. The system provides analysis based on the selected modality and clinical focus area.`,
+
+    '/try-object-detection': `The visitor is on the Object Detection Demo page. This demo runs a real-time object detection model (COCO-SSD on TensorFlow.js) entirely in the browser — no server involved. Users can use their live webcam or upload an image, and the model draws bounding boxes with labels and confidence scores over the 80 object classes it recognizes. Everything is processed locally, so the video/image never leaves the device.`,
+
+    '/try-emotion': `The visitor is on the Facial Emotion Recognition Demo page. This demo uses face-api.js (TensorFlow.js) in the browser to detect faces, draw a 68-point facial landmark mesh, and classify facial expressions into 7 emotions (neutral, happy, sad, angry, surprised, fearful, disgusted) in real time via webcam or an uploaded image. All processing happens locally in the browser — no images or biometric data are sent to any server or stored.`,
   };
 
   return demoDescriptions[pagePath] ||
