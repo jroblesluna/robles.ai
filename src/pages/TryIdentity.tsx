@@ -2,8 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { storage } from "@/lib/firebaseConfig";
 import { AnimatePresence, motion, LayoutGroup } from "framer-motion";
 import {
   Fingerprint,
@@ -58,6 +56,30 @@ const getBaseApi = () => {
 const BASE_API = getBaseApi();
 const VERIFY_ENDPOINT = `${BASE_API}/recognition/verify-id`;
 const STATUS_ENDPOINT = (id: string) => `${BASE_API}/recognition/get/${id}`;
+
+/**
+ * Clone an API response for the on-screen JSON log, replacing the (large)
+ * base64 image data-URIs in data.output with a short marker. The full response
+ * is still used to render the actual result images — this only keeps the log
+ * readable. Backend already redacts the base64 INPUT images.
+ */
+function redactForLog(response: any): any {
+  try {
+    const clone = JSON.parse(JSON.stringify(response));
+    const output = clone?.data?.data?.output ?? clone?.data?.output;
+    if (output && typeof output === "object") {
+      for (const key of ["FaceImageCV2", "CardImageCV2", "FaceLandMarksImage", "CardLandMarksImage"]) {
+        const v = output[key];
+        if (typeof v === "string" && v.startsWith("data:")) {
+          output[key] = `<base64 image · ${v.length} chars>`;
+        }
+      }
+    }
+    return clone;
+  } catch {
+    return response;
+  }
+}
 
 type StatusKey =
   | "pending"
@@ -272,7 +294,7 @@ export default function TryIdentity() {
         setStatus(data.data.status);
         setResult(data.data);
 
-        const newEntry = { url, response: data, key: uuidv4() };
+        const newEntry = { url, response: redactForLog(data), key: uuidv4() };
         setQueryHistory((prev) => [newEntry, ...prev]);
 
         if (["completed", "completed_with_errors"].includes(data.data.status)) {
@@ -286,11 +308,41 @@ export default function TryIdentity() {
     return () => clearInterval(interval);
   }, [requestId, submitted, status, t]);
 
-  const uploadImage = async (file: File, path: string) => {
-    const storageRef = ref(storage, path);
-    const snapshot = await uploadBytes(storageRef, file);
-    return await getDownloadURL(snapshot.ref);
-  };
+  /**
+   * Convert a File to a base64 data-URI, downscaling to keep the payload small.
+   * Images now travel as base64 in the POST /verify-id body (no Firebase
+   * Storage): the backend decodes them, compares in memory, and returns the
+   * processed images inline as base64 — nothing is persisted to any bucket.
+   */
+  const fileToBase64 = (file: File, maxSize = 1024, quality = 0.85): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let { width, height } = img;
+        if (Math.max(width, height) > maxSize) {
+          const scale = maxSize / Math.max(width, height);
+          width = Math.round(width * scale);
+          height = Math.round(height * scale);
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          reject(new Error("Canvas not supported"));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject(new Error("Could not load image"));
+      };
+      img.src = url;
+    });
 
   const handleSubmit = async () => {
     if (!selfie || !document || submitted) return;
@@ -314,22 +366,23 @@ export default function TryIdentity() {
         }
       }
 
-      const uploadId = uuidv4();
-      const selfiePath = `demo-uploads/${uploadId}/selfie.jpg`;
-      const docPath = `demo-uploads/${uploadId}/document.jpg`;
-
-      const [selfieUrl, docUrl] = await Promise.all([
-        uploadImage(selfie, selfiePath),
-        uploadImage(document, docPath),
+      const [faceImageBase64, cardIdImageBase64] = await Promise.all([
+        fileToBase64(selfie),
+        fileToBase64(document),
       ]);
 
       const payload = {
-        faceImageUrl: selfieUrl,
-        cardIdImageUrl: docUrl,
+        faceImageBase64,
+        cardIdImageBase64,
         callback: callbackUrl,
       };
 
-      setPayloadPreview(payload);
+      // Show a truncated preview in the log (base64 strings are huge).
+      setPayloadPreview({
+        faceImageBase64: `${faceImageBase64.slice(0, 48)}… (${faceImageBase64.length} chars)`,
+        cardIdImageBase64: `${cardIdImageBase64.slice(0, 48)}… (${cardIdImageBase64.length} chars)`,
+        callback: callbackUrl,
+      });
 
       const response = await fetch(VERIFY_ENDPOINT, {
         method: "POST",
