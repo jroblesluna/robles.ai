@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -176,6 +176,21 @@ export default function TryRAG() {
 
   const logCall = (url: string, method: string, response: any) =>
     setQueryHistory((prev) => [{ url, method, response, key: uuidv4() }, ...prev]);
+
+  // Anchors for each step card, so advancing a step scrolls the next card into
+  // view (e.g. "Ir a consulta" → the "Consultar al vector DB" card).
+  const stepRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  useEffect(() => {
+    // Scroll to the card that becomes visible at the current step. Cards render
+    // at step thresholds 4 (query), 6 (rerank), 8 (generate).
+    const target = stepRefs.current[step];
+    if (target) {
+      // rAF: wait for the newly-rendered card to be in the DOM before scrolling.
+      requestAnimationFrame(() =>
+        target.scrollIntoView({ behavior: "smooth", block: "start" })
+      );
+    }
+  }, [step]);
 
   // Health check on mount (warm vs cold from latency).
   useEffect(() => {
@@ -623,6 +638,7 @@ export default function TryRAG() {
             )}
 
             {step >= 4 && (
+              <div ref={(el) => (stepRefs.current[4] = el)}>
               <StepCard icon={Search} number={3} title={t("try-rag.step3_title")} tip={t("try-rag.tip_step3")}>
                 <Input
                   placeholder={t("try-rag.query_placeholder")}
@@ -646,9 +662,11 @@ export default function TryRAG() {
                   </div>
                 )}
               </StepCard>
+              </div>
             )}
 
             {step >= 6 && (
+              <div ref={(el) => (stepRefs.current[6] = el)}>
               <StepCard icon={ArrowUpDown} number={4} title={t("try-rag.step4_title")} tip={t("try-rag.tip_step4")}>
                 {renderButton(handleRerank, t("try-rag.rerank_button"), 7)}
                 {rerankedResults.length > 0 && (
@@ -666,9 +684,11 @@ export default function TryRAG() {
                   </div>
                 )}
               </StepCard>
+              </div>
             )}
 
             {step >= 8 && (
+              <div ref={(el) => (stepRefs.current[8] = el)}>
               <StepCard icon={Sparkles} number={5} title={t("try-rag.step5_title")} tip={t("try-rag.tip_step5")}>
                 {renderButton(handleGenerateAnswers, t("try-rag.generate_button"), 9)}
                 <div className="space-y-2 text-sm">
@@ -684,6 +704,7 @@ export default function TryRAG() {
                   )}
                 </div>
               </StepCard>
+              </div>
             )}
           </div>
 
