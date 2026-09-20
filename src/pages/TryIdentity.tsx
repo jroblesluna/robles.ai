@@ -326,7 +326,10 @@ export default function TryIdentity() {
           width = Math.round(width * scale);
           height = Math.round(height * scale);
         }
-        const canvas = document.createElement("canvas");
+        // NOTE: use window.document — this component has a `document` state
+        // variable (the ID file) that shadows the global `document`, so a bare
+        // `document.createElement` would throw "createElement is not a function".
+        const canvas = window.document.createElement("canvas");
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext("2d");
