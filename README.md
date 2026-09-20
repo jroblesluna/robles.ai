@@ -12,7 +12,7 @@ Public website of **Robles.AI**, built with **Vite + React (TypeScript)** on the
 - **Modern UI** with Tailwind, framer-motion, shadcn, and recharts.
 - **Ad Landing Page** (`/get-started`): bilingual (EN/ES) conversion-focused page with process steps, services, technologies, pricing, roadmap table, Why Now stats, and CTA. All images served locally.
 - **AI Chatbot Widget (Robly)**: floating widget replacing the old WhatsApp bubble. GPT-4o-mini powered with SSE streaming, page-context awareness, contact data collection, and conversation storage. Features Robly SVG avatar with 4 animated moods (idle/listening/thinking/speaking). Entrance sequence at 10s/20s/22s.
-- **Demo pages**: `/try-identity`, `/try-rag`, `/try-langchain`, `/try-medical`.
+- **Demo pages**: `/try-identity`, `/try-rag`, `/try-langchain`, `/try-medical`, `/try-transcription` (speech-to-text + diarization), `/try-object-detection`, `/try-emotion`.
 - **Static blog**: posts in `server/data/posts/YYYY/MM/DD/*.json` with bilingual translations and FTS5 full-text search.
 - **Server-side SEO**: Express middleware injects correct `<title>`, `<meta>`, Open Graph, Twitter Card, hreflang, canonical, and JSON-LD tags before serving HTML to crawlers — no JavaScript needed.
 - **Admin Panel** (`/admin`): JWT-authenticated dashboard with: El Dominical IA management, multi-platform publishing, carousel image generation, conversation inbox, and analytics.
@@ -226,10 +226,13 @@ All persistent state lives in `server/data/dominical.db` (gitignored). Tables:
 | `/apply` | Apply | Application form |
 | `/blog` | BlogList | Paginated blog + FTS5 search |
 | `/blog/:slug` | BlogPost | Individual post with server-injected SEO |
-| `/try-identity` | TryIdentity | Identity verification demo |
-| `/try-langchain` | TryLangChain | LangChain demo |
-| `/try-rag` | TryRAG | RAG pipeline demo |
+| `/try-identity` | TryIdentity | Identity verification demo (Cloud Run → `identity-api.robles.ai`) |
+| `/try-langchain` | TryLangChain | LangChain demo (Cloud Run → `langchain-api.robles.ai`) |
+| `/try-rag` | TryRAG | RAG pipeline demo (Cloud Run → `rag-api.robles.ai`) |
 | `/try-medical` | TryMedical | Medical image analysis demo |
+| `/try-transcription` | TryTranscription | Real-time speech-to-text + diarization + AI analysis (Cloud Run → `transcription-api.robles.ai`) |
+| `/try-object-detection` | TryObjectDetection | Object detection (in-browser, COCO-SSD) |
+| `/try-emotion` | TryEmotion | Emotion recognition (in-browser, face-api.js) |
 | `/admin` | AdminPage | Login / first-time setup |
 | `/admin/settings` | AdminSettings | LinkedIn, Meta, OpenAI, Dominical preferences |
 | `/admin/dominical` | AdminDominicalList | Weekly report listing |
