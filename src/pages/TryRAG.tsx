@@ -180,15 +180,19 @@ export default function TryRAG() {
   // Anchors for each step card, so advancing a step scrolls the next card into
   // view (e.g. "Ir a consulta" → the "Consultar al vector DB" card).
   const stepRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  const queryInputRef = useRef<HTMLInputElement | null>(null);
   useEffect(() => {
     // Scroll to the card that becomes visible at the current step. Cards render
     // at step thresholds 4 (query), 6 (rerank), 8 (generate).
     const target = stepRefs.current[step];
     if (target) {
       // rAF: wait for the newly-rendered card to be in the DOM before scrolling.
-      requestAnimationFrame(() =>
-        target.scrollIntoView({ behavior: "smooth", block: "start" })
-      );
+      requestAnimationFrame(() => {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        // On the query step, also focus the query input so the cursor lands
+        // there ready to type (not just scrolled into view).
+        if (step === 4) queryInputRef.current?.focus();
+      });
     }
   }, [step]);
 
@@ -641,6 +645,7 @@ export default function TryRAG() {
               <div ref={(el) => (stepRefs.current[4] = el)}>
               <StepCard icon={Search} number={3} title={t("try-rag.step3_title")} tip={t("try-rag.tip_step3")}>
                 <Input
+                  ref={queryInputRef}
                   placeholder={t("try-rag.query_placeholder")}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
