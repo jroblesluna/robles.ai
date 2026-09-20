@@ -428,8 +428,14 @@ export default function TryRAG() {
     });
     const json = await res.json();
     logCall(`${BASE_API}/rag/generate`, "POST", json);
-    setHfAnswer(json.data.llama);
-    setGptAnswer(json.data.gpt);
+    // Response shape is now { gpt: {llm_request, llm_response}, llama: {...} }.
+    // The full llm_request (model, hyperparameters, messages with roles) shows
+    // in the API log above via logCall. Here we surface just the answer text.
+    // Fall back to the old string shape for backward compatibility.
+    const pickAnswer = (v: any) =>
+      v && typeof v === "object" ? v.llm_response : v;
+    setHfAnswer(pickAnswer(json.data.llama));
+    setGptAnswer(pickAnswer(json.data.gpt));
     setStep(10);
     setLoading(null);
   };
