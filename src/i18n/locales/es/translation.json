@@ -1119,27 +1119,44 @@
             "xray": {
                 "title": "Radiografía",
                 "description": "Análisis radiográfico de tórax y huesos",
-                "subtypes": ["Tórax", "Huesos"]
+                "subtypes": [
+                    "Tórax",
+                    "Huesos"
+                ]
             },
             "ultrasound": {
                 "title": "Ultrasonido",
                 "description": "Imágenes tiroidea, mamaria y cardíaca",
-                "subtypes": ["Tiroides", "Mama", "Cardíaco"]
+                "subtypes": [
+                    "Tiroides",
+                    "Mama",
+                    "Cardíaco"
+                ]
             },
             "retina": {
                 "title": "Retina",
                 "description": "Análisis de imágenes de fondo de ojo",
-                "subtypes": ["Retinopatía Diabética", "Degeneración Macular"]
+                "subtypes": [
+                    "Retinopatía Diabética",
+                    "Degeneración Macular"
+                ]
             },
             "dermatology": {
                 "title": "Dermatología",
                 "description": "Detección de lesiones cutáneas",
-                "subtypes": ["Lesión Cutánea", "Melanoma"]
+                "subtypes": [
+                    "Lesión Cutánea",
+                    "Melanoma"
+                ]
             },
             "histopathology": {
                 "title": "Histopatología",
                 "description": "Detección de cáncer en tejidos",
-                "subtypes": ["Cáncer de Mama", "Cáncer de Pulmón", "Cáncer de Colon"]
+                "subtypes": [
+                    "Cáncer de Mama",
+                    "Cáncer de Pulmón",
+                    "Cáncer de Colon"
+                ]
             }
         },
         "select": "Seleccionar {{modality}}",
@@ -1768,14 +1785,14 @@
             },
             {
                 "id": "speech",
-                "href": "",
-                "status": "soon",
+                "href": "/try-transcription",
+                "status": "live",
                 "icon": "AudioLines",
                 "from": "from-teal-500",
                 "to": "to-emerald-600",
                 "modelType": "Voz · Transcripción y Diarización",
-                "title": "Voz a Texto",
-                "description": "Transcribe audio con separación de hablantes y marcas de tiempo, con modelos de reconocimiento de voz de última generación."
+                "title": "Voz a Texto y Diarización",
+                "description": "Graba audio en vivo y mira la transcripción en tiempo real — con separación de hablantes y un análisis de IA que detecta la industria, los roles, los términos clave y un resumen de la conversación."
             },
             {
                 "id": "sentiment",
@@ -1844,5 +1861,77 @@
                 "description": "Detecta fraude y valores atípicos en transacciones y telemetría con modelos de detección de anomalías en tiempo real."
             }
         ]
+    },
+    "try-transcription": {
+        "title": "Voz a Texto y Diarización",
+        "description": "Graba audio y mira la transcripción en tiempo real — con separación de hablantes y un análisis de IA que detecta industria, roles, términos clave y un resumen de la conversación.",
+        "badge": "Demo WebSocket en vivo",
+        "instructions": "Concede acceso al micrófono, empieza a grabar y habla con naturalidad. Las transcripciones llegan en tiempo real con etiquetas de hablante. Cuando termines, ejecuta Analizar para obtener detección de industria, roles de hablante, terminología y un resumen estructurado. El audio se transmite sin almacenarse en ningún lugar.",
+        "record_start": "Empezar a grabar",
+        "record_stop": "Detener grabación",
+        "recording": "Grabando…",
+        "step1_title": "Configurar",
+        "step2_title": "Grabar",
+        "step3_title": "Analizar",
+        "tip_configure": "Selecciona el idioma principal y el registro de terminología antes de empezar. Afectan tanto la transcripción como el análisis.",
+        "tip_record": "El audio se transmite desde tu micrófono por WebSocket a Deepgram Nova-3. Nada se almacena — el flujo se descarta al terminar la sesión.",
+        "tip_transcript": "Las transcripciones en cursiva son provisionales (en tiempo real). Las sólidas son definitivas (confirmadas al cerrar la locución).",
+        "tip_language": "Elige el idioma principal de tu conversación. 'Auto' maneja audio en varios idiomas.",
+        "tip_mode": "Básico usa lenguaje cotidiano; Especializado usa terminología técnica del dominio. Ambas formas aparecen en la tabla de términos para que el cambio sea instantáneo.",
+        "tip_analyze": "Envía los turnos de transcripción confirmados a POST /analyze. La IA detecta la industria, infiere los roles de hablante, mapea los términos clave y escribe un resumen estructurado.",
+        "tip_log": "Mensajes crudos intercambiados por el WebSocket (start, partial, final, info, error, closed) y la llamada HTTP /analyze.",
+        "language_label": "Idioma",
+        "language_es": "Español",
+        "language_en": "Inglés",
+        "language_multi": "Auto",
+        "mode_label": "Modo",
+        "mode_basic": "Básico",
+        "mode_specialized": "Especializado",
+        "analyze": "Analizar transcripción",
+        "analyzing": "Analizando…",
+        "service_ready": "Servicio listo — puedes empezar a grabar al instante.",
+        "service_cold_hint": "Esta demo corre en infraestructura bajo demanda que se apaga cuando está inactiva. La primera conexión puede tardar ∼30s; luego la grabación arranca al instante.",
+        "service_warming": "Preparando el servicio… puede tardar hasta ∼30s la primera vez. Por favor espera.",
+        "service_warm_failed": "El servicio tarda más de lo esperado en arrancar. Inténtalo de nuevo en un momento.",
+        "log": "Log WebSocket y API",
+        "log_subtitle": "Mensajes en vivo intercambiados con la API de transcripción",
+        "log_empty_title": "Sin actividad todavía",
+        "log_empty": "Empieza a grabar para ver los mensajes WebSocket aparecer aquí en tiempo real.",
+        "ws_status_connecting": "Conectando…",
+        "ws_status_ready": "Conectado — transmitiendo",
+        "ws_status_closed": "Sesión finalizada",
+        "ws_status_error": "Error de conexión",
+        "ws_status_disconnected": "Desconectado",
+        "transcript_label": "Transcripción en vivo",
+        "transcript_empty": "La transcripción aparecerá aquí mientras hablas…",
+        "speaker_label": "Hablante {{n}}",
+        "results_industry": "Industria detectada",
+        "results_confidence": "Confianza",
+        "results_title_label": "Título",
+        "results_summary": "Resumen",
+        "results_speakers": "Roles de hablantes",
+        "results_terms": "Términos clave",
+        "results_term_spoken": "Como se dijo",
+        "results_term_basic": "Básico",
+        "results_term_specialized": "Especializado",
+        "reset": "Nueva sesión",
+        "tech_title": "Cómo funciona",
+        "tech_subtitle": "Streaming WebSocket, Deepgram STT y análisis con OpenAI",
+        "tech_flow_title": "Pipeline",
+        "tech_flow_1": "El navegador captura audio PCM a 16 kHz mono y transmite los fotogramas crudos por WebSocket a /ws/transcribe.",
+        "tech_flow_2": "El backend redirige el flujo de audio a Deepgram Nova-3 con diarización. Los parciales y finales se devuelven por el mismo WS.",
+        "tech_flow_3": "Al detener, los turnos acumulados se envían a POST /analyze.",
+        "tech_flow_4": "OpenAI detecta la industria, infiere los roles de hablante, extrae términos clave (formas básica y especializada) y escribe un resumen estructurado.",
+        "tech_model_title": "Modelos y stack",
+        "tech_stack_stt_label": "Modelo STT",
+        "tech_stack_stt": "Deepgram Nova-3 (diarize, punctuate, smart_format)",
+        "tech_stack_brain_label": "Análisis",
+        "tech_stack_brain": "OpenAI (JSON estructurado — industria, roles, términos, resumen)",
+        "tech_stack_serving_label": "Hosting",
+        "tech_stack_serving": "FastAPI + uvicorn en Cloud Run (escala a cero)",
+        "tech_api_title": "Privacidad",
+        "tech_api_1": "El audio se transmite y se descarta en el servidor — nada se escribe en disco ni base de datos.",
+        "tech_api_2": "Las transcripciones viven solo en memoria durante la sesión y se eliminan al terminar.",
+        "tech_api_3": "No se almacenan datos biométricos ni personales. Las claves de Deepgram y OpenAI nunca llegan al navegador."
     }
 }

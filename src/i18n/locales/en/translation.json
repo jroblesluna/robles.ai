@@ -1119,27 +1119,44 @@
             "xray": {
                 "title": "X-ray",
                 "description": "Chest radiography analysis for pneumonia, fractures, and abnormalities",
-                "subtypes": ["Chest", "Bone"]
+                "subtypes": [
+                    "Chest",
+                    "Bone"
+                ]
             },
             "ultrasound": {
                 "title": "Ultrasound",
                 "description": "Thyroid, cardiac, breast, and other ultrasound imaging analysis",
-                "subtypes": ["Thyroid", "Breast", "Cardiac"]
+                "subtypes": [
+                    "Thyroid",
+                    "Breast",
+                    "Cardiac"
+                ]
             },
             "retina": {
                 "title": "Retina (Fundus)",
                 "description": "Diabetic retinopathy, glaucoma, and macular degeneration detection",
-                "subtypes": ["Diabetic Retinopathy", "Macular Degeneration"]
+                "subtypes": [
+                    "Diabetic Retinopathy",
+                    "Macular Degeneration"
+                ]
             },
             "dermatology": {
                 "title": "Dermatology (Skin)",
                 "description": "Skin lesion classification and melanoma detection",
-                "subtypes": ["Skin Lesion", "Melanoma"]
+                "subtypes": [
+                    "Skin Lesion",
+                    "Melanoma"
+                ]
             },
             "histopathology": {
                 "title": "Histopathology",
                 "description": "Tissue sample analysis and cancer detection",
-                "subtypes": ["Breast Cancer", "Lung Cancer", "Colon Cancer"]
+                "subtypes": [
+                    "Breast Cancer",
+                    "Lung Cancer",
+                    "Colon Cancer"
+                ]
             }
         },
         "select": "Select {{modality}}",
@@ -1768,14 +1785,14 @@
             },
             {
                 "id": "speech",
-                "href": "",
-                "status": "soon",
+                "href": "/try-transcription",
+                "status": "live",
                 "icon": "AudioLines",
                 "from": "from-teal-500",
                 "to": "to-emerald-600",
                 "modelType": "Speech · Transcription & Diarization",
-                "title": "Speech-to-Text",
-                "description": "Transcribe audio with speaker separation and timestamps, powered by state-of-the-art speech recognition models."
+                "title": "Speech-to-Text & Diarization",
+                "description": "Record audio live and watch it transcribe in real time — with speaker separation and an AI analysis that detects industry, roles, key terms and a conversation summary."
             },
             {
                 "id": "sentiment",
@@ -1844,5 +1861,77 @@
                 "description": "Spot fraud and outliers in transactions and telemetry with real-time anomaly detection models."
             }
         ]
+    },
+    "try-transcription": {
+        "title": "Speech-to-Text & Diarization",
+        "description": "Record audio and watch it transcribe in real time — with speaker separation, timestamps and an AI analysis of the conversation.",
+        "badge": "Live WebSocket demo",
+        "instructions": "Grant microphone access, then start recording and speak naturally. Transcripts stream back live with speaker labels. When done, run Analyze to get industry detection, speaker roles, terminology and a structured summary. Audio is streamed through and never stored.",
+        "record_start": "Start recording",
+        "record_stop": "Stop recording",
+        "recording": "Recording…",
+        "step1_title": "Configure",
+        "step2_title": "Record",
+        "step3_title": "Analyze",
+        "tip_configure": "Set the primary language and terminology register before starting. These affect both the transcription and the analysis.",
+        "tip_record": "Audio is streamed from your microphone over a WebSocket to Deepgram Nova-3. Nothing is stored — the stream is discarded after the session ends.",
+        "tip_transcript": "Italic transcripts are interim (updating in real time). Solid ones are final (confirmed once Deepgram closes the utterance).",
+        "tip_language": "Pick the primary language of your conversation. 'Auto' handles mixed-language audio.",
+        "tip_mode": "Basic uses plain everyday language; Specialized uses domain technical terminology. Both forms appear in the terms table so the frontend toggle is instant.",
+        "tip_analyze": "Sends the confirmed transcript turns to POST /analyze. The AI detects the industry, infers speaker roles, maps key terms and writes a domain-adapted summary.",
+        "tip_log": "Raw messages exchanged over the WebSocket (start, partial, final, info, error, closed) and the HTTP /analyze call.",
+        "language_label": "Language",
+        "language_es": "Spanish",
+        "language_en": "English",
+        "language_multi": "Auto",
+        "mode_label": "Mode",
+        "mode_basic": "Basic",
+        "mode_specialized": "Specialized",
+        "analyze": "Analyze transcript",
+        "analyzing": "Analyzing…",
+        "service_ready": "Service ready — you can start recording instantly.",
+        "service_cold_hint": "This demo runs on on-demand infrastructure that sleeps when idle. The first connection may take ∼30s; after that, recording starts instantly.",
+        "service_warming": "Preparing the service… this can take up to ∼30s the first time. Please wait.",
+        "service_warm_failed": "The service is taking longer than expected to start. Please try again in a moment.",
+        "log": "WebSocket & API log",
+        "log_subtitle": "Live messages exchanged with the transcription API",
+        "log_empty_title": "No activity yet",
+        "log_empty": "Start recording to see WebSocket messages appear here in real time.",
+        "ws_status_connecting": "Connecting…",
+        "ws_status_ready": "Connected — streaming",
+        "ws_status_closed": "Session ended",
+        "ws_status_error": "Connection error",
+        "ws_status_disconnected": "Disconnected",
+        "transcript_label": "Live transcript",
+        "transcript_empty": "Transcript will appear here as you speak…",
+        "speaker_label": "Speaker {{n}}",
+        "results_industry": "Detected industry",
+        "results_confidence": "Confidence",
+        "results_title_label": "Title",
+        "results_summary": "Summary",
+        "results_speakers": "Speaker roles",
+        "results_terms": "Key terms",
+        "results_term_spoken": "As spoken",
+        "results_term_basic": "Basic",
+        "results_term_specialized": "Specialized",
+        "reset": "New session",
+        "tech_title": "How it works",
+        "tech_subtitle": "WebSocket streaming, Deepgram STT and OpenAI analysis",
+        "tech_flow_title": "Pipeline",
+        "tech_flow_1": "The browser captures PCM audio at 16 kHz mono and streams raw frames over a WebSocket to /ws/transcribe.",
+        "tech_flow_2": "The backend bridges the audio stream to Deepgram Nova-3 with speaker diarization. Partial and final transcripts are fanned back over the same WS.",
+        "tech_flow_3": "On stop, the accumulated speaker turns are sent to POST /analyze.",
+        "tech_flow_4": "OpenAI detects the industry, infers speaker roles, extracts key terms (basic + specialized forms) and writes a structured summary.",
+        "tech_model_title": "Models & stack",
+        "tech_stack_stt_label": "STT model",
+        "tech_stack_stt": "Deepgram Nova-3 (diarize, punctuate, smart_format)",
+        "tech_stack_brain_label": "Analysis",
+        "tech_stack_brain": "OpenAI (structured JSON — industry, roles, terms, summary)",
+        "tech_stack_serving_label": "Serving",
+        "tech_stack_serving": "FastAPI + uvicorn on Cloud Run (scale-to-zero)",
+        "tech_api_title": "Privacy",
+        "tech_api_1": "Audio is streamed through and discarded server-side — nothing is written to disk or a database.",
+        "tech_api_2": "Transcripts live only in memory for the duration of the session and are dropped afterward.",
+        "tech_api_3": "No biometric or personal data is stored. API keys for Deepgram and OpenAI never reach the browser."
     }
 }
