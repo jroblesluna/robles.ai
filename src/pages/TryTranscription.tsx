@@ -46,6 +46,76 @@ const HEALTH_URL = `${BASE_API}/health`;
 const ANALYZE_URL = `${BASE_API}/analyze`;
 const WS_URL = `${WS_BASE}/ws/transcribe`;
 
+// ── Audio capture (raw PCM linear16 @ 16 kHz mono) ───────────────────────────
+// The `start` frame declares `encoding: "linear16"` / 16 kHz mono, and the API
+// hands exactly that to Deepgram (it does not forward the declared encoding).
+// MediaRecorder would emit a WebM/Opus *container*, which Deepgram would then
+// read as raw PCM — noise, so no `partial`/`final` ever comes back. So we
+// capture raw PCM ourselves through the Web Audio API instead.
+const TARGET_SAMPLE_RATE = 16000;
+const FRAME_MS = 128; // ~2048 samples per WS frame at 16 kHz
+
+/** AudioWorklet processor: buffers mono Float32 input into fixed-size frames. */
+const PCM_WORKLET_SRC = `
+class PcmCaptureProcessor extends AudioWorkletProcessor {
+  constructor(options) {
+    super();
+    this._size = (options.processorOptions && options.processorOptions.frameSamples) || 2048;
+    this._buffer = new Float32Array(this._size);
+    this._offset = 0;
+  }
+  process(inputs) {
+    const channel = inputs[0] && inputs[0][0];
+    if (!channel) return true;
+    for (let i = 0; i < channel.length; i++) {
+      this._buffer[this._offset++] = channel[i];
+      if (this._offset === this._size) {
+        const frame = this._buffer.slice(0);
+        this.port.postMessage(frame, [frame.buffer]);
+        this._offset = 0;
+      }
+    }
+    return true;
+  }
+}
+registerProcessor('pcm-capture', PcmCaptureProcessor);
+`;
+
+let pcmWorkletUrl: string | null = null;
+const getPcmWorkletUrl = () => {
+  if (!pcmWorkletUrl) {
+    pcmWorkletUrl = URL.createObjectURL(
+      new Blob([PCM_WORKLET_SRC], { type: "application/javascript" })
+    );
+  }
+  return pcmWorkletUrl;
+};
+
+/** Linear-interpolation resample to 16 kHz (no-op when the context already is). */
+function resampleTo16k(input: Float32Array, inputRate: number): Float32Array {
+  if (inputRate === TARGET_SAMPLE_RATE) return input;
+  const ratio = inputRate / TARGET_SAMPLE_RATE;
+  const out = new Float32Array(Math.floor(input.length / ratio));
+  for (let i = 0; i < out.length; i++) {
+    const pos = i * ratio;
+    const idx = Math.floor(pos);
+    const a = input[idx];
+    const b = idx + 1 < input.length ? input[idx + 1] : a;
+    out[i] = a + (b - a) * (pos - idx);
+  }
+  return out;
+}
+
+/** Float32 [-1,1] → little-endian signed 16-bit PCM (what Deepgram expects). */
+function floatTo16BitPCM(input: Float32Array): ArrayBuffer {
+  const out = new Int16Array(input.length);
+  for (let i = 0; i < input.length; i++) {
+    const s = Math.max(-1, Math.min(1, input[i]));
+    out[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+  }
+  return out.buffer;
+}
+
 // ── Types ────────────────────────────────────────────────────────────────────
 type ServiceStatus = "checking" | "warm" | "warming" | "cold";
 type WsStatus = "disconnected" | "connecting" | "ready" | "closed" | "error";
@@ -120,7 +190,9 @@ export default function TryTranscription() {
 
   // Refs (not re-rendered on change)
   const wsRef = useRef<WebSocket | null>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const sourceNodeRef = useRef<MediaStreamAudioSourceNode | null>(null);
+  const captureNodeRef = useRef<AudioNode | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const transcriptRef = useRef<Turn[]>([]); // shadow of transcript for WS callbacks
   transcriptRef.current = transcript;
@@ -183,6 +255,20 @@ export default function TryTranscription() {
   };
 
   // ── Session management ─────────────────────────────────────────────────────
+
+  /** Tear down the Web Audio graph and release the microphone. Idempotent. */
+  const stopCapture = useCallback(() => {
+    try { captureNodeRef.current?.disconnect(); } catch {}
+    try { sourceNodeRef.current?.disconnect(); } catch {}
+    captureNodeRef.current = null;
+    sourceNodeRef.current = null;
+    const ctx = audioCtxRef.current;
+    audioCtxRef.current = null;
+    if (ctx && ctx.state !== "closed") ctx.close().catch(() => {});
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+  }, []);
+
   const closeSession = useCallback(() => {
     // Send stop if WS is open
     if (wsRef.current?.readyState === WebSocket.OPEN) {
@@ -190,13 +276,78 @@ export default function TryTranscription() {
     }
     wsRef.current?.close();
     wsRef.current = null;
-    // Stop microphone
-    mediaRecorderRef.current?.stop();
-    mediaRecorderRef.current = null;
-    streamRef.current?.getTracks().forEach((t) => t.stop());
-    streamRef.current = null;
+    stopCapture();
     setRecording(false);
-  }, []);
+  }, [stopCapture]);
+
+  /**
+   * Build the capture graph: mic → (AudioWorklet | ScriptProcessor) → muted sink,
+   * pushing linear16 @ 16 kHz mono frames onto the socket. The node is connected
+   * through a zero-gain node because a capture node only gets pulled by the
+   * renderer when it reaches the destination.
+   */
+  const startCapture = useCallback(async (stream: MediaStream, ws: WebSocket) => {
+    const AudioCtor: typeof AudioContext =
+      window.AudioContext ?? (window as any).webkitAudioContext;
+
+    // Asking for a 16 kHz context lets the browser resample the mic for us; if
+    // it refuses the hint (older Safari), we resample each frame by hand.
+    let ctx: AudioContext;
+    try {
+      ctx = new AudioCtor({ sampleRate: TARGET_SAMPLE_RATE });
+    } catch {
+      ctx = new AudioCtor();
+    }
+    audioCtxRef.current = ctx;
+    if (ctx.state === "suspended") await ctx.resume();
+
+    const frameSamples = Math.round((ctx.sampleRate * FRAME_MS) / 1000);
+    const source = ctx.createMediaStreamSource(stream);
+    sourceNodeRef.current = source;
+
+    const sendFrame = (frame: Float32Array) => {
+      if (ws.readyState !== WebSocket.OPEN) return;
+      ws.send(floatTo16BitPCM(resampleTo16k(frame, ctx.sampleRate)));
+    };
+
+    let node: AudioNode;
+    let usedWorklet = true;
+    try {
+      await ctx.audioWorklet.addModule(getPcmWorkletUrl());
+      const worklet = new AudioWorkletNode(ctx, "pcm-capture", {
+        numberOfInputs: 1,
+        numberOfOutputs: 1,
+        outputChannelCount: [1],
+        channelCount: 1,
+        channelCountMode: "explicit",
+        processorOptions: { frameSamples },
+      });
+      worklet.port.onmessage = (e) => sendFrame(e.data as Float32Array);
+      node = worklet;
+    } catch {
+      // AudioWorklet unavailable (or blocked) → deprecated but widely supported.
+      usedWorklet = false;
+      const legacy = ctx.createScriptProcessor(4096, 1, 1);
+      legacy.onaudioprocess = (e) =>
+        sendFrame(new Float32Array(e.inputBuffer.getChannelData(0)));
+      node = legacy;
+    }
+    captureNodeRef.current = node;
+
+    const mute = ctx.createGain();
+    mute.gain.value = 0;
+    source.connect(node);
+    node.connect(mute);
+    mute.connect(ctx.destination);
+
+    addLog("→ WS audio", {
+      encoding: "linear16",
+      sampleRate: TARGET_SAMPLE_RATE,
+      contextSampleRate: ctx.sampleRate,
+      frameSamples,
+      node: usedWorklet ? "AudioWorkletNode" : "ScriptProcessorNode",
+    });
+  }, [addLog]);
 
   const handleReset = () => {
     closeSession();
@@ -303,7 +454,7 @@ export default function TryTranscription() {
           setAudioSeconds(msg.audioSeconds ?? null);
           setWsStatus("closed");
           setRecording(false);
-          mediaRecorderRef.current?.stop();
+          stopCapture();
           break;
 
         default:
@@ -327,7 +478,7 @@ export default function TryTranscription() {
     try {
       stream = await navigator.mediaDevices.getUserMedia({
         audio: {
-          sampleRate: 16000,
+          sampleRate: TARGET_SAMPLE_RATE,
           channelCount: 1,
           echoCancellation: true,
           noiseSuppression: true,
@@ -341,15 +492,16 @@ export default function TryTranscription() {
     }
     streamRef.current = stream;
 
-    // 3. MediaRecorder — use audio/webm; Deepgram accepts containerized audio
-    const mr = new MediaRecorder(stream, { mimeType: "audio/webm;codecs=opus" });
-    mediaRecorderRef.current = mr;
-    mr.ondataavailable = async (e) => {
-      if (!e.data.size || ws.readyState !== WebSocket.OPEN) return;
-      const buf = await e.data.arrayBuffer();
-      ws.send(buf);
-    };
-    mr.start(250); // 250 ms chunks
+    // 3. Stream raw PCM (linear16 @ 16 kHz mono) — the format declared on start
+    try {
+      await startCapture(stream, ws);
+    } catch (err: any) {
+      addLog("error", { message: "Audio capture failed", detail: err?.message });
+      stopCapture();
+      ws.close();
+      setWsStatus("error");
+      return;
+    }
     setRecording(true);
   };
 
@@ -360,9 +512,7 @@ export default function TryTranscription() {
       wsRef.current.send(JSON.stringify({ type: "stop" }));
       addLog("→ WS stop", { type: "stop" });
     }
-    mediaRecorderRef.current?.stop();
-    streamRef.current?.getTracks().forEach((t) => t.stop());
-    streamRef.current = null;
+    stopCapture();
     setRecording(false);
   };
 
