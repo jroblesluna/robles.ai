@@ -1998,7 +1998,7 @@
         "results_term_specialized": "Especializado",
         "reset": "Nueva sesión",
         "tech_title": "Cómo funciona",
-        "tech_subtitle": "Streaming WebSocket, Deepgram STT y análisis con OpenAI",
+        "tech_subtitle": "Visión general y arquitectura técnica",
         "tech_flow_title": "Pipeline",
         "tech_flow_1": "El navegador captura audio PCM a 16 kHz mono y transmite los fotogramas crudos por WebSocket a /ws/transcribe.",
         "tech_flow_2": "El backend redirige el flujo de audio a Deepgram Nova-3 con diarización. Los parciales y finales se devuelven por el mismo WS.",
@@ -2033,7 +2033,20 @@
         "mode_basic_desc": "Lenguaje cotidiano, fácil de leer para cualquier persona.",
         "mode_specialized_desc": "Terminología técnica del rubro detectado.",
         "industry_general": "Conversación general",
-        "industry_general_hint": "Sin señales de un rubro específico."
+        "industry_general_hint": "Sin señales de un rubro específico.",
+        "how_simple_title": "Visión general",
+        "how_simple_subtitle": "Para equipos de negocio y operaciones",
+        "how_simple_1_title": "Tú hablas",
+        "how_simple_1_desc": "El micrófono de tu navegador capta tu voz, como en una videollamada.",
+        "how_simple_2_title": "La IA escucha en vivo",
+        "how_simple_2_desc": "Convierte tu voz en texto mientras hablas y reconoce quién dice cada frase.",
+        "how_simple_3_title": "La IA entiende la conversación",
+        "how_simple_3_desc": "Detecta de qué rubro se trata, quién es quién y las palabras clave.",
+        "how_simple_4_title": "Recibes un resumen",
+        "how_simple_4_desc": "Un acta lista para usar, en lenguaje simple o técnico.",
+        "how_simple_privacy": "Tu audio no se guarda: se procesa al instante y se descarta al terminar.",
+        "how_tech_title": "Arquitectura técnica",
+        "how_tech_subtitle": "Para desarrolladores e ingenieros"
     },
     "demoBusiness": {
         "labels": {

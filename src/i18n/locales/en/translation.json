@@ -1998,7 +1998,7 @@
         "results_term_specialized": "Specialized",
         "reset": "New session",
         "tech_title": "How it works",
-        "tech_subtitle": "WebSocket streaming, Deepgram STT and OpenAI analysis",
+        "tech_subtitle": "Overview and technical architecture",
         "tech_flow_title": "Pipeline",
         "tech_flow_1": "The browser captures PCM audio at 16 kHz mono and streams raw frames over a WebSocket to /ws/transcribe.",
         "tech_flow_2": "The backend bridges the audio stream to Deepgram Nova-3 with speaker diarization. Partial and final transcripts are fanned back over the same WS.",
@@ -2033,7 +2033,20 @@
         "mode_basic_desc": "Everyday language, easy for anyone to read.",
         "mode_specialized_desc": "Technical terminology from the detected industry.",
         "industry_general": "General conversation",
-        "industry_general_hint": "No signals of a specific industry."
+        "industry_general_hint": "No signals of a specific industry.",
+        "how_simple_title": "Overview",
+        "how_simple_subtitle": "For business and operations teams",
+        "how_simple_1_title": "You speak",
+        "how_simple_1_desc": "Your browser's microphone picks up your voice, just like a video call.",
+        "how_simple_2_title": "The AI listens live",
+        "how_simple_2_desc": "It turns your voice into text as you talk and recognizes who says each sentence.",
+        "how_simple_3_title": "The AI understands the conversation",
+        "how_simple_3_desc": "It spots the industry, who is who and the key terms.",
+        "how_simple_4_title": "You get a summary",
+        "how_simple_4_desc": "Ready-to-use notes, in plain or technical language.",
+        "how_simple_privacy": "Your audio is never stored: it is processed on the fly and discarded when you finish.",
+        "how_tech_title": "Technical architecture",
+        "how_tech_subtitle": "For developers and engineers"
     },
     "demoBusiness": {
         "labels": {

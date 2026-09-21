@@ -20,6 +20,9 @@ import {
   Users,
   BookOpen,
   FileText,
+  Lightbulb,
+  Code2,
+  ArrowRight,
   type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -256,6 +259,19 @@ function StatusPill({ tone, label, spinning }: { tone: StatusTone; label: string
   );
 }
 
+/** White card for each column of the technical part. */
+function TechCard({ icon: Icon, title, children }: { icon: LucideIcon; title: string; children: ReactNode }) {
+  return (
+    <div className="rounded-xl border border-gray-200/80 bg-white p-5">
+      <h4 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-900">
+        <Icon className={`h-4 w-4 ${ACCENT_TEXT}`} />
+        {title}
+      </h4>
+      {children}
+    </div>
+  );
+}
+
 /** Labelled block inside the analysis panel. */
 function ResultBlock({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -295,6 +311,7 @@ export default function TryTranscription() {
 
   // UI
   const [showTech, setShowTech] = useState(false);
+  const [howView, setHowView] = useState<"simple" | "tech">("simple");
   const [sidePanel, setSidePanel] = useState<"analysis" | "log">("analysis");
   const [elapsed, setElapsed] = useState(0);
 
@@ -1135,9 +1152,9 @@ export default function TryTranscription() {
           </div>
         </section>
 
-        {/* ── Technical section (collapsible) ──────────────────────────── */}
         <SavingsCalculator demoId="speech" />
 
+        {/* ── How it works (collapsible): overview and technical architecture ── */}
         <div className="mt-8 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
           <button
             type="button"
@@ -1166,58 +1183,133 @@ export default function TryTranscription() {
                 transition={{ duration: 0.25 }}
                 className="overflow-hidden"
               >
-                <div className="grid grid-cols-1 gap-6 border-t border-gray-100 px-6 py-6 md:grid-cols-3">
-                  {/* Flow */}
-                  <div>
-                    <h3 className={`mb-2 flex items-center gap-2 text-sm font-semibold text-gray-900`}>
-                      <Workflow className={`h-4 w-4 ${ACCENT_TEXT}`} />
-                      {t("try-transcription.tech_flow_title")}
-                    </h3>
-                    <ol className="space-y-2 text-xs text-gray-600">
-                      {[1, 2, 3, 4].map((n) => (
-                        <li key={n} className="flex gap-2">
-                          <span className={`font-semibold ${ACCENT_TEXT}`}>{n}.</span>
-                          {t(`try-transcription.tech_flow_${n}`)}
-                        </li>
-                      ))}
-                    </ol>
+                <div className="border-t border-gray-100 px-6 py-6">
+                  {/* Audience switch: business overview vs technical architecture */}
+                  <div role="tablist" className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {([
+                      { id: "simple", icon: Lightbulb },
+                      { id: "tech", icon: Code2 },
+                    ] as const).map(({ id, icon: Icon }) => {
+                      const active = howView === id;
+                      return (
+                        <button
+                          key={id}
+                          type="button"
+                          role="tab"
+                          aria-selected={active}
+                          onClick={() => setHowView(id)}
+                          className={`flex items-center gap-3 rounded-xl border p-4 text-left transition-all ${
+                            active
+                              ? "border-teal-400 bg-teal-50/60 ring-2 ring-teal-100"
+                              : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
+                          }`}
+                        >
+                          <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors ${
+                            active ? `bg-gradient-to-br ${ACCENT_GRADIENT} text-white` : "bg-gray-100 text-gray-500"
+                          }`}>
+                            <Icon className="h-5 w-5" />
+                          </span>
+                          <span>
+                            <span className="block text-sm font-semibold text-gray-900">{t(`try-transcription.how_${id}_title`)}</span>
+                            <span className="block text-xs text-gray-500">{t(`try-transcription.how_${id}_subtitle`)}</span>
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
 
-                  {/* Models */}
-                  <div>
-                    <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-900">
-                      <Cpu className={`h-4 w-4 ${ACCENT_TEXT}`} />
-                      {t("try-transcription.tech_model_title")}
-                    </h3>
-                    <dl className="space-y-1.5 text-xs">
-                      {[
-                        ["try-transcription.tech_stack_stt_label", "try-transcription.tech_stack_stt"],
-                        ["try-transcription.tech_stack_brain_label", "try-transcription.tech_stack_brain"],
-                        ["try-transcription.tech_stack_serving_label", "try-transcription.tech_stack_serving"],
-                      ].map(([label, value]) => (
-                        <div key={label} className="flex justify-between gap-2 border-b border-gray-100 pb-1.5">
-                          <dt className="text-gray-500">{t(label)}</dt>
-                          <dd className="text-right font-medium text-gray-900">{t(value)}</dd>
+                  <AnimatePresence mode="wait" initial={false}>
+                    <motion.div
+                      key={howView}
+                      role="tabpanel"
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.18 }}
+                      className="mt-6"
+                    >
+                      {howView === "simple" ? (
+                        <>
+                          <ol className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                            {([
+                              { n: 1, icon: Mic },
+                              { n: 2, icon: AudioLines },
+                              { n: 3, icon: Sparkles },
+                              { n: 4, icon: FileText },
+                            ] as const).map(({ n, icon: Icon }) => (
+                              <li key={n} className="relative rounded-xl border border-gray-200/80 bg-white p-4 transition-shadow hover:shadow-sm">
+                                <div className="flex items-center justify-between">
+                                  <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${BADGE_BG}`}>
+                                    <Icon className={`h-4 w-4 ${ACCENT_TEXT}`} />
+                                  </span>
+                                  <span className="text-xs font-semibold tabular-nums text-gray-300">0{n}</span>
+                                </div>
+                                <p className="mt-3 text-sm font-semibold text-gray-900">
+                                  {t(`try-transcription.how_simple_${n}_title`)}
+                                </p>
+                                <p className="mt-1 text-sm leading-snug text-gray-600">
+                                  {t(`try-transcription.how_simple_${n}_desc`)}
+                                </p>
+                                {n < 4 && (
+                                  <span className="absolute -right-3 top-1/2 z-10 hidden h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white lg:flex">
+                                    <ArrowRight className="h-3.5 w-3.5 text-gray-400" />
+                                  </span>
+                                )}
+                              </li>
+                            ))}
+                          </ol>
+                          <p className="mt-4 flex items-start gap-2 rounded-xl bg-teal-50/70 px-4 py-3 text-sm text-teal-900">
+                            <ShieldCheck className={`mt-0.5 h-4 w-4 shrink-0 ${ACCENT_TEXT}`} />
+                            {t("try-transcription.how_simple_privacy")}
+                          </p>
+                        </>
+                      ) : (
+                        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                          {/* Pipeline: vertical stepper */}
+                          <TechCard icon={Workflow} title={t("try-transcription.tech_flow_title")}>
+                            <ol className="relative space-y-4 before:absolute before:bottom-2 before:left-[11px] before:top-2 before:w-px before:bg-gray-200">
+                              {[1, 2, 3, 4].map((n) => (
+                                <li key={n} className="relative flex gap-3">
+                                  <span className={`relative z-10 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${ACCENT_GRADIENT} text-[11px] font-bold text-white ring-4 ring-white`}>
+                                    {n}
+                                  </span>
+                                  <p className="text-sm leading-snug text-gray-600">{t(`try-transcription.tech_flow_${n}`)}</p>
+                                </li>
+                              ))}
+                            </ol>
+                          </TechCard>
+
+                          {/* Models & stack */}
+                          <TechCard icon={Cpu} title={t("try-transcription.tech_model_title")}>
+                            <dl className="space-y-3">
+                              {[
+                                ["try-transcription.tech_stack_stt_label", "try-transcription.tech_stack_stt"],
+                                ["try-transcription.tech_stack_brain_label", "try-transcription.tech_stack_brain"],
+                                ["try-transcription.tech_stack_serving_label", "try-transcription.tech_stack_serving"],
+                              ].map(([label, value]) => (
+                                <div key={label} className="rounded-lg bg-gray-50 px-3 py-2.5 ring-1 ring-gray-100">
+                                  <dt className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">{t(label)}</dt>
+                                  <dd className="mt-0.5 font-mono text-[13px] leading-snug text-gray-900">{t(value)}</dd>
+                                </div>
+                              ))}
+                            </dl>
+                          </TechCard>
+
+                          {/* Privacy */}
+                          <TechCard icon={ShieldCheck} title={t("try-transcription.tech_api_title")}>
+                            <ul className="space-y-3">
+                              {[1, 2, 3].map((n) => (
+                                <li key={n} className="flex gap-2.5 text-sm leading-snug text-gray-600">
+                                  <CheckCircle2 className={`mt-0.5 h-4 w-4 shrink-0 ${ACCENT_TEXT}`} />
+                                  {t(`try-transcription.tech_api_${n}`)}
+                                </li>
+                              ))}
+                            </ul>
+                          </TechCard>
                         </div>
-                      ))}
-                    </dl>
-                  </div>
-
-                  {/* Privacy */}
-                  <div>
-                    <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-900">
-                      <ShieldCheck className={`h-4 w-4 ${ACCENT_TEXT}`} />
-                      {t("try-transcription.tech_api_title")}
-                    </h3>
-                    <ul className="space-y-2 text-xs text-gray-600">
-                      {[1, 2, 3].map((n) => (
-                        <li key={n} className="flex gap-2">
-                          <CheckCircle2 className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${ACCENT_TEXT}`} />
-                          {t(`try-transcription.tech_api_${n}`)}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
                 </div>
               </motion.div>
             )}
