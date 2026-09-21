@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, type ReactNode } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Database,
@@ -752,6 +752,26 @@ export default function TryRAG() {
 
   const allCalls = STEP_IDS.flatMap((id) => runs[id].calls.map((c) => ({ ...c, step: id }))).sort((a, b) => b.at - a.at);
 
+  // The panel header shows the full status pill only while tabs + pill fit on
+  // one line (the API log counter adds width after the first request); when
+  // they don't, the pill collapses to its dot instead of wrapping the tabs.
+  const panelHeaderRef = useRef<HTMLDivElement | null>(null);
+  const panelTabsRef = useRef<HTMLDivElement | null>(null);
+  const pillMeasureRef = useRef<HTMLSpanElement | null>(null);
+  const [compactPill, setCompactPill] = useState(false);
+  useLayoutEffect(() => {
+    const header = panelHeaderRef.current;
+    if (!header) return;
+    const fit = () => {
+      const needed = (panelTabsRef.current?.scrollWidth ?? 0) + (pillMeasureRef.current?.offsetWidth ?? 0) + 40; // paddings + gap
+      setCompactPill(header.clientWidth < needed);
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(header);
+    return () => ro.disconnect();
+  }, [allCalls.length, status.label]);
+
   const selectStep = (id: StepId) => {
     followLive.current = false;
     setSelected((s) => (s === id ? null : id));
@@ -1200,8 +1220,8 @@ export default function TryRAG() {
 
             {/* ── Right: live pipeline ────────────────────────────────────── */}
             <div className="flex min-h-0 min-w-0 flex-col border-t border-gray-100 lg:col-span-2 lg:border-t-0">
-              <div className="flex items-center justify-between gap-3 border-b border-gray-100 pl-3 pr-4 pt-2">
-                <div role="tablist" className="flex gap-1">
+              <div ref={panelHeaderRef} className="relative flex items-center justify-between gap-3 border-b border-gray-100 pl-3 pr-4 pt-2">
+                <div ref={panelTabsRef} role="tablist" className="flex min-w-0 gap-1">
                   {([
                     { id: "pipeline", icon: Activity, label: t("try-rag.bts_title") },
                     { id: "log", icon: Terminal, label: t("try-rag.tab_log"), count: allCalls.length },
@@ -1212,7 +1232,7 @@ export default function TryRAG() {
                       type="button"
                       aria-selected={panelTab === tab.id}
                       onClick={() => setPanelTab(tab.id)}
-                      className={`-mb-px flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
+                      className={`-mb-px flex shrink-0 items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
                         panelTab === tab.id ? "border-cyan-500 text-gray-900" : "border-transparent text-gray-500 hover:text-gray-700"
                       }`}
                     >
@@ -1226,9 +1246,32 @@ export default function TryRAG() {
                     </button>
                   ))}
                 </div>
-                <div className="mb-2 hidden sm:block">
+                {/* Invisible copy of the full pill, only to measure its width. */}
+                <span ref={pillMeasureRef} aria-hidden className="pointer-events-none invisible absolute">
                   <StatusPill tone={status.tone} spinning={status.spinning} label={status.label} />
-                </div>
+                </span>
+                {!compactPill ? (
+                  <div className="mb-2 shrink-0">
+                    <StatusPill tone={status.tone} spinning={status.spinning} label={status.label} />
+                  </div>
+                ) : (
+                <span
+                  role="status"
+                  title={status.label}
+                  aria-label={status.label}
+                  className="mb-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-50 ring-1 ring-gray-200"
+                >
+                  {status.spinning ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin text-amber-500" />
+                  ) : (
+                    <span
+                      className={`h-2 w-2 rounded-full ${
+                        status.tone === "ready" ? "bg-emerald-500" : status.tone === "busy" ? "bg-amber-500" : status.tone === "error" ? "bg-red-500" : "bg-gray-400"
+                      }`}
+                    />
+                  )}
+                </span>
+                )}
               </div>
 
               <div className="flex max-h-[640px] flex-col overflow-y-auto px-2 py-3 lg:max-h-none lg:min-h-0 lg:flex-1">

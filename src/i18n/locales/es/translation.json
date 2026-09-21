@@ -1289,7 +1289,6 @@
         "tech_privacy_1": "El PDF se procesa en el navegador con pdf.js; solo el texto extraído viaja a la API.",
         "tech_privacy_2": "El namespace es un hash SHA-256 del texto: el mismo documento no se re-indexa y el backend verifica el hash.",
         "tech_privacy_3": "Sin OCR: los PDF escaneados sin capa de texto no producen texto.",
-        "bts_title": "Pipeline RAG en vivo",
         "bts_subtitle": "Cada etapa en tiempo real · haz clic para ver el detalle",
         "step_extract": "Extraer el texto",
         "step_index": "Fragmentar e indexar",
@@ -1392,7 +1391,8 @@
         "log_empty_title": "Sin actividad todavía",
         "log_empty": "Sube un PDF para ver aquí cada petición y respuesta de la API, en tiempo real.",
         "chat_title": "Chat con tu documento",
-        "chat_models": "Responden"
+        "chat_models": "Responden",
+        "bts_title": "Pipeline RAG en vivo"
     },
     "landing": {
         "hero": {

@@ -32,7 +32,7 @@ const TONE_DOT: Record<StatusTone, string> = {
 /** Service status shown at the right of a workspace toolbar. */
 export function StatusPill({ tone, label, spinning }: { tone: StatusTone; label: string; spinning?: boolean }) {
   return (
-    <span className={`inline-flex w-fit shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium ring-1 ${TONE_PILL[tone]}`}>
+    <span className={`inline-flex w-fit shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium ring-1 ${TONE_PILL[tone]}`}>
       {spinning ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <span className={`h-2 w-2 rounded-full ${TONE_DOT[tone]}`} />}
       {label}
     </span>

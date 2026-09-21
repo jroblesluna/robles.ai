@@ -1289,7 +1289,6 @@
         "tech_privacy_1": "The PDF is processed in the browser with pdf.js; only the extracted text reaches the API.",
         "tech_privacy_2": "The namespace is a SHA-256 hash of the text: the same document isn't re-indexed, and the backend verifies the hash.",
         "tech_privacy_3": "No OCR: scanned PDFs without a text layer produce no text.",
-        "bts_title": "Live RAG pipeline",
         "bts_subtitle": "Every stage in real time · click one for details",
         "step_extract": "Extract the text",
         "step_index": "Chunk and index",
@@ -1392,7 +1391,8 @@
         "log_empty_title": "No activity yet",
         "log_empty": "Upload a PDF to see every API request and response here, in real time.",
         "chat_title": "Chat with your document",
-        "chat_models": "Answered by"
+        "chat_models": "Answered by",
+        "bts_title": "Live RAG pipeline"
     },
     "landing": {
         "hero": {
