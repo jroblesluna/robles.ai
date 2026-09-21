@@ -15,6 +15,7 @@ import ChatPanel from './ChatPanel.js';
 // Entrance sequence timing (ms) — bubble is visible immediately on mount
 const NOTIFICATION_DELAY = 3_000; // Phase 3→4: typing dots at 3s
 const GREETING_DELAY = 5_000; // Phase 4→5: greeting text at 5s
+const PHONE_GREETING_MS = 8_000; // Phones: the balloon covers content, so it auto-hides after this
 
 // Persists whether the panel is open across reloads and tabs
 const CHAT_OPEN_STORAGE_KEY = 'robly-chat-open';
@@ -179,6 +180,14 @@ export default function ChatbotWidget({ hideForMobileMenu = false }: { hideForMo
     };
   }, [hasExistingSession]);
 
+  // On phones, auto-hide the greeting balloon (the mascot stays one tap away).
+  useEffect(() => {
+    if (phase !== 'greeting' || typeof window === 'undefined') return;
+    if (!window.matchMedia('(max-width: 639px)').matches) return;
+    const t = setTimeout(() => setNotificationDismissed(true), PHONE_GREETING_MS);
+    return () => clearTimeout(t);
+  }, [phase]);
+
   // Do not render on admin routes
   if (location.startsWith('/admin')) {
     return null;
@@ -302,7 +311,7 @@ export default function ChatbotWidget({ hideForMobileMenu = false }: { hideForMo
                 },
               }}
               onClick={handleNotificationClick}
-              className="relative bg-white rounded-xl shadow-lg px-4 py-3 max-w-[250px] cursor-pointer"
+              className="relative bg-white rounded-xl shadow-lg px-3 py-2 sm:px-4 sm:py-3 max-w-[200px] sm:max-w-[250px] cursor-pointer"
               role="status"
               aria-live="polite"
             >
@@ -320,7 +329,8 @@ export default function ChatbotWidget({ hideForMobileMenu = false }: { hideForMo
                 <TypingDots />
               ) : (
                 <p className="text-sm text-gray-800 leading-snug">
-                  {greetingText}
+                  <span className="sm:hidden">{t('chatbotWidget.greetingShort')}</span>
+                  <span className="hidden sm:inline">{greetingText}</span>
                 </p>
               )}
 

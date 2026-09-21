@@ -1628,7 +1628,8 @@
         }
     },
     "chatbotWidget": {
-        "greeting": "👋 ¡Hola! Estoy aquí si necesitas ayuda con soluciones de IA o tienes alguna consulta."
+        "greeting": "👋 ¡Hola! Estoy aquí si necesitas ayuda con soluciones de IA o tienes alguna consulta.",
+        "greetingShort": "👋 ¿Te ayudo con IA?"
     },
     "whatsappWidget": {
         "cta": "Escríbenos",

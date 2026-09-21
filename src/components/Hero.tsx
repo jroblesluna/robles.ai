@@ -54,7 +54,7 @@ const Hero = () => {
     // 0 — main pitch
     {
       mascot: "/robly-avatar/robly-dominical.svg",
-      mascotSize: "w-40 h-40 md:w-56 md:h-56",
+      mascotSize: "w-24 h-24 sm:w-32 sm:h-32 md:w-56 md:h-56",
       content: (
         <>
           <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 drop-shadow-[0_4px_4px_rgba(0,0,0,0.6)]">
@@ -90,7 +90,7 @@ const Hero = () => {
     // 1 — quiz promo
     {
       mascot: "/robly-avatar/robly-thinking.svg",
-      mascotSize: "w-40 h-40 md:w-56 md:h-56",
+      mascotSize: "w-24 h-24 sm:w-32 sm:h-32 md:w-56 md:h-56",
       content: (
         <>
           <div className="inline-flex items-center gap-2 bg-white/15 text-white px-3 py-1 rounded-full text-xs font-medium mb-3">
@@ -119,7 +119,7 @@ const Hero = () => {
     // 2 — live demos
     {
       mascot: "/robly-avatar/robly-pointing.svg",
-      mascotSize: "w-56 h-56 md:w-72 md:h-72",
+      mascotSize: "w-36 h-36 sm:w-44 sm:h-44 md:w-72 md:h-72",
       mascotClass: "md:-ml-6",
       content: (
         <>
@@ -139,7 +139,7 @@ const Hero = () => {
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-          <div className="mt-4 flex flex-wrap items-center justify-center md:justify-start gap-2">
+          <div className="mt-4 hidden sm:flex flex-wrap items-center justify-center md:justify-start gap-2">
             <span className="text-xs md:text-sm font-medium text-white/60 mr-1">
               {t("demosPromo.quickLabel")}
             </span>
@@ -170,7 +170,7 @@ const Hero = () => {
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
-      className="group relative overflow-hidden animated-bg py-5 md:py-8"
+      className="group relative overflow-hidden animated-bg pt-5 pb-9 md:py-8"
     >
       <div className="absolute inset-0 z-0 overflow-hidden">
         <ParticleBackground />
@@ -192,7 +192,7 @@ const Hero = () => {
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
           variants={fadeIn}
-          className="relative w-full h-[260px] md:h-[300px] overflow-hidden"
+          className="relative w-full h-[400px] sm:h-[360px] md:h-[300px] overflow-hidden"
         >
           <AnimatePresence mode="popLayout" custom={direction} initial={false}>
             <motion.div

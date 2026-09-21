@@ -1628,7 +1628,8 @@
         }
     },
     "chatbotWidget": {
-        "greeting": "👋 Hi! I'm here if you need help with AI solutions or have any questions!"
+        "greeting": "👋 Hi! I'm here if you need help with AI solutions or have any questions!",
+        "greetingShort": "👋 Need help with AI?"
     },
     "whatsappWidget": {
         "cta": "Chat with us",
