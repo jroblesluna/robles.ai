@@ -13,6 +13,7 @@ import { initAnalytics, trackPageView } from '@/lib/analytics';
 import { useTranslation } from 'react-i18next';
 import ChatbotWidget from '@/components/chat/ChatbotWidget';
 import { useSEO } from '@/hooks/useSEO';
+import { useScrollRestoration } from '@/hooks/useScrollRestoration';
 
 // Lazy-loaded routes (code-split into separate chunks)
 const Careers = lazy(() => import('@/pages/Careers'));
@@ -62,6 +63,9 @@ function App() {
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
+
+  // Scroll to top on new navigation, restore position on back/forward.
+  useScrollRestoration(location);
 
   // Set HTML lang when i18n changes
   useEffect(() => {
