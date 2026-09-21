@@ -1767,6 +1767,35 @@
         "view_all": "View all demos",
         "footer_note": "New demos are added regularly. Want a custom one for your use case?",
         "footer_cta": "Talk to us",
+        "stat_live": "Live demos",
+        "stat_soon": "In development",
+        "stat_signup": "Sign-up required",
+        "search_placeholder": "Search demos…",
+        "categories": {
+            "all": "All",
+            "vision": "Vision",
+            "language": "Language",
+            "audio": "Speech",
+            "predictive": "Predictive",
+            "generative": "Generative"
+        },
+        "live_title": "Available now",
+        "soon_title": "On the roadmap",
+        "soon_subtitle": "Upcoming demos. Register your interest and we will let you know when they ship.",
+        "empty_title": "No demos match that filter",
+        "empty_reset": "Clear filters",
+        "view_all_meta": "{{live}} live · {{soon}} coming soon",
+        "mock": {
+            "match": "Match",
+            "answer": "Per the document, the term is 30 days",
+            "normal": "Normal",
+            "finding": "Finding",
+            "happy": "Happy",
+            "surprise": "Surprise",
+            "neutral": "Neutral",
+            "speaker1": "Shall we review the contract today?",
+            "speaker2": "Yes, at 3 pm."
+        },
         "items": [
             {
                 "id": "identity",

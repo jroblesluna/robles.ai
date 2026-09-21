@@ -1767,6 +1767,35 @@
         "view_all": "Ver todas las demos",
         "footer_note": "Añadimos nuevas demos con frecuencia. ¿Quieres una a medida para tu caso de uso?",
         "footer_cta": "Habla con nosotros",
+        "stat_live": "Demos en vivo",
+        "stat_soon": "En desarrollo",
+        "stat_signup": "Registro requerido",
+        "search_placeholder": "Buscar demos…",
+        "categories": {
+            "all": "Todas",
+            "vision": "Visión",
+            "language": "Lenguaje",
+            "audio": "Voz",
+            "predictive": "Predictivo",
+            "generative": "Generativa"
+        },
+        "live_title": "Disponibles ahora",
+        "soon_title": "En el roadmap",
+        "soon_subtitle": "Próximas demos. Déjanos tu interés y te avisamos al publicarlas.",
+        "empty_title": "No encontramos demos con ese filtro",
+        "empty_reset": "Limpiar filtros",
+        "view_all_meta": "{{live}} en vivo · {{soon}} próximamente",
+        "mock": {
+            "match": "Coincidencia",
+            "answer": "Según el documento, el plazo es de 30 días",
+            "normal": "Normal",
+            "finding": "Hallazgo",
+            "happy": "Alegría",
+            "surprise": "Sorpresa",
+            "neutral": "Neutral",
+            "speaker1": "¿Revisamos el contrato hoy?",
+            "speaker2": "Sí, a las 3 pm."
+        },
         "items": [
             {
                 "id": "identity",
