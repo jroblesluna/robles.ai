@@ -2047,12 +2047,17 @@
             "calc_automation": "% del trabajo que asumiría la IA",
             "calc_hourly_cost": "Costo por hora de ese trabajo",
             "calc_hours": "Horas liberadas al mes",
-            "calc_monthly": "Ahorro estimado al mes",
-            "calc_yearly": "{{amount}} al año",
             "calc_disclaimer": "Estimación con tus propios datos, no una promesa de resultado. En un diagnóstico lo validamos con tus procesos reales.",
             "cta_lead": "¿Quieres ver esto funcionando con tus datos?",
             "cta_diagnostic": "Diagnóstico gratis",
-            "cta_contact": "Quiero esto para mi empresa"
+            "cta_contact": "Quiero esto para mi empresa",
+            "calc_eyebrow": "Calculadora de ahorro",
+            "calc_yearly_title": "Ahorro estimado al año",
+            "calc_per_month": "≈ {{amount}} al mes",
+            "calc_fte": "Personas a tiempo completo",
+            "calc_compare_title": "Costo mensual del proceso",
+            "calc_cost_today": "Hoy",
+            "calc_cost_ai": "Con IA"
         },
         "identity": {
             "headline": "Da de alta clientes en segundos, sin revisar cada documento a mano.",

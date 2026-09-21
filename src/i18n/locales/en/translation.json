@@ -2047,12 +2047,17 @@
             "calc_automation": "% of the work AI would take over",
             "calc_hourly_cost": "Hourly cost of that work",
             "calc_hours": "Hours freed per month",
-            "calc_monthly": "Estimated monthly savings",
-            "calc_yearly": "{{amount}} per year",
             "calc_disclaimer": "An estimate from your own numbers, not a promised result. In a diagnostic we validate it against your real processes.",
             "cta_lead": "Want to see this working with your data?",
             "cta_diagnostic": "Free diagnostic",
-            "cta_contact": "I want this for my company"
+            "cta_contact": "I want this for my company",
+            "calc_eyebrow": "Savings calculator",
+            "calc_yearly_title": "Estimated yearly savings",
+            "calc_per_month": "≈ {{amount}} per month",
+            "calc_fte": "Full-time equivalent",
+            "calc_compare_title": "Monthly cost of the process",
+            "calc_cost_today": "Today",
+            "calc_cost_ai": "With AI"
         },
         "identity": {
             "headline": "Onboard customers in seconds, without checking every ID by hand.",

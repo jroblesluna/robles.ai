@@ -8,6 +8,8 @@ describe("computeSavings", () => {
     expect(r.hours).toBe(160);
     expect(r.monthly).toBe(2400);
     expect(r.yearly).toBe(28800);
+    // Current cost of the whole process: 1000 × 12 min = 200 h × $15 = $3000.
+    expect(r.baseline).toBe(3000);
   });
 
   it("is zero when nothing is automated", () => {

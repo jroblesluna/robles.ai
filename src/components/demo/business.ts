@@ -37,11 +37,15 @@ export const CALCULATOR_DEFAULTS: Partial<Record<DemoBusinessId, CalculatorDefau
   objectdetection: { volume: 40, minutes: 90, automation: 70, hourlyCost: 12 },
 };
 
-/** Hours freed and money saved per month for the given inputs. */
+/**
+ * Hours freed and money saved per month for the given inputs, plus the
+ * process's current monthly cost (`baseline`) for the today-vs-AI comparison.
+ */
 export function computeSavings(i: CalculatorDefaults) {
+  const baseline = ((i.volume * i.minutes) / 60) * i.hourlyCost;
   const hours = (i.volume * i.minutes * (i.automation / 100)) / 60;
   const monthly = hours * i.hourlyCost;
-  return { hours, monthly, yearly: monthly * 12 };
+  return { hours, monthly, yearly: monthly * 12, baseline };
 }
 
 /**

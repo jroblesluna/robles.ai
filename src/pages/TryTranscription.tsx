@@ -941,9 +941,9 @@ export default function TryTranscription() {
                 ))}
               </div>
 
-              <div className="max-h-[560px] overflow-y-auto p-5 lg:max-h-none lg:min-h-0 lg:flex-1">
+              <div className="max-h-[560px] overflow-y-auto px-5 pb-5 pt-[21px] lg:max-h-none lg:min-h-0 lg:flex-1">
                 {sidePanel === "analysis" ? (
-                  <div className="space-y-5">
+                  <div className={`flex flex-col ${analysisResult ? "gap-5" : "gap-8"}`}>
                     {/* Analysis controls: the mode lives next to the button it affects */}
                     <div className="rounded-xl border border-gray-200/80 bg-gray-50/70 p-4">
                       <Segmented
@@ -961,11 +961,12 @@ export default function TryTranscription() {
                       />
                       <p className="mt-2 text-xs text-gray-500">{t(`try-transcription.mode_${mode}_desc`)}</p>
 
-                      {hasFinalTurns && !currentAnalysis && !reanalyzing && (
+                      {/* Always visible; enabled once there is a finished transcript */}
+                      {!currentAnalysis && !reanalyzing && (
                         <Button
                           onClick={() => handleAnalyze()}
                           disabled={!canAnalyze}
-                          className={`mt-4 w-full rounded-xl bg-gradient-to-r ${ACCENT_GRADIENT} text-sm font-semibold text-white shadow-md shadow-teal-500/20 hover:brightness-105 disabled:opacity-50`}
+                          className={`mt-4 h-11 w-full rounded-xl bg-gradient-to-r ${ACCENT_GRADIENT} text-sm font-semibold text-white shadow-md shadow-teal-500/20 hover:brightness-105 disabled:opacity-50`}
                         >
                           {analyzing ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -1076,7 +1077,7 @@ export default function TryTranscription() {
                           ? t("try-transcription.analysis_ready")
                           : t("try-transcription.analysis_locked")}
                       </p>
-                      <ul className="mt-5 space-y-2">
+                      <ul className="mt-4 space-y-2.5">
                         {[
                           { icon: Building2, key: "results_industry" },
                           { icon: Users, key: "results_speakers" },
