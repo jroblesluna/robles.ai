@@ -1755,7 +1755,12 @@
         "medical": "Medical AI",
         "transcription": "Live Transcription",
         "langchain": "LangChain Agent",
-        "viewAll": "Open the Demos Lab"
+        "viewAll": "Open the Demos Lab",
+        "quickLabel": "Explore",
+        "identityShort": "Identity",
+        "ragShort": "RAG",
+        "transcriptionShort": "Transcription",
+        "langchainShort": "LangChain"
     },
     "demosCatalog": {
         "eyebrow": "Interactive Playground",

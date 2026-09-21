@@ -129,32 +129,36 @@ const Hero = () => {
           <p className="text-sm md:text-xl text-white mb-4 drop-shadow-[0_2px_3px_rgba(0,0,0,0.5)]">
             {t("demosPromo.subtitle")}
           </p>
-          <div className="flex flex-wrap justify-center md:justify-start gap-3">
-            {[
-              { href: "/try-identity", key: "identity", icon: Fingerprint, from: "from-violet-500", to: "to-purple-600" },
-              { href: "/try-rag", key: "rag", icon: Database, from: "from-cyan-500", to: "to-blue-600" },
-              { href: "/try-transcription", key: "transcription", icon: AudioLines, from: "from-teal-500", to: "to-emerald-600" },
-              { href: "/try-langchain", key: "langchain", icon: Link2, from: "from-amber-500", to: "to-orange-600" },
-            ].map(({ href, key, icon: Icon, from, to }) => (
-              <Link
-                key={href}
-                href={href}
-                className={`inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${from} ${to} text-white font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300`}
-              >
-                <Icon className="h-4 w-4" />
-                {t(`demosPromo.${key}`)}
-              </Link>
-            ))}
-          </div>
-          <div className="mt-4 flex justify-center md:justify-start">
+          <div className="flex justify-center md:justify-start">
             <Link
               href="/demos"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/90 hover:bg-white text-slate-800 font-semibold rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white text-blue-700 font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
             >
               <FlaskConical className="h-4 w-4" />
               {t("demosPromo.viewAll")}
               <ArrowRight className="h-4 w-4" />
             </Link>
+          </div>
+          <div className="mt-4 flex flex-wrap items-center justify-center md:justify-start gap-2">
+            <span className="text-xs md:text-sm font-medium text-white/60 mr-1">
+              {t("demosPromo.quickLabel")}
+            </span>
+            {[
+              { href: "/try-identity", key: "identity", icon: Fingerprint, color: "text-violet-300" },
+              { href: "/try-rag", key: "rag", icon: Database, color: "text-cyan-300" },
+              { href: "/try-transcription", key: "transcription", icon: AudioLines, color: "text-emerald-300" },
+              { href: "/try-langchain", key: "langchain", icon: Link2, color: "text-amber-300" },
+            ].map(({ href, key, icon: Icon, color }) => (
+              <Link
+                key={href}
+                href={href}
+                title={t(`demosPromo.${key}`)}
+                className="inline-flex items-center gap-1.5 px-3 py-1 text-xs md:text-sm text-white/90 bg-white/10 hover:bg-white/20 border border-white/15 hover:border-white/30 rounded-full backdrop-blur-sm transition-colors duration-200"
+              >
+                <Icon className={`h-3.5 w-3.5 ${color}`} />
+                {t(`demosPromo.${key}Short`)}
+              </Link>
+            ))}
           </div>
         </>
       ),

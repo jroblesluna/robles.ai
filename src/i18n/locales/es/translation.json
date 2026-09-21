@@ -1755,7 +1755,12 @@
         "medical": "IA Médica",
         "transcription": "Transcripción en Vivo",
         "langchain": "Agente LangChain",
-        "viewAll": "Abrir el Laboratorio de Demos"
+        "viewAll": "Abrir el Laboratorio de Demos",
+        "quickLabel": "Explora",
+        "identityShort": "Identidad",
+        "ragShort": "RAG",
+        "transcriptionShort": "Transcripción",
+        "langchainShort": "LangChain"
     },
     "demosCatalog": {
         "eyebrow": "Laboratorio Interactivo",
