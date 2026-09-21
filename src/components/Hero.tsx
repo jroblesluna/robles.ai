@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "wouter";
-import { ChevronLeft, ChevronRight, Sparkles, ArrowRight, Fingerprint, Database, HeartPulse, Link2, FlaskConical } from "lucide-react";
+import { ChevronLeft, ChevronRight, Sparkles, ArrowRight, Fingerprint, Database, AudioLines, Link2, FlaskConical } from "lucide-react";
 import { fadeIn, staggerContainer } from "@/utils/animations";
 import ParticleBackground from './ParticleBackground';
 import { useTranslation } from 'react-i18next';
@@ -133,7 +133,7 @@ const Hero = () => {
             {[
               { href: "/try-identity", key: "identity", icon: Fingerprint, from: "from-violet-500", to: "to-purple-600" },
               { href: "/try-rag", key: "rag", icon: Database, from: "from-cyan-500", to: "to-blue-600" },
-              { href: "/try-medical", key: "medical", icon: HeartPulse, from: "from-rose-500", to: "to-pink-600" },
+              { href: "/try-transcription", key: "transcription", icon: AudioLines, from: "from-teal-500", to: "to-emerald-600" },
               { href: "/try-langchain", key: "langchain", icon: Link2, from: "from-amber-500", to: "to-orange-600" },
             ].map(({ href, key, icon: Icon, from, to }) => (
               <Link

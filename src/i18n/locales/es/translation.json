@@ -1162,6 +1162,7 @@
         "tech_note": "La API se apaga cuando está inactiva, por lo que la primera solicitud la despierta antes de responder."
     },
     "try-medical": {
+        "coming_soon": "Esta demo estará disponible pronto. Por ahora no se analiza ninguna imagen y nada sale de tu navegador: tus imágenes no se suben ni se guardan en ningún lado. ¿Te interesa IA de imagen médica para tu clínica? Escríbenos.",
         "title": "Prueba la Demostración de IA Médica",
         "description": "Selecciona el tipo de imagen médica que deseas analizar. Nuestra IA proporcionará información diagnóstica basada en tu modalidad y enfoque clínico seleccionados.",
         "select_modality": "Seleccionar Modalidad de Imagen",
@@ -1752,6 +1753,7 @@
         "identity": "Verificación de Identidad",
         "rag": "Búsqueda RAG",
         "medical": "IA Médica",
+        "transcription": "Transcripción en Vivo",
         "langchain": "Agente LangChain",
         "viewAll": "Abrir el Laboratorio de Demos"
     },
@@ -1822,7 +1824,7 @@
             {
                 "id": "medical",
                 "href": "/try-medical",
-                "status": "live",
+                "status": "soon",
                 "icon": "HeartPulse",
                 "from": "from-rose-500",
                 "to": "to-pink-600",

@@ -1,11 +1,7 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
-import { v4 as uuidv4 } from "uuid";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { storage } from "@/lib/firebaseConfig";
-import { Stethoscope } from "lucide-react";
+import { Stethoscope, Clock } from "lucide-react";
 
 import XrayIcon from '@/assets/icons/x-ray.svg?react';
 import UltrasoundIcon from '@/assets/icons/ultrasound.svg?react';
@@ -14,15 +10,6 @@ import DermatologyIcon from '@/assets/icons/dermatology.svg?react';
 import HistopathologyIcon from '@/assets/icons/histopathology.svg?react';
 
 import { useTranslation } from "react-i18next";
-
-const getBaseApi = () => {
-    if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
-        return `${window.location.protocol}//${window.location.hostname}:8080`;
-    }
-    return "https://medical-api.robles.ai";
-};
-
-const BASE_API = getBaseApi();
 
 const modalityOptions = [
     {
@@ -84,48 +71,14 @@ export default function TryMedical() {
     const [modality, setModality] = useState<string | null>(null);
     const [subtype, setSubtype] = useState<string | null>(null);
     const [images, setImages] = useState<File[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [result, setResult] = useState<any>(null);
 
     const { t } = useTranslation();
-
-    const uploadImage = async (file: File, path: string) => {
-        const storageRef = ref(storage, path);
-        const snapshot = await uploadBytes(storageRef, file);
-        return await getDownloadURL(snapshot.ref);
-    };
-
-    const handleAnalyze = async () => {
-        try {
-            setLoading(true);
-            const uploadId = uuidv4();
-            const uploadedUrls = await Promise.all(
-                images.map((img, i) => uploadImage(img, `try-medical/${uploadId}/img-${i}.jpg`))
-            );
-
-            const payload = { modality, subtype, imageUrls: uploadedUrls };
-            const res = await fetch(`${BASE_API}/medical/analyze`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
-
-            const json = await res.json();
-            setResult(json.data);
-            setStep(5);
-        } catch (err: any) {
-            toast({ title: "Error", description: err.message, variant: "destructive" });
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const reset = () => {
         setStep(1);
         setModality(null);
         setSubtype(null);
         setImages([]);
-        setResult(null);
     };
 
     return (
@@ -226,30 +179,14 @@ export default function TryMedical() {
                 )}
 
                 {step === 4 && (
-                    <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 space-y-3">
-                        <p className="text-sm text-gray-600">{t("try-medical.upload_images")}: {images.length}</p>
-                        <Button
-                            onClick={handleAnalyze}
-                            disabled={loading}
-                            className="bg-blue-600/80 hover:bg-blue-700/80 text-white rounded-lg font-medium shadow-sm"
-                        >
-                            {loading ? t("try-medical.analyzing") : t("try-medical.analyze")}
-                        </Button>
-                    </div>
-                )}
-
-                {step === 5 && result && (
+                    // No backend yet: the demo is "coming soon" in the catalog. Images stay
+                    // in the browser — nothing is uploaded or stored anywhere.
                     <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 space-y-4">
-                        <h2 className="text-lg font-semibold text-gray-900">{t("try-medical.results.title")}</h2>
-                        {result.images?.map((img: any, i: number) => (
-                            <div key={i} className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                                <img src={img.image_url} className="w-full max-h-64 object-contain mb-2 rounded" />
-                                <div className="text-sm text-gray-700">
-                                    {t("try-medical.results.label")}: <strong className="text-gray-900">{img.label}</strong> ({t("try-medical.results.confidence")}: {(img.confidence * 100).toFixed(1)}%)
-                                </div>
-                            </div>
-                        ))}
-                        <div className="font-semibold text-gray-900">{t("try-medical.results.summary")}: {result.summary}</div>
+                        <p className="text-sm text-gray-600">{t("try-medical.upload_images")}: {images.length}</p>
+                        <div className="flex items-start gap-3 bg-amber-50 border border-amber-100 text-amber-900 text-sm rounded-lg p-4">
+                            <Clock className="h-4 w-4 mt-0.5 shrink-0 text-amber-500" />
+                            <p>{t("try-medical.coming_soon")}</p>
+                        </div>
                         <Button
                             variant="outline"
                             onClick={reset}
@@ -257,11 +194,9 @@ export default function TryMedical() {
                         >
                             {t("try-medical.results.start_new")}
                         </Button>
-                        <div className="flex items-start gap-3 bg-blue-50 border border-blue-100 text-blue-800 text-xs rounded-lg p-4">
-                            {t("try-medical.disclaimer")}
-                        </div>
                     </div>
                 )}
+
             </div>
         </div>
     );

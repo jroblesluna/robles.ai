@@ -1162,6 +1162,7 @@
         "tech_note": "The API scales to zero when idle, so the first request warms it up before responding."
     },
     "try-medical": {
+        "coming_soon": "This demo is coming soon. For now no image is analyzed and nothing leaves your browser: your images are not uploaded or stored anywhere. Want AI medical imaging for your clinic? Get in touch.",
         "title": "Try Medical AI Demo",
         "description": "Select the type of medical imaging you want to analyze. Our AI will provide diagnostic insights based on your selected modality and clinical focus.",
         "select_modality": "Select Imaging Modality",
@@ -1752,6 +1753,7 @@
         "identity": "Identity Verification",
         "rag": "RAG Search",
         "medical": "Medical AI",
+        "transcription": "Live Transcription",
         "langchain": "LangChain Agent",
         "viewAll": "Open the Demos Lab"
     },
@@ -1822,7 +1824,7 @@
             {
                 "id": "medical",
                 "href": "/try-medical",
-                "status": "live",
+                "status": "soon",
                 "icon": "HeartPulse",
                 "from": "from-rose-500",
                 "to": "to-pink-600",

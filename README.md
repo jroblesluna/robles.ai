@@ -1,6 +1,6 @@
 # Robles.AI – Website (Vite + React + Express)
 
-Public website of **Robles.AI**, built with **Vite + React (TypeScript)** on the frontend and **Express** as the development/production server. Includes internationalization (**i18next**), a bilingual ad landing page, an AI chatbot widget (Robly), a full admin panel, an automated weekly newsletter (El Dominical IA), multi-platform social publishing (LinkedIn, Instagram, Facebook), a static blog with FTS5 full-text search, server-side SEO meta injection, an analytics dashboard (GA4 + Meta), and demo pages.
+Public website of **Robles.AI**, built with **Vite + React (TypeScript)** on the frontend and **Express** as the development/production server. Includes internationalization (**i18next**), a bilingual ad landing page, an AI chatbot widget (Robly), a full admin panel, an automated weekly newsletter (El Dominical IA), multi-platform social publishing (LinkedIn, Instagram, Facebook), a static blog with FTS5 full-text search, server-side SEO meta injection, an analytics dashboard (GA4 + Meta), an AI-readiness diagnostic quiz with verified lead capture, and an interactive AI demos lab.
 
 ---
 
@@ -12,10 +12,11 @@ Public website of **Robles.AI**, built with **Vite + React (TypeScript)** on the
 - **Modern UI** with Tailwind, framer-motion, shadcn, and recharts.
 - **Ad Landing Page** (`/get-started`): bilingual (EN/ES) conversion-focused page with process steps, services, technologies, pricing, roadmap table, Why Now stats, and CTA. All images served locally.
 - **AI Chatbot Widget (Robly)**: floating widget replacing the old WhatsApp bubble. GPT-4o-mini powered with SSE streaming, page-context awareness, contact data collection, and conversation storage. Features Robly SVG avatar with 4 animated moods (idle/listening/thinking/speaking). Entrance sequence at 10s/20s/22s.
-- **Demo pages**: `/try-identity`, `/try-rag`, `/try-langchain`, `/try-medical`, `/try-transcription` (speech-to-text + diarization), `/try-object-detection`, `/try-emotion`.
+- **AI Demos Lab** (`/demos`, catalog in `DemosCatalog.tsx`): six live demos — `/try-identity`, `/try-rag`, `/try-langchain`, `/try-transcription` (real-time speech-to-text + diarization + AI analysis) backed by Cloud Run APIs, plus `/try-object-detection` and `/try-emotion` running fully in the browser. `/try-medical` is **coming soon** (no backend yet; nothing is uploaded). See [Demos](#demos).
+- **AI Diagnostic Quiz** (`/diagnostico-ia`): scored AI-readiness quiz → GPT-generated result → email verification → downloadable PDF report. Leads are stored in SQLite and listed in `/admin/quiz-leads`.
 - **Static blog**: posts in `server/data/posts/YYYY/MM/DD/*.json` with bilingual translations and FTS5 full-text search.
 - **Server-side SEO**: Express middleware injects correct `<title>`, `<meta>`, Open Graph, Twitter Card, hreflang, canonical, and JSON-LD tags before serving HTML to crawlers — no JavaScript needed.
-- **Admin Panel** (`/admin`): JWT-authenticated dashboard with: El Dominical IA management, multi-platform publishing, carousel image generation, conversation inbox, and analytics.
+- **Admin Panel** (`/admin`): JWT-authenticated dashboard with: El Dominical IA management, multi-platform publishing, carousel image and narrated video generation, conversation inbox, quiz leads, and analytics.
 - **El Dominical IA**: automated weekly newsletter. GPT-4o scores blog posts (multidimensional: novelty, people impact, economic impact, narrative potential), generates a LinkedIn/Instagram post draft, creates 1080×1080 carousel slides (gpt-image-1 + sharp + SVG overlay + pdfkit PDF), and publishes to LinkedIn, Instagram, and Facebook via their respective APIs.
 - **Analytics Dashboard**: GA4 traffic metrics and Meta (Instagram/Facebook) insights with SQLite caching, displayed in Overview/Traffic/Behavior/Social tabs using recharts.
 - **Forms** with validation (zod) and email delivery via **nodemailer**.
@@ -29,13 +30,15 @@ Public website of **Robles.AI**, built with **Vite + React (TypeScript)** on the
 ```
 src/
   components/           # Reusable UI components
+    DemosCatalog.tsx    # Demos lab catalog (home section + /demos page)
     chat/               # ChatbotWidget, ChatPanel, MessageList, MessageInput
-    admin/              # CarouselPreview, SlideEditor, PlatformPublishStatus
+    demo/               # Shared demo UI: JsonHighlight, InfoTip, StepCard
+    admin/              # CarouselPreview, SlideEditor, PlatformPublishStatus, VideoGenerator
     admin/analytics/    # OverviewTab, TrafficTab, BehaviorTab, SocialTab, KpiCard
   pages/
     admin/              # AdminLayout, AdminDashboard, AdminSettings, AdminDominicalList,
                         # AdminDominicalDetail, AdminConversationList, AdminConversationDetail,
-                        # AdminAnalytics, AdminLogin, AdminSetup
+                        # AdminAnalytics, AdminQuizLeads, AdminLogin, AdminSetup
   hooks/                # useChatSession, useSearch, useSEO
   scripts/              # Blog post generation, cleanup, gap detection, sitemaps
   i18n/                 # locales/en/ and locales/es/
@@ -68,6 +71,11 @@ server/
     carouselGenerator.ts      # Carousel orchestration (generate + regenerate)
     pdfExporter.ts            # pdfkit → PDF Buffer
     carouselTypes.ts          # Shared carousel interfaces
+    dominicalVideoGen.ts      # Narrated Dominical video (ffmpeg + robot frames)
+    robotFrames.ts            # Robly robot SVG poses for the video
+    quizResultMessage.ts      # GPT result message for the diagnostic quiz
+    quizVerificationEmail.ts  # Verification email for quiz leads
+    quizLeadPdf.ts            # pdfkit quiz report (+ pdfIcons.ts)
     chatEngine.ts             # GPT-4o-mini SSE streaming + tool calls
     chatContext.ts            # Page-aware context builder (blog/home/demo)
     chatNotifier.ts           # Email transcript notification
@@ -86,11 +94,13 @@ server/
 public/
   images/               # Landing page images (local serving)
   avatars/              # Editor headshots (38 editors)
-  robly-avatar/         # Robly SVGs: idle, listening, speaking, thinking
+  robly-avatar/         # Robly SVGs: idle, listening, speaking, thinking, pointing, dominical, standby
   case-studies/         # content.json (4 bilingual case studies HTML) + images
 
 study-cases/            # PDF + DOCX case study documents (EN + ES)
 scripts/                # generateCaseStudyContent.js (case study HTML generation)
+DEMOS_PLAN.md           # Demos lab roadmap: prioritization for wow + ROI
+REMOTION_VIDEO_CONTEXT.md # Brand context + brief for the Remotion marketing video
 ```
 
 ---
@@ -167,6 +177,8 @@ All persistent state lives in `server/data/dominical.db` (gitignored). Tables:
 | `chat_contacts` | Visitor contact data captured during chat |
 | `blog_fts` | FTS5 virtual table for full-text blog search |
 | `blog_posts_index` | Listing index for fast paginated blog queries |
+| `quiz_leads` | Diagnostic quiz leads (answers, score, profile, result message, verified flag) |
+| `quiz_verification_tokens` | Email verification tokens for quiz leads (expiry, used_at) |
 
 ---
 
@@ -209,8 +221,8 @@ All persistent state lives in `server/data/dominical.db` (gitignored). Tables:
                                │
 ┌──────────────────────────────▼──────────────────────────────────┐
 │  SQLite (server/data/dominical.db)                               │
-│  10 tables: admin, settings, dominical, carousel, platform       │
-│             analytics_cache, chat×3, fts5, listing_index        │
+│  13 tables: admin, settings, dominical, carousel, platform,      │
+│             analytics_cache, chat×3, fts5, listing_index, quiz×2│
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -222,6 +234,8 @@ All persistent state lives in `server/data/dominical.db` (gitignored). Tables:
 |-------|------|-------------|
 | `/` | Home | Hero, solutions, courses, case studies, team |
 | `/get-started` | Landing | Bilingual AI diagnosis landing page |
+| `/diagnostico-ia` | Quiz | AI-readiness diagnostic quiz with verified lead capture + PDF report |
+| `/demos` | Demos | AI Demos Lab catalog (live + coming soon) |
 | `/careers` | Careers | Job listings |
 | `/apply` | Apply | Application form |
 | `/blog` | BlogList | Paginated blog + FTS5 search |
@@ -229,17 +243,46 @@ All persistent state lives in `server/data/dominical.db` (gitignored). Tables:
 | `/try-identity` | TryIdentity | Identity verification demo (Cloud Run → `identity-api.robles.ai`) |
 | `/try-langchain` | TryLangChain | LangChain demo (Cloud Run → `langchain-api.robles.ai`) |
 | `/try-rag` | TryRAG | RAG pipeline demo (Cloud Run → `rag-api.robles.ai`) |
-| `/try-medical` | TryMedical | Medical image analysis demo |
+| `/try-medical` | TryMedical | **Coming soon** — modality picker only; no backend, nothing uploaded |
 | `/try-transcription` | TryTranscription | Real-time speech-to-text + diarization + AI analysis (Cloud Run → `transcription-api.robles.ai`) |
 | `/try-object-detection` | TryObjectDetection | Object detection (in-browser, COCO-SSD) |
 | `/try-emotion` | TryEmotion | Emotion recognition (in-browser, face-api.js) |
+| `/otp` | OTP | OTP second-factor page |
 | `/admin` | AdminPage | Login / first-time setup |
 | `/admin/settings` | AdminSettings | LinkedIn, Meta, OpenAI, Dominical preferences |
 | `/admin/dominical` | AdminDominicalList | Weekly report listing |
-| `/admin/dominical/:id` | AdminDominicalDetail | Review, edit, carousel, publish |
+| `/admin/dominical/:id` | AdminDominicalDetail | Review, edit, carousel, narrated video, publish |
+| `/admin/quiz-leads` | AdminQuizLeads | Diagnostic quiz leads |
 | `/admin/conversations` | AdminConversationList | Chat inbox with filters + analytics |
 | `/admin/conversations/:id` | AdminConversationDetail | Full transcript + contact data |
 | `/admin/analytics` | AdminAnalytics | GA4 + Meta dashboard (4 tabs) |
+
+---
+
+## Demos
+
+The AI Demos Lab (`/demos`) lists every demo with a `live` / `soon` status. The catalog data lives in the i18n files (`demosCatalog.items` in `src/i18n/locales/{en,es}/translation.json`); `DemosCatalog.tsx` renders it on the home page and on `/demos`. Robly knows the catalog through `server/services/chatContext.ts` — keep both in sync when a status changes.
+
+| Demo | Route | Where it runs | Status |
+|------|-------|---------------|--------|
+| Identity verification | `/try-identity` | Cloud Run `identity-api.robles.ai` (repo `robles.ai-identity-api`) | live |
+| RAG pipeline | `/try-rag` | Cloud Run `rag-api.robles.ai` (repo `robles.ai-rag-api`); PDF text extracted in the browser with `pdfjs-dist` | live |
+| LangChain agent | `/try-langchain` | Cloud Run `langchain-api.robles.ai` (repo `robles.ai-langchain-api`) | live |
+| Speech-to-text + diarization | `/try-transcription` | Cloud Run `transcription-api.robles.ai` (repo `robles.ai-transcription-api`): WebSocket → Deepgram Nova-3, `/analyze` → OpenAI | live |
+| Object detection | `/try-object-detection` | In the browser: TensorFlow.js COCO-SSD (`lite_mobilenet_v2`) | live |
+| Emotion recognition | `/try-emotion` | In the browser: `@vladmandic/face-api` (models from jsDelivr) | live |
+| Medical image analysis | `/try-medical` | **No backend** — modality picker only; images never leave the browser | soon |
+
+**Cold starts.** The Cloud Run APIs scale to zero, so each demo page pings its API on mount (warm-up) and shows a status banner. `rag-api` is the slowest to wake (can exceed 45 s).
+
+**Transcription audio format.** The transcription API forwards audio to Deepgram as raw PCM `linear16`, 16 kHz, mono — it ignores the `encoding` declared in the `start` frame. `TryTranscription.tsx` therefore captures PCM with an `AudioWorklet` (ScriptProcessor fallback) instead of `MediaRecorder`, whose WebM/Opus output Deepgram would read as noise.
+
+**Demo backend infra conventions** (all four API repos share them):
+
+- One GCP project per API, all on the same billing account; Cloud Run with no `minScale` (scale to zero) and request-based billing.
+- Artifact Registry repo named `<service>-api-repo`. `prune_registry.sh` keeps the 3 newest versions per package and registers a cleanup policy; it runs at the end of `update_docker.sh`, `deploy_fresh_gcp.sh` and in CI.
+- Secrets live in Secret Manager and Cloud Run binds them as `:latest`. `rotate_secret.sh` pushes new values from `.env`, reloads Cloud Run and destroys every older version (Secret Manager bills per active version).
+- Push to `main` → GitHub Actions builds on the runner and deploys to Cloud Run.
 
 ---
 
@@ -608,6 +651,11 @@ Avatar images: `public/avatars/{id}.png` and `public/avatars/{id}-headshot.png`.
 | GET | `/sitemap.xml` | No | Sitemap index |
 | GET | `/sitemaps/:filename` | No | Monthly blog sitemaps |
 | GET | `/api/public/slides/:reportId/:position` | No | Carousel slide image (for Meta API) |
+| POST | `/api/quiz-lead` | No | Submit quiz: GPT result message, store lead, send verification email |
+| GET | `/api/quiz-lead/status?leadId=` | No | Polled while waiting: verified / expired |
+| GET | `/api/quiz-lead/verify?token=` | No | Email verification link (HTML page) |
+| POST | `/api/quiz-lead/resend` | No | Resend verification email |
+| GET | `/api/quiz-lead/pdf?leadId=` | No | PDF report (only once verified) |
 | POST | `/api/chat/session` | No | Create chat session (sets cookie) |
 | GET | `/api/chat/history` | Cookie | Restore conversation |
 | POST | `/api/chat/message` | Cookie | Send message (SSE stream) |
@@ -627,6 +675,8 @@ Avatar images: `public/avatars/{id}.png` and `public/avatars/{id}-headshot.png`.
 | POST | `/api/admin/dominical/:id/generate-carousel` | Yes | Generate carousel images |
 | GET | `/api/admin/dominical/:id/carousel` | Yes | Carousel metadata |
 | GET | `/api/admin/dominical/:id/carousel/pdf` | Yes | Download PDF |
+| POST | `/api/admin/dominical/:id/generate-video` | Yes | Generate narrated Dominical video |
+| GET | `/api/admin/quiz-leads` | Yes | Quiz lead list |
 | GET | `/api/admin/conversations` | Yes | Chat conversation list |
 | GET | `/api/admin/conversations/:id` | Yes | Conversation detail |
 | GET | `/api/admin/conversations/analytics` | Yes | Chat analytics |
@@ -674,6 +724,8 @@ meta_token_expires_at
 - Server tests use Node (no DOM, real `better-sqlite3`)
 - Property tests use `fast-check` with ≥100 iterations
 - Integration tests use `supertest` against the Express app
+
+> **Known local gotcha:** if SQLite-backed tests fail with `NODE_MODULE_VERSION ... was compiled against a different Node.js version`, the `better-sqlite3` native binary was built for another Node than the one running vitest. Run `npm rebuild better-sqlite3` with the same Node version you use for `npm test`. This accounts for most failures seen locally (Sep 2026) and is not a code bug.
 
 ### Build & Data Persistence
 
