@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, type ReactNode } from "react";
 import { AnimatePresence, motion, LayoutGroup } from "framer-motion";
 import {
   Mic,
@@ -15,7 +15,12 @@ import {
   Sparkles,
   CheckCircle2,
   Languages,
-  Settings2,
+  Zap,
+  Building2,
+  Users,
+  BookOpen,
+  FileText,
+  type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { BusinessCase } from "@/components/demo/BusinessCase";
@@ -24,7 +29,6 @@ import { useDemoTracking } from "@/components/demo/business";
 import { v4 as uuidv4 } from "uuid";
 import { JsonHighlight } from "@/components/demo/JsonHighlight";
 import { InfoTip } from "@/components/demo/InfoTip";
-import { StepCard } from "@/components/demo/StepCard";
 import { Button } from "@/components/ui/button";
 
 // ── Brand accent (teal/emerald) ──────────────────────────────────────────────
@@ -36,7 +40,10 @@ const BADGE_TEXT = "text-teal-700";
 const BADGE_DOT = "bg-teal-500";
 
 // ── API base URL ─────────────────────────────────────────────────────────────
-const getBaseApi = () => {
+const getBaseApi = (): string => {
+  // VITE_TRANSCRIPTION_API overrides the default (e.g. point local dev at prod).
+  const override: string | undefined = import.meta.env.VITE_TRANSCRIPTION_API;
+  if (override) return override.replace(/\/+$/, "");
   if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
     return `${window.location.protocol}//${window.location.hostname}:8080`;
   }
@@ -164,6 +171,101 @@ function speakerLabel(
   return t("try-transcription.speaker_label", { n: idx + 1 });
 }
 
+/** The API answers "unknown" (or nothing) when no industry signal is present. */
+function isKnownIndustry(industry: unknown): industry is string {
+  return typeof industry === "string" && industry.trim() !== "" && !/^(unknown|none|n\/a|general)$/i.test(industry.trim());
+}
+
+function formatElapsed(total: number): string {
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+/** Compact segmented control used in the workspace toolbar. */
+function Segmented<T extends string>({
+  icon: Icon,
+  label,
+  tip,
+  value,
+  onChange,
+  options,
+  disabled,
+  fullWidth,
+}: {
+  icon: LucideIcon;
+  label: string;
+  tip: string;
+  value: T;
+  onChange: (v: T) => void;
+  options: { value: T; label: string }[];
+  disabled?: boolean;
+  fullWidth?: boolean;
+}) {
+  return (
+    <div>
+      <p className="mb-1.5 flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+        <Icon className="h-3.5 w-3.5" />
+        {label}
+        <InfoTip text={tip} hoverColor={TIP_HOVER} />
+      </p>
+      <div role="radiogroup" aria-label={label} className={`${fullWidth ? "flex w-full" : "inline-flex"} rounded-lg bg-gray-200/60 p-1`}>
+        {options.map((o) => (
+          <button
+            key={o.value}
+            type="button"
+            role="radio"
+            aria-checked={value === o.value}
+            disabled={disabled}
+            onClick={() => onChange(o.value)}
+            className={`${fullWidth ? "flex-1" : ""} rounded-md px-3 py-1.5 text-xs font-medium transition-all disabled:cursor-not-allowed disabled:opacity-60 ${
+              value === o.value ? "bg-white text-teal-700 shadow-sm" : "text-gray-600 hover:text-gray-900"
+            }`}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+type StatusTone = "ready" | "live" | "busy" | "error" | "idle";
+const TONE_PILL: Record<StatusTone, string> = {
+  ready: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  live: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  busy: "bg-amber-50 text-amber-800 ring-amber-200",
+  error: "bg-red-50 text-red-700 ring-red-200",
+  idle: "bg-gray-100 text-gray-600 ring-gray-200",
+};
+const TONE_DOT: Record<StatusTone, string> = {
+  ready: "bg-emerald-500",
+  live: "animate-pulse bg-emerald-500",
+  busy: "bg-amber-500",
+  error: "bg-red-500",
+  idle: "bg-gray-400",
+};
+
+/** Service / WebSocket status shown at the right of the toolbar. */
+function StatusPill({ tone, label, spinning }: { tone: StatusTone; label: string; spinning?: boolean }) {
+  return (
+    <span className={`inline-flex w-fit shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium ring-1 ${TONE_PILL[tone]}`}>
+      {spinning ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <span className={`h-2 w-2 rounded-full ${TONE_DOT[tone]}`} />}
+      {label}
+    </span>
+  );
+}
+
+/** Labelled block inside the analysis panel. */
+function ResultBlock({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div>
+      <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500">{label}</p>
+      {children}
+    </div>
+  );
+}
+
 // ── Component ────────────────────────────────────────────────────────────────
 export default function TryTranscription() {
   const { t } = useTranslation();
@@ -182,7 +284,9 @@ export default function TryTranscription() {
 
   // Analysis
   const [analyzing, setAnalyzing] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState<any>(null);
+  // One cached analysis per mode, so switching modes after analyzing is instant
+  // the second time (and never shows a result from the other mode as current).
+  const [analyses, setAnalyses] = useState<Partial<Record<Mode, any>>>({});
 
   // Log
   const [logEntries, setLogEntries] = useState<LogEntry[]>([]);
@@ -191,6 +295,8 @@ export default function TryTranscription() {
 
   // UI
   const [showTech, setShowTech] = useState(false);
+  const [sidePanel, setSidePanel] = useState<"analysis" | "log">("analysis");
+  const [elapsed, setElapsed] = useState(0);
 
   // Refs (not re-rendered on change)
   const wsRef = useRef<WebSocket | null>(null);
@@ -200,7 +306,7 @@ export default function TryTranscription() {
   const streamRef = useRef<MediaStream | null>(null);
   const transcriptRef = useRef<Turn[]>([]); // shadow of transcript for WS callbacks
   transcriptRef.current = transcript;
-  const transcriptEndRef = useRef<HTMLDivElement | null>(null);
+  const transcriptBoxRef = useRef<HTMLDivElement | null>(null);
 
   // ── Warm-up on mount ──────────────────────────────────────────────────────
   // transcription-api exposes GET /health (not GET /), so we use it for the
@@ -226,10 +332,20 @@ export default function TryTranscription() {
     };
   }, []);
 
-  // Scroll transcript to bottom on new turns
+  // Keep the transcript box pinned to the latest turn (scrolls the box, not the page)
   useEffect(() => {
-    transcriptEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [transcript.length]);
+    const el = transcriptBoxRef.current;
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  }, [transcript]);
+
+  // Recording timer
+  useEffect(() => {
+    if (!recording) return;
+    const t0 = Date.now();
+    setElapsed(0);
+    const id = setInterval(() => setElapsed(Math.floor((Date.now() - t0) / 1000)), 250);
+    return () => clearInterval(id);
+  }, [recording]);
 
   // ── Warm-up loop ──────────────────────────────────────────────────────────
   const warmUpService = async (): Promise<boolean> => {
@@ -356,10 +472,11 @@ export default function TryTranscription() {
   const handleReset = () => {
     closeSession();
     setTranscript([]);
-    setAnalysisResult(null);
+    setAnalyses({});
     setLogEntries([]);
     setWsStatus("disconnected");
     setAudioSeconds(null);
+    setSidePanel("analysis");
   };
 
   // ── Start recording ────────────────────────────────────────────────────────
@@ -375,7 +492,7 @@ export default function TryTranscription() {
 
     // Reset transcript for new session (keep analysis from last session until new one)
     setTranscript([]);
-    setAnalysisResult(null);
+    setAnalyses({});
     setAudioSeconds(null);
 
     // 1. Open WebSocket
@@ -519,10 +636,11 @@ export default function TryTranscription() {
     }
     stopCapture();
     setRecording(false);
+    setSidePanel("analysis");
   };
 
   // ── Analyze ────────────────────────────────────────────────────────────────
-  const handleAnalyze = async () => {
+  const handleAnalyze = async (targetMode: Mode = mode) => {
     const finalTurns = transcript
       .filter((t) => t.isFinal)
       .map((t) => ({ speaker: t.speaker, text: t.text }));
@@ -530,7 +648,7 @@ export default function TryTranscription() {
     if (!finalTurns.length) return;
     setAnalyzing(true);
 
-    const payload = { transcript: finalTurns, mode, language };
+    const payload = { transcript: finalTurns, mode: targetMode, language };
     addLog("→ POST /analyze", payload);
     try {
       const res = await fetch(ANALYZE_URL, {
@@ -541,8 +659,9 @@ export default function TryTranscription() {
       const data = await res.json();
       addLog("← POST /analyze", data);
       if (data.status === "success") {
-        setAnalysisResult(data.data);
-        trackComplete({ mode });
+        setAnalyses((prev) => ({ ...prev, [targetMode]: data.data }));
+        setSidePanel("analysis");
+        trackComplete({ mode: targetMode });
       }
     } catch (err: any) {
       addLog("← POST /analyze error", { error: err?.message });
@@ -556,287 +675,353 @@ export default function TryTranscription() {
 
   const hasFinalTurns = transcript.some((t) => t.isFinal);
   const canAnalyze = hasFinalTurns && wsStatus !== "connecting" && wsStatus !== "ready" && !analyzing;
+  const canRecord = serviceStatus !== "checking" && serviceStatus !== "warming" && wsStatus !== "connecting";
+  const speakerCount = new Set(transcript.map((turn) => turn.speaker)).size;
+
+  // Result for the selected mode; while re-analyzing in the other mode, keep
+  // the previous one on screen (dimmed) instead of flashing an empty panel.
+  const currentAnalysis = analyses[mode] ?? null;
+  const analysisResult = currentAnalysis ?? (analyzing ? Object.values(analyses)[0] ?? null : null);
+  const reanalyzing = analyzing && !currentAnalysis && analysisResult !== null;
+
+  // After a first analysis, the mode acts as a view switch: re-analyze on
+  // change (once per mode), then serve the cached result.
+  const handleModeChange = (next: Mode) => {
+    setMode(next);
+    if (Object.keys(analyses).length > 0 && !analyses[next] && canAnalyze) handleAnalyze(next);
+  };
+
+  const status: { tone: StatusTone; label: string; spinning?: boolean } =
+    wsStatus === "connecting" ? { tone: "busy", label: t("try-transcription.ws_status_connecting"), spinning: true }
+    : wsStatus === "ready" ? { tone: "live", label: t("try-transcription.ws_status_ready") }
+    : wsStatus === "error" ? { tone: "error", label: t("try-transcription.ws_status_error") }
+    : serviceStatus === "warming" ? { tone: "busy", label: t("try-transcription.status_warming"), spinning: true }
+    : serviceStatus === "checking" ? { tone: "idle", label: t("try-transcription.status_checking"), spinning: true }
+    : serviceStatus === "cold" ? { tone: "busy", label: t("try-transcription.status_cold") }
+    : { tone: "ready", label: t("try-transcription.status_ready") };
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gradient-to-b from-teal-50/50 via-white to-white py-12">
       <div className="container mx-auto max-w-6xl px-6">
 
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-center sm:text-left sm:gap-5">
-            <div className={`flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${ACCENT_GRADIENT} text-white shadow-sm sm:h-24 sm:w-24`}>
-              <AudioLines className="h-10 w-10 sm:h-12 sm:w-12" />
-            </div>
-            <div className="flex flex-col justify-center">
-              <span className={`mb-2 inline-flex w-fit items-center gap-1.5 self-center rounded-full ${BADGE_BG} px-3 py-1 text-xs font-semibold ${BADGE_TEXT} sm:self-start`}>
-                <span className={`h-1.5 w-1.5 rounded-full ${BADGE_DOT}`} />
+        {/* Header: pitch + how it works (left), business case (right) */}
+        <div className="mb-10 grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
+          <div className="lg:col-span-7">
+            <div className="flex items-center gap-3">
+              <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${ACCENT_GRADIENT} text-white shadow-sm`}>
+                <AudioLines className="h-6 w-6" />
+              </div>
+              <span className={`inline-flex items-center gap-1.5 rounded-full ${BADGE_BG} px-3 py-1 text-xs font-semibold ${BADGE_TEXT}`}>
+                <span className={`h-1.5 w-1.5 animate-pulse rounded-full ${BADGE_DOT}`} />
                 {t("try-transcription.badge")}
               </span>
-              <h1 className="mb-2 text-2xl font-bold text-gray-900 sm:text-3xl md:text-4xl">
-                {t("try-transcription.title")}
-              </h1>
-              <p className="text-sm text-gray-600 sm:text-base">{t("try-transcription.description")}</p>
             </div>
+            <h1 className="mt-5 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
+              {t("try-transcription.title")}
+            </h1>
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-gray-600 sm:text-lg">
+              {t("try-transcription.description")}
+            </p>
+
+            {/* How it works (8.3) */}
+            <p className="mt-8 text-xs font-semibold uppercase tracking-wider text-gray-500">
+              {t("try-transcription.how_title")}
+            </p>
+            <ol className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {([1, 2, 3] as const).map((n) => (
+                <li key={n} className="rounded-xl border border-gray-200/80 bg-white/70 p-4">
+                  <span className={`flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br ${ACCENT_GRADIENT} text-xs font-bold text-white`}>
+                    {n}
+                  </span>
+                  <p className="mt-3 text-sm font-semibold text-gray-900">{t(`try-transcription.how_step${n}_title`)}</p>
+                  <p className="mt-1 text-sm leading-snug text-gray-600">{t(`try-transcription.how_step${n}_desc`)}</p>
+                </li>
+              ))}
+            </ol>
+
+            <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
+              {[
+                { icon: ShieldCheck, key: "trust_private" },
+                { icon: Zap, key: "trust_realtime" },
+                { icon: Languages, key: "trust_languages" },
+              ].map(({ icon: Icon, key }) => (
+                <li key={key} className="flex items-center gap-2">
+                  <Icon className={`h-4 w-4 ${ACCENT_TEXT}`} />
+                  {t(`try-transcription.${key}`)}
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* Disclaimer (8.3) */}
-          <div className="mt-4 flex items-start gap-2 rounded-lg bg-teal-50/70 px-4 py-3 text-sm text-teal-900">
-            <Info className="mt-0.5 h-4 w-4 shrink-0 text-teal-500" />
-            <p>{t("try-transcription.instructions")}</p>
+          <div className="lg:col-span-5">
+            <BusinessCase demoId="speech" variant="aside" />
           </div>
         </div>
 
-        <BusinessCase demoId="speech" />
+        {/* ── Workspace: toolbar · transcript stage · analysis/log panel ── */}
+        <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+          {/* Toolbar: configuration + live status */}
+          <div className="flex flex-col gap-4 border-b border-gray-100 bg-gray-50/70 px-5 py-4 md:flex-row md:items-end md:justify-between">
+            <div className="flex flex-wrap items-end gap-x-6 gap-y-4">
+              <Segmented
+                icon={Languages}
+                label={t("try-transcription.language_label")}
+                tip={t("try-transcription.tip_language")}
+                value={language}
+                onChange={setLanguage}
+                disabled={recording}
+                options={(["es", "en", "multi"] as Language[]).map((l) => ({
+                  value: l,
+                  label: t(`try-transcription.language_${l}`),
+                }))}
+              />
+            </div>
+            <StatusPill tone={status.tone} spinning={status.spinning} label={status.label} />
+          </div>
 
-          {/* ── Left: controls ────────────────────────────────────────────── */}
-          <div className="min-w-0 space-y-6">
+          {/* Cold-start notice (only before the first session) */}
+          {(serviceStatus === "cold" || serviceStatus === "warming") && !recording && (
+            <div className="flex items-start gap-2 border-b border-amber-100 bg-amber-50/70 px-5 py-2.5 text-xs text-amber-800">
+              <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" />
+              <span>
+                {serviceStatus === "warming"
+                  ? t("try-transcription.service_warming")
+                  : t("try-transcription.service_cold_hint")}
+              </span>
+            </div>
+          )}
 
-            {/* Service status banner */}
-            {serviceStatus === "warm" && (
-              <div className="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
-                <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                {t("try-transcription.service_ready")}
-              </div>
-            )}
-            {(serviceStatus === "cold" || serviceStatus === "checking") && !recording && (
-              <div className="flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" />
-                <span>{t("try-transcription.service_cold_hint")}</span>
-              </div>
-            )}
-            {serviceStatus === "warming" && (
-              <div className="flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                <Loader2 className="mt-0.5 h-3.5 w-3.5 shrink-0 animate-spin text-amber-500" />
-                <span>{t("try-transcription.service_warming")}</span>
-              </div>
-            )}
+          <div className="grid grid-cols-1 lg:h-[620px] lg:grid-cols-5">
 
-            {/* Step 1: configure */}
-            <StepCard
-              icon={Settings2}
-              number={1}
-              title={t("try-transcription.step1_title")}
-              tip={t("try-transcription.tip_configure")}
-              accent={ACCENT_GRADIENT}
-              iconColor={ACCENT_TEXT}
-              tipHoverColor={TIP_HOVER}
-            >
-              <div className="grid grid-cols-2 gap-4">
-                {/* Language */}
-                <div>
-                  <label className="mb-1.5 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    <Languages className="h-3.5 w-3.5" />
-                    {t("try-transcription.language_label")}
-                    <InfoTip text={t("try-transcription.tip_language")} hoverColor={TIP_HOVER} />
-                  </label>
-                  <div className="flex gap-2">
-                    {(["es", "en", "multi"] as Language[]).map((l) => (
-                      <button
-                        key={l}
-                        onClick={() => setLanguage(l)}
-                        disabled={recording}
-                        className={`flex-1 rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors disabled:opacity-50 ${
-                          language === l
-                            ? `border-teal-400 ${BADGE_BG} ${BADGE_TEXT}`
-                            : "border-gray-200 bg-white text-gray-600 hover:border-teal-200 hover:bg-teal-50/50"
-                        }`}
-                      >
-                        {t(`try-transcription.language_${l}`)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Mode */}
-                <div>
-                  <label className="mb-1.5 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    <Cpu className="h-3.5 w-3.5" />
-                    {t("try-transcription.mode_label")}
-                    <InfoTip text={t("try-transcription.tip_mode")} hoverColor={TIP_HOVER} />
-                  </label>
-                  <div className="flex gap-2">
-                    {(["basic", "specialized"] as Mode[]).map((m) => (
-                      <button
-                        key={m}
-                        onClick={() => setMode(m)}
-                        className={`flex-1 rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors ${
-                          mode === m
-                            ? `border-teal-400 ${BADGE_BG} ${BADGE_TEXT}`
-                            : "border-gray-200 bg-white text-gray-600 hover:border-teal-200 hover:bg-teal-50/50"
-                        }`}
-                      >
-                        {t(`try-transcription.mode_${m}`)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </StepCard>
-
-            {/* Step 2: record */}
-            <StepCard
-              icon={Mic}
-              number={2}
-              title={t("try-transcription.step2_title")}
-              tip={t("try-transcription.tip_record")}
-              accent={ACCENT_GRADIENT}
-              iconColor={ACCENT_TEXT}
-              tipHoverColor={TIP_HOVER}
-            >
-              {/* WS status indicator */}
-              {wsStatus !== "disconnected" && (
-                <div className={`mb-3 flex items-center gap-2 rounded-lg px-3 py-2 text-xs ${
-                  wsStatus === "ready" ? "bg-emerald-50 text-emerald-700" :
-                  wsStatus === "connecting" ? "bg-amber-50 text-amber-800" :
-                  wsStatus === "closed" ? "bg-gray-50 text-gray-600" :
-                  "bg-red-50 text-red-700"
-                }`}>
-                  {wsStatus === "connecting" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                  {wsStatus === "ready" && <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />}
-                  {wsStatus === "closed" && <span className="h-2 w-2 rounded-full bg-gray-400" />}
-                  {wsStatus === "error" && <span className="h-2 w-2 rounded-full bg-red-500" />}
-                  <span>{t(`try-transcription.ws_status_${wsStatus}`)}</span>
-                  {audioSeconds !== null && wsStatus === "closed" && (
-                    <span className="ml-auto text-gray-400">{audioSeconds.toFixed(1)}s</span>
-                  )}
-                </div>
-              )}
-
-              {/* Record button */}
-              <Button
-                onClick={recording ? handleStopRecording : handleStartRecording}
-                disabled={serviceStatus === "checking" || wsStatus === "connecting"}
-                className={`w-full rounded-xl py-6 text-sm font-semibold text-white shadow-md transition-all disabled:opacity-50 ${
-                  recording
-                    ? "bg-red-500 shadow-red-500/20 hover:bg-red-600"
-                    : `bg-gradient-to-r ${ACCENT_GRADIENT} shadow-teal-500/20 hover:brightness-105`
-                }`}
-              >
-                {serviceStatus === "warming" ? (
-                  <span className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    {t("try-transcription.service_warming")}
-                  </span>
-                ) : wsStatus === "connecting" ? (
-                  <span className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    {t("try-transcription.ws_status_connecting")}
-                  </span>
-                ) : recording ? (
-                  <span className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
-                    {t("try-transcription.record_stop")}
-                    <MicOff className="h-4 w-4" />
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    <Mic className="h-4 w-4" />
-                    {t("try-transcription.record_start")}
+            {/* ── Stage: live transcript ───────────────────────────────────── */}
+            <div className="flex min-h-0 min-w-0 flex-col lg:col-span-3 lg:border-r lg:border-gray-100">
+              <div className="flex items-center justify-between px-5 pt-4">
+                <h2 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900">
+                  {t("try-transcription.transcript_label")}
+                  <InfoTip text={t("try-transcription.tip_transcript")} hoverColor={TIP_HOVER} />
+                </h2>
+                {speakerCount > 0 && (
+                  <span className="text-xs text-gray-400">
+                    {t("try-transcription.speakers_count", { count: speakerCount })}
                   </span>
                 )}
-              </Button>
+              </div>
 
-              {/* Live transcript */}
-              {transcript.length > 0 && (
-                <div className="mt-4 space-y-2">
-                  <h3 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    {t("try-transcription.transcript_label")}
-                    <InfoTip text={t("try-transcription.tip_transcript")} hoverColor={TIP_HOVER} />
-                  </h3>
-                  <div className="max-h-56 overflow-y-auto rounded-xl border border-gray-100 bg-gray-50 p-3 space-y-2">
+              <div ref={transcriptBoxRef} className="h-[360px] overflow-y-auto px-5 py-4 lg:h-auto lg:min-h-0 lg:flex-1">
+                {transcript.length === 0 ? (
+                  <div className="flex h-full flex-col items-center justify-center text-center">
+                    <button
+                      type="button"
+                      onClick={handleStartRecording}
+                      disabled={!canRecord || recording}
+                      aria-label={t("try-transcription.record_start")}
+                      className={`group relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br ${ACCENT_GRADIENT} text-white shadow-lg shadow-teal-500/25 transition-transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100`}
+                    >
+                      {canRecord && !recording && (
+                        <span className="absolute inset-0 animate-ping rounded-full bg-teal-400/30" />
+                      )}
+                      {wsStatus === "connecting" || serviceStatus === "warming" ? (
+                        <Loader2 className="relative h-8 w-8 animate-spin" />
+                      ) : (
+                        <Mic className="relative h-8 w-8" />
+                      )}
+                    </button>
+                    <p className="mt-5 text-base font-semibold text-gray-900">
+                      {recording ? t("try-transcription.recording") : t("try-transcription.stage_empty_title")}
+                    </p>
+                    <p className="mt-1 max-w-xs text-sm text-gray-500">{t("try-transcription.transcript_empty")}</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
                     <AnimatePresence initial={false}>
                       {transcript.map((turn) => (
                         <motion.div
                           key={turn.key}
                           initial={{ opacity: 0, y: 6 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className={`rounded-lg border px-3 py-2 text-sm ${speakerColor(turn.speaker)} ${!turn.isFinal ? "opacity-60 italic" : ""}`}
+                          className="flex gap-3"
                         >
-                          <span className="mb-0.5 block text-[10px] font-semibold uppercase tracking-wide opacity-60">
-                            {speakerLabel(turn.speaker, analysisResult?.speakers ?? null, t)}
+                          <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-bold ${speakerColor(turn.speaker)}`}>
+                            {turn.speaker + 1}
                           </span>
-                          {turn.text}
+                          <div className="min-w-0">
+                            <p className="text-xs font-semibold text-gray-500">
+                              {speakerLabel(turn.speaker, analysisResult?.speakers ?? null, t)}
+                            </p>
+                            <p className={`mt-0.5 text-sm leading-relaxed ${turn.isFinal ? "text-gray-800" : "italic text-gray-400"}`}>
+                              {turn.text}
+                            </p>
+                          </div>
                         </motion.div>
                       ))}
                     </AnimatePresence>
-                    <div ref={transcriptEndRef} />
                   </div>
-                </div>
-              )}
-            </StepCard>
+                )}
+              </div>
 
-            {/* Step 3: analyze */}
-            {hasFinalTurns && (
-              <StepCard
-                icon={Sparkles}
-                number={3}
-                title={t("try-transcription.step3_title")}
-                tip={t("try-transcription.tip_analyze")}
-                accent={ACCENT_GRADIENT}
-                iconColor={ACCENT_TEXT}
-                tipHoverColor={TIP_HOVER}
-              >
+              {/* Control bar */}
+              <div className="flex flex-wrap items-center gap-3 border-t border-gray-100 px-5 py-4">
                 <Button
-                  onClick={handleAnalyze}
-                  disabled={!canAnalyze}
-                  className={`w-full rounded-xl py-5 text-sm font-semibold text-white shadow-md transition-all disabled:opacity-50 bg-gradient-to-r ${ACCENT_GRADIENT} shadow-teal-500/20 hover:brightness-105`}
+                  onClick={recording ? handleStopRecording : handleStartRecording}
+                  disabled={!canRecord}
+                  className={`rounded-xl px-5 text-sm font-semibold text-white shadow-md transition-all disabled:opacity-50 ${
+                    recording
+                      ? "bg-red-500 shadow-red-500/20 hover:bg-red-600"
+                      : `bg-gradient-to-r ${ACCENT_GRADIENT} shadow-teal-500/20 hover:brightness-105`
+                  }`}
                 >
-                  {analyzing ? (
-                    <span className="flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      {t("try-transcription.analyzing")}
-                    </span>
+                  {wsStatus === "connecting" || serviceStatus === "warming" ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : recording ? (
+                    <MicOff className="mr-2 h-4 w-4" />
                   ) : (
-                    <span className="flex items-center gap-2">
-                      <Sparkles className="h-4 w-4" />
-                      {t("try-transcription.analyze")}
-                    </span>
+                    <Mic className="mr-2 h-4 w-4" />
                   )}
+                  {recording ? t("try-transcription.record_stop") : t("try-transcription.record_start")}
                 </Button>
 
-                {/* Analysis result */}
-                {analysisResult && (
-                  <AnimatePresence>
-                    <motion.div
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="mt-4 space-y-3"
+                {recording && (
+                  <span className="flex items-center gap-2 text-sm font-medium tabular-nums text-red-600">
+                    <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
+                    {formatElapsed(elapsed)}
+                  </span>
+                )}
+                {!recording && audioSeconds !== null && wsStatus === "closed" && (
+                  <span className="text-xs tabular-nums text-gray-400">
+                    {t("try-transcription.audio_duration", { seconds: audioSeconds.toFixed(1) })}
+                  </span>
+                )}
+
+                <div className="ml-auto flex items-center gap-2">
+                  {(transcript.length > 0 || wsStatus !== "disconnected") && !recording && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleReset}
+                      title={t("try-transcription.reset")}
+                      aria-label={t("try-transcription.reset")}
+                      className="rounded-xl text-gray-500 hover:bg-gray-100 hover:text-gray-700"
                     >
-                      {/* Industry + confidence */}
+                      <RotateCcw className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* ── Side panel: AI analysis / raw API log ────────────────────── */}
+            <div className="flex min-h-0 min-w-0 flex-col border-t border-gray-100 lg:col-span-2 lg:border-t-0">
+              <div role="tablist" className="flex gap-1 border-b border-gray-100 px-3 pt-2">
+                {([
+                  { id: "analysis", icon: Sparkles, label: t("try-transcription.tab_analysis") },
+                  { id: "log", icon: Terminal, label: t("try-transcription.tab_log"), count: logEntries.length },
+                ] as const).map((tab) => (
+                  <button
+                    key={tab.id}
+                    role="tab"
+                    type="button"
+                    aria-selected={sidePanel === tab.id}
+                    onClick={() => setSidePanel(tab.id)}
+                    className={`-mb-px flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
+                      sidePanel === tab.id
+                        ? "border-teal-500 text-gray-900"
+                        : "border-transparent text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    <tab.icon className={`h-4 w-4 ${sidePanel === tab.id ? ACCENT_TEXT : ""}`} />
+                    {tab.label}
+                    {"count" in tab && tab.count > 0 && (
+                      <span className="rounded-full bg-gray-100 px-1.5 text-[10px] font-semibold tabular-nums text-gray-600">
+                        {tab.count}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              <div className="max-h-[560px] overflow-y-auto p-5 lg:max-h-none lg:min-h-0 lg:flex-1">
+                {sidePanel === "analysis" ? (
+                  <div className="space-y-5">
+                    {/* Analysis controls: the mode lives next to the button it affects */}
+                    <div className="rounded-xl border border-gray-200/80 bg-gray-50/70 p-4">
+                      <Segmented
+                        icon={Cpu}
+                        label={t("try-transcription.mode_label")}
+                        tip={t("try-transcription.tip_mode")}
+                        value={mode}
+                        onChange={handleModeChange}
+                        disabled={recording || analyzing}
+                        fullWidth
+                        options={(["basic", "specialized"] as Mode[]).map((m) => ({
+                          value: m,
+                          label: t(`try-transcription.mode_${m}`),
+                        }))}
+                      />
+                      <p className="mt-2 text-xs text-gray-500">{t(`try-transcription.mode_${mode}_desc`)}</p>
+
+                      {hasFinalTurns && !currentAnalysis && !reanalyzing && (
+                        <Button
+                          onClick={() => handleAnalyze()}
+                          disabled={!canAnalyze}
+                          className={`mt-4 w-full rounded-xl bg-gradient-to-r ${ACCENT_GRADIENT} text-sm font-semibold text-white shadow-md shadow-teal-500/20 hover:brightness-105 disabled:opacity-50`}
+                        >
+                          {analyzing ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : (
+                            <Sparkles className="mr-2 h-4 w-4" />
+                          )}
+                          {analyzing ? t("try-transcription.analyzing") : t("try-transcription.analyze")}
+                        </Button>
+                      )}
+                      {reanalyzing && (
+                        <p className="mt-3 flex items-center gap-2 text-xs font-medium text-amber-700">
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          {t("try-transcription.analysis_reanalyzing", { mode: t(`try-transcription.mode_${mode}`) })}
+                        </p>
+                      )}
+                      {currentAnalysis && !analyzing && (
+                        <p className="mt-3 flex items-start gap-2 text-xs text-gray-500">
+                          <CheckCircle2 className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${ACCENT_TEXT}`} />
+                          {t("try-transcription.analysis_mode_hint")}
+                        </p>
+                      )}
+                    </div>
+
+                  {analysisResult ? (
+                    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+                      <div className={`space-y-5 transition-opacity ${reanalyzing ? "pointer-events-none opacity-40" : ""}`}>
                       <div className="grid grid-cols-2 gap-3">
-                        <div className={`rounded-xl border border-teal-200 ${BADGE_BG} p-4`}>
-                          <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-500 mb-1">
+                        <div className={`rounded-xl bg-teal-50 p-4`}>
+                          <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
                             {t("try-transcription.results_industry")}
                           </p>
-                          <p className={`text-lg font-bold ${ACCENT_TEXT}`}>{analysisResult.industry}</p>
+                          {isKnownIndustry(analysisResult.industry) ? (
+                            <p className={`mt-1 text-lg font-bold ${ACCENT_TEXT}`}>{analysisResult.industry}</p>
+                          ) : (
+                            <>
+                              <p className="mt-1 text-lg font-bold text-gray-700">{t("try-transcription.industry_general")}</p>
+                              <p className="mt-0.5 text-xs leading-snug text-gray-500">{t("try-transcription.industry_general_hint")}</p>
+                            </>
+                          )}
                         </div>
-                        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                          <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-500 mb-1">
+                        <div className="rounded-xl bg-gray-50 p-4">
+                          <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
                             {t("try-transcription.results_confidence")}
                           </p>
-                          <p className="text-lg font-bold text-gray-900">
+                          <p className="mt-1 text-lg font-bold tabular-nums text-gray-900">
                             {(analysisResult.confidence * 100).toFixed(0)}%
                           </p>
                         </div>
                       </div>
 
-                      {/* Title */}
-                      <div className="rounded-xl border border-gray-200 bg-white p-4">
-                        <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-500 mb-1">
-                          {t("try-transcription.results_title_label")}
-                        </p>
-                        <p className="text-sm font-medium text-gray-900">{analysisResult.title}</p>
-                      </div>
+                      <ResultBlock label={t("try-transcription.results_title_label")}>
+                        <p className="text-sm font-semibold text-gray-900">{analysisResult.title}</p>
+                      </ResultBlock>
 
-                      {/* Speaker roles */}
                       {analysisResult.speakers && Object.keys(analysisResult.speakers).length > 0 && (
-                        <div className="rounded-xl border border-gray-200 bg-white p-4">
-                          <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-500 mb-2">
-                            {t("try-transcription.results_speakers")}
-                          </p>
+                        <ResultBlock label={t("try-transcription.results_speakers")}>
                           <div className="flex flex-wrap gap-2">
                             {Object.entries(analysisResult.speakers).map(([idx, role]) => (
                               <span
@@ -847,116 +1032,107 @@ export default function TryTranscription() {
                               </span>
                             ))}
                           </div>
-                        </div>
+                        </ResultBlock>
                       )}
 
-                      {/* Terms table */}
                       {analysisResult.terms?.length > 0 && (
-                        <div className="rounded-xl border border-gray-200 bg-white p-4">
-                          <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-500 mb-2">
-                            {t("try-transcription.results_terms")}
-                          </p>
+                        <ResultBlock label={t("try-transcription.results_terms")}>
                           <div className="overflow-x-auto">
                             <table className="w-full text-xs">
                               <thead>
-                                <tr className="border-b border-gray-100">
-                                  <th className="pb-1.5 text-left font-semibold text-gray-500">{t("try-transcription.results_term_spoken")}</th>
-                                  <th className="pb-1.5 pl-3 text-left font-semibold text-gray-500">{t("try-transcription.results_term_basic")}</th>
-                                  <th className="pb-1.5 pl-3 text-left font-semibold text-gray-500">{t("try-transcription.results_term_specialized")}</th>
+                                <tr className="border-b border-gray-100 text-left text-gray-500">
+                                  <th className="pb-1.5 font-semibold">{t("try-transcription.results_term_spoken")}</th>
+                                  <th className="pb-1.5 pl-3 font-semibold">{t("try-transcription.results_term_basic")}</th>
+                                  <th className="pb-1.5 pl-3 font-semibold">{t("try-transcription.results_term_specialized")}</th>
                                 </tr>
                               </thead>
                               <tbody>
                                 {analysisResult.terms.map((term: any, i: number) => (
-                                  <tr key={i} className="border-b border-gray-50">
-                                    <td className="py-1 font-medium text-gray-900">{term.spoken}</td>
-                                    <td className="py-1 pl-3 text-gray-600">{term.basic}</td>
-                                    <td className="py-1 pl-3 text-gray-600">{term.specialized}</td>
+                                  <tr key={i} className="border-b border-gray-50 last:border-0">
+                                    <td className="py-1.5 font-medium text-gray-900">{term.spoken}</td>
+                                    <td className={`py-1.5 pl-3 ${mode === "basic" ? "font-medium text-teal-700" : "text-gray-600"}`}>{term.basic}</td>
+                                    <td className={`py-1.5 pl-3 ${mode === "specialized" ? "font-medium text-teal-700" : "text-gray-600"}`}>{term.specialized}</td>
                                   </tr>
                                 ))}
                               </tbody>
                             </table>
                           </div>
-                        </div>
+                        </ResultBlock>
                       )}
 
-                      {/* Summary */}
-                      <div className="rounded-xl border border-gray-200 bg-white p-4">
-                        <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-500 mb-1">
-                          {t("try-transcription.results_summary")}
-                        </p>
+                      <ResultBlock label={t("try-transcription.results_summary")}>
                         <p className="text-sm leading-relaxed text-gray-700">{analysisResult.summary}</p>
+                      </ResultBlock>
                       </div>
                     </motion.div>
-                  </AnimatePresence>
+                  ) : (
+                    <div>
+                      <p className="flex items-center gap-1.5 text-sm font-semibold text-gray-900">
+                        {t("try-transcription.analysis_empty_title")}
+                        <InfoTip text={t("try-transcription.tip_analyze")} hoverColor={TIP_HOVER} />
+                      </p>
+                      <p className="mt-1 text-sm text-gray-500">
+                        {hasFinalTurns
+                          ? t("try-transcription.analysis_ready")
+                          : t("try-transcription.analysis_locked")}
+                      </p>
+                      <ul className="mt-5 space-y-2">
+                        {[
+                          { icon: Building2, key: "results_industry" },
+                          { icon: Users, key: "results_speakers" },
+                          { icon: BookOpen, key: "results_terms" },
+                          { icon: FileText, key: "results_summary" },
+                        ].map(({ icon: Icon, key }) => (
+                          <li key={key} className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 px-3 py-2.5 text-sm text-gray-600">
+                            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-50">
+                              <Icon className="h-4 w-4 text-gray-400" />
+                            </span>
+                            {t(`try-transcription.${key}`)}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  </div>
+                ) : logEntries.length === 0 ? (
+                  <div className="flex h-full flex-col items-center justify-center py-8 text-center">
+                    <img src="/robly-avatar/robly-standby.svg" alt="" className="mb-2 h-24 w-24 opacity-50" />
+                    <p className="flex items-center gap-1.5 text-sm font-semibold text-gray-600">
+                      {t("try-transcription.log_empty_title")}
+                      <InfoTip text={t("try-transcription.tip_log")} hoverColor={TIP_HOVER} />
+                    </p>
+                    <p className="mt-1 max-w-xs text-sm text-gray-400">{t("try-transcription.log_empty")}</p>
+                  </div>
+                ) : (
+                  <LayoutGroup>
+                    <AnimatePresence initial={false}>
+                      {logEntries.map((entry) => (
+                        <motion.div
+                          key={entry.key}
+                          layout
+                          initial={{ opacity: 0, y: -12 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.25 }}
+                          className="mb-4"
+                        >
+                          <span className={`mb-1.5 inline-block rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                            entry.label.startsWith("→")
+                              ? `${BADGE_BG} ${BADGE_TEXT}`
+                              : "bg-sky-100 text-sky-700"
+                          }`}>
+                            {entry.label}
+                          </span>
+                          <JsonHighlight data={entry.data} />
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
+                  </LayoutGroup>
                 )}
-              </StepCard>
-            )}
-
-            {/* Reset */}
-            {(transcript.length > 0 || wsStatus !== "disconnected") && (
-              <Button
-                variant="outline"
-                onClick={handleReset}
-                className="rounded-xl border-gray-300 text-gray-700 hover:bg-gray-50"
-              >
-                <RotateCcw className="mr-2 h-4 w-4" />
-                {t("try-transcription.reset")}
-              </Button>
-            )}
-          </div>
-
-          {/* ── Right: log ────────────────────────────────────────────────── */}
-          <div className="min-w-0 rounded-2xl border border-gray-200 bg-white shadow-sm">
-            <div className="flex items-center gap-2 border-b border-gray-100 px-6 py-4">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-900">
-                <Terminal className="h-4 w-4 text-emerald-400" />
-              </div>
-              <div>
-                <h2 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900">
-                  {t("try-transcription.log")}
-                  <InfoTip text={t("try-transcription.tip_log")} hoverColor={TIP_HOVER} />
-                </h2>
-                <p className="text-xs text-gray-400">{t("try-transcription.log_subtitle")}</p>
               </div>
             </div>
-
-            <div className="max-h-[720px] overflow-y-auto p-6">
-              {logEntries.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <img src="/robly-avatar/robly-standby.svg" alt="" className="mb-2 h-40 w-40 opacity-50" />
-                  <p className="font-semibold text-gray-600 opacity-70">{t("try-transcription.log_empty_title")}</p>
-                  <p className="mt-1 max-w-xs text-sm text-gray-400">{t("try-transcription.log_empty")}</p>
-                </div>
-              )}
-              <LayoutGroup>
-                <AnimatePresence initial={false}>
-                  {logEntries.map((entry) => (
-                    <motion.div
-                      key={entry.key}
-                      layout
-                      initial={{ opacity: 0, y: -12 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.25 }}
-                      className="mb-4"
-                    >
-                      <div className="mb-1.5 flex items-center gap-2">
-                        <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
-                          entry.label.startsWith("→")
-                            ? `${BADGE_BG} ${BADGE_TEXT}`
-                            : "bg-sky-100 text-sky-700"
-                        }`}>
-                          {entry.label}
-                        </span>
-                      </div>
-                      <JsonHighlight data={entry.data} />
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </LayoutGroup>
-            </div>
           </div>
-        </div>
+        </section>
 
         {/* ── Technical section (collapsible) ──────────────────────────── */}
         <SavingsCalculator demoId="speech" />
