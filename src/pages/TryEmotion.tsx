@@ -94,7 +94,7 @@ export default function TryEmotion() {
     Object.entries(expr).reduce((a, b) => (b[1] > a[1] ? b : a))[0];
 
   const draw = useCallback(
-    (results: FaceResult[], drawLandmarks: faceapi.WithFaceLandmarks<{ detection: faceapi.FaceDetection }, faceapi.FaceLandmarks68>[], w: number, h: number) => {
+    (results: FaceResult[], drawLandmarks: faceapi.WithFaceLandmarks<{ detection: faceapi.FaceDetection }, faceapi.FaceLandmarks68>[], w: number, h: number, mirror: boolean) => {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const ctx = canvas.getContext("2d");
@@ -105,12 +105,16 @@ export default function TryEmotion() {
       ctx.lineWidth = Math.max(2, w / 320);
       ctx.font = `${Math.max(13, w / 36)}px ui-sans-serif, system-ui, sans-serif`;
       ctx.textBaseline = "top";
+      // The selfie video is mirrored with CSS. Mirroring the canvas the same way
+      // would flip the label text, so we flip the x coordinates here instead.
+      const fx = (px: number) => (mirror ? w - px : px);
 
       // Boxes + top-emotion labels.
       results.forEach((r) => {
         const meta = EMOTIONS.find((e) => e.key === r.top);
         const color = meta?.color || "#ec4899";
-        const { x, y, width, height } = r.box;
+        const { y, width, height } = r.box;
+        const x = mirror ? w - r.box.x - width : r.box.x;
         ctx.strokeStyle = color;
         ctx.strokeRect(x, y, width, height);
         const pct = Math.round((r.expressions[r.top] || 0) * 100);
@@ -128,7 +132,7 @@ export default function TryEmotion() {
       drawLandmarks.forEach((d) => {
         d.landmarks.positions.forEach((p) => {
           ctx.beginPath();
-          ctx.arc(p.x, p.y, Math.max(1, w / 400), 0, 2 * Math.PI);
+          ctx.arc(fx(p.x), p.y, Math.max(1, w / 400), 0, 2 * Math.PI);
           ctx.fill();
         });
       });
@@ -148,7 +152,7 @@ export default function TryEmotion() {
       return { expressions: expr, top: topExpression(expr), box: { x, y, width, height } };
     });
     setFaces(mapped);
-    draw(mapped, results, w, h);
+    draw(mapped, results, w, h, input instanceof HTMLVideoElement);
     return mapped;
   }
 
@@ -405,7 +409,7 @@ export default function TryEmotion() {
                 <img ref={imgRef} alt="" className={`w-full ${mode === "image" ? "block" : "hidden"}`} />
                 <canvas
                   ref={canvasRef}
-                  className={`pointer-events-none absolute inset-0 h-full w-full ${mode === "camera" && running ? "-scale-x-100" : ""}`}
+                  className="pointer-events-none absolute inset-0 h-full w-full"
                 />
                 {mode === "camera" && !running && (
                   <div className="flex aspect-video items-center justify-center text-xs text-gray-400">
