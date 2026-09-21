@@ -151,24 +151,33 @@ con un ángulo de dinero, y sin placeholders que no se van a construir.
 
 ## 5. Plan de implementación
 
-### Fase 0 — Higiene y encuadre de negocio (1–2 semanas)
+### Fase 0 — Higiene y encuadre de negocio ✅ completada (2026-09-21)
 
 Más impacto por hora invertida: no requiere modelos nuevos.
 
-- [ ] **Arreglar `/analyze` de transcripción**: la clave de OpenAI del proyecto
-      `robles-ai-transcript-project` da 401. Sin esto la demo de voz queda a medias.
-- [ ] Reescribir títulos y descripciones del catálogo (en/es) con foco en resultados (§3.1),
-      manteniendo el tipo de modelo como etiqueta secundaria.
-- [ ] Componente reutilizable `<BusinessCase>` (problema, industria, métrica) y
-      `<SavingsCalculator>` (inputs del visitante → ahorro mensual/anual), en `src/components/demo/`.
-- [ ] Integrarlos en las 6 demos live, con CTA a `/diagnostico-ia` y a contacto.
-- [ ] Eventos GA4 por demo (`demo_start`, `demo_complete`, `roi_calculated`, `demo_cta_click`).
-- [ ] Sacar Imagen Médica del catálogo público (o dejarla como "demo privada a pedido").
-- [ ] Sacar Sentimiento y Recomendación de "próximamente" (quedan absorbidas en D1/D3).
-- [ ] Actualizar `server/services/chatContext.ts` para que Robly hable de resultados y sepa
-      ofrecer la calculadora.
-- [ ] Evaluar el cold start de `rag-api` (más de 45 s): ajustar el warm-up o la memoria de la
-      imagen antes de sumarle carga con D1.
+- [x] **Arreglar `/analyze` de transcripción.** Había dos fallas: la clave de OpenAI daba 401
+      (rotada a la versión 4) y, con conversaciones casuales, el modelo omitía `summary`
+      (`brain_bad_schema`). Se corrigió el prompt y el reintento ahora nombra los campos que
+      faltan (repo `robles.ai-transcription-api`).
+- [x] Títulos y descripciones del catálogo (en/es) reescritos con foco en resultados, más una
+      línea de beneficio (`benefit`) en cada tarjeta.
+- [x] Componentes `<BusinessCase>` y `<SavingsCalculator>` en `src/components/demo/`
+      (configuración y fórmula en `business.ts`, con test).
+- [x] Integrados en las 6 demos live, con CTA a `/diagnostico-ia` y a contacto. Emociones muestra
+      solo los CTAs, sin calculadora (§4.3).
+- [x] Eventos por demo (`demo_start`, `demo_complete`, `roi_calculated`, `demo_cta_click`) con
+      `trackDemoEvent` en `src/lib/analytics.ts`, que también funciona con GTM.
+      **Pendiente del lado de GTM:** crear el trigger y la etiqueta GA4 para esos eventos.
+- [x] Imagen Médica fuera del catálogo público (la ruta `/try-medical` sigue, sin backend).
+- [x] Sentimiento y Recomendación fuera de "próximamente". El roadmap público pasa a D1, D2, D4,
+      D5, D6 y D7 (D3 es la evolución de la demo de voz).
+- [x] `server/services/chatContext.ts`: Robly arranca por el caso de negocio de cada demo, ofrece
+      la calculadora y el diagnóstico, y no promete cifras.
+- [x] **Cold start de `rag-api`** (repo `robles.ai-rag-api`): el arranque bajó de **~60 s a
+      ~29 s**. Los modelos se incluyen en la imagen, y monoT5/BGE se cargan de forma diferida. Para
+      que el primer rerank no pague esa carga (~46 s), `TryRAG` llama a `POST /rag/warmup` apenas
+      el visitante sube el PDF: carga los modelos y corre una inferencia de prueba (~48 s, mientras
+      el visitante hace embed y query). Con eso, el rerank responde en **~1.5 s**.
 
 ### Fase 1 — Quick wins sobre infra existente (2–4 semanas)
 

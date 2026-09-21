@@ -22,6 +22,9 @@ import {
 } from "lucide-react";
 import VideoModal from "@/components/VideoModal";
 import { useTranslation } from "react-i18next";
+import { BusinessCase } from "@/components/demo/BusinessCase";
+import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
+import { useDemoTracking } from "@/components/demo/business";
 import { JsonHighlight } from "@/components/demo/JsonHighlight";
 
 /** Lightweight, dependency-free info tooltip (hover + keyboard focus). */
@@ -204,6 +207,7 @@ export default function TryIdentity() {
   const selfieInputRef = useRef<HTMLInputElement | null>(null);
   const documentInputRef = useRef<HTMLInputElement | null>(null);
   const { t, i18n } = useTranslation();
+  const { start: trackStart, complete: trackComplete } = useDemoTracking("identity");
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
   const [showVideo, setShowVideo] = useState(false);
   const [showTech, setShowTech] = useState(false);
@@ -298,6 +302,7 @@ export default function TryIdentity() {
         setQueryHistory((prev) => [newEntry, ...prev]);
 
         if (["completed", "completed_with_errors"].includes(data.data.status)) {
+          trackComplete({ status: data.data.status });
           clearInterval(interval);
         }
       } catch (err: any) {
@@ -349,6 +354,7 @@ export default function TryIdentity() {
 
   const handleSubmit = async () => {
     if (!selfie || !document || submitted) return;
+    trackStart();
 
     try {
       setLoading(true);
@@ -460,6 +466,8 @@ export default function TryIdentity() {
             </div>
           </div>
         </div>
+
+        <BusinessCase demoId="identity" />
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           {/* Left column: form + results */}
@@ -771,6 +779,8 @@ export default function TryIdentity() {
         </div>
 
         {/* Technical definition — collapsible */}
+        <SavingsCalculator demoId="identity" />
+
         <div className="mt-8 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
           <button
             type="button"

@@ -14,6 +14,9 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { BusinessCase } from "@/components/demo/BusinessCase";
+import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
+import { useDemoTracking } from "@/components/demo/business";
 import { v4 as uuidv4 } from "uuid";
 import * as faceapi from "@vladmandic/face-api";
 import { JsonHighlight } from "@/components/demo/JsonHighlight";
@@ -49,6 +52,7 @@ type FaceResult = {
 
 export default function TryEmotion() {
   const { t } = useTranslation();
+  const { start: trackStart, complete: trackComplete } = useDemoTracking("emotion");
   const [modelStatus, setModelStatus] = useState<ModelStatus>("loading");
   const [mode, setMode] = useState<"camera" | "image">("camera");
   const [running, setRunning] = useState(false);
@@ -152,6 +156,7 @@ export default function TryEmotion() {
       return { expressions: expr, top: topExpression(expr), box: { x, y, width, height } };
     });
     setFaces(mapped);
+    if (mapped.length) trackComplete();
     draw(mapped, results, w, h, input instanceof HTMLVideoElement);
     return mapped;
   }
@@ -159,6 +164,7 @@ export default function TryEmotion() {
   // ── Camera ───────────────────────────────────────────────────────────────
   async function startCamera() {
     if (modelStatus !== "ready") return;
+    trackStart();
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user", width: { ideal: 640 } },
@@ -207,6 +213,7 @@ export default function TryEmotion() {
   async function handleImage(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file || modelStatus !== "ready") return;
+    trackStart();
     stopCamera();
     const url = URL.createObjectURL(file);
     const img = imgRef.current;
@@ -284,6 +291,8 @@ export default function TryEmotion() {
             <p>{t("try-emotion.privacy")}</p>
           </div>
         </div>
+
+        <BusinessCase demoId="emotion" />
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           {/* Left: interaction */}
@@ -505,6 +514,8 @@ export default function TryEmotion() {
         </div>
 
         {/* Technical definition — collapsible */}
+        <SavingsCalculator demoId="emotion" />
+
         <div className="mt-8 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
           <button
             type="button"

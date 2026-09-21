@@ -249,9 +249,36 @@ function getDemoContext(pagePath: string): string {
     '/try-transcription': `The visitor is on the Speech-to-Text & Diarization Demo page. This live demo captures audio from the user's microphone and streams it over a WebSocket to a Deepgram-powered backend (Nova-3 model). Transcripts appear in real time with speaker diarization — each speaker is labelled separately. After recording, the user can run an AI analysis (POST /analyze) that detects the industry, assigns speaker roles, extracts a terminology map (basic and specialized forms of each term), and generates a structured summary. Audio is streamed through and not stored anywhere — nothing persists after the session ends. The demo runs at /try-transcription.`,
   };
 
-  return demoDescriptions[pagePath] ||
+  const base = demoDescriptions[pagePath] ||
     `The visitor is on a Robles.AI demo page where they can try AI-powered tools and services interactively.`;
+  const angle = DEMO_BUSINESS_ANGLE[pagePath];
+  if (!angle) return base;
+  const guidance = DEMOS_WITH_CALCULATOR.has(pagePath) ? DEMO_SALES_GUIDANCE : DEMO_SALES_GUIDANCE_NO_CALC;
+  return `${base}\n\nBusiness angle to lead with: ${angle}\n${guidance}`;
 }
+
+/**
+ * What each live demo is worth to a business (DEMOS_PLAN.md §3.1). Robly leads
+ * with this instead of the model's technical details.
+ */
+const DEMO_BUSINESS_ANGLE: Record<string, string> = {
+  '/try-identity': 'customer onboarding / KYC in seconds — less manual review cost and fewer sign-up drop-offs. Fits banks, fintechs, insurers, telcos and marketplaces.',
+  '/try-rag': '"ask your documents" — answers from PDFs, manuals and policies with the source cited, cutting search time and tier-1 support tickets. Fits support, legal, HR and operations.',
+  '/try-langchain': 'an assistant that completes tasks (looks things up, calculates, fills in data), not just chats — repetitive back-office and customer-service work handled without a person. Our telco case study shows this kind of system can autonomously resolve up to 78% of requests.',
+  '/try-transcription': 'automatic meeting and call notes — who said what, topics and key terms, ready when the call ends, saving hours of minute-writing and enabling call-center QA. Fits call centers, sales, healthcare and legal.',
+  '/try-object-detection': 'cameras that count, detect and alert on their own — inventory counts, occupancy and safety. Fits retail, warehouses, manufacturing, logistics and cities. Our Smart City case study shows this kind of system can achieve up to 27% less crime and 42% faster emergency response.',
+  '/try-emotion': 'aggregated, anonymous customer-experience measurement in stores or at events, without surveys. Do NOT suggest it for evaluating employees or students — emotion recognition is restricted in workplaces and education in some jurisdictions (e.g. the EU AI Act).',
+};
+
+const DEMOS_WITH_CALCULATOR = new Set([
+  '/try-identity', '/try-rag', '/try-langchain', '/try-transcription', '/try-object-detection',
+]);
+
+const DEMO_SALES_GUIDANCE =
+  'Near the end of the page there is a "How much would you save?" calculator: invite the visitor to enter their own monthly volume, minutes per unit, share automated and hourly cost to see hours freed and monthly/yearly savings. Then offer the free AI diagnostic at /diagnostico-ia or a conversation with the team to apply it to their company. Never promise specific savings figures — the calculator uses the visitor\'s own numbers, and only cite case-study figures with their "up to" wording.';
+
+const DEMO_SALES_GUIDANCE_NO_CALC =
+  'Offer the free AI diagnostic at /diagnostico-ia or a conversation with the team to apply it to their company. Never promise specific results.';
 
 // ----------------------------------------------------------
 // Other Routes Context
@@ -267,7 +294,7 @@ function getRouteDescription(pagePath: string): string {
 
     '/get-started': `The visitor is on the "Get Started with AI" landing page. Robles.AI offers a proven process for AI/ML transformation: identifying opportunities, prioritizing by real impact, and implementing in measurable stages. Services include AI diagnosis, auditing, chatbot development, LLM integration, RAG pipelines, and custom ML solutions.`,
 
-    '/demos': `The visitor is on the "AI Demos Playground" — a catalog of interactive AI demos they can try live in the browser with no signup. Live demos available now: Identity Verification (computer vision / face recognition, at /try-identity), RAG Pipeline (NLP / retrieval-augmented generation, at /try-rag), LangChain Agent (LLM / agents & tools, at /try-langchain), Object Detection (computer vision, runs in browser, at /try-object-detection), Facial Emotion Recognition (computer vision, runs in browser, at /try-emotion), and Speech-to-Text & Diarization (real-time transcription + speaker separation + AI analysis, at /try-transcription). More demos are coming soon across medical image analysis, sentiment analysis, demand forecasting, document extraction, image generation, recommendation systems, and fraud/anomaly detection. If a visitor is interested in a "coming soon" demo or wants a custom one for their use case, invite them to get in touch.`,
+    '/demos': `The visitor is on the "AI Demos Lab" — interactive AI demos they can try live in the browser with no signup, each framed around the money it saves or earns. Live now: Customer onboarding in seconds (identity verification, /try-identity), Ask your documents (RAG, /try-rag), Automatic meeting and call notes (speech-to-text + speaker diarization + AI analysis, /try-transcription), An assistant that does tasks (AI agent with tools, /try-langchain), Camera-based counting and inspection (object detection in the browser, /try-object-detection), and Customer experience without surveys (facial expression analysis in the browser, /try-emotion). Each live demo shows a business case and, where it applies, a "How much would you save?" calculator. Coming soon: Your chatbot in 60 seconds (paste your website URL, get a trained assistant), Invoices and documents to data in seconds, an AI voice receptionist, a live fraud simulator, demand forecasting from your own CSV, and a product photo studio. If a visitor is interested in a coming-soon demo or a custom one for their business, invite them to take the free diagnostic at /diagnostico-ia or get in touch.`,
 
     '/otp': `The visitor is on a utility page for one-time password generation.`,
   };

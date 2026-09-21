@@ -20,6 +20,9 @@ import {
 } from "lucide-react";
 import CryptoJS from "crypto-js";
 import { useTranslation } from "react-i18next";
+import { BusinessCase } from "@/components/demo/BusinessCase";
+import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
+import { useDemoTracking } from "@/components/demo/business";
 import { v4 as uuidv4 } from "uuid";
 import { JsonHighlight } from "@/components/demo/JsonHighlight";
 import * as pdfjsLib from "pdfjs-dist";
@@ -153,6 +156,7 @@ type Progress = { current: number; total: number } | null;
 
 export default function TryRAG() {
   const { t } = useTranslation();
+  const { start: trackStart, complete: trackComplete } = useDemoTracking("rag");
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [extractedText, setExtractedText] = useState<string>("");
   const [chunks, setChunks] = useState<string[]>([]);
@@ -246,6 +250,7 @@ export default function TryRAG() {
   };
 
   const handleUpload = async () => {
+    trackStart();
     if (!pdfFile) return;
 
     if (!(await ensureWarm())) {
@@ -292,6 +297,11 @@ export default function TryRAG() {
       setLoading(null);
       return;
     }
+
+    // Start loading the rerank models now, fire-and-forget. Loading them on the
+    // first /rag/rerank after a cold start took ~46 s; the visitor goes through
+    // embed + query first, so this usually finishes in time.
+    void fetch(`${BASE_API}/rag/warmup`, { method: "POST" }).catch(() => {});
 
     // 2) Check if already indexed, then send the TEXT if new.
     try {
@@ -457,6 +467,7 @@ export default function TryRAG() {
     setGptAnswer(pickAnswer(json.data.gpt));
     setStep(10);
     setLoading(null);
+    trackComplete();
   };
 
   const renderButton = (
@@ -502,6 +513,8 @@ export default function TryRAG() {
             <p>{t("try-rag.instructions")}</p>
           </div>
         </div>
+
+        <BusinessCase demoId="rag" />
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           {/* Left: pipeline steps */}
@@ -763,6 +776,8 @@ export default function TryRAG() {
         </div>
 
         {/* Technical definition — collapsible */}
+        <SavingsCalculator demoId="rag" />
+
         <div className="mt-8 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
           <button
             type="button"

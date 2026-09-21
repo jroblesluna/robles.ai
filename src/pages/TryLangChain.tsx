@@ -17,6 +17,9 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { BusinessCase } from "@/components/demo/BusinessCase";
+import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
+import { useDemoTracking } from "@/components/demo/business";
 import { v4 as uuidv4 } from "uuid";
 import { JsonHighlight } from "@/components/demo/JsonHighlight";
 import { InfoTip } from "@/components/demo/InfoTip";
@@ -41,6 +44,7 @@ type LogEntry = { url: string; method: string; response: any; key: string };
 
 export default function TryLangChain() {
   const { t } = useTranslation();
+  const { start: trackStart, complete: trackComplete } = useDemoTracking("langchain");
   const [sessionId, setSessionId] = useState(() => uuidv4());
   const [mode, setMode] = useState<Mode>("rag");
   const [question, setQuestion] = useState("");
@@ -150,6 +154,7 @@ export default function TryLangChain() {
 
   async function handleSend() {
     if (!question.trim() || loading) return;
+    trackStart();
     if (!(await ensureWarm())) {
       alert(t("try-langchain.service_warm_failed"));
       return;
@@ -185,6 +190,7 @@ export default function TryLangChain() {
 
       logCall(url, "POST", json);
       setAnswer(mode === "json" ? JSON.stringify(json, null, 2) : json.answer);
+      trackComplete({ mode });
     } catch {
       // Only true network failures land here (service unreachable / cold start).
       logCall(url, "POST", { error: t("try-langchain.network_error") });
@@ -227,6 +233,8 @@ export default function TryLangChain() {
             <p>{t("try-langchain.instructions")}</p>
           </div>
         </div>
+
+        <BusinessCase demoId="langchain" />
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           {/* Left: interaction */}
@@ -456,6 +464,8 @@ export default function TryLangChain() {
         </div>
 
         {/* Technical definition — collapsible */}
+        <SavingsCalculator demoId="langchain" />
+
         <div className="mt-8 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
           <button
             type="button"

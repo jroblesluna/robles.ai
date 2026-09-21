@@ -4,7 +4,6 @@ import { Link } from "wouter";
 import {
   Fingerprint,
   Database,
-  HeartPulse,
   Link2,
   AudioLines,
   MessagesSquare,
@@ -21,6 +20,9 @@ import {
   Search,
   ScanFace,
   Wrench,
+  Bot,
+  PhoneCall,
+  CircleDollarSign,
   type LucideIcon,
 } from "lucide-react";
 import { fadeIn, staggerContainer } from "@/utils/animations";
@@ -30,7 +32,6 @@ import { useTranslation } from "react-i18next";
 const ICONS: Record<string, LucideIcon> = {
   Fingerprint,
   Database,
-  HeartPulse,
   Link2,
   AudioLines,
   MessagesSquare,
@@ -41,11 +42,13 @@ const ICONS: Record<string, LucideIcon> = {
   Sparkles,
   Wand2,
   ShieldAlert,
+  Bot,
+  PhoneCall,
 };
 
 type DemoItem = {
   id: string;
-  href: string;
+  href?: string;
   status: "live" | "soon";
   icon: string;
   from: string;
@@ -53,6 +56,8 @@ type DemoItem = {
   modelType: string;
   title: string;
   description: string;
+  /** One line on the money it saves or earns (DEMOS_PLAN.md §2). */
+  benefit?: string;
 };
 
 type Category = "all" | "vision" | "language" | "audio" | "predictive" | "generative";
@@ -60,16 +65,15 @@ type Category = "all" | "vision" | "language" | "audio" | "predictive" | "genera
 /** Demo id → filter category (kept in code so it's locale-independent). */
 const CATEGORY_BY_ID: Record<string, Exclude<Category, "all">> = {
   identity: "vision",
-  medical: "vision",
   objectdetection: "vision",
   emotion: "vision",
   rag: "language",
   langchain: "language",
-  sentiment: "language",
+  sitechatbot: "language",
   docextract: "language",
   speech: "audio",
+  voiceagent: "audio",
   forecast: "predictive",
-  recommend: "predictive",
   anomaly: "predictive",
   imagegen: "generative",
 };
@@ -79,18 +83,27 @@ const CATEGORIES: Category[] = ["all", "vision", "language", "audio", "predictiv
 const GRADIENTS: Record<string, string> = {
   identity: "from-violet-500 to-purple-600",
   rag: "from-cyan-500 to-blue-600",
-  medical: "from-rose-500 to-pink-600",
   langchain: "from-amber-500 to-orange-600",
   objectdetection: "from-indigo-500 to-blue-600",
   emotion: "from-rose-500 to-pink-600",
   speech: "from-teal-500 to-emerald-600",
-  sentiment: "from-indigo-500 to-violet-600",
+  sitechatbot: "from-violet-500 to-indigo-600",
+  voiceagent: "from-teal-500 to-cyan-600",
   forecast: "from-sky-500 to-cyan-600",
   docextract: "from-slate-500 to-gray-700",
   imagegen: "from-purple-500 to-fuchsia-600",
-  recommend: "from-lime-500 to-green-600",
   anomaly: "from-red-500 to-rose-600",
 };
+
+/** The money angle of a demo, shown on every card. */
+function BenefitLine({ text }: { text: string }) {
+  return (
+    <p className="mt-3 inline-flex items-start gap-1.5 text-[13px] font-medium leading-snug text-emerald-700">
+      <CircleDollarSign className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+      {text}
+    </p>
+  );
+}
 
 // ── Demo card (live + roadmap share the same anatomy) ─────────────────────────
 function DemoCard({ item, index }: { item: DemoItem; index: number }) {
@@ -141,6 +154,7 @@ function DemoCard({ item, index }: { item: DemoItem; index: number }) {
         <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">{family}</p>
         <h3 className="mt-1.5 text-base font-semibold tracking-tight text-gray-900">{item.title}</h3>
         <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-gray-500">{item.description}</p>
+        {item.benefit && <BenefitLine text={item.benefit} />}
 
         <div className="mt-auto flex items-center justify-between pt-5">
           {task ? (
@@ -237,24 +251,6 @@ const Bars = ({ rows, color }: { rows: { k: string; v: number; c?: string }[]; c
   </div>
 );
 
-const PreviewMedical = ({ t }: { t: TFn }) => (
-  <div className="flex items-center gap-4">
-    <div className="relative h-28 w-28 overflow-hidden rounded-xl bg-gradient-to-b from-slate-800 to-slate-950 shadow-md">
-      <div className="absolute inset-x-6 inset-y-4 rounded-[40%] border border-slate-500/40" />
-      <div className="absolute bottom-3 left-1/2 top-3 w-px bg-slate-500/40" />
-      <div className="absolute left-[58%] top-[42%] h-10 w-10 rounded-full bg-rose-500/50 blur-md" />
-      <div className="absolute left-[55%] top-[38%] h-12 w-12 rounded-md border-2 border-rose-400" />
-    </div>
-    <Bars
-      color="bg-rose-500"
-      rows={[
-        { k: t("demosCatalog.mock.finding"), v: 88 },
-        { k: t("demosCatalog.mock.normal"), v: 12, c: "bg-emerald-500" },
-      ]}
-    />
-  </div>
-);
-
 const PreviewAgent = () => (
   <div className="relative flex flex-col gap-2 pl-5">
     <span className="absolute bottom-10 left-[5px] top-3 w-px bg-orange-200" />
@@ -331,7 +327,6 @@ const PreviewSpeech = ({ t }: { t: TFn }) => (
 const PREVIEWS: Record<string, (p: { t: TFn }) => React.ReactElement> = {
   identity: PreviewIdentity,
   rag: PreviewRag,
-  medical: PreviewMedical,
   langchain: PreviewAgent,
   objectdetection: PreviewDetection,
   emotion: PreviewEmotion,
@@ -342,7 +337,6 @@ const PREVIEWS: Record<string, (p: { t: TFn }) => React.ReactElement> = {
 const TINTS: Record<string, string> = {
   identity: "from-violet-100 via-purple-50 to-white",
   rag: "from-sky-100 via-blue-50 to-white",
-  medical: "from-rose-100 via-pink-50 to-white",
   langchain: "from-amber-100 via-orange-50 to-white",
   objectdetection: "from-indigo-100 via-blue-50 to-white",
   emotion: "from-pink-100 via-rose-50 to-white",
@@ -377,7 +371,7 @@ export default function DemosCatalog({
     if (category !== "all" && CATEGORY_BY_ID[i.id] !== category) return false;
     const q = query.trim().toLowerCase();
     if (!q) return true;
-    return [i.title, i.description, i.modelType].some((s) => s.toLowerCase().includes(q));
+    return [i.title, i.description, i.modelType, i.benefit ?? ""].some((s) => s.toLowerCase().includes(q));
   };
 
   const live = liveAll.filter(matches);
@@ -434,7 +428,7 @@ export default function DemosCatalog({
                 className="h-full"
               >
                 <Link
-                  href={item.href}
+                  href={item.href ?? "/demos"}
                   className="group flex h-full flex-col overflow-hidden rounded-3xl bg-white ring-1 ring-gray-200/80 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_60px_-24px_rgba(16,24,40,0.28)] focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
                 >
                   <div className={`relative flex h-56 items-center justify-center overflow-hidden bg-gradient-to-b ${TINTS[item.id] ?? "from-gray-100 to-white"}`}>
@@ -449,6 +443,7 @@ export default function DemosCatalog({
                     </div>
                     <h3 className="mt-2 text-lg font-semibold tracking-tight text-gray-900">{item.title}</h3>
                     <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-500">{item.description}</p>
+                    {item.benefit && <BenefitLine text={item.benefit} />}
                     <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-semibold text-gray-900 transition-colors group-hover:text-violet-600">
                       {t("demosCatalog.cta_try")}
                       <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />

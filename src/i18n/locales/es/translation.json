@@ -1807,8 +1807,9 @@
                 "from": "from-violet-500",
                 "to": "to-purple-600",
                 "modelType": "Visión por Computador · Reconocimiento Facial",
-                "title": "Verificación de Identidad",
-                "description": "Sube una selfie y una foto de tu documento — el modelo detecta ambos rostros, los compara y devuelve un puntaje de coincidencia en segundos."
+                "title": "Onboarding de clientes en segundos",
+                "description": "Sube una selfie y la foto de un documento: la IA compara ambos rostros y confirma la identidad en segundos, sin revisión manual.",
+                "benefit": "Menos revisión manual y menos abandono en el alta"
             },
             {
                 "id": "rag",
@@ -1818,52 +1819,9 @@
                 "from": "from-cyan-500",
                 "to": "to-blue-600",
                 "modelType": "PLN · Generación Aumentada por Recuperación",
-                "title": "Pipeline RAG",
-                "description": "Sube un PDF y observa el flujo RAG completo: fragmentación, embeddings, búsqueda vectorial, reranking y respuestas fundamentadas de un LLM."
-            },
-            {
-                "id": "medical",
-                "href": "/try-medical",
-                "status": "soon",
-                "icon": "HeartPulse",
-                "from": "from-rose-500",
-                "to": "to-pink-600",
-                "modelType": "Visión por Computador · Imagen Médica",
-                "title": "Análisis de Imagen Médica",
-                "description": "Elige una modalidad (rayos X, ultrasonido, retina y más) y obtén información diagnóstica con IA a partir de imágenes clínicas."
-            },
-            {
-                "id": "langchain",
-                "href": "/try-langchain",
-                "status": "live",
-                "icon": "Link2",
-                "from": "from-amber-500",
-                "to": "to-orange-600",
-                "modelType": "LLM · Agentes y Herramientas",
-                "title": "Agente LangChain",
-                "description": "Conversa con un agente de IA que usa herramientas, recuperación y salida JSON estructurada — mira cómo se construyen las apps LLM modernas."
-            },
-            {
-                "id": "objectdetection",
-                "href": "/try-object-detection",
-                "status": "live",
-                "icon": "ScanEye",
-                "from": "from-indigo-500",
-                "to": "to-blue-600",
-                "modelType": "Visión por Computador · Detección de Objetos",
-                "title": "Detección de Objetos",
-                "description": "Usa tu cámara o arrastra una imagen y observa cómo los objetos se enmarcan y etiquetan en tiempo real — 80 clases, todo en tu navegador."
-            },
-            {
-                "id": "emotion",
-                "href": "/try-emotion",
-                "status": "live",
-                "icon": "Smile",
-                "from": "from-rose-500",
-                "to": "to-pink-600",
-                "modelType": "Visión por Computador · Expresión Facial",
-                "title": "Reconocimiento de Emociones",
-                "description": "Enciende tu cámara y observa los puntos faciales y 7 emociones en vivo — todo se procesa localmente, nada sale de tu dispositivo."
+                "title": "Pregúntale a tus documentos",
+                "description": "Sube un PDF y hazle preguntas: respuestas precisas con la fuente citada. Y si quieres, mira por dentro cómo funciona el pipeline RAG.",
+                "benefit": "Horas de búsqueda convertidas en segundos"
             },
             {
                 "id": "speech",
@@ -1873,74 +1831,111 @@
                 "from": "from-teal-500",
                 "to": "to-emerald-600",
                 "modelType": "Voz · Transcripción y Diarización",
-                "title": "Voz a Texto y Diarización",
-                "description": "Graba audio en vivo y mira la transcripción en tiempo real — con separación de hablantes y un análisis de IA que detecta la industria, los roles, los términos clave y un resumen de la conversación."
+                "title": "Actas de reuniones y llamadas automáticas",
+                "description": "Graba una conversación y mira la transcripción en vivo, separada por hablante. Al terminar, la IA detecta la industria, los roles y los términos clave, y arma el resumen.",
+                "benefit": "Adiós a redactar minutas a mano"
             },
             {
-                "id": "sentiment",
-                "href": "",
-                "status": "soon",
-                "icon": "MessagesSquare",
+                "id": "langchain",
+                "href": "/try-langchain",
+                "status": "live",
+                "icon": "Link2",
+                "from": "from-amber-500",
+                "to": "to-orange-600",
+                "modelType": "LLM · Agentes y Herramientas",
+                "title": "Un asistente que hace tareas, no solo responde",
+                "description": "Conversa con un agente que usa herramientas, consulta documentos y devuelve datos estructurados listos para tus sistemas.",
+                "benefit": "Tareas repetitivas resueltas sin intervención humana"
+            },
+            {
+                "id": "objectdetection",
+                "href": "/try-object-detection",
+                "status": "live",
+                "icon": "ScanEye",
                 "from": "from-indigo-500",
-                "to": "to-violet-600",
-                "modelType": "PLN · Clasificación de Texto",
-                "title": "Sentimiento e Intención",
-                "description": "Analiza texto para detectar sentimiento, emoción e intención — el motor detrás de un soporte al cliente más inteligente."
+                "to": "to-blue-600",
+                "modelType": "Visión por Computador · Detección de Objetos",
+                "title": "Conteo e inspección con cámara",
+                "description": "Usa tu cámara o una imagen y mira cómo la IA detecta y cuenta objetos en tiempo real: la base para inventario, aforo y seguridad. Todo corre en tu navegador.",
+                "benefit": "Conteos manuales y rondas de control automatizados"
             },
             {
-                "id": "forecast",
-                "href": "",
+                "id": "emotion",
+                "href": "/try-emotion",
+                "status": "live",
+                "icon": "Smile",
+                "from": "from-rose-500",
+                "to": "to-pink-600",
+                "modelType": "Visión por Computador · Expresión Facial",
+                "title": "Experiencia del cliente sin encuestas",
+                "description": "Enciende tu cámara y mira cómo la IA lee 7 expresiones en vivo: la base para medir satisfacción en tienda o eventos, en agregado. Todo se procesa en tu dispositivo.",
+                "benefit": "Satisfacción medida al instante, sin encuestas"
+            },
+            {
+                "id": "sitechatbot",
                 "status": "soon",
-                "icon": "TrendingUp",
-                "from": "from-sky-500",
-                "to": "to-cyan-600",
-                "modelType": "Series Temporales · Pronóstico",
-                "title": "Pronóstico de Demanda",
-                "description": "Alimenta datos históricos y obtén pronósticos probabilísticos para ventas, demanda o planificación de capacidad."
+                "icon": "Bot",
+                "from": "from-violet-500",
+                "to": "to-indigo-600",
+                "modelType": "LLM · Agente Conversacional",
+                "title": "Tu chatbot en 60 segundos",
+                "description": "Pega la URL de tu web y conversa con un asistente entrenado con tu contenido, listo para atender y vender las 24 horas.",
+                "benefit": "Atención y ventas 24/7 sin sumar personal"
             },
             {
                 "id": "docextract",
-                "href": "",
                 "status": "soon",
                 "icon": "FileText",
                 "from": "from-slate-500",
                 "to": "to-gray-700",
                 "modelType": "IA Documental · OCR y Extracción",
-                "title": "Extracción de Documentos",
-                "description": "Convierte facturas, contratos y formularios en datos estructurados con OCR y extracción de información consciente del diseño."
+                "title": "Facturas y documentos → datos en segundos",
+                "description": "Sube una factura, un contrato o un formulario y obtén los datos validados en JSON o Excel, listos para tu ERP.",
+                "benefit": "Horas de tipeo manual convertidas en segundos"
             },
             {
-                "id": "imagegen",
-                "href": "",
+                "id": "voiceagent",
                 "status": "soon",
-                "icon": "Sparkles",
-                "from": "from-purple-500",
-                "to": "to-fuchsia-600",
-                "modelType": "IA Generativa · Generación de Imágenes",
-                "title": "Generación de Imágenes",
-                "description": "Genera y edita imágenes a partir de texto usando modelos de difusión adaptados a tu marca y caso de uso."
-            },
-            {
-                "id": "recommend",
-                "href": "",
-                "status": "soon",
-                "icon": "Wand2",
-                "from": "from-lime-500",
-                "to": "to-green-600",
-                "modelType": "ML · Sistemas de Recomendación",
-                "title": "Motor de Recomendación",
-                "description": "Recomendaciones personalizadas de productos y contenido impulsadas por filtrado colaborativo y embeddings."
+                "icon": "PhoneCall",
+                "from": "from-teal-500",
+                "to": "to-cyan-600",
+                "modelType": "Voz · Agente en Tiempo Real",
+                "title": "Recepcionista por voz con IA",
+                "description": "Habla con una recepcionista virtual que responde preguntas y agenda citas por voz, las 24 horas.",
+                "benefit": "Ninguna llamada (ni venta) perdida"
             },
             {
                 "id": "anomaly",
-                "href": "",
                 "status": "soon",
                 "icon": "ShieldAlert",
                 "from": "from-red-500",
                 "to": "to-rose-600",
                 "modelType": "ML · Detección de Anomalías",
-                "title": "Detección de Fraude y Anomalías",
-                "description": "Detecta fraude y valores atípicos en transacciones y telemetría con modelos de detección de anomalías en tiempo real."
+                "title": "Simulador de fraude en vivo",
+                "description": "Mira un flujo de transacciones en tiempo real: la IA marca las sospechosas, explica por qué y suma el dinero que se habría evitado.",
+                "benefit": "Fraude detectado antes de que cueste"
+            },
+            {
+                "id": "forecast",
+                "status": "soon",
+                "icon": "TrendingUp",
+                "from": "from-sky-500",
+                "to": "to-cyan-600",
+                "modelType": "Series Temporales · Pronóstico",
+                "title": "Pronóstico de demanda con tus datos",
+                "description": "Sube tus ventas históricas en CSV y obtén el pronóstico, junto con el stock inmovilizado que podrías evitar.",
+                "benefit": "Menos stock parado y menos quiebres"
+            },
+            {
+                "id": "imagegen",
+                "status": "soon",
+                "icon": "Wand2",
+                "from": "from-purple-500",
+                "to": "to-fuchsia-600",
+                "modelType": "IA Generativa · Imagen de Producto",
+                "title": "Estudio de foto de producto",
+                "description": "Convierte una foto de celular en fotos de catálogo con los fondos de tu marca, sin estudio ni fotógrafo.",
+                "benefit": "Fotos de catálogo sin sesión fotográfica"
             }
         ]
     },
@@ -2015,5 +2010,73 @@
         "tech_api_1": "El audio se transmite y se descarta en el servidor — nada se escribe en disco ni base de datos.",
         "tech_api_2": "Las transcripciones viven solo en memoria durante la sesión y se eliminan al terminar.",
         "tech_api_3": "No se almacenan datos biométricos ni personales. Las claves de Deepgram y OpenAI nunca llegan al navegador."
+    },
+    "demoBusiness": {
+        "labels": {
+            "eyebrow": "Caso de negocio",
+            "problem": "El problema",
+            "audience": "Para quién",
+            "metric": "Qué mejora",
+            "proof_link": "Ver caso de éxito",
+            "calc_title": "¿Cuánto ahorrarías tú?",
+            "calc_subtitle": "Pon los números de tu empresa. Los valores iniciales son solo un ejemplo.",
+            "calc_automation": "% del trabajo que asumiría la IA",
+            "calc_hourly_cost": "Costo por hora de ese trabajo",
+            "calc_hours": "Horas liberadas al mes",
+            "calc_monthly": "Ahorro estimado al mes",
+            "calc_yearly": "{{amount}} al año",
+            "calc_disclaimer": "Estimación con tus propios datos, no una promesa de resultado. En un diagnóstico lo validamos con tus procesos reales.",
+            "cta_lead": "¿Quieres ver esto funcionando con tus datos?",
+            "cta_diagnostic": "Diagnóstico gratis",
+            "cta_contact": "Quiero esto para mi empresa"
+        },
+        "identity": {
+            "headline": "Da de alta clientes en segundos, sin revisar cada documento a mano.",
+            "problem": "Revisar a mano la identidad de cada cliente nuevo es lento, caro y hace que muchos abandonen el alta.",
+            "audience": "Bancos, fintech, aseguradoras, telcos, marketplaces y cualquier alta con KYC.",
+            "metric": "Tiempo de alta, costo de revisión manual y tasa de abandono.",
+            "calc_volume": "Altas de clientes al mes",
+            "calc_minutes": "Minutos de revisión manual por alta"
+        },
+        "rag": {
+            "headline": "Tu equipo y tus clientes obtienen respuestas de tus documentos, con la fuente citada.",
+            "problem": "La información está repartida en PDFs, manuales y políticas: encontrarla consume horas y las respuestas no son consistentes.",
+            "audience": "Soporte, legal, RR.HH., operaciones y equipos con mucha documentación.",
+            "metric": "Tiempo de búsqueda, tickets de nivel 1 y consistencia de las respuestas.",
+            "calc_volume": "Consultas al mes",
+            "calc_minutes": "Minutos para encontrar cada respuesta"
+        },
+        "langchain": {
+            "headline": "Un asistente que ejecuta tareas —consulta, calcula y completa datos—, no solo responde.",
+            "problem": "Las tareas repetitivas de consulta y registro ocupan a personas que podrían estar vendiendo o atendiendo.",
+            "audience": "Atención al cliente, back office, ventas y operaciones.",
+            "metric": "Tareas resueltas sin intervención humana y tiempo de respuesta.",
+            "proof": "En atención al cliente, este tipo de sistema puede resolver de forma autónoma hasta el 78% de las solicitudes (caso telco).",
+            "calc_volume": "Tareas repetitivas al mes",
+            "calc_minutes": "Minutos por tarea"
+        },
+        "speech": {
+            "headline": "Actas de reuniones y llamadas listas al colgar: quién dijo qué, temas y términos clave.",
+            "problem": "Tomar notas, redactar actas y revisar llamadas a mano consume horas, y se pierde información.",
+            "audience": "Call centers, ventas, salud, legal y equipos con muchas reuniones.",
+            "metric": "Horas de minuta, calidad de las notas y cobertura del control de calidad de llamadas.",
+            "calc_volume": "Reuniones o llamadas al mes",
+            "calc_minutes": "Minutos para documentar cada una"
+        },
+        "objectdetection": {
+            "headline": "Cámaras que cuentan, detectan y alertan solas: inventario, aforo y seguridad.",
+            "problem": "Contar stock, controlar aforos o vigilar zonas de riesgo a mano es lento, y se escapan cosas.",
+            "audience": "Retail, almacenes, manufactura, logística y ciudades.",
+            "metric": "Horas de conteo manual, quiebres de stock e incidentes detectados a tiempo.",
+            "proof": "En seguridad urbana, este tipo de sistema puede lograr hasta un 27% menos de delitos y respuestas de emergencia un 42% más rápidas (caso Smart City).",
+            "calc_volume": "Conteos o rondas de control al mes",
+            "calc_minutes": "Minutos por conteo o ronda"
+        },
+        "emotion": {
+            "headline": "Mide la experiencia de tus clientes en tienda o en eventos sin encuestas, en agregado y de forma anónima.",
+            "problem": "Las encuestas llegan tarde y las responde poca gente: no sabes cómo viven la experiencia tus clientes.",
+            "audience": "Retail, hotelería y eventos. No para evaluar empleados ni estudiantes.",
+            "metric": "Satisfacción agregada por zona u horario, sin identificar a nadie."
+        }
     }
 }

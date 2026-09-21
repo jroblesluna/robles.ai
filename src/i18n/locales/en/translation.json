@@ -1807,8 +1807,9 @@
                 "from": "from-violet-500",
                 "to": "to-purple-600",
                 "modelType": "Computer Vision · Face Recognition",
-                "title": "Identity Verification",
-                "description": "Upload a selfie and a photo ID — our model detects both faces, compares them and returns a match score in seconds."
+                "title": "Customer onboarding in seconds",
+                "description": "Upload a selfie and a photo of an ID: the AI compares both faces and confirms the identity in seconds, with no manual review.",
+                "benefit": "Less manual review and fewer sign-up drop-offs"
             },
             {
                 "id": "rag",
@@ -1818,52 +1819,9 @@
                 "from": "from-cyan-500",
                 "to": "to-blue-600",
                 "modelType": "NLP · Retrieval-Augmented Generation",
-                "title": "RAG Pipeline",
-                "description": "Upload a PDF and watch the full RAG flow: chunking, embeddings, vector search, reranking and grounded answers from an LLM."
-            },
-            {
-                "id": "medical",
-                "href": "/try-medical",
-                "status": "soon",
-                "icon": "HeartPulse",
-                "from": "from-rose-500",
-                "to": "to-pink-600",
-                "modelType": "Computer Vision · Medical Imaging",
-                "title": "Medical Image Analysis",
-                "description": "Pick a modality (X-ray, ultrasound, retina and more) and get AI-powered diagnostic insights from clinical images."
-            },
-            {
-                "id": "langchain",
-                "href": "/try-langchain",
-                "status": "live",
-                "icon": "Link2",
-                "from": "from-amber-500",
-                "to": "to-orange-600",
-                "modelType": "LLM · Agents & Tools",
-                "title": "LangChain Agent",
-                "description": "Chat with an AI agent that uses tools, retrieval and structured JSON output — see how modern LLM apps are built."
-            },
-            {
-                "id": "objectdetection",
-                "href": "/try-object-detection",
-                "status": "live",
-                "icon": "ScanEye",
-                "from": "from-indigo-500",
-                "to": "to-blue-600",
-                "modelType": "Computer Vision · Object Detection",
-                "title": "Object Detection",
-                "description": "Point your webcam or drop an image and watch objects get boxed and labeled in real time — 80 classes, running entirely in your browser."
-            },
-            {
-                "id": "emotion",
-                "href": "/try-emotion",
-                "status": "live",
-                "icon": "Smile",
-                "from": "from-rose-500",
-                "to": "to-pink-600",
-                "modelType": "Computer Vision · Facial Expression",
-                "title": "Emotion Recognition",
-                "description": "Turn on your camera and see facial landmarks and 7 live emotion scores — all processed locally, nothing leaves your device."
+                "title": "Ask your documents",
+                "description": "Upload a PDF and ask it questions: precise answers with the source cited. And if you like, look inside the RAG pipeline that powers it.",
+                "benefit": "Hours of searching turned into seconds"
             },
             {
                 "id": "speech",
@@ -1873,74 +1831,111 @@
                 "from": "from-teal-500",
                 "to": "to-emerald-600",
                 "modelType": "Speech · Transcription & Diarization",
-                "title": "Speech-to-Text & Diarization",
-                "description": "Record audio live and watch it transcribe in real time — with speaker separation and an AI analysis that detects industry, roles, key terms and a conversation summary."
+                "title": "Automatic meeting and call notes",
+                "description": "Record a conversation and watch the live transcript, split by speaker. When you finish, the AI detects the industry, roles and key terms, and writes the summary.",
+                "benefit": "No more writing minutes by hand"
             },
             {
-                "id": "sentiment",
-                "href": "",
-                "status": "soon",
-                "icon": "MessagesSquare",
+                "id": "langchain",
+                "href": "/try-langchain",
+                "status": "live",
+                "icon": "Link2",
+                "from": "from-amber-500",
+                "to": "to-orange-600",
+                "modelType": "LLM · Agents & Tools",
+                "title": "An assistant that does tasks, not just chat",
+                "description": "Talk to an agent that uses tools, looks up documents, and returns structured data ready for your systems.",
+                "benefit": "Repetitive tasks resolved without human intervention"
+            },
+            {
+                "id": "objectdetection",
+                "href": "/try-object-detection",
+                "status": "live",
+                "icon": "ScanEye",
                 "from": "from-indigo-500",
-                "to": "to-violet-600",
-                "modelType": "NLP · Text Classification",
-                "title": "Sentiment & Intent",
-                "description": "Analyze text for sentiment, emotion and intent — the engine behind smarter customer support and feedback analysis."
+                "to": "to-blue-600",
+                "modelType": "Computer Vision · Object Detection",
+                "title": "Camera-based counting and inspection",
+                "description": "Use your camera or an image and watch the AI detect and count objects in real time: the basis for inventory, occupancy, and safety. Everything runs in your browser.",
+                "benefit": "Manual counts and inspection rounds automated"
             },
             {
-                "id": "forecast",
-                "href": "",
+                "id": "emotion",
+                "href": "/try-emotion",
+                "status": "live",
+                "icon": "Smile",
+                "from": "from-rose-500",
+                "to": "to-pink-600",
+                "modelType": "Computer Vision · Facial Expression",
+                "title": "Customer experience without surveys",
+                "description": "Turn on your camera and watch the AI read 7 expressions live: the basis for measuring satisfaction in stores or at events, in aggregate. Everything is processed on your device.",
+                "benefit": "Satisfaction measured instantly, no surveys"
+            },
+            {
+                "id": "sitechatbot",
                 "status": "soon",
-                "icon": "TrendingUp",
-                "from": "from-sky-500",
-                "to": "to-cyan-600",
-                "modelType": "Time Series · Forecasting",
-                "title": "Demand Forecasting",
-                "description": "Feed historical data and get probabilistic forecasts for sales, demand or capacity planning."
+                "icon": "Bot",
+                "from": "from-violet-500",
+                "to": "to-indigo-600",
+                "modelType": "LLM · Conversational Agent",
+                "title": "Your chatbot in 60 seconds",
+                "description": "Paste your website URL and chat with an assistant trained on your content, ready to serve and sell around the clock.",
+                "benefit": "24/7 service and sales without adding staff"
             },
             {
                 "id": "docextract",
-                "href": "",
                 "status": "soon",
                 "icon": "FileText",
                 "from": "from-slate-500",
                 "to": "to-gray-700",
                 "modelType": "Document AI · OCR & Extraction",
-                "title": "Document Extraction",
-                "description": "Turn invoices, contracts and forms into structured data with OCR and layout-aware information extraction."
+                "title": "Invoices and documents → data in seconds",
+                "description": "Upload an invoice, contract or form and get validated data as JSON or Excel, ready for your ERP.",
+                "benefit": "Hours of manual data entry turned into seconds"
             },
             {
-                "id": "imagegen",
-                "href": "",
+                "id": "voiceagent",
                 "status": "soon",
-                "icon": "Sparkles",
-                "from": "from-purple-500",
-                "to": "to-fuchsia-600",
-                "modelType": "Generative AI · Image Generation",
-                "title": "Image Generation",
-                "description": "Generate and edit images from text prompts using diffusion models tailored to your brand and use case."
-            },
-            {
-                "id": "recommend",
-                "href": "",
-                "status": "soon",
-                "icon": "Wand2",
-                "from": "from-lime-500",
-                "to": "to-green-600",
-                "modelType": "ML · Recommendation Systems",
-                "title": "Recommendation Engine",
-                "description": "Personalized product and content recommendations driven by collaborative filtering and embeddings."
+                "icon": "PhoneCall",
+                "from": "from-teal-500",
+                "to": "to-cyan-600",
+                "modelType": "Speech · Real-Time Agent",
+                "title": "AI voice receptionist",
+                "description": "Talk to a virtual receptionist that answers questions and books appointments by voice, 24 hours a day.",
+                "benefit": "No missed calls — or missed sales"
             },
             {
                 "id": "anomaly",
-                "href": "",
                 "status": "soon",
                 "icon": "ShieldAlert",
                 "from": "from-red-500",
                 "to": "to-rose-600",
                 "modelType": "ML · Anomaly Detection",
-                "title": "Fraud & Anomaly Detection",
-                "description": "Spot fraud and outliers in transactions and telemetry with real-time anomaly detection models."
+                "title": "Live fraud simulator",
+                "description": "Watch a real-time stream of transactions: the AI flags the suspicious ones, explains why, and adds up the money it would have saved.",
+                "benefit": "Fraud caught before it costs you"
+            },
+            {
+                "id": "forecast",
+                "status": "soon",
+                "icon": "TrendingUp",
+                "from": "from-sky-500",
+                "to": "to-cyan-600",
+                "modelType": "Time Series · Forecasting",
+                "title": "Demand forecast from your data",
+                "description": "Upload your sales history as a CSV and get the forecast, plus the idle stock you could avoid.",
+                "benefit": "Less idle stock and fewer stock-outs"
+            },
+            {
+                "id": "imagegen",
+                "status": "soon",
+                "icon": "Wand2",
+                "from": "from-purple-500",
+                "to": "to-fuchsia-600",
+                "modelType": "Generative AI · Product Imagery",
+                "title": "Product photo studio",
+                "description": "Turn a phone snapshot into catalog photos with your brand's backgrounds, no studio or photographer needed.",
+                "benefit": "Catalog photos without a photo shoot"
             }
         ]
     },
@@ -2015,5 +2010,73 @@
         "tech_api_1": "Audio is streamed through and discarded server-side — nothing is written to disk or a database.",
         "tech_api_2": "Transcripts live only in memory for the duration of the session and are dropped afterward.",
         "tech_api_3": "No biometric or personal data is stored. API keys for Deepgram and OpenAI never reach the browser."
+    },
+    "demoBusiness": {
+        "labels": {
+            "eyebrow": "Business case",
+            "problem": "The problem",
+            "audience": "Who it's for",
+            "metric": "What it improves",
+            "proof_link": "See case study",
+            "calc_title": "How much would you save?",
+            "calc_subtitle": "Enter your company's numbers. The starting values are just an example.",
+            "calc_automation": "% of the work AI would take over",
+            "calc_hourly_cost": "Hourly cost of that work",
+            "calc_hours": "Hours freed per month",
+            "calc_monthly": "Estimated monthly savings",
+            "calc_yearly": "{{amount}} per year",
+            "calc_disclaimer": "An estimate from your own numbers, not a promised result. In a diagnostic we validate it against your real processes.",
+            "cta_lead": "Want to see this working with your data?",
+            "cta_diagnostic": "Free diagnostic",
+            "cta_contact": "I want this for my company"
+        },
+        "identity": {
+            "headline": "Onboard customers in seconds, without checking every ID by hand.",
+            "problem": "Manually verifying every new customer's identity is slow, expensive, and makes many of them drop out of sign-up.",
+            "audience": "Banks, fintechs, insurers, telcos, marketplaces, and any KYC sign-up.",
+            "metric": "Onboarding time, manual review cost, and drop-off rate.",
+            "calc_volume": "Customer sign-ups per month",
+            "calc_minutes": "Minutes of manual review per sign-up"
+        },
+        "rag": {
+            "headline": "Your team and your customers get answers from your documents, with the source cited.",
+            "problem": "Information is scattered across PDFs, manuals and policies: finding it takes hours and answers are inconsistent.",
+            "audience": "Support, legal, HR, operations, and any document-heavy team.",
+            "metric": "Search time, tier-1 tickets, and answer consistency.",
+            "calc_volume": "Questions per month",
+            "calc_minutes": "Minutes to find each answer"
+        },
+        "langchain": {
+            "headline": "An assistant that gets tasks done — looks things up, calculates, fills in data — not one that just chats.",
+            "problem": "Repetitive lookup and data-entry tasks tie up people who could be selling or serving customers.",
+            "audience": "Customer service, back office, sales, and operations.",
+            "metric": "Tasks resolved without human intervention, and response time.",
+            "proof": "In customer service, this kind of system can autonomously resolve up to 78% of requests (telco case).",
+            "calc_volume": "Repetitive tasks per month",
+            "calc_minutes": "Minutes per task"
+        },
+        "speech": {
+            "headline": "Meeting and call notes ready when you hang up: who said what, topics, and key terms.",
+            "problem": "Taking notes, writing minutes, and reviewing calls by hand takes hours, and information gets lost.",
+            "audience": "Call centers, sales, healthcare, legal, and meeting-heavy teams.",
+            "metric": "Hours spent on minutes, note quality, and call QA coverage.",
+            "calc_volume": "Meetings or calls per month",
+            "calc_minutes": "Minutes to document each one"
+        },
+        "objectdetection": {
+            "headline": "Cameras that count, detect, and alert on their own: inventory, occupancy, and safety.",
+            "problem": "Counting stock, tracking occupancy, or watching risk areas by hand is slow, and things slip through.",
+            "audience": "Retail, warehouses, manufacturing, logistics, and cities.",
+            "metric": "Manual counting hours, stock-outs, and incidents caught in time.",
+            "proof": "In urban security, this kind of system can achieve up to 27% less crime and 42% faster emergency response (Smart City case).",
+            "calc_volume": "Counts or inspection rounds per month",
+            "calc_minutes": "Minutes per count or round"
+        },
+        "emotion": {
+            "headline": "Measure how customers experience your store or event without surveys — aggregated and anonymous.",
+            "problem": "Surveys arrive late and few people answer them: you don't know how customers actually experience your space.",
+            "audience": "Retail, hospitality, and events. Not for evaluating employees or students.",
+            "metric": "Aggregated satisfaction by zone or time of day, without identifying anyone."
+        }
     }
 }

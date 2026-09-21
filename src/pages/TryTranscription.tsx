@@ -18,6 +18,9 @@ import {
   Settings2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { BusinessCase } from "@/components/demo/BusinessCase";
+import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
+import { useDemoTracking } from "@/components/demo/business";
 import { v4 as uuidv4 } from "uuid";
 import { JsonHighlight } from "@/components/demo/JsonHighlight";
 import { InfoTip } from "@/components/demo/InfoTip";
@@ -164,6 +167,7 @@ function speakerLabel(
 // ── Component ────────────────────────────────────────────────────────────────
 export default function TryTranscription() {
   const { t } = useTranslation();
+  const { start: trackStart, complete: trackComplete } = useDemoTracking("speech");
 
   // Service / WS state
   const [serviceStatus, setServiceStatus] = useState<ServiceStatus>("checking");
@@ -361,6 +365,7 @@ export default function TryTranscription() {
   // ── Start recording ────────────────────────────────────────────────────────
   const handleStartRecording = async () => {
     if (recording || wsStatus === "connecting") return;
+    trackStart();
 
     // Wake the service if cold
     if (!(await ensureWarm())) {
@@ -535,7 +540,10 @@ export default function TryTranscription() {
       });
       const data = await res.json();
       addLog("← POST /analyze", data);
-      if (data.status === "success") setAnalysisResult(data.data);
+      if (data.status === "success") {
+        setAnalysisResult(data.data);
+        trackComplete({ mode });
+      }
     } catch (err: any) {
       addLog("← POST /analyze error", { error: err?.message });
     } finally {
@@ -578,6 +586,8 @@ export default function TryTranscription() {
             <p>{t("try-transcription.instructions")}</p>
           </div>
         </div>
+
+        <BusinessCase demoId="speech" />
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
 
@@ -949,6 +959,8 @@ export default function TryTranscription() {
         </div>
 
         {/* ── Technical section (collapsible) ──────────────────────────── */}
+        <SavingsCalculator demoId="speech" />
+
         <div className="mt-8 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
           <button
             type="button"

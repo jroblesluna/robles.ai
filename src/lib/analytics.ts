@@ -3,6 +3,7 @@ import ReactPixel from 'react-facebook-pixel';
 
 let gaInitialized = false;
 let fbInitialized = false;
+let gtmInitialized = false;
 
 /**
  * Initialize Google Analytics and Facebook Pixel.
@@ -47,6 +48,7 @@ export const initAnalytics = async () => {
       noscript.appendChild(iframe);
       document.body.insertBefore(noscript, document.body.firstChild);
 
+      gtmInitialized = true;
       console.log('✅ Google Tag Manager initialized (manages all tracking):', config.gtm);
       return; // GTM handles everything — stop here
     }
@@ -91,5 +93,34 @@ export const trackPageView = (url: string): void => {
   }
   if (fbInitialized) {
     ReactPixel.pageView();
+  }
+};
+
+/** Funnel events for the AI demos lab (see DEMOS_PLAN.md §2.7). */
+export type DemoEvent = 'demo_start' | 'demo_complete' | 'roi_calculated' | 'demo_cta_click';
+
+/**
+ * Track a demo funnel event with a `demo_id` parameter.
+ *
+ * Unlike `trackEvent`, this also works when GTM owns tracking: it pushes to the
+ * dataLayer (create a GA4 event tag on these event names in GTM). With direct
+ * GA4 it sends a GA4 custom event, and with Meta Pixel a custom event.
+ */
+export const trackDemoEvent = (
+  event: DemoEvent,
+  demoId: string,
+  params: Record<string, string | number> = {},
+): void => {
+  const payload = { demo_id: demoId, ...params };
+  if (gtmInitialized) {
+    const w = window as unknown as { dataLayer?: Record<string, unknown>[] };
+    w.dataLayer = w.dataLayer || [];
+    w.dataLayer.push({ event, ...payload });
+  }
+  if (gaInitialized) {
+    ReactGA.event(event, payload);
+  }
+  if (fbInitialized) {
+    ReactPixel.trackCustom(event, payload);
   }
 };

@@ -15,6 +15,9 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { BusinessCase } from "@/components/demo/BusinessCase";
+import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
+import { useDemoTracking } from "@/components/demo/business";
 import { v4 as uuidv4 } from "uuid";
 import * as tf from "@tensorflow/tfjs";
 import * as cocoSsd from "@tensorflow-models/coco-ssd";
@@ -39,6 +42,7 @@ const BOX_COLORS = [
 
 export default function TryObjectDetection() {
   const { t } = useTranslation();
+  const { start: trackStart, complete: trackComplete } = useDemoTracking("objectdetection");
   const [modelStatus, setModelStatus] = useState<ModelStatus>("loading");
   const [mode, setMode] = useState<"camera" | "image">("camera");
   const [running, setRunning] = useState(false); // live camera loop active
@@ -111,6 +115,7 @@ export default function TryObjectDetection() {
   // ── Camera mode ────────────────────────────────────────────────────────────
   async function startCamera() {
     if (!modelRef.current || modelStatus !== "ready") return;
+    trackStart();
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment", width: { ideal: 640 } },
@@ -156,6 +161,7 @@ export default function TryObjectDetection() {
         }));
         setDetections(dets);
         drawDetections(dets, video.videoWidth, video.videoHeight);
+        if (dets.length) trackComplete({ source: "camera" });
       } catch (e) {
         console.error("detect error:", e);
       }
@@ -169,6 +175,7 @@ export default function TryObjectDetection() {
   async function handleImage(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file || !modelRef.current) return;
+    trackStart();
     stopCamera();
     const url = URL.createObjectURL(file);
     const img = imgRef.current;
@@ -186,6 +193,7 @@ export default function TryObjectDetection() {
       }));
       setDetections(dets);
       drawDetections(dets, img.naturalWidth, img.naturalHeight);
+      trackComplete({ source: "image" });
       pushLog(t("try-object.log_image_label"), {
         source: "image",
         objects: dets.length,
@@ -251,6 +259,8 @@ export default function TryObjectDetection() {
             <p>{t("try-object.privacy")}</p>
           </div>
         </div>
+
+        <BusinessCase demoId="objectdetection" />
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           {/* Left: interaction */}
@@ -460,6 +470,8 @@ export default function TryObjectDetection() {
         </div>
 
         {/* Technical definition — collapsible */}
+        <SavingsCalculator demoId="objectdetection" />
+
         <div className="mt-8 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
           <button
             type="button"
