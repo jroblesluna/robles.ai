@@ -162,6 +162,7 @@
         ]
     },
     "solutions": {
+        "eyebrow": "Qué hacemos",
         "title": "Nuestras Soluciones de IA",
         "subtitle": "Descubre cómo nuestra experiencia en IA, aprendizaje automático y visión computacional puede transformar tu negocio.",
         "items": [
@@ -176,7 +177,12 @@
                 "linkHoverColor": "hover:text-blue-700",
                 "image": "ml.jpg",
                 "solutionCta": "Ver vídeo de ML",
-                "videoSrc": "https://www.youtube.com/embed/mWbxPRkfx74?autoplay=1&rel=0"
+                "videoSrc": "https://www.youtube.com/embed/mWbxPRkfx74?autoplay=1&rel=0",
+                "tags": [
+                    "Análisis predictivo",
+                    "Recomendación",
+                    "Optimización"
+                ]
             },
             {
                 "id": 2,
@@ -189,7 +195,12 @@
                 "linkHoverColor": "hover:text-emerald-700",
                 "image": "cv.jpg",
                 "solutionCta": "Ver vídeo de CV",
-                "videoSrc": "https://www.youtube.com/embed/wX7m1-gZOLA?autoplay=1&rel=0"
+                "videoSrc": "https://www.youtube.com/embed/wX7m1-gZOLA?autoplay=1&rel=0",
+                "tags": [
+                    "Detección de objetos",
+                    "Reconocimiento facial",
+                    "Control de calidad"
+                ]
             },
             {
                 "id": 3,
@@ -202,7 +213,12 @@
                 "linkHoverColor": "hover:text-violet-700",
                 "image": "nlp.jpg",
                 "solutionCta": "Ver vídeo de NLP",
-                "videoSrc": "https://www.youtube.com/embed/wvrGQMqqJRM?autoplay=1&rel=0"
+                "videoSrc": "https://www.youtube.com/embed/wvrGQMqqJRM?autoplay=1&rel=0",
+                "tags": [
+                    "Sentimiento",
+                    "IA conversacional",
+                    "Contenido"
+                ]
             },
             {
                 "id": 4,
@@ -215,9 +231,27 @@
                 "linkHoverColor": "hover:text-gray-800",
                 "image": "dl.jpg",
                 "solutionCta": "Ver vídeo de DL",
-                "videoSrc": "https://www.youtube.com/embed/AqUIzpd1vNg?autoplay=1&rel=0"
+                "videoSrc": "https://www.youtube.com/embed/AqUIzpd1vNg?autoplay=1&rel=0",
+                "tags": [
+                    "Patrones complejos",
+                    "Anomalías",
+                    "Decisión autónoma"
+                ]
             }
-        ]
+        ],
+        "ui": {
+            "accuracy": "Precisión",
+            "forecast": "Pronóstico Q3",
+            "person": "persona",
+            "vehicle": "vehículo",
+            "helmet": "casco",
+            "chatUser": "Mi pedido llegó tarde, ¿pueden ayudarme?",
+            "chatBot": "Lo siento. Tu pedido #4821 se reprogramó para mañana y te aplicamos envío gratis.",
+            "sentiment": "Sentimiento",
+            "positive": "Positivo tras respuesta",
+            "intent": "Intención",
+            "anomaly": "Anomalía detectada en sensor #07"
+        }
     },
     "courses": {
         "title": "Educación y Capacitación en IA",
@@ -630,6 +664,7 @@
         ]
     },
     "features": {
+        "eyebrow": "Por qué nosotros",
         "title": "¿Por qué elegir ",
         "subtitle": "Combinamos experiencia en IA, machine learning y visión computacional para crear soluciones que impulsen el crecimiento de tu negocio.",
         "items": {
@@ -639,15 +674,31 @@
             },
             "ethics": {
                 "title": "Desarrollo ético",
-                "description": "Creamos soluciones con integridad, garantizando transparencia, equidad y respeto por tu privacidad."
+                "description": "Creamos soluciones con integridad, garantizando transparencia, equidad y respeto por tu privacidad.",
+                "pillars": [
+                    "Transparencia",
+                    "Equidad",
+                    "Privacidad"
+                ]
             },
             "rapid": {
                 "title": "Implementación rápida",
-                "description": "Nuestro enfoque ágil permite pasar de la idea a la producción más rápido que los métodos tradicionales."
+                "description": "Nuestro enfoque ágil permite pasar de la idea a la producción más rápido que los métodos tradicionales.",
+                "steps": [
+                    "Idea",
+                    "Prototipo",
+                    "Producción"
+                ]
             },
             "expertise": {
                 "title": "Experiencia en la industria",
-                "description": "Nuestro equipo cuenta con experiencia profunda en salud, manufactura, finanzas y retail."
+                "description": "Nuestro equipo cuenta con experiencia profunda en salud, manufactura, finanzas y retail.",
+                "industries": [
+                    "Salud",
+                    "Manufactura",
+                    "Finanzas",
+                    "Retail"
+                ]
             }
         }
     },

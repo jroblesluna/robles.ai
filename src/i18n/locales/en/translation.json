@@ -162,6 +162,7 @@
         ]
     },
     "solutions": {
+        "eyebrow": "What we do",
         "title": "Our AI Solutions",
         "subtitle": "Discover how our expertise in AI, machine learning, and computer vision can transform your business operations.",
         "items": [
@@ -176,7 +177,12 @@
                 "linkHoverColor": "hover:text-blue-700",
                 "image": "ml.jpg",
                 "solutionCta": "Watch ML Video",
-                "videoSrc": "https://www.youtube.com/embed/V76pXl6zgHM?autoplay=1&rel=0"
+                "videoSrc": "https://www.youtube.com/embed/V76pXl6zgHM?autoplay=1&rel=0",
+                "tags": [
+                    "Predictive analytics",
+                    "Recommendation",
+                    "Optimization"
+                ]
             },
             {
                 "id": 2,
@@ -189,7 +195,12 @@
                 "linkHoverColor": "hover:text-emerald-700",
                 "image": "cv.jpg",
                 "solutionCta": "Watch CV Video",
-                "videoSrc": "https://www.youtube.com/embed/aUa3iJ4In2g?autoplay=1&rel=0"
+                "videoSrc": "https://www.youtube.com/embed/aUa3iJ4In2g?autoplay=1&rel=0",
+                "tags": [
+                    "Object detection",
+                    "Facial recognition",
+                    "Quality control"
+                ]
             },
             {
                 "id": 3,
@@ -202,7 +213,12 @@
                 "linkHoverColor": "hover:text-violet-700",
                 "image": "nlp.jpg",
                 "solutionCta": "Watch NLP Video",
-                "videoSrc": "https://www.youtube.com/embed/hXpTvMMrkXU?autoplay=1&rel=0"
+                "videoSrc": "https://www.youtube.com/embed/hXpTvMMrkXU?autoplay=1&rel=0",
+                "tags": [
+                    "Sentiment",
+                    "Conversational AI",
+                    "Content"
+                ]
             },
             {
                 "id": 4,
@@ -215,9 +231,27 @@
                 "linkHoverColor": "hover:text-gray-800",
                 "image": "dl.jpg",
                 "solutionCta": "Watch DL Video",
-                "videoSrc": "https://www.youtube.com/embed/jH7UWhjrVuk?autoplay=1&rel=0"
+                "videoSrc": "https://www.youtube.com/embed/jH7UWhjrVuk?autoplay=1&rel=0",
+                "tags": [
+                    "Complex patterns",
+                    "Anomalies",
+                    "Autonomous decisions"
+                ]
             }
-        ]
+        ],
+        "ui": {
+            "accuracy": "Accuracy",
+            "forecast": "Q3 forecast",
+            "person": "person",
+            "vehicle": "vehicle",
+            "helmet": "helmet",
+            "chatUser": "My order arrived late, can you help?",
+            "chatBot": "Sorry about that. Order #4821 is rescheduled for tomorrow and shipping is on us.",
+            "sentiment": "Sentiment",
+            "positive": "Positive after reply",
+            "intent": "Intent",
+            "anomaly": "Anomaly detected on sensor #07"
+        }
     },
     "courses": {
         "title": "AI Education & Training",
@@ -630,6 +664,7 @@
         ]
     },
     "features": {
+        "eyebrow": "Why us",
         "title": "Why Choose ",
         "subtitle": "We combine expertise in AI, machine learning, and computer vision to create solutions that drive business growth.",
         "items": {
@@ -639,15 +674,31 @@
             },
             "ethics": {
                 "title": "Ethically Developed",
-                "description": "We build AI with integrity, ensuring solutions that are fair, transparent, and designed with privacy in mind."
+                "description": "We build AI with integrity, ensuring solutions that are fair, transparent, and designed with privacy in mind.",
+                "pillars": [
+                    "Transparency",
+                    "Fairness",
+                    "Privacy"
+                ]
             },
             "rapid": {
                 "title": "Rapid Deployment",
-                "description": "Our streamlined approach delivers AI solutions from concept to production faster than traditional development methods."
+                "description": "Our streamlined approach delivers AI solutions from concept to production faster than traditional development methods.",
+                "steps": [
+                    "Idea",
+                    "Prototype",
+                    "Production"
+                ]
             },
             "expertise": {
                 "title": "Industry Expertise",
-                "description": "Our team of AI specialists brings deep domain knowledge across healthcare, manufacturing, finance, and retail industries."
+                "description": "Our team of AI specialists brings deep domain knowledge across healthcare, manufacturing, finance, and retail industries.",
+                "industries": [
+                    "Healthcare",
+                    "Manufacturing",
+                    "Finance",
+                    "Retail"
+                ]
             }
         }
     },
