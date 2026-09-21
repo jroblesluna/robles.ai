@@ -910,7 +910,7 @@ export default function TryTranscription() {
               </div>
             </div>
 
-            <div className="p-6">
+            <div className="max-h-[720px] overflow-y-auto p-6">
               {logEntries.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
                   <img src="/robly-avatar/robly-standby.svg" alt="" className="mb-2 h-40 w-40 opacity-50" />
