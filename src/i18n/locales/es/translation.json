@@ -1036,7 +1036,9 @@
         "how_simple_title": "Visión general",
         "how_simple_subtitle": "Para equipos de negocio y operaciones",
         "how_tech_title": "Arquitectura técnica",
-        "how_tech_subtitle": "Para desarrolladores e ingenieros"
+        "how_tech_subtitle": "Para desarrolladores e ingenieros",
+        "samples_cta": "¿No tienes fotos a mano? Usa imágenes de ejemplo",
+        "samples_hint": "Un par ficticio de demo — el mismo rostro en ambas, para que la coincidencia funcione de verdad."
     },
     "try-object": {
         "badge": "Corre en tu navegador",

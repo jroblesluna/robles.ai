@@ -1036,7 +1036,9 @@
         "how_simple_title": "Overview",
         "how_simple_subtitle": "For business and operations teams",
         "how_tech_title": "Technical architecture",
-        "how_tech_subtitle": "For developers and engineers"
+        "how_tech_subtitle": "For developers and engineers",
+        "samples_cta": "No photos handy? Use sample images",
+        "samples_hint": "A fictional demo pair — same face on both, so the match actually works."
     },
     "try-object": {
         "badge": "Runs in your browser",
