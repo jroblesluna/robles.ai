@@ -95,3 +95,18 @@ html {
 .animate-shimmer {
   animation: shimmer 1.5s infinite;
 }
+
+/* Case-studies tabs: fills left to right while a case is active, driving the
+   auto-rotation to the next one. Paused (hover) via animation-play-state. */
+@keyframes case-bar-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.animate-case-bar {
+  animation: case-bar-fill 5s linear forwards;
+}

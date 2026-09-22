@@ -1,7 +1,7 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
-import { Clock, Info, ArrowRight } from "lucide-react";
+import { Clock, Info, ArrowRight, Building2, HeartPulse, Landmark, MessageSquare, type LucideIcon } from "lucide-react";
 import { fadeIn, staggerContainer } from "@/utils/animations";
 import { useTranslation } from "react-i18next";
 
@@ -204,19 +204,29 @@ const CaseStudyViewer = ({ id, title, caseType, onClose }: CaseStudyViewerProps)
 };
 
 
-// ── Cards ────────────────────────────────────────────────────────────────────
-// Metric-led layout (customer-stories style): the outcome is the headline and
-// the numbers carry the card. The cases are illustrative, so there are no
-// client logos or quotes; each card says so and the section ends with a note.
+
+// ── Cases ────────────────────────────────────────────────────────────────────
+// Compact, tabbed layout: one tab per industry and a single panel with the
+// selected case (image, summary and its two key figures). The cases are
+// illustrative, so there are no client logos or quotes; a note says so.
 
 type Accent = "blue" | "emerald" | "violet" | "amber";
 
-/** Full class strings per accent (the Tailwind JIT needs literal names). */
-const ACCENTS: Record<Accent, { chip: string; value: string; link: string }> = {
-  blue: { chip: "bg-blue-50 text-blue-700 ring-blue-200", value: "text-blue-600", link: "text-blue-600" },
-  emerald: { chip: "bg-emerald-50 text-emerald-700 ring-emerald-200", value: "text-emerald-600", link: "text-emerald-600" },
-  violet: { chip: "bg-violet-50 text-violet-700 ring-violet-200", value: "text-violet-600", link: "text-violet-600" },
-  amber: { chip: "bg-amber-50 text-amber-700 ring-amber-200", value: "text-amber-600", link: "text-amber-600" },
+/** Full class strings per accent (the Tailwind JIT needs literal names).
+ *  `bar` is a softer, lower-contrast tint — the loading bar stays understated. */
+const ACCENTS: Record<Accent, { value: string; link: string; dot: string; bar: string }> = {
+  blue: { value: "text-blue-600", link: "text-blue-600", dot: "bg-blue-500", bar: "bg-blue-400" },
+  emerald: { value: "text-emerald-600", link: "text-emerald-600", dot: "bg-emerald-500", bar: "bg-emerald-400" },
+  violet: { value: "text-violet-600", link: "text-violet-600", dot: "bg-violet-500", bar: "bg-violet-400" },
+  amber: { value: "text-amber-600", link: "text-amber-600", dot: "bg-amber-500", bar: "bg-amber-400" },
+};
+
+/** One icon per case (by id), a quiet stand-in for the old percentage on the left tabs. */
+const CASE_ICONS: Record<number, LucideIcon> = {
+  1: Building2,
+  2: HeartPulse,
+  3: Landmark,
+  4: MessageSquare,
 };
 
 interface Metric {
@@ -229,7 +239,7 @@ interface CaseStudy {
   id: number;
   caseType?: string;
   title: string;
-  headline: string;
+  headline?: string;
   description: string;
   image: string;
   category: string;
@@ -238,177 +248,194 @@ interface CaseStudy {
   metrics: Metric[];
 }
 
-function MetricBlock({ metric, accent, size }: { metric: Metric; accent: Accent; size: "lg" | "md" }) {
+function CasePanel({ study, onOpen }: { study: CaseStudy; onOpen: () => void }) {
+  const { t } = useTranslation();
+  const accent = ACCENTS[study.accent] ?? ACCENTS.blue;
   return (
-    <div>
-      {metric.qualifier && (
-        <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">{metric.qualifier}</p>
-      )}
-      <p className={`font-bold tracking-tight tabular-nums ${ACCENTS[accent].value} ${size === "lg" ? "text-4xl" : "text-3xl"}`}>
-        {metric.value}
-      </p>
-      <p className="mt-1 text-sm leading-snug text-gray-600">{metric.label}</p>
-    </div>
-  );
-}
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className="grid overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm sm:grid-cols-5"
+    >
+      <div className="relative h-44 overflow-hidden bg-gray-100 sm:col-span-2 sm:h-auto">
+        <img src={study.image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+      </div>
+      <div className="flex flex-col p-6 sm:col-span-3 sm:p-7">
+        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">{study.category}</p>
+        <h3 className="mt-1.5 text-lg font-semibold leading-snug tracking-tight text-gray-900 sm:text-xl">
+          {study.title}
+        </h3>
+        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-600">{study.description}</p>
 
-function CardImage({ study, badge, className }: { study: CaseStudy; badge: string; className: string }) {
-  return (
-    <div className={`relative overflow-hidden bg-gray-100 ${className}`}>
-      <img
-        src={study.image}
-        alt=""
-        loading="lazy"
-        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
-      <div className="absolute left-4 top-4 flex flex-wrap gap-2">
-        <span className={`rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${ACCENTS[study.accent].chip}`}>
-          {study.category}
-        </span>
-        {study.caseType === "illustrative" && (
-          <span className="rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-gray-600 backdrop-blur-sm">
-            {badge}
+        {study.metrics?.length > 0 && (
+          <dl className="mt-5 grid grid-cols-2 gap-5 border-t border-gray-100 pt-5">
+            {study.metrics.slice(0, 2).map((m) => (
+              <div key={m.label}>
+                <dt className="sr-only">{m.label}</dt>
+                <dd>
+                  <span className={`block text-base font-semibold tracking-tight tabular-nums ${accent.value}`}>
+                    {m.qualifier && (
+                      <span className="mr-1 align-middle text-[10px] font-medium uppercase tracking-wider text-gray-400">
+                        {m.qualifier}
+                      </span>
+                    )}
+                    {m.value}
+                  </span>
+                  <span className="mt-0.5 block text-xs leading-snug text-gray-500">{m.label}</span>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        )}
+
+        <div className="mt-auto flex items-center justify-between gap-4 pt-5">
+          <span className="flex items-center gap-1.5 text-xs text-gray-500">
+            <Clock className="h-3.5 w-3.5" />
+            {study.timeline}
           </span>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function ReadMore({ label, accent }: { label: string; accent: Accent }) {
-  return (
-    <span className={`inline-flex items-center gap-1 text-sm font-semibold ${ACCENTS[accent].link}`}>
-      {label}
-      <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-    </span>
-  );
-}
-
-function Timeline({ text }: { text: string }) {
-  return (
-    <span className="flex items-center gap-1.5 text-xs text-gray-500">
-      <Clock className="h-3.5 w-3.5" />
-      {text}
-    </span>
-  );
-}
-
-/** Large story: image on one side, outcome and two headline metrics on the other. */
-function FeaturedCase({ study, onOpen }: { study: CaseStudy; onOpen: () => void }) {
-  const { t } = useTranslation();
-  return (
-    <motion.button
-      type="button"
-      variants={fadeIn}
-      custom={0.2}
-      onClick={onOpen}
-      className="group grid w-full overflow-hidden rounded-2xl border border-gray-200/80 bg-white text-left shadow-sm transition-shadow duration-300 hover:shadow-xl lg:grid-cols-2"
-    >
-      <CardImage study={study} badge={t("caseStudies.illustrativeBadge")} className="min-h-[240px]" />
-      <div className="flex flex-col p-7 sm:p-10">
-        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">{study.title}</p>
-        <h3 className="mt-2 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{study.headline}</h3>
-        <p className="mt-3 text-sm leading-relaxed text-gray-600 sm:text-base">{study.description}</p>
-        <div className="mt-8 grid grid-cols-2 gap-6 border-t border-gray-100 pt-6">
-          {study.metrics.map((m) => (
-            <MetricBlock key={m.label} metric={m} accent={study.accent} size="lg" />
-          ))}
-        </div>
-        <div className="mt-8 flex items-center justify-between gap-4">
-          <Timeline text={study.timeline} />
-          <ReadMore label={t("caseStudies.readMore")} accent={study.accent} />
+          <button
+            type="button"
+            onClick={onOpen}
+            className={`group inline-flex items-center gap-1 text-sm font-semibold ${accent.link}`}
+          >
+            {t("caseStudies.readMore")}
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </button>
         </div>
       </div>
-    </motion.button>
-  );
-}
-
-/** Compact story: image, outcome and the lead metric. */
-function CaseCard({ study, index, onOpen }: { study: CaseStudy; index: number; onOpen: () => void }) {
-  const { t } = useTranslation();
-  const lead = study.metrics[0];
-  return (
-    <motion.button
-      type="button"
-      variants={fadeIn}
-      custom={0.3 + index * 0.1}
-      onClick={onOpen}
-      className="group flex w-full flex-col overflow-hidden rounded-2xl border border-gray-200/80 bg-white text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-    >
-      <CardImage study={study} badge={t("caseStudies.illustrativeBadge")} className="aspect-[16/9] w-full" />
-      <div className="flex flex-1 flex-col p-6">
-        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">{study.title}</p>
-        <h3 className="mt-2 text-lg font-semibold leading-snug text-gray-900">{study.headline}</h3>
-        {lead && (
-          <div className="mt-5 border-t border-gray-100 pt-5">
-            <MetricBlock metric={lead} accent={study.accent} size="md" />
-          </div>
-        )}
-        <div className="mt-auto flex items-center justify-between gap-3 pt-6">
-          <Timeline text={study.timeline} />
-          <ReadMore label={t("caseStudies.readMore")} accent={study.accent} />
-        </div>
-      </div>
-    </motion.button>
+    </motion.div>
   );
 }
 
 const CaseStudies = () => {
   const { t } = useTranslation();
-  const studies = t("caseStudies.items", { returnObjects: true }) as CaseStudy[];
+  const raw = t("caseStudies.items", { returnObjects: true }) as CaseStudy[];
+  const studies = Array.isArray(raw) ? raw : [];
+  const [active, setActive] = useState(0);
   const [viewerData, setViewerData] = useState<{ id: number; title: string; caseType?: string } | null>(null);
-  const open = (s: CaseStudy) => setViewerData({ id: s.id, title: s.title, caseType: s.caseType });
-  const [featured, ...rest] = Array.isArray(studies) ? studies : [];
+  const current = studies[active] ?? studies[0];
+
+  // Auto-advance to the next case every 5s, matching the loading bar under
+  // each tab. Runs continuously — an earlier pause-on-hover made the bar
+  // stop every time the cursor rested anywhere over the section, which read
+  // as it "getting stuck" rather than as an intentional pause.
+  const CASE_DURATION = 5000;
+
+  useEffect(() => {
+    if (studies.length <= 1) return;
+    const id = setTimeout(() => setActive((i) => (i + 1) % studies.length), CASE_DURATION);
+    return () => clearTimeout(id);
+  }, [active, studies.length]);
 
   return (
-    <section id="case-studies" className="scroll-mt-10 bg-gray-50 py-20">
+    <section id="case-studies" className="scroll-mt-10 bg-gray-50 py-16 md:py-20">
       <motion.div
         className="container mx-auto max-w-6xl px-6"
         variants={staggerContainer}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.1 }}
+        viewport={{ once: true, amount: 0.15 }}
       >
-        {/* Header: title on the left, next step on the right */}
-        <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div className="max-w-2xl">
+        <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
+          {/* Left: heading + industry tabs */}
+          <div className="min-w-0 lg:col-span-5">
             <motion.p variants={fadeIn} custom={0} className="text-xs font-semibold uppercase tracking-wider text-blue-600">
               {t("caseStudies.eyebrow")}
             </motion.p>
             <motion.h2 variants={fadeIn} custom={0.05} className="mt-3 text-3xl font-bold tracking-tight text-gray-900 md:text-4xl">
               {t("caseStudies.title")}
             </motion.h2>
-            <motion.p variants={fadeIn} custom={0.1} className="mt-3 text-base leading-relaxed text-gray-600 md:text-lg">
+            <motion.p variants={fadeIn} custom={0.1} className="mt-3 text-base leading-relaxed text-gray-600">
               {t("caseStudies.subtitle")}
             </motion.p>
-          </div>
-          <motion.div variants={fadeIn} custom={0.15} className="shrink-0">
-            <p className="mb-2 text-sm text-gray-500">{t("caseStudies.otherIndustry")}</p>
-            <Link
-              href="/diagnostico-ia"
-              className="group inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm transition hover:border-gray-400 hover:bg-gray-50"
+
+            <motion.div
+              variants={fadeIn}
+              custom={0.15}
+              role="tablist"
+              aria-label={t("caseStudies.eyebrow")}
+              className="-mx-6 mt-6 flex gap-2 overflow-x-auto px-6 pb-1 lg:mx-0 lg:mt-8 lg:flex-col lg:gap-1 lg:overflow-visible lg:px-0"
             >
-              {t("caseStudies.otherIndustryCta")}
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </Link>
+              {studies.map((s, i) => {
+                const selected = i === active;
+                const accent = ACCENTS[s.accent] ?? ACCENTS.blue;
+                const Icon = CASE_ICONS[s.id];
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={selected}
+                    onClick={() => setActive(i)}
+                    className={`relative flex shrink-0 items-center gap-3 overflow-hidden rounded-xl px-4 py-2.5 text-left text-sm transition-colors lg:py-3 ${
+                      selected
+                        ? "bg-white font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200"
+                        : "text-gray-600 hover:bg-white/70 hover:text-gray-900"
+                    }`}
+                  >
+                    <span className={`h-2 w-2 shrink-0 rounded-full ${selected ? accent.dot : "bg-gray-300"}`} />
+                    <span className="whitespace-nowrap lg:flex-1">{s.category}</span>
+                    {Icon && <Icon className={`hidden h-4 w-4 shrink-0 lg:block ${selected ? accent.value : "text-gray-300"}`} />}
+                    {/* Loading bar: fills over 5s while this case is showing, then the panel rotates.
+                        The ring above is `ring-inset` so its edge lines up with the border box —
+                        otherwise the default outer ring sits 1px past it and the bar reads as floating. */}
+                    <span className="absolute inset-x-0 bottom-0 h-[3px] bg-gray-100">
+                      {selected && (
+                        <span
+                          key={active}
+                          className={`block h-full origin-left rounded-full opacity-80 ${accent.bar} ${
+                            studies.length > 1 ? "animate-case-bar" : ""
+                          }`}
+                        />
+                      )}
+                    </span>
+                  </button>
+                );
+              })}
+            </motion.div>
+
+            <motion.p variants={fadeIn} custom={0.2} className="mt-6 hidden text-sm text-gray-600 lg:block">
+              {t("caseStudies.otherIndustry")}{" "}
+              <Link
+                href="/diagnostico-ia"
+                className="group inline-flex items-center gap-1 font-semibold text-blue-600 hover:text-blue-700"
+              >
+                {t("caseStudies.otherIndustryCta")}
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            </motion.p>
+          </div>
+
+          {/* Right: the selected case */}
+          <motion.div
+            variants={fadeIn}
+            custom={0.2}
+            className="flex min-w-0 flex-col lg:col-span-7 lg:mt-[51px]"
+          >
+            <AnimatePresence mode="wait">
+              {current && (
+                <CasePanel
+                  key={current.id}
+                  study={current}
+                  onOpen={() => setViewerData({ id: current.id, title: current.title, caseType: current.caseType })}
+                />
+              )}
+            </AnimatePresence>
+            <p className="mt-4 flex items-start gap-2 text-xs leading-relaxed text-gray-400">
+              <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              {t("caseStudies.footnote")}
+            </p>
+            <p className="mt-4 text-sm text-gray-600 lg:hidden">
+              {t("caseStudies.otherIndustry")}{" "}
+              <Link href="/diagnostico-ia" className="inline-flex items-center gap-1 font-semibold text-blue-600">
+                {t("caseStudies.otherIndustryCta")}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </p>
           </motion.div>
         </div>
-
-        {featured && <FeaturedCase study={featured} onOpen={() => open(featured)} />}
-
-        {rest.length > 0 && (
-          <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {rest.map((s, i) => (
-              <CaseCard key={s.id} study={s} index={i} onOpen={() => open(s)} />
-            ))}
-          </div>
-        )}
-
-        <motion.p variants={fadeIn} custom={0.5} className="mt-8 flex items-start gap-2 text-xs leading-relaxed text-gray-400">
-          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-          {t("caseStudies.footnote")}
-        </motion.p>
       </motion.div>
       {viewerData && (
         <CaseStudyViewer
