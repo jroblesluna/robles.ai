@@ -143,7 +143,7 @@ export function SavingsCalculator({ demoId }: { demoId: DemoBusinessId }) {
 
   if (!inputs || !result || !defaults) {
     return (
-      <section className="relative mt-10 overflow-hidden rounded-2xl bg-gray-950 p-6 text-white shadow-sm sm:p-8">
+      <section className="relative mt-10 overflow-hidden rounded-2xl bg-gray-900 p-6 text-white shadow-sm sm:p-8">
         <Glow />
         <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <p className="max-w-md text-lg font-semibold">{t("demoBusiness.labels.cta_lead")}</p>
@@ -234,7 +234,7 @@ export function SavingsCalculator({ demoId }: { demoId: DemoBusinessId }) {
         </div>
 
         {/* ── Result ───────────────────────────────────────────────────────── */}
-        <div className="relative flex flex-col overflow-hidden bg-gray-950 p-6 text-white sm:p-8 lg:col-span-5">
+        <div className="relative flex flex-col overflow-hidden bg-gray-900 p-6 text-white sm:p-8 lg:col-span-5">
           <Glow />
           <div className="relative flex flex-1 flex-col">
             <p className="text-xs font-semibold uppercase tracking-wider text-emerald-300">

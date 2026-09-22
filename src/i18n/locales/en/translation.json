@@ -56,8 +56,8 @@
         "cta3": "Get Started with AI in my Company"
     },
     "caseStudies": {
-        "title": "Case Studies",
-        "subtitle": "Explore how our AI-powered solutions can help businesses solve complex challenges across industries.",
+        "title": "What AI can achieve in your industry",
+        "subtitle": "Representative cases of how we apply AI to real problems: the challenge, the solution and the metrics it moves.",
         "items": [
             {
                 "id": 1,
@@ -66,23 +66,21 @@
                 "description": "An AI-powered computer vision system that can achieve up to 27% crime reduction and 42% faster emergency response through real-time monitoring and edge computing.",
                 "image": "https://images.unsplash.com/photo-1519501025264-65ba15a82390?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
                 "category": "Smart Cities",
-                "categoryColor": "text-blue-700",
-                "categoryBgColor": "bg-blue-100",
-                "stats": [
+                "headline": "Safer cities with real-time computer vision",
+                "accent": "blue",
+                "timeline": "6-month implementation",
+                "metrics": [
                     {
-                        "icon": "CheckCircle",
-                        "text": "Up to 27% Crime Reduction",
-                        "iconColor": "text-blue-500"
+                        "qualifier": "Up to",
+                        "value": "27%",
+                        "label": "less crime"
                     },
                     {
-                        "icon": "Clock",
-                        "text": "6 Month Implementation",
-                        "iconColor": "text-blue-500"
+                        "qualifier": "Up to",
+                        "value": "42%",
+                        "label": "faster emergency response"
                     }
-                ],
-                "ctaColor": "text-blue-600",
-                "ctaHoverColor": "hover:text-blue-700",
-                "ctaText": "Read Full Case Study"
+                ]
             },
             {
                 "id": 2,
@@ -91,23 +89,21 @@
                 "description": "A machine learning system that can typically achieve around 87% accuracy in predicting patient readmission risk, potentially reducing readmissions by 23%.",
                 "image": "https://images.unsplash.com/photo-1624727828489-a1e03b79bba8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
                 "category": "Healthcare",
-                "categoryColor": "text-emerald-700",
-                "categoryBgColor": "bg-emerald-100",
-                "stats": [
+                "headline": "Predicting patient readmissions before they happen",
+                "accent": "emerald",
+                "timeline": "6-month development",
+                "metrics": [
                     {
-                        "icon": "CheckCircle",
-                        "text": "~87% Prediction Accuracy",
-                        "iconColor": "text-emerald-500"
+                        "qualifier": "About",
+                        "value": "87%",
+                        "label": "prediction accuracy"
                     },
                     {
-                        "icon": "Clock",
-                        "text": "6 Month Development",
-                        "iconColor": "text-emerald-500"
+                        "qualifier": "Up to",
+                        "value": "23%",
+                        "label": "fewer readmissions"
                     }
-                ],
-                "ctaColor": "text-emerald-600",
-                "ctaHoverColor": "hover:text-emerald-700",
-                "ctaText": "Read Full Case Study"
+                ]
             },
             {
                 "id": 3,
@@ -116,23 +112,21 @@
                 "description": "An AI system that can achieve up to 99.2% accuracy in detecting fraudulent transactions, with potential savings of $4.5M annually in fraud losses.",
                 "image": "https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
                 "category": "Finance",
-                "categoryColor": "text-violet-700",
-                "categoryBgColor": "bg-violet-100",
-                "stats": [
+                "headline": "Stopping fraud before the transaction goes through",
+                "accent": "violet",
+                "timeline": "4-month deployment",
+                "metrics": [
                     {
-                        "icon": "CheckCircle",
-                        "text": "Up to 99.2% Accuracy",
-                        "iconColor": "text-violet-500"
+                        "qualifier": "Up to",
+                        "value": "99.2%",
+                        "label": "detection accuracy"
                     },
                     {
-                        "icon": "Clock",
-                        "text": "4 Month Deployment",
-                        "iconColor": "text-violet-500"
+                        "qualifier": "",
+                        "value": "$4.5M",
+                        "label": "potential annual savings"
                     }
-                ],
-                "ctaColor": "text-violet-600",
-                "ctaHoverColor": "hover:text-violet-700",
-                "ctaText": "Read Full Case Study"
+                ]
             },
             {
                 "id": 4,
@@ -141,25 +135,29 @@
                 "description": "A generative AI assistant that can handle up to 78% of customer inquiries without human intervention, improving response time by up to 85%.",
                 "image": "https://images.unsplash.com/photo-1559136555-9303baea8ebd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
                 "category": "Generative AI",
-                "categoryColor": "text-amber-700",
-                "categoryBgColor": "bg-amber-100",
-                "stats": [
+                "headline": "An assistant that resolves most inquiries on its own",
+                "accent": "amber",
+                "timeline": "2-month implementation",
+                "metrics": [
                     {
-                        "icon": "CheckCircle",
-                        "text": "Up to 85% Faster Response",
-                        "iconColor": "text-amber-500"
+                        "qualifier": "Up to",
+                        "value": "78%",
+                        "label": "of inquiries with no human help"
                     },
                     {
-                        "icon": "Clock",
-                        "text": "2 Month Implementation",
-                        "iconColor": "text-amber-500"
+                        "qualifier": "Up to",
+                        "value": "85%",
+                        "label": "faster response"
                     }
-                ],
-                "ctaColor": "text-amber-600",
-                "ctaHoverColor": "hover:text-amber-700",
-                "ctaText": "Read Full Case Study"
+                ]
             }
-        ]
+        ],
+        "eyebrow": "Case studies",
+        "illustrativeBadge": "Illustrative case",
+        "readMore": "Read the case",
+        "otherIndustry": "Don't see your industry?",
+        "otherIndustryCta": "Take the free diagnostic",
+        "footnote": "Illustrative cases based on our methodology. Figures show the potential results of this kind of solution, not results from a specific client."
     },
     "solutions": {
         "eyebrow": "What we do",
