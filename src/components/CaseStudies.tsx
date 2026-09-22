@@ -1,11 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  CheckCircle,
-  Clock,
-  ChevronRight,
-  Info,
-} from "lucide-react";
+import { Link } from "wouter";
+import { Clock, Info, ArrowRight } from "lucide-react";
 import { fadeIn, staggerContainer } from "@/utils/animations";
 import { useTranslation } from "react-i18next";
 
@@ -207,150 +203,212 @@ const CaseStudyViewer = ({ id, title, caseType, onClose }: CaseStudyViewerProps)
   );
 };
 
-interface CaseStudyCardProps {
-  image: string;
-  category: string;
-  categoryColor: string;
-  categoryBgColor: string;
-  title: string;
-  description: string;
-  stats: {
-    icon: React.ReactNode;
-    text: string;
-    iconColor: string;
-  }[];
-  ctaColor: string;
-  ctaHoverColor: string;
-  index: number;
-  ctaText: string;
-  onCtaClick?: () => void;
+
+// ── Cards ────────────────────────────────────────────────────────────────────
+// Metric-led layout (customer-stories style): the outcome is the headline and
+// the numbers carry the card. The cases are illustrative, so there are no
+// client logos or quotes; each card says so and the section ends with a note.
+
+type Accent = "blue" | "emerald" | "violet" | "amber";
+
+/** Full class strings per accent (the Tailwind JIT needs literal names). */
+const ACCENTS: Record<Accent, { chip: string; value: string; link: string }> = {
+  blue: { chip: "bg-blue-50 text-blue-700 ring-blue-200", value: "text-blue-600", link: "text-blue-600" },
+  emerald: { chip: "bg-emerald-50 text-emerald-700 ring-emerald-200", value: "text-emerald-600", link: "text-emerald-600" },
+  violet: { chip: "bg-violet-50 text-violet-700 ring-violet-200", value: "text-violet-600", link: "text-violet-600" },
+  amber: { chip: "bg-amber-50 text-amber-700 ring-amber-200", value: "text-amber-600", link: "text-amber-600" },
+};
+
+interface Metric {
+  qualifier: string;
+  value: string;
+  label: string;
 }
 
-const CaseStudyCard = ({
-  image,
-  category,
-  categoryColor,
-  categoryBgColor,
-  title,
-  description,
-  stats,
-  ctaColor,
-  ctaHoverColor,
-  index,
-  ctaText,
-  onCtaClick,
-}: CaseStudyCardProps) => (
-  <motion.div
-    variants={fadeIn}
-    custom={0.3 + index * 0.2}
-    className="bg-white rounded-xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border border-gray-100 cursor-pointer"
-    onClick={onCtaClick}
-  >
-    <div className="aspect-video bg-gray-200 relative overflow-hidden">
-      <img
-        src={image}
-        alt={title}
-        className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
-      <div className="absolute top-4 left-4">
-        <span
-          className={`px-3 py-1.5 ${categoryBgColor} ${categoryColor} rounded-full text-sm font-medium shadow-md`}
-        >
-          {category}
-        </span>
-      </div>
-    </div>
-    <div className="p-8">
-      <h3 className="text-2xl font-semibold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors duration-300">
-        {title}
-      </h3>
-      <p className="text-gray-600 mb-6">{description}</p>
-      <div className="flex flex-wrap items-center text-sm text-gray-500 mb-6 gap-3">
-        {stats.map((stat, i) => (
-          <div
-            key={i}
-            className="flex items-center mr-6 mb-2 bg-gray-50 px-3 py-1.5 rounded-full"
-          >
-            <div className={`h-5 w-5 mr-2 ${stat.iconColor}`}>{stat.icon}</div>
-            <span className="font-medium">{stat.text}</span>
-          </div>
-        ))}
-      </div>
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onCtaClick?.();
-        }}
-        className={`inline-flex items-center ${ctaColor} font-medium ${ctaHoverColor} transition-all duration-300 hover:translate-x-1`}
-      >
-        {ctaText}
-        <ChevronRight className="h-4 w-4 ml-1 transition-transform duration-300 group-hover:translate-x-1" />
-      </button>
-    </div>
-  </motion.div>
-);
+interface CaseStudy {
+  id: number;
+  caseType?: string;
+  title: string;
+  headline: string;
+  description: string;
+  image: string;
+  category: string;
+  accent: Accent;
+  timeline: string;
+  metrics: Metric[];
+}
 
-const getIconComponent = (iconName: string) => {
-  switch (iconName) {
-    case "CheckCircle":
-      return <CheckCircle className="w-full h-full" />;
-    case "Clock":
-      return <Clock className="w-full h-full" />;
-    default:
-      return <CheckCircle className="w-full h-full" />;
-  }
-};
+function MetricBlock({ metric, accent, size }: { metric: Metric; accent: Accent; size: "lg" | "md" }) {
+  return (
+    <div>
+      {metric.qualifier && (
+        <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">{metric.qualifier}</p>
+      )}
+      <p className={`font-bold tracking-tight tabular-nums ${ACCENTS[accent].value} ${size === "lg" ? "text-4xl" : "text-3xl"}`}>
+        {metric.value}
+      </p>
+      <p className="mt-1 text-sm leading-snug text-gray-600">{metric.label}</p>
+    </div>
+  );
+}
+
+function CardImage({ study, badge, className }: { study: CaseStudy; badge: string; className: string }) {
+  return (
+    <div className={`relative overflow-hidden bg-gray-100 ${className}`}>
+      <img
+        src={study.image}
+        alt=""
+        loading="lazy"
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+      <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+        <span className={`rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${ACCENTS[study.accent].chip}`}>
+          {study.category}
+        </span>
+        {study.caseType === "illustrative" && (
+          <span className="rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-gray-600 backdrop-blur-sm">
+            {badge}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ReadMore({ label, accent }: { label: string; accent: Accent }) {
+  return (
+    <span className={`inline-flex items-center gap-1 text-sm font-semibold ${ACCENTS[accent].link}`}>
+      {label}
+      <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+    </span>
+  );
+}
+
+function Timeline({ text }: { text: string }) {
+  return (
+    <span className="flex items-center gap-1.5 text-xs text-gray-500">
+      <Clock className="h-3.5 w-3.5" />
+      {text}
+    </span>
+  );
+}
+
+/** Large story: image on one side, outcome and two headline metrics on the other. */
+function FeaturedCase({ study, onOpen }: { study: CaseStudy; onOpen: () => void }) {
+  const { t } = useTranslation();
+  return (
+    <motion.button
+      type="button"
+      variants={fadeIn}
+      custom={0.2}
+      onClick={onOpen}
+      className="group grid w-full overflow-hidden rounded-2xl border border-gray-200/80 bg-white text-left shadow-sm transition-shadow duration-300 hover:shadow-xl lg:grid-cols-2"
+    >
+      <CardImage study={study} badge={t("caseStudies.illustrativeBadge")} className="min-h-[240px]" />
+      <div className="flex flex-col p-7 sm:p-10">
+        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">{study.title}</p>
+        <h3 className="mt-2 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{study.headline}</h3>
+        <p className="mt-3 text-sm leading-relaxed text-gray-600 sm:text-base">{study.description}</p>
+        <div className="mt-8 grid grid-cols-2 gap-6 border-t border-gray-100 pt-6">
+          {study.metrics.map((m) => (
+            <MetricBlock key={m.label} metric={m} accent={study.accent} size="lg" />
+          ))}
+        </div>
+        <div className="mt-8 flex items-center justify-between gap-4">
+          <Timeline text={study.timeline} />
+          <ReadMore label={t("caseStudies.readMore")} accent={study.accent} />
+        </div>
+      </div>
+    </motion.button>
+  );
+}
+
+/** Compact story: image, outcome and the lead metric. */
+function CaseCard({ study, index, onOpen }: { study: CaseStudy; index: number; onOpen: () => void }) {
+  const { t } = useTranslation();
+  const lead = study.metrics[0];
+  return (
+    <motion.button
+      type="button"
+      variants={fadeIn}
+      custom={0.3 + index * 0.1}
+      onClick={onOpen}
+      className="group flex w-full flex-col overflow-hidden rounded-2xl border border-gray-200/80 bg-white text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+    >
+      <CardImage study={study} badge={t("caseStudies.illustrativeBadge")} className="aspect-[16/9] w-full" />
+      <div className="flex flex-1 flex-col p-6">
+        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">{study.title}</p>
+        <h3 className="mt-2 text-lg font-semibold leading-snug text-gray-900">{study.headline}</h3>
+        {lead && (
+          <div className="mt-5 border-t border-gray-100 pt-5">
+            <MetricBlock metric={lead} accent={study.accent} size="md" />
+          </div>
+        )}
+        <div className="mt-auto flex items-center justify-between gap-3 pt-6">
+          <Timeline text={study.timeline} />
+          <ReadMore label={t("caseStudies.readMore")} accent={study.accent} />
+        </div>
+      </div>
+    </motion.button>
+  );
+}
 
 const CaseStudies = () => {
   const { t } = useTranslation();
-  const caseStudies = t("caseStudies.items", { returnObjects: true }) as any[];
+  const studies = t("caseStudies.items", { returnObjects: true }) as CaseStudy[];
   const [viewerData, setViewerData] = useState<{ id: number; title: string; caseType?: string } | null>(null);
-
-  const processedCaseStudies = caseStudies.map((study) => ({
-    ...study,
-    stats: study.stats.map((stat: any) => ({
-      ...stat,
-      icon: getIconComponent(stat.icon),
-    })),
-  }));
+  const open = (s: CaseStudy) => setViewerData({ id: s.id, title: s.title, caseType: s.caseType });
+  const [featured, ...rest] = Array.isArray(studies) ? studies : [];
 
   return (
-    <section id="case-studies" className="py-16 bg-gray-50 scroll-mt-10">
+    <section id="case-studies" className="scroll-mt-10 bg-gray-50 py-20">
       <motion.div
-        className="container mx-auto px-6"
+        className="container mx-auto max-w-6xl px-6"
         variants={staggerContainer}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
+        viewport={{ once: true, amount: 0.1 }}
       >
-        <div className="text-center mb-16">
-          <motion.h2
-            variants={fadeIn}
-            custom={0}
-            className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
-          >
-            {t("caseStudies.title")}
-          </motion.h2>
-          <motion.p
-            variants={fadeIn}
-            custom={0.1}
-            className="text-xl text-gray-600 max-w-4xl mx-auto"
-          >
-            {t("caseStudies.subtitle")}
-          </motion.p>
+        {/* Header: title on the left, next step on the right */}
+        <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-2xl">
+            <motion.p variants={fadeIn} custom={0} className="text-xs font-semibold uppercase tracking-wider text-blue-600">
+              {t("caseStudies.eyebrow")}
+            </motion.p>
+            <motion.h2 variants={fadeIn} custom={0.05} className="mt-3 text-3xl font-bold tracking-tight text-gray-900 md:text-4xl">
+              {t("caseStudies.title")}
+            </motion.h2>
+            <motion.p variants={fadeIn} custom={0.1} className="mt-3 text-base leading-relaxed text-gray-600 md:text-lg">
+              {t("caseStudies.subtitle")}
+            </motion.p>
+          </div>
+          <motion.div variants={fadeIn} custom={0.15} className="shrink-0">
+            <p className="mb-2 text-sm text-gray-500">{t("caseStudies.otherIndustry")}</p>
+            <Link
+              href="/diagnostico-ia"
+              className="group inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm transition hover:border-gray-400 hover:bg-gray-50"
+            >
+              {t("caseStudies.otherIndustryCta")}
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          </motion.div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          {processedCaseStudies.map((study, index) => (
-            <CaseStudyCard
-              key={study.id}
-              {...study}
-              index={index}
-              onCtaClick={() => setViewerData({ id: study.id, title: study.title, caseType: study.caseType })}
-            />
-          ))}
-        </div>
+        {featured && <FeaturedCase study={featured} onOpen={() => open(featured)} />}
+
+        {rest.length > 0 && (
+          <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {rest.map((s, i) => (
+              <CaseCard key={s.id} study={s} index={i} onOpen={() => open(s)} />
+            ))}
+          </div>
+        )}
+
+        <motion.p variants={fadeIn} custom={0.5} className="mt-8 flex items-start gap-2 text-xs leading-relaxed text-gray-400">
+          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          {t("caseStudies.footnote")}
+        </motion.p>
       </motion.div>
       {viewerData && (
         <CaseStudyViewer
