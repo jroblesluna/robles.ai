@@ -28,6 +28,8 @@ import {
   Braces,
   Eye,
   X,
+  Mic,
+  Square,
   type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -38,6 +40,7 @@ import { useDemoTracking } from "@/components/demo/business";
 import { JsonHighlight } from "@/components/demo/JsonHighlight";
 import { InfoTip } from "@/components/demo/InfoTip";
 import { HowItWorks, StatusPill, TechCard, type StatusTone } from "@/components/demo/DemoKit";
+import { useSpeechInput } from "@/hooks/useSpeechInput";
 
 const getBaseApi = () => {
   // VITE_LANGCHAIN_API overrides the default (e.g. point local dev at prod
@@ -97,6 +100,14 @@ type Doc = {
   error?: string;
 };
 
+/** Dictated text lands after whatever is already typed, with one space between. */
+function appendTranscript(current: string, addition: string): string {
+  const add = addition.trim();
+  if (!add) return current;
+  if (!current.trim()) return add;
+  return /\s$/.test(current) ? current + add : `${current} ${add}`;
+}
+
 /** Text and PDF can be shown in the browser; DOCX cannot, so it gets no eye. */
 function isPreviewable(file: File): boolean {
   return file.type.startsWith("text/") || file.type === "application/pdf" || /\.(txt|md|pdf)$/i.test(file.name);
@@ -140,6 +151,13 @@ export default function TryLangChain() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const threadRef = useRef<HTMLDivElement>(null);
+
+  // Dictation: the recognizer speaks the page's language, and each committed
+  // phrase is appended to whatever the visitor already typed.
+  const speech = useSpeechInput({
+    lang: isEs ? "es-ES" : "en-US",
+    onResult: (text) => setInput((prev) => appendTranscript(prev, text)),
+  });
 
   const thread = threads[mode];
   const readyDocs = docs.filter((d) => d.state === "ready");
@@ -358,6 +376,7 @@ export default function TryLangChain() {
   async function ask(question: string, retryId?: string) {
     const q = question.trim();
     if (!q || busy || ragLocked) return;
+    speech.stop();
     const m = mode;
     trackStart();
     setBusy(true);
@@ -745,6 +764,30 @@ export default function TryLangChain() {
                     placeholder={ragLocked ? t("try-langchain.placeholder_rag_locked") : t(`try-langchain.placeholder_${mode}`)}
                     className="max-h-40 min-h-[36px] flex-1 resize-none bg-transparent px-2 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed"
                   />
+                  {speech.supported && (
+                    <button
+                      type="button"
+                      onClick={speech.toggle}
+                      disabled={ragLocked || speech.busy}
+                      title={t(speech.listening ? "try-langchain.mic_stop" : "try-langchain.mic_start")}
+                      aria-label={t(speech.listening ? "try-langchain.mic_stop" : "try-langchain.mic_start")}
+                      aria-pressed={speech.listening}
+                      aria-busy={speech.busy}
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors disabled:cursor-default ${
+                        speech.listening || speech.busy
+                          ? "bg-red-50 text-red-600 hover:bg-red-100"
+                          : "text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+                      } ${ragLocked ? "opacity-50" : ""}`}
+                    >
+                      {speech.busy ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : speech.listening ? (
+                        <Square className="h-3.5 w-3.5 fill-current" />
+                      ) : (
+                        <Mic className="h-4 w-4" />
+                      )}
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => ask(input)}
@@ -755,7 +798,27 @@ export default function TryLangChain() {
                     {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                   </button>
                 </div>
-                <p className="mt-2 hidden px-1 text-[11px] text-gray-400 sm:block">{t("try-langchain.composer_hint")}</p>
+                {/* The hint line doubles as the dictation status, so listening never goes unannounced. */}
+                {speech.listening || speech.busy ? (
+                  <p className="mt-2 flex items-center gap-1.5 px-1 text-[11px] text-red-600">
+                    <span
+                      className={`h-1.5 w-1.5 shrink-0 rounded-full bg-red-500 ${speech.busy ? "opacity-50" : "animate-pulse"}`}
+                    />
+                    <span className="truncate">
+                      {speech.state === "starting"
+                        ? t("try-langchain.mic_starting")
+                        : speech.state === "stopping"
+                          ? t("try-langchain.mic_stopping")
+                          : speech.interim || t("try-langchain.mic_listening")}
+                    </span>
+                  </p>
+                ) : speech.state === "denied" || speech.state === "error" ? (
+                  <p className="mt-2 px-1 text-[11px] text-red-600">
+                    {t(speech.state === "denied" ? "try-langchain.mic_denied" : "try-langchain.mic_error")}
+                  </p>
+                ) : (
+                  <p className="mt-2 hidden px-1 text-[11px] text-gray-400 sm:block">{t("try-langchain.composer_hint")}</p>
+                )}
               </div>
 
               {/* Drag overlay */}
