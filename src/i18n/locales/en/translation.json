@@ -2304,6 +2304,12 @@
         "how_tech_title": "Technical architecture",
         "how_tech_subtitle": "For developers and engineers"
     },
+    "demoNav": {
+        "aria": "Demo navigation",
+        "back": "Back",
+        "lab": "Demos Lab",
+        "lab_short": "More demos"
+    },
     "demoBusiness": {
         "labels": {
             "eyebrow": "Business case",

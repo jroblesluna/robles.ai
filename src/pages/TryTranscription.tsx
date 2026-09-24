@@ -26,6 +26,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { DemoNav } from "@/components/demo/DemoNav";
 import { BusinessCase } from "@/components/demo/BusinessCase";
 import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
 import { useDemoTracking } from "@/components/demo/business";
@@ -734,7 +735,8 @@ export default function TryTranscription() {
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gradient-to-b from-teal-50/50 via-white to-white py-12">
-      <div className="container mx-auto max-w-6xl px-6">
+      <div className="container mx-auto max-w-[max(72rem,70vw)] px-6">
+        <DemoNav tone="teal" className="mb-8" />
 
         {/* Header: pitch + how it works (left), business case (right) */}
         <div className="mb-10 grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">

@@ -14,6 +14,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { DemoNav } from "@/components/demo/DemoNav";
 import { BusinessCase } from "@/components/demo/BusinessCase";
 import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
 import { useDemoTracking } from "@/components/demo/business";
@@ -265,7 +266,8 @@ export default function TryEmotion() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50/50 via-white to-white py-12">
-      <div className="container mx-auto max-w-6xl px-6">
+      <div className="container mx-auto max-w-[max(72rem,70vw)] px-6">
+        <DemoNav tone="rose" className="mb-8" />
         {/* Header */}
         <div className="mb-8">
           <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-center sm:text-left sm:gap-5">

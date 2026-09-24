@@ -10,6 +10,7 @@ import DermatologyIcon from '@/assets/icons/dermatology.svg?react';
 import HistopathologyIcon from '@/assets/icons/histopathology.svg?react';
 
 import { useTranslation } from "react-i18next";
+import { DemoNav } from "@/components/demo/DemoNav";
 
 const modalityOptions = [
     {
@@ -83,7 +84,8 @@ export default function TryMedical() {
 
     return (
         <div className="bg-white min-h-screen py-12">
-            <div className="container mx-auto px-6 max-w-6xl">
+            <div className="container mx-auto px-6 max-w-[max(72rem,70vw)]">
+                <DemoNav tone="emerald" className="mb-8" />
                 <div className="mb-10">
                     <div className="flex flex-col sm:flex-row items-center sm:items-center text-center sm:text-left gap-4 sm:gap-5">
                         <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-[6.5rem] md:h-[6.5rem] rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-sm shrink-0">
