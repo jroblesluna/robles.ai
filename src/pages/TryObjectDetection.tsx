@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { AnimatePresence, motion, LayoutGroup } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   ScanEye,
   Loader2,
@@ -28,7 +28,7 @@ import { useDemoTracking } from "@/components/demo/business";
 import { v4 as uuidv4 } from "uuid";
 import * as tf from "@tensorflow/tfjs";
 import * as cocoSsd from "@tensorflow-models/coco-ssd";
-import { JsonHighlight } from "@/components/demo/JsonHighlight";
+import { ApiCallLog, type ApiCallEntry } from "@/components/demo/ApiCallLog";
 import { InfoTip } from "@/components/demo/InfoTip";
 import { StatusPill, type StatusTone } from "@/components/demo/DemoKit";
 
@@ -39,7 +39,16 @@ const TIP_HOVER = "hover:text-indigo-600 focus:text-indigo-600";
 
 type ModelStatus = "loading" | "ready" | "error";
 type CameraState = "idle" | "starting" | "live" | "error";
-type LogEntry = { label: string; response: any; key: string };
+type LogEntry = {
+  key: string;
+  source: "camera" | "image" | "sample";
+  at: number;
+  ok: boolean;
+  ms?: number;
+  request?: any;
+  response?: any;
+  error?: string;
+};
 type Detection = { class: string; score: number; bbox: [number, number, number, number] };
 
 const BOX_COLORS = [
@@ -60,8 +69,10 @@ const MODEL_MIN_SCORE = 0.2;
 const MAX_BOXES = 30;
 
 const SAMPLES = [
-  { id: "team", src: "/images/landing-teamwork.jpg", labelKey: "sample_team" },
-  { id: "office", src: "/images/landing-business.jpg", labelKey: "sample_office" },
+  { id: "warehouse", src: "/images/od-warehouse.jpg", labelKey: "sample_warehouse" },
+  { id: "loading", src: "/images/od-loading-yard.jpg", labelKey: "sample_loading" },
+  { id: "factory", src: "/images/od-factory.jpg", labelKey: "sample_factory" },
+  { id: "traffic", src: "/images/od-traffic.jpg", labelKey: "sample_traffic" },
 ] as const;
 
 function roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
@@ -99,8 +110,18 @@ export default function TryObjectDetection() {
   const lastRawRef = useRef<{ dets: Detection[]; w: number; h: number } | null>(null);
   const fpsRef = useRef<{ last: number; fps: number; shownAt: number }>({ last: 0, fps: 0, shownAt: 0 });
 
-  const pushLog = (label: string, response: any) =>
-    setLog((prev) => [{ label, response, key: uuidv4() }, ...prev].slice(0, 12));
+  // What each run "sends" to the model, shown as the log's REQUEST block.
+  const detectRequest = (source: LogEntry["source"], width: number, height: number) => ({
+    input: source,
+    width,
+    height,
+    maxBoxes: MAX_BOXES,
+    minScore: MODEL_MIN_SCORE,
+  });
+  const pushLog = (source: LogEntry["source"], request: any, response: any, ms?: number) =>
+    setLog((prev) => [{ key: uuidv4(), source, at: Date.now(), ok: true, ms, request, response }, ...prev].slice(0, 12));
+  const pushLogError = (source: LogEntry["source"], error: string, request?: any) =>
+    setLog((prev) => [{ key: uuidv4(), source, at: Date.now(), ok: false, request, error }, ...prev].slice(0, 12));
 
   // Load the COCO-SSD model once on mount (weights fetched from Google's CDN).
   useEffect(() => {
@@ -284,20 +305,26 @@ export default function TryObjectDetection() {
         ...d,
         bbox: [d.bbox[0] * sx, d.bbox[1] * sy, d.bbox[2] * sx, d.bbox[3] * sy] as Detection["bbox"],
       }));
-      setPerf({ ms: performance.now() - started, fps: null });
+      const elapsed = performance.now() - started;
+      setPerf({ ms: elapsed, fps: null });
       const visible = showFrame(raw, img.naturalWidth, img.naturalHeight);
       trackComplete({ source });
-      pushLog(t("try-object.log_image_label"), {
+      pushLog(
         source,
-        objects: visible.length,
-        detections: visible.map((d) => ({
-          class: d.class,
-          score: Number(d.score.toFixed(3)),
-          bbox: d.bbox.map(Math.round),
-        })),
-      });
+        detectRequest(source, img.naturalWidth, img.naturalHeight),
+        {
+          objects: visible.length,
+          detections: visible.map((d) => ({
+            class: d.class,
+            score: Number(d.score.toFixed(3)),
+            bbox: d.bbox.map(Math.round),
+          })),
+        },
+        elapsed
+      );
     } catch (err) {
       console.error("image detect error:", err);
+      pushLogError(source, t("try-object.log_error_generic"));
     } finally {
       setAnalyzing(false);
       if (revoke) URL.revokeObjectURL(src);
@@ -320,16 +347,21 @@ export default function TryObjectDetection() {
   }
 
   function captureFrame() {
-    pushLog(t("try-object.log_snapshot_label"), {
-      source: "camera",
-      objects: detections.length,
-      inference_ms: perf ? Math.round(perf.ms) : undefined,
-      detections: detections.map((d) => ({
-        class: d.class,
-        score: Number(d.score.toFixed(3)),
-        bbox: d.bbox.map(Math.round),
-      })),
-    });
+    const video = videoRef.current;
+    pushLog(
+      "camera",
+      detectRequest("camera", video?.videoWidth ?? 0, video?.videoHeight ?? 0),
+      {
+        objects: detections.length,
+        inference_ms: perf ? Math.round(perf.ms) : undefined,
+        detections: detections.map((d) => ({
+          class: d.class,
+          score: Number(d.score.toFixed(3)),
+          bbox: d.bbox.map(Math.round),
+        })),
+      },
+      perf?.ms
+    );
     setCaptureKey((k) => k + 1);
   }
 
@@ -364,6 +396,25 @@ export default function TryObjectDetection() {
 
   const barButton =
     "inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40";
+
+  // Log tab: mirrors the "Robly on the line" session card from the other live-API demos.
+  // There's no real HTTP call here (detection runs on-device), so each entry stands for one
+  // local inference run — "active" while one is in flight (analyzing a photo, or the live
+  // camera loop continuously running detection).
+  const logCalls: ApiCallEntry[] = log.map((entry) => ({
+    key: entry.key,
+    method: entry.ok ? "RUN" : "ERR",
+    url: "cocoSsd.detect()",
+    status: entry.ok ? "OK" : "ERR",
+    ok: entry.ok,
+    ms: entry.ms,
+    at: entry.at,
+    request: entry.request,
+    response: entry.ok ? entry.response : { error: entry.error },
+    chips: [{ label: t(`try-object.log_row_${entry.source}`) }],
+  }));
+  const callActive = analyzing || live;
+  const callFailed = log.length > 0 && !log[0].ok;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50/50 via-white to-white py-12">
@@ -708,7 +759,7 @@ export default function TryObjectDetection() {
               {/* Below the stage: one-click samples */}
               <div className="mt-4 flex flex-wrap items-center gap-2">
                 <span className="mr-1 whitespace-nowrap text-xs text-gray-500">{t("try-object.samples_label")}</span>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   {SAMPLES.map((s) => (
                     <button
                       key={s.id}
@@ -755,7 +806,7 @@ export default function TryObjectDetection() {
                   ))}
                 </div>
 
-                <div className="scrollbar-thin max-h-[560px] overflow-y-auto p-4 lg:max-h-none lg:min-h-0 lg:flex-1">
+                <div className="scrollbar-thin flex max-h-[560px] flex-col overflow-y-auto p-4 lg:max-h-none lg:min-h-0 lg:flex-1">
                   {panelTab === "detections" ? (
                     <div className="space-y-5">
                       <div className="grid grid-cols-3 gap-2">
@@ -820,36 +871,16 @@ export default function TryObjectDetection() {
                         </div>
                       )}
                     </div>
-                  ) : log.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-10 text-center">
-                      <img src="/robly-avatar/robly-calling.svg" alt="" className="mb-2 h-32 w-32" />
-                      <p className="text-sm font-semibold text-gray-600">{t("try-object.log_empty_title")}</p>
-                      <p className="mt-1 max-w-xs text-sm text-gray-400">{t("try-object.log_empty")}</p>
-                    </div>
                   ) : (
-                    <>
-                      <p className="mb-3 text-xs text-gray-500">{t("try-object.log_subtitle")}</p>
-                      <LayoutGroup>
-                        <AnimatePresence initial={false}>
-                          {log.map((entry) => (
-                            <motion.div
-                              key={entry.key}
-                              layout
-                              initial={{ opacity: 0, y: -12 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0 }}
-                              transition={{ duration: 0.25 }}
-                              className="mb-4"
-                            >
-                              <span className="mb-1.5 inline-block rounded bg-indigo-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-indigo-700">
-                                {entry.label}
-                              </span>
-                              <JsonHighlight data={entry.response} />
-                            </motion.div>
-                          ))}
-                        </AnimatePresence>
-                      </LayoutGroup>
-                    </>
+                    <ApiCallLog
+                      calls={logCalls}
+                      active={callActive}
+                      failed={callFailed}
+                      activeDescription={
+                        analyzing ? t("try-object.analyzing") : live ? t("try-object.log_live_desc") : undefined
+                      }
+                      empty={{ title: t("try-object.log_empty_title"), description: t("try-object.log_empty") }}
+                    />
                   )}
                 </div>
               </div>

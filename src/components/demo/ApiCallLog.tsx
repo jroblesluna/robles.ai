@@ -32,6 +32,7 @@ const METHOD_STYLE: Record<string, string> = {
   GET: "bg-sky-100 text-sky-700",
   POST: "bg-amber-100 text-amber-700",
   WS: "bg-violet-100 text-violet-700",
+  RUN: "bg-indigo-100 text-indigo-700",
   ERR: "bg-red-100 text-red-700",
 };
 
