@@ -1822,6 +1822,15 @@
         "greeting": "👋 ¡Hola! Estoy aquí si necesitas ayuda con soluciones de IA o tienes alguna consulta.",
         "greetingShort": "👋 ¿Te ayudo con IA?"
     },
+    "chatInput": {
+        "mic_start": "Dictar mensaje",
+        "mic_stop": "Detener el dictado",
+        "mic_listening": "Escuchando…",
+        "mic_starting": "Activando el micrófono…",
+        "mic_stopping": "Terminando de transcribir…",
+        "mic_denied": "Se bloqueó el micrófono. Permítelo en el navegador para dictar.",
+        "mic_error": "El dictado no está disponible ahora — escribe tu mensaje."
+    },
     "whatsappWidget": {
         "cta": "Escríbenos",
         "default": {

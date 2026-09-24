@@ -1822,6 +1822,15 @@
         "greeting": "👋 Hi! I'm here if you need help with AI solutions or have any questions!",
         "greetingShort": "👋 Need help with AI?"
     },
+    "chatInput": {
+        "mic_start": "Dictate message",
+        "mic_stop": "Stop dictation",
+        "mic_listening": "Listening…",
+        "mic_starting": "Turning on the mic…",
+        "mic_stopping": "Finishing transcription…",
+        "mic_denied": "Microphone access is blocked. Allow it in your browser to dictate.",
+        "mic_error": "Dictation isn't working right now — type your message instead."
+    },
     "whatsappWidget": {
         "cta": "Chat with us",
         "default": {
