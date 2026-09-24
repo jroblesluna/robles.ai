@@ -2337,5 +2337,15 @@
             "audience": "Retail, hotelería y eventos. No para evaluar empleados ni estudiantes.",
             "metric": "Satisfacción agregada por zona u horario, sin identificar a nadie."
         }
+    },
+    "apiLog": {
+        "live": "Robly está en línea con la API",
+        "waiting": "Esperando la respuesta de la API…",
+        "done": "Llamada finalizada",
+        "failed": "La llamada terminó con un error",
+        "summary": "Llamadas: {{count}} · tiempo total {{time}}",
+        "request": "Cuerpo de la petición",
+        "response": "Respuesta",
+        "streaming": "Transmitiendo audio por un WebSocket en vivo…"
     }
 }
