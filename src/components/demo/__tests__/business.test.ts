@@ -16,9 +16,9 @@ describe("computeSavings", () => {
     expect(computeSavings({ volume: 500, minutes: 10, automation: 0, hourlyCost: 20 }).monthly).toBe(0);
   });
 
-  it("has example inputs for every demo that shows a calculator, but not for emotion", () => {
+  it("has example inputs for every live demo", () => {
     expect(Object.keys(CALCULATOR_DEFAULTS).sort()).toEqual(
-      ["identity", "langchain", "objectdetection", "rag", "speech"],
+      ["emotion", "identity", "langchain", "objectdetection", "rag", "speech"],
     );
   });
 });

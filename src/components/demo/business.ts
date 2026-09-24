@@ -28,13 +28,15 @@ export interface CalculatorDefaults {
   hourlyCost: number;
 }
 
-/** Demos without an entry get the CTA panel only (e.g. emotion, see §4.3). */
+/** Demos without an entry get the CTA panel only. */
 export const CALCULATOR_DEFAULTS: Partial<Record<DemoBusinessId, CalculatorDefaults>> = {
   identity: { volume: 500, minutes: 12, automation: 80, hourlyCost: 15 },
   rag: { volume: 1000, minutes: 8, automation: 60, hourlyCost: 20 },
   langchain: { volume: 300, minutes: 15, automation: 50, hourlyCost: 20 },
   speech: { volume: 80, minutes: 25, automation: 80, hourlyCost: 25 },
   objectdetection: { volume: 40, minutes: 90, automation: 70, hourlyCost: 12 },
+  // Framed as aggregate customer-experience insight replacing surveys, never HR/education (§4.3).
+  emotion: { volume: 600, minutes: 5, automation: 60, hourlyCost: 10 },
 };
 
 /**
