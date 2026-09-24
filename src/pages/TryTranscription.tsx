@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, type ReactNode } from "react";
-import { AnimatePresence, motion, LayoutGroup } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Mic,
   MicOff,
@@ -30,7 +30,7 @@ import { BusinessCase } from "@/components/demo/BusinessCase";
 import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
 import { useDemoTracking } from "@/components/demo/business";
 import { v4 as uuidv4 } from "uuid";
-import { JsonHighlight } from "@/components/demo/JsonHighlight";
+import { ApiCallLog, type ApiCallEntry } from "@/components/demo/ApiCallLog";
 import { InfoTip } from "@/components/demo/InfoTip";
 import { Button } from "@/components/ui/button";
 
@@ -141,12 +141,6 @@ interface Turn {
   text: string;
   ts: number;
   isFinal: boolean;
-}
-
-interface LogEntry {
-  key: string;
-  label: string;   // WS direction/type label shown above the JSON
-  data: any;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -304,10 +298,13 @@ export default function TryTranscription() {
   // the second time (and never shows a result from the other mode as current).
   const [analyses, setAnalyses] = useState<Partial<Record<Mode, any>>>({});
 
-  // Log
-  const [logEntries, setLogEntries] = useState<LogEntry[]>([]);
-  const addLog = useCallback((label: string, data: any) =>
-    setLogEntries((p) => [{ key: uuidv4(), label, data }, ...p]), []);
+  // Log: one row per WS frame / API call, in the shared Robly "on the line" format.
+  const [calls, setCalls] = useState<ApiCallEntry[]>([]);
+  const addCall = useCallback(
+    (entry: Omit<ApiCallEntry, "key" | "at">) =>
+      setCalls((p) => [{ ...entry, key: uuidv4(), at: Date.now() }, ...p]),
+    []
+  );
 
   // UI
   const [showTech, setShowTech] = useState(false);
@@ -477,20 +474,25 @@ export default function TryTranscription() {
     node.connect(mute);
     mute.connect(ctx.destination);
 
-    addLog("→ WS audio", {
-      encoding: "linear16",
-      sampleRate: TARGET_SAMPLE_RATE,
-      contextSampleRate: ctx.sampleRate,
-      frameSamples,
-      node: usedWorklet ? "AudioWorkletNode" : "ScriptProcessorNode",
+    addCall({
+      method: "WS",
+      url: "→ audio capture",
+      ok: true,
+      response: {
+        encoding: "linear16",
+        sampleRate: TARGET_SAMPLE_RATE,
+        contextSampleRate: ctx.sampleRate,
+        frameSamples,
+        node: usedWorklet ? "AudioWorkletNode" : "ScriptProcessorNode",
+      },
     });
-  }, [addLog]);
+  }, [addCall]);
 
   const handleReset = () => {
     closeSession();
     setTranscript([]);
     setAnalyses({});
-    setLogEntries([]);
+    setCalls([]);
     setWsStatus("disconnected");
     setAudioSeconds(null);
     setSidePanel("analysis");
@@ -503,7 +505,7 @@ export default function TryTranscription() {
 
     // Wake the service if cold
     if (!(await ensureWarm())) {
-      addLog("error", { message: t("try-transcription.service_warm_failed") });
+      addCall({ method: "ERR", url: "→ warm-up", status: "ERR", ok: false, response: { message: t("try-transcription.service_warm_failed") } });
       return;
     }
 
@@ -522,13 +524,13 @@ export default function TryTranscription() {
       // Send start message
       const startMsg = { type: "start", language, sample_rate: 16000, encoding: "linear16" };
       ws.send(JSON.stringify(startMsg));
-      addLog("→ WS start", startMsg);
+      addCall({ method: "WS", url: "→ start", ok: true, response: startMsg });
     };
 
     ws.onmessage = (event) => {
       let msg: any;
       try { msg = JSON.parse(event.data as string); } catch { return; }
-      addLog(`← WS ${msg.type}`, msg);
+      addCall({ method: "WS", url: `← ${msg.type}`, ok: msg.type !== "error", response: msg });
 
       switch (msg.type) {
         case "ready":
@@ -602,7 +604,7 @@ export default function TryTranscription() {
     };
 
     ws.onerror = () => {
-      addLog("← WS error", { type: "error", message: "WebSocket connection error" });
+      addCall({ method: "ERR", url: "← WS error", status: "ERR", ok: false, response: { message: "WebSocket connection error" } });
       setWsStatus("error");
       setRecording(false);
     };
@@ -624,7 +626,7 @@ export default function TryTranscription() {
         },
       });
     } catch {
-      addLog("error", { message: "Microphone access denied" });
+      addCall({ method: "ERR", url: "→ getUserMedia", status: "ERR", ok: false, response: { message: "Microphone access denied" } });
       ws.close();
       setWsStatus("error");
       return;
@@ -635,7 +637,7 @@ export default function TryTranscription() {
     try {
       await startCapture(stream, ws);
     } catch (err: any) {
-      addLog("error", { message: "Audio capture failed", detail: err?.message });
+      addCall({ method: "ERR", url: "→ audio capture", status: "ERR", ok: false, response: { message: "Audio capture failed", detail: err?.message } });
       stopCapture();
       ws.close();
       setWsStatus("error");
@@ -649,7 +651,7 @@ export default function TryTranscription() {
     if (!recording) return;
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({ type: "stop" }));
-      addLog("→ WS stop", { type: "stop" });
+      addCall({ method: "WS", url: "→ stop", ok: true, response: { type: "stop" } });
     }
     stopCapture();
     setRecording(false);
@@ -666,7 +668,7 @@ export default function TryTranscription() {
     setAnalyzing(true);
 
     const payload = { transcript: finalTurns, mode: targetMode, language };
-    addLog("→ POST /analyze", payload);
+    const started = performance.now();
     try {
       const res = await fetch(ANALYZE_URL, {
         method: "POST",
@@ -674,14 +676,16 @@ export default function TryTranscription() {
         body: JSON.stringify(payload),
       });
       const data = await res.json();
-      addLog("← POST /analyze", data);
+      const ms = performance.now() - started;
+      addCall({ method: "POST", url: ANALYZE_URL, status: res.status, ok: res.ok && data.status === "success", ms, request: payload, response: data });
       if (data.status === "success") {
         setAnalyses((prev) => ({ ...prev, [targetMode]: data.data }));
         setSidePanel("analysis");
         trackComplete({ mode: targetMode });
       }
     } catch (err: any) {
-      addLog("← POST /analyze error", { error: err?.message });
+      const ms = performance.now() - started;
+      addCall({ method: "POST", url: ANALYZE_URL, status: "ERR", ok: false, ms, request: payload, response: { error: err?.message } });
     } finally {
       setAnalyzing(false);
     }
@@ -694,6 +698,16 @@ export default function TryTranscription() {
   const canAnalyze = hasFinalTurns && wsStatus !== "connecting" && wsStatus !== "ready" && !analyzing;
   const canRecord = serviceStatus !== "checking" && serviceStatus !== "warming" && wsStatus !== "connecting";
   const speakerCount = new Set(transcript.map((turn) => turn.speaker)).size;
+
+  // Robly's "on the line" session card: active while the socket is live or an
+  // analysis request is in flight; failed only if the most recent call errored.
+  const callActive = recording || wsStatus === "connecting" || analyzing;
+  const callFailed = calls.length > 0 && !calls[0].ok;
+  const callActiveDescription = analyzing
+    ? t("try-transcription.analyzing")
+    : recording
+      ? t("try-transcription.recording")
+      : t("try-transcription.ws_status_connecting");
 
   // Result for the selected mode; while re-analyzing in the other mode, keep
   // the previous one on screen (dimmed) instead of flashing an empty panel.
@@ -933,7 +947,7 @@ export default function TryTranscription() {
               <div role="tablist" className="flex gap-1 border-b border-gray-100 px-3 pt-2">
                 {([
                   { id: "analysis", icon: Sparkles, label: t("try-transcription.tab_analysis") },
-                  { id: "log", icon: Terminal, label: t("try-transcription.tab_log"), count: logEntries.length },
+                  { id: "log", icon: Terminal, label: t("try-transcription.tab_log"), count: calls.length },
                 ] as const).map((tab) => (
                   <button
                     key={tab.id}
@@ -1112,40 +1126,22 @@ export default function TryTranscription() {
                     </div>
                   )}
                   </div>
-                ) : logEntries.length === 0 ? (
-                  <div className="flex h-full flex-col items-center justify-center py-8 text-center">
-                    <img src="/robly-avatar/robly-standby.svg" alt="" className="mb-2 h-24 w-24 opacity-50" />
-                    <p className="flex items-center gap-1.5 text-sm font-semibold text-gray-600">
-                      {t("try-transcription.log_empty_title")}
-                      <InfoTip text={t("try-transcription.tip_log")} hoverColor={TIP_HOVER} />
-                    </p>
-                    <p className="mt-1 max-w-xs text-sm text-gray-400">{t("try-transcription.log_empty")}</p>
-                  </div>
                 ) : (
-                  <LayoutGroup>
-                    <AnimatePresence initial={false}>
-                      {logEntries.map((entry) => (
-                        <motion.div
-                          key={entry.key}
-                          layout
-                          initial={{ opacity: 0, y: -12 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.25 }}
-                          className="mb-4"
-                        >
-                          <span className={`mb-1.5 inline-block rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
-                            entry.label.startsWith("→")
-                              ? `${BADGE_BG} ${BADGE_TEXT}`
-                              : "bg-sky-100 text-sky-700"
-                          }`}>
-                            {entry.label}
-                          </span>
-                          <JsonHighlight data={entry.data} />
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
-                  </LayoutGroup>
+                  <ApiCallLog
+                    calls={calls}
+                    active={callActive}
+                    failed={callFailed}
+                    activeDescription={callActiveDescription}
+                    empty={{
+                      title: (
+                        <>
+                          {t("try-transcription.log_empty_title")}
+                          <InfoTip text={t("try-transcription.tip_log")} hoverColor={TIP_HOVER} />
+                        </>
+                      ),
+                      description: t("try-transcription.log_empty"),
+                    }}
+                  />
                 )}
               </div>
             </div>
