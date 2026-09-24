@@ -32,6 +32,7 @@ import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
 import { useDemoTracking } from "@/components/demo/business";
 import { v4 as uuidv4 } from "uuid";
 import { JsonHighlight } from "@/components/demo/JsonHighlight";
+import { ApiCallLog } from "@/components/demo/ApiCallLog";
 import { InfoTip } from "@/components/demo/InfoTip";
 import { HowItWorks, StatusPill, TechCard, type StatusTone } from "@/components/demo/DemoKit";
 import * as pdfjsLib from "pdfjs-dist";
@@ -101,6 +102,8 @@ interface ApiCall {
   url: string;
   request?: unknown;
   response: unknown;
+  status?: number;
+  ms?: number;
 }
 
 interface StepRun {
@@ -350,6 +353,7 @@ export default function TryRAG() {
   const { t, i18n } = useTranslation();
   const { start: trackStart, complete: trackComplete } = useDemoTracking("rag");
   const num = new Intl.NumberFormat(i18n.language);
+  const isEs = i18n.language?.startsWith("es");
 
   // Document
   const [pdfFile, setPdfFile] = useState<File | null>(null);
@@ -453,10 +457,18 @@ export default function TryRAG() {
   };
   const endStep = (id: StepId) => patchRun(id, { status: "done", endedAt: Date.now() });
   const failStep = (id: StepId, error: string) => patchRun(id, { status: "error", endedAt: Date.now(), error });
-  const logCall = (id: StepId, method: string, url: string, request: unknown, response: unknown) =>
+  const logCall = (
+    id: StepId,
+    method: string,
+    url: string,
+    request: unknown,
+    response: unknown,
+    status?: number,
+    ms?: number
+  ) =>
     setRuns((r) => ({
       ...r,
-      [id]: { ...r[id], calls: [...r[id].calls, { key: uuidv4(), at: Date.now(), method, url, request, response }] },
+      [id]: { ...r[id], calls: [...r[id].calls, { key: uuidv4(), at: Date.now(), method, url, request, response, status, ms }] },
     }));
 
   const resetAnswer = () => {
@@ -528,9 +540,10 @@ export default function TryRAG() {
 
     try {
       const checkUrl = `${BASE_API}/rag/check-namespace`;
+      const checkStarted = performance.now();
       const checkRes = await fetch(checkUrl, { method: "POST", body: new URLSearchParams({ namespace: ns }) });
       const checkJson = await checkRes.json();
-      logCall("index", "POST", checkUrl, { namespace: ns }, checkJson);
+      logCall("index", "POST", checkUrl, { namespace: ns }, checkJson, checkRes.status, performance.now() - checkStarted);
 
       if (checkJson.data.exists) {
         // Already indexed under this hash → reuse it.
@@ -538,6 +551,7 @@ export default function TryRAG() {
         setChunkCount(checkJson.data.vector_count);
       } else {
         const uploadUrl = `${BASE_API}/rag/upload`;
+        const uploadStarted = performance.now();
         const res = await fetch(uploadUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -545,7 +559,15 @@ export default function TryRAG() {
         });
         if (!res.ok) throw new Error(`Upload failed with HTTP ${res.status}`);
         const json = await res.json();
-        logCall("index", "POST", uploadUrl, { namespace: ns, text: `${num.format(text.length)} chars` }, json);
+        logCall(
+          "index",
+          "POST",
+          uploadUrl,
+          { namespace: ns, text: `${num.format(text.length)} chars` },
+          json,
+          res.status,
+          performance.now() - uploadStarted
+        );
         // Adopt the backend's authoritative namespace (it re-hashes the text).
         const nsFinal: string = json.data?.namespace || ns;
         setNamespace(nsFinal);
@@ -561,13 +583,22 @@ export default function TryRAG() {
         for (let offset = 0; offset < total; offset += EMBED_BATCH) {
           const batch = chunks.slice(offset, offset + EMBED_BATCH);
           const body = { namespace: nsFinal, chunks: batch, chunk_offset: offset, total_chunks: total };
+          const embedStarted = performance.now();
           const eRes = await fetch(embedUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
           });
           const eJson = await eRes.json();
-          logCall("index", "POST", embedUrl, { ...body, chunks: `${batch.length} chunks` }, eJson);
+          logCall(
+            "index",
+            "POST",
+            embedUrl,
+            { ...body, chunks: `${batch.length} chunks` },
+            eJson,
+            eRes.status,
+            performance.now() - embedStarted
+          );
           // Whole document already indexed → the first batch returns done.
           if (offset === 0 && eJson.data?.done && eJson.data?.indexed >= total) break;
           setEmbedProgress({ current: Math.min(offset + batch.length, total), total });
@@ -591,6 +622,15 @@ export default function TryRAG() {
     void processDocument(file);
   };
 
+  /** Loads the bundled fictional policy PDF for a visitor with no document handy. */
+  const useSampleDoc = async () => {
+    if (docStatus === "processing" || asking) return;
+    const url = `/demo-samples/rag-sample-${isEs ? "es" : "en"}.pdf`;
+    const name = isEs ? "politica-viajes-northwind.pdf" : "northwind-travel-policy.pdf";
+    const blob = await fetch(url).then((r) => r.blob());
+    void processDocument(new File([blob], name, { type: "application/pdf" }));
+  };
+
   // ── 2) Question: search → rerank → generate, automatically ────────────────
   const ask = async (raw: string) => {
     const question = raw.trim();
@@ -609,9 +649,10 @@ export default function TryRAG() {
       const formData = new FormData();
       formData.append("question", question);
       formData.append("namespace", namespace);
+      const qStarted = performance.now();
       const qRes = await fetch(queryUrl, { method: "POST", body: formData });
       const qJson = await qRes.json();
-      logCall("search", "POST", queryUrl, { question, namespace }, qJson);
+      logCall("search", "POST", queryUrl, { question, namespace }, qJson, qRes.status, performance.now() - qStarted);
       const top: any[] = qJson.data?.results;
       if (!Array.isArray(top)) throw new Error("bad search response");
       setTopResults(top);
@@ -620,13 +661,22 @@ export default function TryRAG() {
       current = "rerank";
       beginStep("rerank");
       const rerankUrl = `${BASE_API}/rag/rerank`;
+      const rStarted = performance.now();
       const rRes = await fetch(rerankUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question, top_results: top }),
       });
       const rJson = await rRes.json();
-      logCall("rerank", "POST", rerankUrl, { question, top_results: `${top.length} candidates` }, rJson);
+      logCall(
+        "rerank",
+        "POST",
+        rerankUrl,
+        { question, top_results: `${top.length} candidates` },
+        rJson,
+        rRes.status,
+        performance.now() - rStarted
+      );
       if (rJson.status !== "success" || !rJson.data?.reranked) throw new Error(t("try-rag.rerank_error"));
       const reranked: any[] = rJson.data.reranked;
       setRerankedResults(reranked);
@@ -635,13 +685,22 @@ export default function TryRAG() {
       current = "generate";
       beginStep("generate");
       const genUrl = `${BASE_API}/rag/generate`;
+      const gStarted = performance.now();
       const gRes = await fetch(genUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question, reranked }),
       });
       const gJson = await gRes.json();
-      logCall("generate", "POST", genUrl, { question, reranked: `${reranked.length} passages` }, gJson);
+      logCall(
+        "generate",
+        "POST",
+        genUrl,
+        { question, reranked: `${reranked.length} passages` },
+        gJson,
+        gRes.status,
+        performance.now() - gStarted
+      );
       // Response shape is { gpt: {llm_request, llm_response}, llama: {...} };
       // fall back to the old plain-string shape.
       const pickAnswer = (v: any) => (v && typeof v === "object" ? v.llm_response : v);
@@ -1018,20 +1077,43 @@ export default function TryRAG() {
               {/* Document bar */}
               <div className="border-b border-gray-100 p-4">
                 {!pdfFile ? (
-                  <label
-                    htmlFor="rag-pdf-input"
-                    className={`group flex cursor-pointer items-center gap-4 rounded-xl border-2 border-dashed p-4 transition-all ${
-                      dragging ? "border-cyan-400 bg-cyan-50/60" : "border-gray-200 hover:border-cyan-400 hover:bg-cyan-50/40"
-                    }`}
-                  >
-                    <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${ACCENT_GRADIENT} text-white shadow-sm`}>
-                      <Upload className="h-5 w-5" />
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block text-sm font-semibold text-gray-900">{t("try-rag.dropzone_idle")}</span>
-                      <span className="mt-0.5 block text-xs text-gray-500">{t("try-rag.dropzone_hint")}</span>
-                    </span>
-                  </label>
+                  <div className="space-y-2.5">
+                    <label
+                      htmlFor="rag-pdf-input"
+                      className={`group flex cursor-pointer items-center gap-4 rounded-xl border-2 border-dashed p-4 transition-all ${
+                        dragging ? "border-cyan-400 bg-cyan-50/60" : "border-gray-200 hover:border-cyan-400 hover:bg-cyan-50/40"
+                      }`}
+                    >
+                      <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${ACCENT_GRADIENT} text-white shadow-sm`}>
+                        <Upload className="h-5 w-5" />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-sm font-semibold text-gray-900">{t("try-rag.dropzone_idle")}</span>
+                        <span className="mt-0.5 block text-xs text-gray-500">{t("try-rag.dropzone_hint")}</span>
+                      </span>
+                    </label>
+
+                    <div className="flex items-center gap-3 text-[11px] uppercase tracking-wider text-gray-400">
+                      <span className="h-px flex-1 bg-gray-100" />
+                      {t("try-rag.dropzone_or")}
+                      <span className="h-px flex-1 bg-gray-100" />
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={useSampleDoc}
+                      className="flex w-full items-center gap-3 rounded-xl border border-cyan-200 bg-cyan-50/40 p-2.5 text-left transition-colors hover:border-cyan-300 hover:bg-cyan-50"
+                    >
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm ring-1 ring-cyan-100">
+                        <FileText className={`h-4 w-4 ${ACCENT_TEXT}`} />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-sm font-semibold text-gray-900">{t("try-rag.dropzone_sample")}</span>
+                        <span className="block text-xs text-gray-500">{t("try-rag.dropzone_sample_hint")}</span>
+                      </span>
+                      <Sparkles className="h-4 w-4 shrink-0 text-cyan-500" />
+                    </button>
+                  </div>
                 ) : (
                   <div className={`flex items-center gap-3 rounded-xl p-2 transition-colors ${dragging ? "bg-cyan-50 ring-2 ring-cyan-200" : ""}`}>
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-100 ring-1 ring-gray-200">
@@ -1274,7 +1356,7 @@ export default function TryRAG() {
                 )}
               </div>
 
-              <div className="flex max-h-[640px] flex-col overflow-y-auto px-2 py-3 lg:max-h-none lg:min-h-0 lg:flex-1">
+              <div className="scrollbar-thin flex max-h-[640px] flex-col overflow-y-auto py-3 pl-2 pr-0.5 lg:max-h-none lg:min-h-0 lg:flex-1">
                 {panelTab === "pipeline" ? (
                   <>
                     <p className="mb-2 px-3 text-xs text-gray-500">{t("try-rag.bts_subtitle")}</p>
@@ -1340,34 +1422,26 @@ export default function TryRAG() {
                       })}
                     </ol>
                   </>
-                ) : allCalls.length === 0 ? (
-                  <div className="flex flex-1 flex-col items-center justify-center py-10 text-center">
-                    <img src="/robly-avatar/robly-standby.svg" alt="" className="mb-2 h-28 w-28 opacity-60" />
-                    <p className="text-sm font-semibold text-gray-600">{t("try-rag.log_empty_title")}</p>
-                    <p className="mt-1 max-w-xs text-sm text-gray-400">{t("try-rag.log_empty")}</p>
-                  </div>
                 ) : (
-                  <ol className="space-y-4 px-3">
-                    {allCalls.map((call) => (
-                      <li key={call.key}>
-                        <div className="mb-1.5 flex flex-wrap items-center gap-2">
-                          <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-600">
-                            {t(`try-rag.step_${call.step}`)}
-                          </span>
-                          <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-700">{call.method}</span>
-                          <span className="break-all font-mono text-xs text-cyan-700">{call.url.replace(BASE_API, "")}</span>
-                        </div>
-                        {call.request !== undefined && (
-                          <div className="mb-2">
-                            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-400">{t("try-rag.detail_request")}</p>
-                            <JsonHighlight data={call.request} />
-                          </div>
-                        )}
-                        <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-400">{t("try-rag.detail_response")}</p>
-                        <JsonHighlight data={call.response} />
-                      </li>
-                    ))}
-                  </ol>
+                  <div className="flex flex-1 flex-col px-3">
+                    <ApiCallLog
+                      calls={allCalls.map((call) => ({
+                        key: call.key,
+                        method: call.method,
+                        url: call.url,
+                        status: call.status,
+                        ms: call.ms,
+                        at: call.at,
+                        request: call.request,
+                        response: call.response,
+                        chips: [{ label: t(`try-rag.step_${call.step}`) }],
+                      }))}
+                      active={docStatus === "processing" || asking}
+                      failed={!!failedStep}
+                      activeDescription={runningStep ? stepSummary(runningStep) : undefined}
+                      empty={{ title: t("try-rag.log_empty_title"), description: t("try-rag.log_empty") }}
+                    />
+                  </div>
                 )}
               </div>
             </div>
