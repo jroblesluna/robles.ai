@@ -586,7 +586,7 @@ const CaseStudies = () => {
   return (
     <section id="case-studies" className="scroll-mt-10 bg-gray-50 py-16 md:py-20">
       <motion.div
-        className="container mx-auto max-w-6xl px-6"
+        className="container mx-auto max-w-[max(72rem,70vw)] px-6"
         variants={staggerContainer}
         initial="hidden"
         whileInView="visible"

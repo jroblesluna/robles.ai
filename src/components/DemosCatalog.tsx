@@ -390,7 +390,7 @@ export default function DemosCatalog({
     return (
       <section id="demos" className="scroll-mt-20 bg-gradient-to-b from-white to-gray-50/70 py-24">
         <motion.div
-          className="container mx-auto max-w-7xl px-6"
+          className="container mx-auto max-w-[max(80rem,70vw)] px-6"
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
@@ -500,7 +500,7 @@ export default function DemosCatalog({
         <div aria-hidden className="pointer-events-none absolute -top-40 left-1/2 h-80 w-[800px] -translate-x-1/2 rounded-full bg-gradient-to-r from-violet-200/50 via-blue-200/40 to-emerald-200/40 blur-3xl" />
 
         <motion.div
-          className="container relative mx-auto max-w-7xl px-6 pb-14 pt-20 md:pt-24"
+          className="container relative mx-auto max-w-[max(80rem,70vw)] px-6 pb-14 pt-20 md:pt-24"
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
@@ -538,7 +538,7 @@ export default function DemosCatalog({
 
       {/* toolbar */}
       <div className="sticky top-[68px] z-20 border-b border-gray-100 bg-white/85 backdrop-blur-md">
-        <div className="container mx-auto flex max-w-7xl flex-col gap-3 px-6 py-3 md:flex-row md:items-center md:justify-between">
+        <div className="container mx-auto flex max-w-[max(80rem,70vw)] flex-col gap-3 px-6 py-3 md:flex-row md:items-center md:justify-between">
           <div className="-mx-1 flex gap-1 overflow-x-auto px-1 [scrollbar-width:none]">
             {CATEGORIES.map((c) => {
               const active = category === c;
@@ -573,7 +573,7 @@ export default function DemosCatalog({
         </div>
       </div>
 
-      <div className="container mx-auto max-w-7xl px-6 py-14">
+      <div className="container mx-auto max-w-[max(80rem,70vw)] px-6 py-14">
         {/* live */}
         {live.length > 0 && (
           <div>

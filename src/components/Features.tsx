@@ -182,7 +182,7 @@ const Features = () => {
       />
 
       <motion.div
-        className="container relative mx-auto max-w-6xl px-6"
+        className="container relative mx-auto max-w-[max(72rem,70vw)] px-6"
         variants={staggerContainer}
         initial="hidden"
         whileInView="visible"

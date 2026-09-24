@@ -253,7 +253,7 @@ const Solutions = () => {
       <style>{`@keyframes sol-progress{from{transform:scaleX(0)}to{transform:scaleX(1)}}`}</style>
 
       <motion.div
-        className="container mx-auto max-w-7xl px-6"
+        className="container mx-auto max-w-[max(80rem,70vw)] px-6"
         variants={staggerContainer}
         initial="hidden"
         whileInView="visible"
