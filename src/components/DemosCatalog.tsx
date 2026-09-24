@@ -455,22 +455,26 @@ export default function DemosCatalog({
           })}
 
           {showViewAll && (
-            <div className="h-full">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: Math.min(cards.length * 0.06, 0.3) }}
+              className="h-full"
+            >
               <Link
                 href="/demos"
                 className="group relative flex h-full min-h-[420px] flex-col justify-end overflow-hidden rounded-3xl bg-gray-950 p-7 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
               >
                 <span className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-violet-600/40 blur-3xl" />
                 <span className="pointer-events-none absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-blue-600/25 blur-3xl" />
-                <div className="relative mb-auto flex -space-x-2">
-                  {soonAll.slice(0, 5).map((s) => {
-                    const SIcon = ICONS[s.icon] || Sparkles;
-                    return (
-                      <span key={s.id} className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-800 text-gray-300 ring-2 ring-gray-950">
-                        <SIcon className="h-4 w-4" />
-                      </span>
-                    );
-                  })}
+                <div className="relative mb-auto flex flex-wrap items-center gap-2">
+                  {[...liveAll, ...soonAll].slice(0, 8).map((item) => (
+                    <span
+                      key={item.id}
+                      className={`h-2.5 w-2.5 rounded-full bg-gradient-to-br ${GRADIENTS[item.id] ?? `${item.from} ${item.to}`}`}
+                    />
+                  ))}
                 </div>
                 <p className="relative text-2xl font-semibold tracking-tight">{t("demosCatalog.view_all")}</p>
                 <p className="relative mt-2 text-sm text-gray-400">
@@ -480,7 +484,7 @@ export default function DemosCatalog({
                   <ArrowRight className="h-5 w-5" />
                 </span>
               </Link>
-            </div>
+            </motion.div>
           )}
           </div>
         </motion.div>
