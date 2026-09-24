@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
-import { AnimatePresence, motion, LayoutGroup } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Fingerprint,
   Info,
@@ -30,7 +30,7 @@ import { useTranslation } from "react-i18next";
 import { BusinessCase } from "@/components/demo/BusinessCase";
 import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
 import { useDemoTracking } from "@/components/demo/business";
-import { JsonHighlight } from "@/components/demo/JsonHighlight";
+import { ApiCallLog, type ApiCallEntry } from "@/components/demo/ApiCallLog";
 import { InfoTip } from "@/components/demo/InfoTip";
 import { HowItWorks, StatusPill, TechCard, type StatusTone } from "@/components/demo/DemoKit";
 
@@ -91,6 +91,17 @@ function redactForLog(response: any): any {
   } catch {
     return response;
   }
+}
+
+interface ApiCall {
+  key: string;
+  method: "GET" | "POST";
+  url: string;
+  httpStatus: number;
+  ms: number;
+  at: number;
+  request?: unknown;
+  response: unknown;
 }
 
 type StatusKey =
@@ -209,7 +220,7 @@ export default function TryIdentity() {
   const [status, setStatus] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
   const [payloadPreview, setPayloadPreview] = useState<any>(null);
-  const [queryHistory, setQueryHistory] = useState<any[]>([]);
+  const [queryHistory, setQueryHistory] = useState<ApiCall[]>([]);
   const [modalImage, setModalImage] = useState<string | null>(null);
   const [callbackUrl, setCallbackUrl] = useState(() => `${window.location.origin}/webhook/${uuidv4()}`);
   const [sidePanel, setSidePanel] = useState<"results" | "log">("results");
@@ -306,13 +317,25 @@ export default function TryIdentity() {
     const interval = setInterval(async () => {
       try {
         const url = STATUS_ENDPOINT(requestId);
+        const started = performance.now();
         const res = await fetch(url);
         const data = await res.json();
+        const ms = performance.now() - started;
         setStatus(data.data.status);
         setResult(data.data);
 
-        const newEntry = { url, response: redactForLog(data), key: uuidv4() };
-        setQueryHistory((prev) => [newEntry, ...prev]);
+        setQueryHistory((prev) => [
+          {
+            key: uuidv4(),
+            method: "GET",
+            url,
+            httpStatus: res.status,
+            ms,
+            at: Date.now(),
+            response: redactForLog(data),
+          },
+          ...prev,
+        ]);
 
         if (["completed", "completed_with_errors"].includes(data.data.status)) {
           trackComplete({ status: data.data.status });
@@ -400,28 +423,39 @@ export default function TryIdentity() {
       };
 
       // Show a truncated preview in the log (base64 strings are huge).
-      setPayloadPreview({
+      const preview = {
         faceImageBase64: `${faceImageBase64.slice(0, 48)}… (${faceImageBase64.length} chars)`,
         cardIdImageBase64: `${cardIdImageBase64.slice(0, 48)}… (${cardIdImageBase64.length} chars)`,
         callback: callbackUrl,
-      });
+      };
+      setPayloadPreview(preview);
 
+      const started = performance.now();
       const response = await fetch(VERIFY_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+      const data = await response.json().catch(() => ({}));
+      const postCall: ApiCall = {
+        key: uuidv4(),
+        method: "POST",
+        url: VERIFY_ENDPOINT,
+        httpStatus: response.status,
+        ms: performance.now() - started,
+        at: Date.now(),
+        request: preview,
+        response: data,
+      };
+      setQueryHistory([postCall]);
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `Error HTTP ${response.status}`);
+        throw new Error(data.message || `Error HTTP ${response.status}`);
       }
 
-      const data = await response.json();
       setRequestId(data.data.id);
       setStatus(data.data.status);
       setSubmitted(true);
-      setQueryHistory([{ url: VERIFY_ENDPOINT, response: data, key: uuidv4() }]);
       setSidePanel("results");
 
       toast({ title: t("try-identity.verify_sent"), description: `ID: ${data.data.id}`, variant: "success" });
@@ -473,6 +507,24 @@ export default function TryIdentity() {
   };
 
   const statusMeta = status ? STATUS_META[status as StatusKey] : null;
+
+  const callActive = loading || (submitted && !["completed", "completed_with_errors", "failed"].includes(status ?? ""));
+  const callFailed = status === "failed" || queryHistory.some((c) => c.httpStatus >= 400);
+  const logCalls: ApiCallEntry[] = queryHistory.map((c) => {
+    const apiStatus: string | undefined = (c.response as any)?.data?.status;
+    const meta = apiStatus ? STATUS_META[apiStatus as StatusKey] : undefined;
+    return {
+      key: c.key,
+      method: c.method,
+      url: c.url,
+      status: c.httpStatus,
+      ms: c.ms,
+      at: c.at,
+      request: c.request,
+      response: c.response,
+      chips: apiStatus ? [{ label: apiStatus, className: meta?.tone, dot: meta?.dot ?? "bg-gray-400" }] : undefined,
+    };
+  });
   const showResult =
     result && ["partially_completed", "completed", "completed_with_errors", "failed"].includes(result.status);
 
@@ -682,7 +734,10 @@ export default function TryIdentity() {
             </div>
 
             {/* ── Right: result / raw API log ───────────────────────────────── */}
-            <div className="flex min-h-0 min-w-0 flex-col border-t border-gray-100 lg:col-span-2 lg:border-t-0">
+            {/* On lg the left column sets the row height; this panel fills it and scrolls
+                instead of growing when a log entry is expanded. */}
+            <div className="relative min-w-0 border-t border-gray-100 lg:col-span-2 lg:border-t-0">
+              <div className="flex flex-col lg:absolute lg:inset-0">
               <div role="tablist" className="flex h-[51px] shrink-0 items-center gap-1 border-b border-gray-100 px-3">
                 {([
                   { id: "results", icon: Sparkles, label: t("try-identity.tab_results") },
@@ -711,7 +766,11 @@ export default function TryIdentity() {
                 ))}
               </div>
 
-              <div className="max-h-[640px] overflow-x-hidden overflow-y-auto p-5 lg:max-h-none">
+              <div
+                className={`scrollbar-thin max-h-[640px] overflow-x-hidden overflow-y-auto py-5 pl-5 pr-3.5 lg:max-h-none lg:min-h-0 lg:flex-1 ${
+                  sidePanel === "log" ? "flex flex-col" : ""
+                }`}
+              >
                 {sidePanel === "results" ? (
                   <>
                     {/* Verification progress: lives at the top of the result panel now,
@@ -861,46 +920,30 @@ export default function TryIdentity() {
                     </div>
                   )}
                   </>
-                ) : queryHistory.length === 0 ? (
-                  <div className="flex h-full flex-col items-center justify-center py-8 text-center">
-                    <img src="/robly-avatar/robly-standby.svg" alt="" className="mb-2 h-24 w-24 opacity-50" />
-                    <p className="flex items-center gap-1.5 text-sm font-semibold text-gray-600">
-                      {t("try-identity.log_empty_title")}
-                      <InfoTip text={t("try-identity.tip_log")} hoverColor={TIP_HOVER} />
-                    </p>
-                    <p className="mt-1 max-w-xs text-sm text-gray-400">{t("try-identity.log_empty")}</p>
-                  </div>
                 ) : (
-                  <LayoutGroup>
-                    <AnimatePresence initial={false}>
-                      {queryHistory.map((entry) => (
-                        <motion.div
-                          key={entry.key}
-                          layout
-                          initial={{ opacity: 0, y: -16 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 16 }}
-                          transition={{ duration: 0.3 }}
-                          className="mb-4"
-                        >
-                          <div className="mb-1.5 flex items-center gap-2">
-                            <span
-                              className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
-                                entry.url.includes("verify-id")
-                                  ? "bg-amber-100 text-amber-700"
-                                  : "bg-sky-100 text-sky-700"
-                              }`}
-                            >
-                              {entry.url.includes("verify-id") ? "POST" : "GET"}
-                            </span>
-                            <span className="break-all font-mono text-xs text-violet-600">{entry.url}</span>
-                          </div>
-                          <JsonHighlight data={entry.response} />
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
-                  </LayoutGroup>
+                  <ApiCallLog
+                    calls={logCalls}
+                    active={callActive}
+                    failed={callFailed}
+                    activeDescription={
+                      queryHistory.length === 0
+                        ? serviceStatus === "warming"
+                          ? t("try-identity.log_call_warming")
+                          : t("try-identity.log_call_sending")
+                        : t("try-identity.log_call_polling")
+                    }
+                    empty={{
+                      title: (
+                        <>
+                          {t("try-identity.log_empty_title")}
+                          <InfoTip text={t("try-identity.tip_log")} hoverColor={TIP_HOVER} />
+                        </>
+                      ),
+                      description: t("try-identity.log_empty"),
+                    }}
+                  />
                 )}
+              </div>
               </div>
             </div>
           </div>
