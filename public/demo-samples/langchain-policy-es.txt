@@ -1,0 +1,31 @@
+NORTHWIND LOGISTICS — POLÍTICA DE VIAJES Y TRABAJO REMOTO (EJEMPLO FICTICIO)
+Versión 3.2 · Vigente desde el 1 de enero de 2026 · Responsable: People Operations
+
+1. PROPÓSITO
+Esta política explica cómo los colaboradores de Northwind Logistics pueden trabajar de forma remota y cómo se solicitan, aprueban y reembolsan los viajes de negocio.
+
+2. TRABAJO REMOTO
+2.1 Los colaboradores a tiempo completo que hayan superado el periodo de prueba de 90 días pueden trabajar de forma remota hasta 3 días por semana.
+2.2 Los martes son "días ancla": todos los equipos trabajan desde la oficina los martes, salvo que su jefe apruebe una excepción por escrito.
+2.3 Quien trabaje de forma remota debe estar disponible en el chat de la empresa entre las 9:00 y las 16:00, hora local.
+2.4 Northwind otorga un bono único de USD 400 para equipar la oficina en casa (silla, escritorio o monitor). Los comprobantes deben presentarse dentro de los 60 días posteriores a la compra.
+2.5 Trabajar de forma remota desde otro país está permitido hasta 20 días hábiles por año calendario y requiere aprobación de People Operations.
+
+3. VIAJES DE NEGOCIO — APROBACIONES
+3.1 Los viajes nacionales deben ser aprobados por el jefe directo con al menos 7 días de anticipación.
+3.2 Los viajes internacionales deben ser aprobados por el jefe directo Y por el director del área con al menos 21 días de anticipación.
+3.3 Los viajes reservados con menos anticipación requieren una justificación escrita del jefe.
+
+4. VIAJES DE NEGOCIO — GASTOS
+4.1 Vuelos: clase económica para trayectos de menos de 6 horas; se permite economía premium en vuelos de 6 horas o más.
+4.2 Hoteles: hasta USD 180 por noche en ciudades estándar y hasta USD 260 por noche en Nueva York, Londres, Tokio y San Francisco.
+4.3 Alimentación: viático diario de USD 65 en viajes nacionales y USD 85 en viajes internacionales. El alcohol no es reembolsable.
+4.4 Transporte terrestre: se reembolsan taxis y apps de movilidad por motivos de trabajo; el alquiler de autos requiere aprobación previa.
+4.5 Todas las rendiciones de gastos deben presentarse dentro de los 30 días posteriores al viaje, con comprobantes detallados para cualquier gasto mayor a USD 25.
+
+5. SEGURIDAD
+5.1 Todo viaje debe registrarse en el portal de viajes de Northwind para que la empresa pueda contactar al viajero en caso de emergencia.
+5.2 No se permite viajar a destinos con alerta gubernamental de "no viajar".
+
+6. CONTACTO
+Consultas sobre esta política: people-ops@northwind.example
