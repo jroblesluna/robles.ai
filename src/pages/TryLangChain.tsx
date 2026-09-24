@@ -21,7 +21,6 @@ import {
   Wand2,
   Copy,
   Check,
-  ChevronDown,
   AlertCircle,
   Sparkles,
   ArrowUpRight,
@@ -38,6 +37,7 @@ import { BusinessCase } from "@/components/demo/BusinessCase";
 import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
 import { useDemoTracking } from "@/components/demo/business";
 import { JsonHighlight } from "@/components/demo/JsonHighlight";
+import { ApiCallLog, type ApiCallEntry } from "@/components/demo/ApiCallLog";
 import { InfoTip } from "@/components/demo/InfoTip";
 import { HowItWorks, StatusPill, TechCard, type StatusTone } from "@/components/demo/DemoKit";
 import { useSpeechInput } from "@/hooks/useSpeechInput";
@@ -145,7 +145,6 @@ export default function TryLangChain() {
   const [dragging, setDragging] = useState(false);
 
   const [calls, setCalls] = useState<ApiCall[]>([]);
-  const [openCall, setOpenCall] = useState<string | null>(null);
   const [serviceStatus, setServiceStatus] = useState<"checking" | "warm" | "warming" | "cold">("checking");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -165,6 +164,21 @@ export default function TryLangChain() {
   const uploading = docs.some((d) => d.state === "uploading");
   const failedDocs = docs.filter((d) => d.state === "error");
   const ragLocked = mode === "rag" && readyDocs.length === 0;
+
+  const logCalls: ApiCallEntry[] = calls.map((c) => ({
+    key: c.id,
+    method: c.method,
+    url: `${BASE_API}${c.path}`,
+    status: c.status ?? "ERR",
+    ok: c.status !== undefined && c.status < 400 && !(c.response as any)?.error,
+    ms: c.ms,
+    at: c.at.getTime(),
+    request: c.request,
+    response: c.response,
+  }));
+  const callActive = busy || uploading;
+  // Judge the session by its latest call: one early failure shouldn't mark a long chat as failed.
+  const callFailed = logCalls.length > 0 && !logCalls[0].ok;
 
   // Health check on mount (warm vs cold from latency).
   useEffect(() => {
@@ -257,7 +271,6 @@ export default function TryLangChain() {
         at: new Date(),
       };
       setCalls((prev) => [call, ...prev]);
-      setOpenCall(id);
     }
   }
 
@@ -267,7 +280,6 @@ export default function TryLangChain() {
     setDocs([]);
     setPreviewDoc(null);
     setCalls([]);
-    setOpenCall(null);
     setInput("");
   }
 
@@ -853,48 +865,33 @@ export default function TryLangChain() {
                 )}
               </div>
 
-              <div className="flex-1 overflow-y-auto p-4">
-                {calls.length === 0 ? (
-                  <div className="flex h-full flex-col items-center justify-center px-4 text-center">
-                    <img src="/robly-avatar/robly-standby.svg" alt="" className="mb-2 h-24 w-24 opacity-50" />
-                    <p className="text-sm font-semibold text-gray-600">{t("try-langchain.log_empty_title")}</p>
-                    <p className="mt-1 max-w-xs text-sm text-gray-400">{t("try-langchain.log_empty")}</p>
-                    <div className="mt-5 w-full max-w-xs rounded-xl border border-dashed border-gray-200 p-3 text-left">
-                      <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-                        {t("try-langchain.inspector_flow", { mode: modeLabel(mode) })}
-                      </p>
-                      <ol className="mt-2 space-y-1.5">
-                        {MODE_META[mode].endpoints.map((ep, i) => (
-                          <li key={ep} className="flex items-center gap-2 font-mono text-xs text-gray-600">
-                            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-gray-100 text-[9px] font-bold text-gray-500">{i + 1}</span>
-                            <span className="rounded bg-orange-50 px-1 text-[10px] font-bold text-orange-700">POST</span>
-                            {ep}
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
-                  </div>
-                ) : (
-                  <ul className="space-y-2">
-                    <AnimatePresence initial={false}>
-                      {calls.map((call) => (
-                        <motion.li
-                          key={call.id}
-                          layout
-                          initial={{ opacity: 0, y: -8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <CallRow
-                            call={call}
-                            open={openCall === call.id}
-                            onToggle={() => setOpenCall((cur) => (cur === call.id ? null : call.id))}
-                          />
-                        </motion.li>
-                      ))}
-                    </AnimatePresence>
-                  </ul>
-                )}
+              <div className="scrollbar-thin flex flex-1 flex-col overflow-y-auto py-4 pl-4 pr-2.5">
+                <ApiCallLog
+                  calls={logCalls}
+                  active={callActive}
+                  failed={callFailed}
+                  empty={{
+                    title: t("try-langchain.log_empty_title"),
+                    description: t("try-langchain.log_empty"),
+                    extra: (
+                      <div className="mt-5 w-full max-w-xs rounded-xl border border-dashed border-gray-200 p-3 text-left">
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                          {t("try-langchain.inspector_flow", { mode: modeLabel(mode) })}
+                        </p>
+                        <ol className="mt-2 space-y-1.5">
+                          {MODE_META[mode].endpoints.map((ep, i) => (
+                            <li key={ep} className="flex items-center gap-2 font-mono text-xs text-gray-600">
+                              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-gray-100 text-[9px] font-bold text-gray-500">{i + 1}</span>
+                              <span className="rounded bg-amber-100 px-1 text-[10px] font-bold text-amber-700">POST</span>
+                              {ep}
+                            </li>
+                          ))}
+                        </ol>
+                      </div>
+                    ),
+                  }}
+                  renderActions={(call) => <CopyCurl call={call} />}
+                />
               </div>
             </div>
           </div>
@@ -1304,21 +1301,16 @@ function MessageBubble({
   );
 }
 
-// ── Inspector row ──────────────────────────────────────────────────────────────
+// ── Copy-as-cURL action for an inspector call ─────────────────────────────────
 
-function CallRow({ call, open, onToggle }: { call: ApiCall; open: boolean; onToggle: () => void }) {
+function CopyCurl({ call }: { call: ApiCallEntry }) {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
-  const ok = call.status !== undefined && call.status < 400 && !(call.response as any)?.error;
-  const statusLabel = call.status ?? "ERR";
-  const duration = call.ms >= 1000 ? `${(call.ms / 1000).toFixed(2)} s` : `${call.ms} ms`;
 
   const copyCurl = async () => {
-    const url = `${BASE_API}${call.path}`;
-    const curl =
-      call.path === "/upload"
-        ? `curl -X POST ${url} \\\n  -F "files=@your-file.pdf"`
-        : `curl -X POST ${url} \\\n  -H "Content-Type: application/json" \\\n  -d '${JSON.stringify(call.request)}'`;
+    const curl = call.url.endsWith("/upload")
+      ? `curl -X POST ${call.url} \\\n  -F "files=@your-file.pdf"`
+      : `curl -X POST ${call.url} \\\n  -H "Content-Type: application/json" \\\n  -d '${JSON.stringify(call.request)}'`;
     try {
       await navigator.clipboard.writeText(curl);
       setCopied(true);
@@ -1329,46 +1321,9 @@ function CallRow({ call, open, onToggle }: { call: ApiCall; open: boolean; onTog
   };
 
   return (
-    <div className={`overflow-hidden rounded-xl border transition-colors ${open ? "border-gray-300 shadow-sm" : "border-gray-200"}`}>
-      <button type="button" onClick={onToggle} aria-expanded={open} className="flex w-full items-center gap-2 px-3 py-2.5 text-left hover:bg-gray-50">
-        <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${ok ? "bg-emerald-500" : "bg-red-500"}`} />
-        <span className="rounded bg-orange-50 px-1.5 py-0.5 font-mono text-[10px] font-bold text-orange-700">{call.method}</span>
-        <span className="min-w-0 flex-1 truncate font-mono text-xs text-gray-900">{call.path}</span>
-        <span className={`font-mono text-[11px] font-semibold tabular-nums ${ok ? "text-emerald-600" : "text-red-600"}`}>{statusLabel}</span>
-        <span className="w-14 text-right font-mono text-[11px] tabular-nums text-gray-400">{duration}</span>
-        <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`} />
-      </button>
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-          >
-            <div className="space-y-3 border-t border-gray-100 bg-gray-50/50 p-3">
-              <div className="flex items-center justify-between text-[11px] text-gray-400">
-                <span>{call.at.toLocaleTimeString()}</span>
-                <button type="button" onClick={copyCurl} className="inline-flex items-center gap-1 font-medium text-gray-500 hover:text-gray-900">
-                  {copied ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
-                  {copied ? t("try-langchain.copied") : t("try-langchain.copy_curl")}
-                </button>
-              </div>
-              {call.request !== undefined && (
-                <div>
-                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400">{t("try-langchain.inspector_request")}</p>
-                  <JsonHighlight data={call.request} />
-                </div>
-              )}
-              <div>
-                <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400">{t("try-langchain.inspector_response")}</p>
-                <JsonHighlight data={call.response} />
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+    <button type="button" onClick={copyCurl} className="inline-flex items-center gap-1 font-medium text-gray-500 hover:text-gray-900">
+      {copied ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
+      {copied ? t("try-langchain.copied") : t("try-langchain.copy_curl")}
+    </button>
   );
 }
