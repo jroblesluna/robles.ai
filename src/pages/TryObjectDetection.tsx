@@ -12,7 +12,14 @@ import {
   Upload,
   CircleStop,
   ShieldCheck,
-  CheckCircle2,
+  Zap,
+  Boxes,
+  Aperture,
+  ImagePlus,
+  RotateCcw,
+  Lock,
+  ListChecks,
+  X,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { BusinessCase } from "@/components/demo/BusinessCase";
@@ -23,7 +30,7 @@ import * as tf from "@tensorflow/tfjs";
 import * as cocoSsd from "@tensorflow-models/coco-ssd";
 import { JsonHighlight } from "@/components/demo/JsonHighlight";
 import { InfoTip } from "@/components/demo/InfoTip";
-import { StepCard } from "@/components/demo/StepCard";
+import { StatusPill, type StatusTone } from "@/components/demo/DemoKit";
 
 // Brand accent (indigo/blue) for the object-detection demo.
 const ACCENT_GRADIENT = "from-indigo-500 to-blue-600";
@@ -31,32 +38,66 @@ const ACCENT_TEXT = "text-indigo-600";
 const TIP_HOVER = "hover:text-indigo-600 focus:text-indigo-600";
 
 type ModelStatus = "loading" | "ready" | "error";
+type CameraState = "idle" | "starting" | "live" | "error";
 type LogEntry = { label: string; response: any; key: string };
 type Detection = { class: string; score: number; bbox: [number, number, number, number] };
 
-// A palette so different classes get distinct box colors.
 const BOX_COLORS = [
   "#6366f1", "#0ea5e9", "#10b981", "#f59e0b", "#ef4444",
   "#8b5cf6", "#ec4899", "#14b8a6", "#f97316", "#84cc16",
 ];
+
+// Same class → same color, so the boxes and the side list stay in sync between frames.
+function colorFor(cls: string) {
+  let h = 0;
+  for (let i = 0; i < cls.length; i++) h = (h * 31 + cls.charCodeAt(i)) >>> 0;
+  return BOX_COLORS[h % BOX_COLORS.length];
+}
+
+// The model returns everything above this floor; the slider filters client-side,
+// so moving it re-draws an analyzed image instantly without re-running inference.
+const MODEL_MIN_SCORE = 0.2;
+const MAX_BOXES = 30;
+
+const SAMPLES = [
+  { id: "team", src: "/images/landing-teamwork.jpg", labelKey: "sample_team" },
+  { id: "office", src: "/images/landing-business.jpg", labelKey: "sample_office" },
+] as const;
+
+function roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  ctx.beginPath();
+  if (typeof ctx.roundRect === "function") ctx.roundRect(x, y, w, h, r);
+  else ctx.rect(x, y, w, h);
+}
 
 export default function TryObjectDetection() {
   const { t } = useTranslation();
   const { start: trackStart, complete: trackComplete } = useDemoTracking("objectdetection");
   const [modelStatus, setModelStatus] = useState<ModelStatus>("loading");
   const [mode, setMode] = useState<"camera" | "image">("camera");
-  const [running, setRunning] = useState(false); // live camera loop active
+  const [cameraState, setCameraState] = useState<CameraState>("idle");
+  const [hasImage, setHasImage] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [dragging, setDragging] = useState(false);
   const [detections, setDetections] = useState<Detection[]>([]);
+  const [perf, setPerf] = useState<{ ms: number; fps: number | null } | null>(null);
+  const [threshold, setThreshold] = useState(0.5);
+  const [panelTab, setPanelTab] = useState<"detections" | "log">("detections");
   const [log, setLog] = useState<LogEntry[]>([]);
+  const [captureKey, setCaptureKey] = useState(0);
   const [showTech, setShowTech] = useState(false);
 
   const modelRef = useRef<cocoSsd.ObjectDetection | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const rafRef = useRef<number | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const runningRef = useRef(false);
+  const thresholdRef = useRef(threshold);
+  const lastRawRef = useRef<{ dets: Detection[]; w: number; h: number } | null>(null);
+  const fpsRef = useRef<{ last: number; fps: number; shownAt: number }>({ last: 0, fps: 0, shownAt: 0 });
 
   const pushLog = (label: string, response: any) =>
     setLog((prev) => [{ label, response, key: uuidv4() }, ...prev].slice(0, 12));
@@ -83,39 +124,71 @@ export default function TryObjectDetection() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const drawDetections = useCallback(
-    (dets: Detection[], sourceW: number, sourceH: number) => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-      canvas.width = sourceW;
-      canvas.height = sourceH;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.lineWidth = Math.max(2, sourceW / 320);
-      ctx.font = `${Math.max(12, sourceW / 40)}px ui-sans-serif, system-ui, sans-serif`;
-      ctx.textBaseline = "top";
-      dets.forEach((d, i) => {
-        const [x, y, w, h] = d.bbox;
-        const color = BOX_COLORS[i % BOX_COLORS.length];
-        ctx.strokeStyle = color;
-        ctx.strokeRect(x, y, w, h);
-        const label = `${d.class} ${(d.score * 100).toFixed(0)}%`;
-        const tw = ctx.measureText(label).width;
-        const th = Math.max(14, sourceW / 34);
-        ctx.fillStyle = color;
-        ctx.fillRect(x, Math.max(0, y - th), tw + 8, th);
-        ctx.fillStyle = "#ffffff";
-        ctx.fillText(label, x + 4, Math.max(0, y - th) + 2);
-      });
-    },
-    []
-  );
+  const drawDetections = useCallback((dets: Detection[], w: number, h: number) => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+    canvas.width = w;
+    canvas.height = h;
+    ctx.clearRect(0, 0, w, h);
+    const unit = Math.max(w, h) / 640;
+    const lineWidth = Math.max(2, 2.5 * unit);
+    const fontSize = Math.round(Math.max(12, 13 * unit));
+    const pad = Math.round(5 * unit);
+    ctx.font = `600 ${fontSize}px ui-sans-serif, system-ui, sans-serif`;
+    ctx.textBaseline = "middle";
+    dets.forEach((d) => {
+      const [x, y, bw, bh] = d.bbox;
+      const color = colorFor(d.class);
+      roundedRect(ctx, x, y, bw, bh, 4 * unit);
+      ctx.fillStyle = `${color}1f`;
+      ctx.fill();
+      ctx.lineWidth = lineWidth;
+      ctx.strokeStyle = color;
+      ctx.stroke();
+
+      const label = `${d.class} ${Math.round(d.score * 100)}%`;
+      const tw = ctx.measureText(label).width + pad * 2;
+      const th = fontSize + pad * 2;
+      const lx = Math.min(Math.max(0, x - lineWidth / 2), w - tw);
+      const ly = y - th - 2 >= 0 ? y - th - 2 : y + 2; // no room above → tuck inside the box
+      roundedRect(ctx, lx, ly, tw, th, 3 * unit);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText(label, lx + pad, ly + th / 2);
+    });
+  }, []);
+
+  const clearCanvas = () => {
+    const canvas = canvasRef.current;
+    canvas?.getContext("2d")?.clearRect(0, 0, canvas.width, canvas.height);
+  };
+
+  const showFrame = (raw: Detection[], w: number, h: number) => {
+    lastRawRef.current = { dets: raw, w, h };
+    const visible = raw.filter((d) => d.score >= thresholdRef.current);
+    setDetections(visible);
+    drawDetections(visible, w, h);
+    return visible;
+  };
+
+  // Moving the slider re-filters the last result (and re-draws a still image right away).
+  useEffect(() => {
+    thresholdRef.current = threshold;
+    const last = lastRawRef.current;
+    if (last && !runningRef.current) showFrame(last.dets, last.w, last.h);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [threshold]);
+
+  const toDetections = (preds: cocoSsd.DetectedObject[]): Detection[] =>
+    preds.map((p) => ({ class: p.class, score: p.score, bbox: p.bbox as [number, number, number, number] }));
 
   // ── Camera mode ────────────────────────────────────────────────────────────
   async function startCamera() {
     if (!modelRef.current || modelStatus !== "ready") return;
     trackStart();
+    setCameraState("starting");
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment", width: { ideal: 640 } },
@@ -126,18 +199,20 @@ export default function TryObjectDetection() {
       if (!video) return;
       video.srcObject = stream;
       await video.play();
-      setRunning(true);
+      fpsRef.current = { last: 0, fps: 0, shownAt: 0 };
+      setCameraState("live");
       runningRef.current = true;
       detectLoop();
     } catch (e) {
       console.error("getUserMedia error:", e);
-      alert(t("try-object.camera_error"));
+      stopCamera();
+      setCameraState("error");
     }
   }
 
   function stopCamera() {
     runningRef.current = false;
-    setRunning(false);
+    setCameraState((s) => (s === "error" ? s : "idle"));
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = null;
     const stream = streamRef.current;
@@ -147,21 +222,37 @@ export default function TryObjectDetection() {
     }
   }
 
+  function stopAndReset() {
+    stopCamera();
+    lastRawRef.current = null;
+    setDetections([]);
+    setPerf(null);
+    clearCanvas();
+  }
+
   async function detectLoop() {
     const model = modelRef.current;
     const video = videoRef.current;
     if (!model || !video || !runningRef.current) return;
     if (video.readyState >= 2) {
       try {
-        const preds = await model.detect(video);
-        const dets = preds.map((p) => ({
-          class: p.class,
-          score: p.score,
-          bbox: p.bbox as [number, number, number, number],
-        }));
-        setDetections(dets);
-        drawDetections(dets, video.videoWidth, video.videoHeight);
-        if (dets.length) trackComplete({ source: "camera" });
+        const started = performance.now();
+        const raw = toDetections(await model.detect(video, MAX_BOXES, MODEL_MIN_SCORE));
+        const now = performance.now();
+        if (!runningRef.current) return;
+        const visible = showFrame(raw, video.videoWidth, video.videoHeight);
+        if (visible.length) trackComplete({ source: "camera" });
+
+        const f = fpsRef.current;
+        if (f.last) {
+          const inst = 1000 / (now - f.last);
+          f.fps = f.fps ? f.fps * 0.85 + inst * 0.15 : inst;
+        }
+        f.last = now;
+        if (now - f.shownAt > 300) {
+          f.shownAt = now;
+          setPerf({ ms: now - started, fps: f.fps || null });
+        }
       } catch (e) {
         console.error("detect error:", e);
       }
@@ -172,302 +263,599 @@ export default function TryObjectDetection() {
   }
 
   // ── Image mode ───────────────────────────────────────────────────────────
-  async function handleImage(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file || !modelRef.current) return;
+  async function analyzeImage(src: string, source: "image" | "sample", revoke = false) {
+    const model = modelRef.current;
+    const img = imgRef.current;
+    if (!model || !img) return;
     trackStart();
     stopCamera();
-    const url = URL.createObjectURL(file);
-    const img = imgRef.current;
-    if (!img) return;
-    img.src = url;
-    await new Promise<void>((resolve) => {
-      img.onload = () => resolve();
-    });
+    setMode("image");
+    setAnalyzing(true);
     try {
-      const preds = await modelRef.current.detect(img);
-      const dets = preds.map((p) => ({
-        class: p.class,
-        score: p.score,
-        bbox: p.bbox as [number, number, number, number],
+      img.src = src;
+      await img.decode();
+      setHasImage(true);
+      // tf.js reads an <img> at its rendered size (img.width), not its natural size, so a
+      // visible image yields boxes in on-screen pixels; rescale them to natural pixels.
+      const sx = img.naturalWidth / (img.width || img.naturalWidth);
+      const sy = img.naturalHeight / (img.height || img.naturalHeight);
+      const started = performance.now();
+      const raw = toDetections(await model.detect(img, MAX_BOXES, MODEL_MIN_SCORE)).map((d) => ({
+        ...d,
+        bbox: [d.bbox[0] * sx, d.bbox[1] * sy, d.bbox[2] * sx, d.bbox[3] * sy] as Detection["bbox"],
       }));
-      setDetections(dets);
-      drawDetections(dets, img.naturalWidth, img.naturalHeight);
-      trackComplete({ source: "image" });
+      setPerf({ ms: performance.now() - started, fps: null });
+      const visible = showFrame(raw, img.naturalWidth, img.naturalHeight);
+      trackComplete({ source });
       pushLog(t("try-object.log_image_label"), {
-        source: "image",
-        objects: dets.length,
-        detections: dets.map((d) => ({ class: d.class, score: Number(d.score.toFixed(3)) })),
+        source,
+        objects: visible.length,
+        detections: visible.map((d) => ({
+          class: d.class,
+          score: Number(d.score.toFixed(3)),
+          bbox: d.bbox.map(Math.round),
+        })),
       });
     } catch (err) {
       console.error("image detect error:", err);
     } finally {
-      URL.revokeObjectURL(url);
-      e.target.value = "";
+      setAnalyzing(false);
+      if (revoke) URL.revokeObjectURL(src);
     }
   }
 
-  // Log a snapshot of the current live detections.
-  function snapshotLog() {
+  function pickFile(file: File | null | undefined) {
+    if (!file || !file.type.startsWith("image/") || modelStatus !== "ready" || analyzing) return;
+    void analyzeImage(URL.createObjectURL(file), "image", true);
+  }
+
+  function clearImage() {
+    const img = imgRef.current;
+    if (img) img.removeAttribute("src");
+    setHasImage(false);
+    lastRawRef.current = null;
+    setDetections([]);
+    setPerf(null);
+    clearCanvas();
+  }
+
+  function captureFrame() {
     pushLog(t("try-object.log_snapshot_label"), {
       source: "camera",
       objects: detections.length,
-      detections: detections.map((d) => ({ class: d.class, score: Number(d.score.toFixed(3)) })),
+      inference_ms: perf ? Math.round(perf.ms) : undefined,
+      detections: detections.map((d) => ({
+        class: d.class,
+        score: Number(d.score.toFixed(3)),
+        bbox: d.bbox.map(Math.round),
+      })),
     });
+    setCaptureKey((k) => k + 1);
   }
 
   function switchMode(next: "camera" | "image") {
     if (next === mode) return;
-    stopCamera();
-    setDetections([]);
-    const canvas = canvasRef.current;
-    canvas?.getContext("2d")?.clearRect(0, 0, canvas.width, canvas.height);
+    stopAndReset();
+    if (next === "camera") clearImage();
+    setCameraState("idle");
     setMode(next);
   }
 
-  // Aggregate counts by class for the summary chips.
-  const counts = detections.reduce<Record<string, number>>((acc, d) => {
-    acc[d.class] = (acc[d.class] || 0) + 1;
-    return acc;
-  }, {});
+  // ── Derived view state ─────────────────────────────────────────────────────
+  const live = mode === "camera" && cameraState === "live";
+  const showImage = mode === "image" && hasImage;
+  const showMedia = live || showImage;
+  const modelReady = modelStatus === "ready";
+
+  const groups = Object.values(
+    detections.reduce<Record<string, { cls: string; count: number; best: number }>>((acc, d) => {
+      const g = (acc[d.class] ??= { cls: d.class, count: 0, best: 0 });
+      g.count += 1;
+      g.best = Math.max(g.best, d.score);
+      return acc;
+    }, {})
+  ).sort((a, b) => b.count - a.count || b.best - a.best);
+
+  const status: { tone: StatusTone; label: string; spinning?: boolean } =
+    modelStatus === "loading" ? { tone: "busy", label: t("try-object.status_loading"), spinning: true }
+    : modelStatus === "error" ? { tone: "error", label: t("try-object.status_error") }
+    : live ? { tone: "live", label: t("try-object.status_live") }
+    : { tone: "ready", label: t("try-object.status_ready") };
+
+  const barButton =
+    "inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40";
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50/50 via-white to-white py-12">
       <div className="container mx-auto max-w-6xl px-6">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-center sm:text-left sm:gap-5">
-            <div
-              className={`flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${ACCENT_GRADIENT} text-white shadow-sm sm:h-24 sm:w-24`}
-            >
-              <ScanEye className="h-10 w-10 sm:h-12 sm:w-12" />
-            </div>
-            <div className="flex flex-col justify-center">
-              <span className="mb-2 inline-flex w-fit items-center gap-1.5 self-center rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700 sm:self-start">
-                <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+        {/* Header: pitch + how it works (left), business case (right) */}
+        <div className="mb-10 grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
+          <div className="lg:col-span-7">
+            <div className="flex items-center gap-3">
+              <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${ACCENT_GRADIENT} text-white shadow-sm`}>
+                <ScanEye className="h-6 w-6" />
+              </div>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-indigo-500" />
                 {t("try-object.badge")}
               </span>
-              <h1 className="mb-2 text-2xl font-bold text-gray-900 sm:text-3xl md:text-4xl">
-                {t("try-object.title")}
-              </h1>
-              <p className="text-sm text-gray-600 sm:text-base">{t("try-object.description")}</p>
             </div>
+            <h1 className="mt-5 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
+              {t("try-object.title")}
+            </h1>
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-gray-600 sm:text-lg">
+              {t("try-object.description")}
+            </p>
+
+            <p className="mt-8 text-xs font-semibold uppercase tracking-wider text-gray-500">
+              {t("try-object.how_title")}
+            </p>
+            <ol className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {([1, 2, 3] as const).map((n) => (
+                <li key={n} className="rounded-xl border border-gray-200/80 bg-white/70 p-4">
+                  <span className={`flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br ${ACCENT_GRADIENT} text-xs font-bold text-white`}>
+                    {n}
+                  </span>
+                  <p className="mt-3 text-sm font-semibold text-gray-900">{t(`try-object.how_step${n}_title`)}</p>
+                  <p className="mt-1 text-sm leading-snug text-gray-600">{t(`try-object.how_step${n}_desc`)}</p>
+                </li>
+              ))}
+            </ol>
+
+            <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
+              {[
+                { icon: ShieldCheck, key: "trust_private" },
+                { icon: Zap, key: "trust_realtime" },
+                { icon: Boxes, key: "trust_classes" },
+              ].map(({ icon: Icon, key }) => (
+                <li key={key} className="flex items-center gap-2">
+                  <Icon className={`h-4 w-4 ${ACCENT_TEXT}`} />
+                  {t(`try-object.${key}`)}
+                </li>
+              ))}
+            </ul>
           </div>
-          {/* Privacy note — everything runs locally */}
-          <div className="mt-4 flex items-start gap-2 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-            <p>{t("try-object.privacy")}</p>
+
+          <div className="lg:col-span-5">
+            <BusinessCase demoId="objectdetection" variant="aside" />
           </div>
         </div>
 
-        <BusinessCase demoId="objectdetection" />
+        {/* ── Workspace: stage (left) · detections & log (right) ─────────── */}
+        <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <input
+            ref={fileInputRef}
+            id="object-image-input"
+            type="file"
+            accept="image/*"
+            disabled={!modelReady}
+            className="sr-only"
+            onChange={(e) => {
+              pickFile(e.target.files?.[0]);
+              e.target.value = "";
+            }}
+          />
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-          {/* Left: interaction */}
-          <div className="min-w-0 space-y-6">
-            {/* Model status banner */}
-            {modelStatus === "loading" && (
-              <div className="flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                <Loader2 className="mt-0.5 h-3.5 w-3.5 shrink-0 animate-spin text-amber-500" />
-                <span>{t("try-object.model_loading")}</span>
-              </div>
-            )}
-            {modelStatus === "ready" && (
-              <div className="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
-                <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                {t("try-object.model_ready")}
-              </div>
-            )}
-            {modelStatus === "error" && (
-              <div className="flex items-start gap-2 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700">
-                <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-500" />
-                <span>{t("try-object.model_error")}</span>
-              </div>
-            )}
-
-            {/* Step 1: choose mode */}
-            <StepCard
-              icon={Workflow}
-              number={1}
-              title={t("try-object.step1_title")}
-              tip={t("try-object.tip_mode")}
-              accent={ACCENT_GRADIENT}
-              iconColor={ACCENT_TEXT}
-              tipHoverColor={TIP_HOVER}
-            >
-              <div className="grid grid-cols-2 gap-2">
-                {([
-                  { id: "camera" as const, icon: Camera, label: t("try-object.mode_camera") },
-                  { id: "image" as const, icon: Upload, label: t("try-object.mode_image") },
-                ]).map(({ id, icon: Icon, label }) => (
+          {/* Toolbar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-4 py-3 sm:px-5">
+            <div role="tablist" aria-label={t("try-object.input_label")} className="inline-flex rounded-xl bg-gray-100 p-1">
+              {([
+                { id: "camera" as const, icon: Camera, label: t("try-object.mode_camera") },
+                { id: "image" as const, icon: ImagePlus, label: t("try-object.mode_image") },
+              ]).map(({ id, icon: Icon, label }) => {
+                const active = mode === id;
+                return (
                   <button
                     key={id}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
                     onClick={() => switchMode(id)}
-                    className={`flex items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors ${
-                      mode === id
-                        ? "border-indigo-400 bg-indigo-50 text-indigo-700"
-                        : "border-gray-200 bg-white text-gray-600 hover:border-indigo-200 hover:bg-indigo-50/50"
+                    className={`relative rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 ${
+                      active ? "text-gray-900" : "text-gray-500 hover:text-gray-800"
                     }`}
                   >
-                    <Icon className="h-4 w-4" />
-                    {label}
+                    {active && (
+                      <motion.span
+                        layoutId="od-mode-pill"
+                        className="absolute inset-0 rounded-lg bg-white shadow-sm ring-1 ring-gray-200"
+                        transition={{ type: "spring", stiffness: 500, damping: 38 }}
+                      />
+                    )}
+                    <span className="relative flex items-center gap-2">
+                      <Icon className={`h-4 w-4 ${active ? ACCENT_TEXT : ""}`} />
+                      {label}
+                    </span>
                   </button>
-                ))}
-              </div>
-            </StepCard>
+                );
+              })}
+            </div>
+            <StatusPill tone={status.tone} spinning={status.spinning} label={status.label} />
+          </div>
 
-            {/* Step 2: run */}
-            <StepCard
-              icon={mode === "camera" ? Camera : Upload}
-              number={2}
-              title={mode === "camera" ? t("try-object.step2_camera_title") : t("try-object.step2_image_title")}
-              tip={t("try-object.tip_run")}
-              accent={ACCENT_GRADIENT}
-              iconColor={ACCENT_TEXT}
-              tipHoverColor={TIP_HOVER}
-            >
-              {mode === "camera" ? (
-                <div className="flex flex-wrap gap-2">
-                  {!running ? (
-                    <button
-                      onClick={startCamera}
-                      disabled={modelStatus !== "ready"}
-                      className={`inline-flex items-center gap-2 rounded-lg bg-gradient-to-r ${ACCENT_GRADIENT} px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:shadow-md disabled:opacity-50`}
+          <div className="grid grid-cols-1 lg:grid-cols-5">
+            {/* ── Left: stage ─────────────────────────────────────────────── */}
+            <div className="min-w-0 p-4 sm:p-5 lg:col-span-3 lg:border-r lg:border-gray-100">
+              <div
+                className="relative flex min-h-[340px] items-center justify-center overflow-hidden rounded-xl bg-gray-950 sm:min-h-[440px]"
+                style={{
+                  backgroundImage: "radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)",
+                  backgroundSize: "18px 18px",
+                }}
+                onDragOver={(e) => {
+                  if (!modelReady || live) return;
+                  e.preventDefault();
+                  setDragging(true);
+                }}
+                onDragLeave={(e) => {
+                  if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragging(false);
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragging(false);
+                  pickFile(e.dataTransfer.files?.[0]);
+                }}
+              >
+                {/* Media shrink-wraps to the frame so the canvas overlay lines up with it */}
+                <div className={`relative ${showMedia ? "" : "hidden"}`}>
+                  <video
+                    ref={videoRef}
+                    playsInline
+                    muted
+                    className={`max-h-[520px] w-auto max-w-full ${live ? "block" : "hidden"}`}
+                  />
+                  <img
+                    ref={imgRef}
+                    alt=""
+                    className={`max-h-[520px] w-auto max-w-full ${showImage ? "block" : "hidden"}`}
+                  />
+                  <canvas ref={canvasRef} className="pointer-events-none absolute inset-0 h-full w-full" />
+                </div>
+
+                {/* Model loading / error */}
+                {modelStatus !== "ready" && (
+                  <div className="flex max-w-sm flex-col items-center px-6 text-center">
+                    <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 ring-1 ring-white/10">
+                      {modelStatus === "loading" ? (
+                        <Loader2 className="h-6 w-6 animate-spin text-indigo-300" />
+                      ) : (
+                        <Info className="h-6 w-6 text-rose-300" />
+                      )}
+                    </span>
+                    <p className="mt-5 text-base font-semibold text-white">
+                      {modelStatus === "loading" ? t("try-object.stage_loading_title") : t("try-object.status_error")}
+                    </p>
+                    <p className="mt-1.5 text-sm leading-relaxed text-gray-400">
+                      {modelStatus === "loading" ? t("try-object.model_loading") : t("try-object.model_error")}
+                    </p>
+                  </div>
+                )}
+
+                {/* Camera: idle / waiting for permission / error */}
+                {modelReady && mode === "camera" && cameraState !== "live" && (
+                  <div className="flex max-w-sm flex-col items-center px-6 text-center">
+                    {cameraState === "error" ? (
+                      <>
+                        <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-500/10 ring-1 ring-rose-400/30">
+                          <Camera className="h-6 w-6 text-rose-300" />
+                        </span>
+                        <p className="mt-5 text-base font-semibold text-white">{t("try-object.camera_error_title")}</p>
+                        <p className="mt-1.5 text-sm leading-relaxed text-gray-400">{t("try-object.camera_error")}</p>
+                        <div className="mt-6 flex flex-wrap justify-center gap-2">
+                          <button
+                            type="button"
+                            onClick={startCamera}
+                            className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm transition-colors hover:bg-gray-100"
+                          >
+                            <RotateCcw className="h-4 w-4" />
+                            {t("try-object.retry")}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => switchMode("image")}
+                            className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-200 ring-1 ring-white/15 transition-colors hover:bg-white/10"
+                          >
+                            <ImagePlus className="h-4 w-4" />
+                            {t("try-object.use_image_instead")}
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <span className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${ACCENT_GRADIENT} text-white shadow-lg shadow-indigo-500/30`}>
+                          {cameraState === "starting" ? <Loader2 className="h-6 w-6 animate-spin" /> : <Camera className="h-6 w-6" />}
+                        </span>
+                        <p className="mt-5 text-base font-semibold text-white">
+                          {cameraState === "starting" ? t("try-object.camera_starting") : t("try-object.camera_empty_title")}
+                        </p>
+                        <p className="mt-1.5 text-sm leading-relaxed text-gray-400">{t("try-object.camera_empty_desc")}</p>
+                        <button
+                          type="button"
+                          onClick={startCamera}
+                          disabled={cameraState === "starting"}
+                          className="mt-6 inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm transition-colors hover:bg-gray-100 disabled:opacity-60"
+                        >
+                          <Camera className="h-4 w-4" />
+                          {t("try-object.start_camera")}
+                        </button>
+                        <p className="mt-3 flex items-center gap-1.5 text-xs text-gray-500">
+                          <Lock className="h-3 w-3" />
+                          {t("try-object.camera_permission_hint")}
+                        </p>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* Image: dropzone */}
+                {modelReady && mode === "image" && !hasImage && (
+                  <label
+                    htmlFor="object-image-input"
+                    className="group absolute inset-3 flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-white/15 px-6 text-center transition-colors hover:border-indigo-400/60 hover:bg-white/[0.02]"
+                  >
+                    <span className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${ACCENT_GRADIENT} text-white shadow-lg shadow-indigo-500/30 transition-transform group-hover:-translate-y-0.5`}>
+                      <Upload className="h-6 w-6" />
+                    </span>
+                    <p className="mt-5 text-base font-semibold text-white">{t("try-object.upload_cta")}</p>
+                    <p className="mt-1.5 text-sm text-gray-400">{t("try-object.upload_hint")}</p>
+                    <span className="mt-6 inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm transition-colors group-hover:bg-gray-100">
+                      <ImagePlus className="h-4 w-4" />
+                      {t("try-object.browse")}
+                    </span>
+                  </label>
+                )}
+
+                {/* Live overlays */}
+                {live && (
+                  <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-2 rounded-md bg-black/60 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white backdrop-blur">
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-500" />
+                    {t("try-object.live")}
+                    {perf?.fps ? <span className="font-mono normal-case text-gray-300">· {Math.round(perf.fps)} FPS</span> : null}
+                  </div>
+                )}
+                {showMedia && (
+                  <div
+                    title={t("try-object.stat_objects")}
+                    className="pointer-events-none absolute right-3 top-3 flex items-center gap-1.5 rounded-md bg-black/60 px-2 py-1 text-[11px] font-semibold tabular-nums text-white backdrop-blur"
+                  >
+                    <Boxes className="h-3.5 w-3.5 text-indigo-300" />
+                    {detections.length}
+                  </div>
+                )}
+
+                {/* Floating controls */}
+                {showMedia && (
+                  <div className="absolute inset-x-0 bottom-3 flex justify-center px-3">
+                    <div className="flex items-center gap-1 rounded-xl bg-gray-900/80 p-1 shadow-lg ring-1 ring-white/10 backdrop-blur">
+                      {live ? (
+                        <>
+                          <button type="button" onClick={captureFrame} className={barButton}>
+                            <Aperture className="h-4 w-4" />
+                            {t("try-object.capture_frame")}
+                          </button>
+                          <span className="h-5 w-px bg-white/15" />
+                          <button type="button" onClick={stopAndReset} className={`${barButton} text-red-300 hover:bg-red-500/15`}>
+                            <CircleStop className="h-4 w-4" />
+                            {t("try-object.stop_camera")}
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={analyzing}
+                            className={`${barButton} disabled:opacity-50`}
+                          >
+                            <ImagePlus className="h-4 w-4" />
+                            {t("try-object.replace_image")}
+                          </button>
+                          <span className="h-5 w-px bg-white/15" />
+                          <button type="button" onClick={clearImage} disabled={analyzing} className={`${barButton} disabled:opacity-50`}>
+                            <X className="h-4 w-4" />
+                            {t("try-object.clear_image")}
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Capture confirmation */}
+                <AnimatePresence>
+                  {captureKey > 0 && live && (
+                    <motion.div
+                      key={captureKey}
+                      initial={{ opacity: 0.55 }}
+                      animate={{ opacity: 0 }}
+                      transition={{ duration: 0.45 }}
+                      className="pointer-events-none absolute inset-0 bg-white"
+                    />
+                  )}
+                </AnimatePresence>
+                <AnimatePresence>
+                  {captureKey > 0 && live && (
+                    <motion.p
+                      key={`toast-${captureKey}`}
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: [0, 1, 1, 0], y: 0 }}
+                      transition={{ duration: 2, times: [0, 0.1, 0.8, 1] }}
+                      className="pointer-events-none absolute left-1/2 top-12 -translate-x-1/2 whitespace-nowrap rounded-md bg-black/70 px-2.5 py-1 text-xs text-white backdrop-blur"
                     >
-                      {modelStatus !== "ready" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
-                      {t("try-object.start_camera")}
+                      {t("try-object.captured")}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+
+                {/* Analyzing */}
+                {analyzing && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-950/50 backdrop-blur-[2px]">
+                    <span className="flex items-center gap-2 rounded-lg bg-black/70 px-3 py-2 text-sm text-white">
+                      <Loader2 className="h-4 w-4 animate-spin text-indigo-300" />
+                      {t("try-object.analyzing")}
+                    </span>
+                  </div>
+                )}
+
+                {/* Drag target */}
+                {dragging && (
+                  <div className="pointer-events-none absolute inset-3 flex items-center justify-center rounded-lg border-2 border-dashed border-indigo-400 bg-indigo-500/10 text-sm font-semibold text-indigo-100">
+                    {t("try-object.drop_active")}
+                  </div>
+                )}
+              </div>
+
+              {/* Below the stage: one-click samples */}
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <span className="mr-1 whitespace-nowrap text-xs text-gray-500">{t("try-object.samples_label")}</span>
+                <div className="flex items-center gap-2">
+                  {SAMPLES.map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => analyzeImage(s.src, "sample")}
+                      disabled={!modelReady || analyzing}
+                      title={t(`try-object.${s.labelKey}`)}
+                      className="group flex items-center gap-2 rounded-lg border border-gray-200 bg-white p-1 pr-2.5 text-xs font-medium text-gray-700 shadow-sm transition-colors hover:border-indigo-300 hover:bg-indigo-50/60 disabled:opacity-50"
+                    >
+                      <img src={s.src} alt="" className="h-7 w-10 rounded-md object-cover" />
+                      {t(`try-object.${s.labelKey}`)}
                     </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* ── Right: detections & log ────────────────────────────────── */}
+            <div className="relative min-w-0 border-t border-gray-100 lg:col-span-2 lg:border-t-0">
+              <div className="flex flex-col lg:absolute lg:inset-0">
+                <div role="tablist" className="flex shrink-0 gap-1 border-b border-gray-100 px-3 pt-2">
+                  {([
+                    { id: "detections", icon: ListChecks, label: t("try-object.tab_detections"), count: detections.length },
+                    { id: "log", icon: Terminal, label: t("try-object.tab_log"), count: log.length },
+                  ] as const).map((tab) => (
+                    <button
+                      key={tab.id}
+                      role="tab"
+                      type="button"
+                      aria-selected={panelTab === tab.id}
+                      onClick={() => setPanelTab(tab.id)}
+                      className={`-mb-px flex items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
+                        panelTab === tab.id ? "border-indigo-500 text-gray-900" : "border-transparent text-gray-500 hover:text-gray-700"
+                      }`}
+                    >
+                      <tab.icon className={`h-4 w-4 ${panelTab === tab.id ? ACCENT_TEXT : ""}`} />
+                      {tab.label}
+                      {tab.count > 0 && (
+                        <span className="rounded-full bg-gray-100 px-1.5 text-[10px] font-semibold tabular-nums text-gray-600">
+                          {tab.count}
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="scrollbar-thin max-h-[560px] overflow-y-auto p-4 lg:max-h-none lg:min-h-0 lg:flex-1">
+                  {panelTab === "detections" ? (
+                    <div className="space-y-5">
+                      <div className="grid grid-cols-3 gap-2">
+                        {[
+                          { label: t("try-object.stat_objects"), value: detections.length },
+                          { label: t("try-object.stat_classes"), value: groups.length },
+                          { label: t("try-object.stat_inference"), value: perf ? `${Math.round(perf.ms)} ms` : "–" },
+                        ].map(({ label, value }) => (
+                          <div key={label} className="rounded-lg bg-gray-50 px-3 py-2 ring-1 ring-gray-100">
+                            <p className="truncate text-[10px] font-semibold uppercase tracking-wider text-gray-500">{label}</p>
+                            <p className="mt-0.5 text-lg font-semibold tabular-nums text-gray-900">{value}</p>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <label htmlFor="od-threshold" className="flex items-center gap-1.5 text-xs font-semibold text-gray-700">
+                            {t("try-object.threshold_label")}
+                            <InfoTip text={t("try-object.threshold_tip")} hoverColor={TIP_HOVER} />
+                          </label>
+                          <span className="font-mono text-xs tabular-nums text-gray-500">{Math.round(threshold * 100)}%</span>
+                        </div>
+                        <input
+                          id="od-threshold"
+                          type="range"
+                          min={0.2}
+                          max={0.9}
+                          step={0.05}
+                          value={threshold}
+                          onChange={(e) => setThreshold(Number(e.target.value))}
+                          className="mt-2 w-full cursor-pointer accent-indigo-600"
+                        />
+                      </div>
+
+                      {groups.length > 0 ? (
+                        <ul className="-mx-1 space-y-0.5">
+                          {groups.map(({ cls, count, best }) => {
+                            const color = colorFor(cls);
+                            return (
+                              <li key={cls} className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-gray-50">
+                                <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: color }} />
+                                <span className="min-w-0 flex-1 truncate text-sm font-medium capitalize text-gray-900">{cls}</span>
+                                {count > 1 && (
+                                  <span className="rounded bg-gray-100 px-1.5 text-[11px] font-semibold tabular-nums text-gray-600">×{count}</span>
+                                )}
+                                <span className="h-1 w-16 shrink-0 overflow-hidden rounded-full bg-gray-100">
+                                  <span className="block h-full rounded-full transition-[width] duration-300" style={{ width: `${best * 100}%`, background: color }} />
+                                </span>
+                                <span className="w-9 shrink-0 text-right font-mono text-xs tabular-nums text-gray-500">{Math.round(best * 100)}%</span>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center py-8 text-center">
+                          <img src="/robly-avatar/robly-standby.svg" alt="" className="mb-2 h-24 w-24 opacity-60" />
+                          <p className="text-sm font-semibold text-gray-600">{t("try-object.detections_empty_title")}</p>
+                          <p className="mt-1 max-w-xs text-sm text-gray-400">
+                            {showMedia ? t("try-object.detections_none") : t("try-object.detections_empty")}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ) : log.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-10 text-center">
+                      <img src="/robly-avatar/robly-calling.svg" alt="" className="mb-2 h-32 w-32" />
+                      <p className="text-sm font-semibold text-gray-600">{t("try-object.log_empty_title")}</p>
+                      <p className="mt-1 max-w-xs text-sm text-gray-400">{t("try-object.log_empty")}</p>
+                    </div>
                   ) : (
                     <>
-                      <button
-                        onClick={stopCamera}
-                        className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
-                      >
-                        <CircleStop className="h-4 w-4" />
-                        {t("try-object.stop_camera")}
-                      </button>
-                      <button
-                        onClick={snapshotLog}
-                        className="inline-flex items-center gap-2 rounded-lg border border-indigo-300 px-4 py-2.5 text-sm font-medium text-indigo-700 transition-colors hover:bg-indigo-50"
-                      >
-                        <Terminal className="h-4 w-4" />
-                        {t("try-object.log_frame")}
-                      </button>
+                      <p className="mb-3 text-xs text-gray-500">{t("try-object.log_subtitle")}</p>
+                      <LayoutGroup>
+                        <AnimatePresence initial={false}>
+                          {log.map((entry) => (
+                            <motion.div
+                              key={entry.key}
+                              layout
+                              initial={{ opacity: 0, y: -12 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.25 }}
+                              className="mb-4"
+                            >
+                              <span className="mb-1.5 inline-block rounded bg-indigo-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-indigo-700">
+                                {entry.label}
+                              </span>
+                              <JsonHighlight data={entry.response} />
+                            </motion.div>
+                          ))}
+                        </AnimatePresence>
+                      </LayoutGroup>
                     </>
                   )}
                 </div>
-              ) : (
-                <label
-                  htmlFor="object-image-input"
-                  className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-6 text-center transition-colors hover:border-indigo-300 hover:bg-indigo-50/50"
-                >
-                  <Upload className="mb-2 h-6 w-6 text-indigo-500" />
-                  <span className="text-sm font-medium text-gray-700">{t("try-object.upload_cta")}</span>
-                  <span className="mt-0.5 text-xs text-gray-400">{t("try-object.upload_hint")}</span>
-                  <input
-                    id="object-image-input"
-                    type="file"
-                    accept="image/*"
-                    disabled={modelStatus !== "ready"}
-                    className="sr-only"
-                    onChange={handleImage}
-                  />
-                </label>
-              )}
-
-              {/* Preview area: video (camera) or image, with the canvas overlay */}
-              <div className="relative mt-3 overflow-hidden rounded-xl border border-gray-200 bg-gray-900">
-                <video
-                  ref={videoRef}
-                  playsInline
-                  muted
-                  className={`w-full ${mode === "camera" && running ? "block" : "hidden"}`}
-                />
-                <img
-                  ref={imgRef}
-                  alt=""
-                  className={`w-full ${mode === "image" ? "block" : "hidden"}`}
-                />
-                <canvas ref={canvasRef} className="pointer-events-none absolute inset-0 h-full w-full" />
-                {mode === "camera" && !running && (
-                  <div className="flex aspect-video items-center justify-center text-xs text-gray-400">
-                    {t("try-object.camera_placeholder")}
-                  </div>
-                )}
-              </div>
-
-              {/* Detected classes summary */}
-              {detections.length > 0 && (
-                <div className="mt-3">
-                  <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-gray-500">
-                    {t("try-object.detected_label", { count: detections.length })}
-                    <InfoTip text={t("try-object.tip_detected")} hoverColor={TIP_HOVER} />
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {Object.entries(counts).map(([cls, n]) => (
-                      <span
-                        key={cls}
-                        className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700"
-                      >
-                        <CheckCircle2 className="h-3 w-3" />
-                        {cls}{n > 1 ? ` ×${n}` : ""}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </StepCard>
-          </div>
-
-          {/* Right: detections log */}
-          <div className="min-w-0">
-            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm lg:sticky lg:top-24">
-              <div className="flex items-center gap-2 border-b border-gray-100 px-6 py-4">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-900">
-                  <Terminal className="h-4 w-4 text-indigo-400" />
-                </div>
-                <div>
-                  <h2 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900">
-                    {t("try-object.log")}
-                    <InfoTip text={t("try-object.log_subtitle")} hoverColor={TIP_HOVER} />
-                  </h2>
-                  <p className="text-xs text-gray-400">{t("try-object.log_subtitle")}</p>
-                </div>
-              </div>
-              <div className="p-6">
-                {log.length === 0 && (
-                  <div className="flex flex-col items-center justify-center py-16 text-center">
-                    <img src="/robly-avatar/robly-standby.svg" alt="" className="mb-2 h-40 w-40 opacity-50" />
-                    <p className="font-semibold text-gray-600 opacity-70">{t("try-object.log_empty_title")}</p>
-                    <p className="mt-1 max-w-xs text-sm text-gray-400">{t("try-object.log_empty")}</p>
-                  </div>
-                )}
-                <LayoutGroup>
-                  <AnimatePresence initial={false}>
-                    {log.map((entry) => (
-                      <motion.div
-                        key={entry.key}
-                        layout
-                        initial={{ opacity: 0, y: -16 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 16 }}
-                        transition={{ duration: 0.3 }}
-                        className="mb-4"
-                      >
-                        <div className="mb-1.5 flex items-center gap-2">
-                          <span className="rounded bg-indigo-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-indigo-700">
-                            {entry.label}
-                          </span>
-                        </div>
-                        <JsonHighlight data={entry.response} />
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </LayoutGroup>
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* Technical definition — collapsible */}
         <SavingsCalculator demoId="objectdetection" />
