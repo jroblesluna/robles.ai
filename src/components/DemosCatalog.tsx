@@ -468,13 +468,16 @@ export default function DemosCatalog({
               >
                 <span className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-violet-600/40 blur-3xl" />
                 <span className="pointer-events-none absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-blue-600/25 blur-3xl" />
-                <div className="relative mb-auto flex flex-wrap items-center gap-2">
-                  {[...liveAll, ...soonAll].slice(0, 8).map((item) => (
-                    <span
-                      key={item.id}
-                      className={`h-2.5 w-2.5 rounded-full bg-gradient-to-br ${GRADIENTS[item.id] ?? `${item.from} ${item.to}`}`}
-                    />
-                  ))}
+                <div className="relative mb-auto flex items-center gap-3">
+                  {[...liveAll, ...soonAll].slice(0, 6).map((item) => {
+                    const ItemIcon = ICONS[item.icon] || Sparkles;
+                    return <ItemIcon key={item.id} className="h-4 w-4 text-white/35" />;
+                  })}
+                  {liveAll.length + soonAll.length > 6 && (
+                    <span className="text-xs font-medium text-white/35">
+                      +{liveAll.length + soonAll.length - 6}
+                    </span>
+                  )}
                 </div>
                 <p className="relative text-2xl font-semibold tracking-tight">{t("demosCatalog.view_all")}</p>
                 <p className="relative mt-2 text-sm text-gray-400">

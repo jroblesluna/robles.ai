@@ -1193,6 +1193,8 @@
         "clear_image": "Quitar",
         "samples_label": "¿Sin cámara? Prueba un retrato:",
         "sample_portrait": "Retrato de ejemplo {{n}}",
+        "sample_expand": "Ampliar retrato {{n}}",
+        "close_preview": "Cerrar vista ampliada",
         "tab_expressions": "Expresiones",
         "tab_log": "Registro",
         "dominant_label": "Emoción dominante",

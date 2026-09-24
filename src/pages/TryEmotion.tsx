@@ -20,6 +20,7 @@ import {
   ScanFace,
   Activity,
   X,
+  Expand,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { DemoNav } from "@/components/demo/DemoNav";
@@ -53,8 +54,8 @@ const EMOTIONS = [
 ] as const;
 const emotionMeta = (key: string) => EMOTIONS.find((e) => e.key === key) ?? EMOTIONS[0];
 
-// One-click portraits (the blog editors' headshots) for visitors without a camera.
-const SAMPLES = [1, 12, 8, 3].map((id) => ({ id, src: `/avatars/${id}-headshot.png` }));
+// One-click portraits for visitors without a camera.
+const SAMPLES = [1, 2, 3, 4, 5, 6, 7].map((id) => ({ id, src: `/images/emotion-samples/panel-${id}.jpg` }));
 
 // Live timeline: one slot per sample, sampled a few times per second.
 const TIMELINE_SLOTS = 48;
@@ -106,6 +107,7 @@ export default function TryEmotion() {
   const [log, setLog] = useState<LogEntry[]>([]);
   const [captureKey, setCaptureKey] = useState(0);
   const [showTech, setShowTech] = useState(false);
+  const [previewSample, setPreviewSample] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -768,17 +770,30 @@ export default function TryEmotion() {
                 <span className="mr-1 whitespace-nowrap text-xs text-gray-500">{t("try-emotion.samples_label")}</span>
                 <div className="flex items-center gap-2">
                   {SAMPLES.map((s, i) => (
-                    <button
-                      key={s.id}
-                      type="button"
-                      onClick={() => analyzeImage(s.src, "sample")}
-                      disabled={!modelReady || analyzing}
-                      aria-label={t("try-emotion.sample_portrait", { n: i + 1 })}
-                      title={t("try-emotion.sample_portrait", { n: i + 1 })}
-                      className="rounded-full p-0.5 ring-1 ring-gray-200 transition-all hover:-translate-y-0.5 hover:ring-2 hover:ring-rose-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 disabled:pointer-events-none disabled:opacity-50"
-                    >
-                      <img src={s.src} alt="" className="h-9 w-9 rounded-full object-cover" />
-                    </button>
+                    <div key={s.id} className="group/sample relative">
+                      <button
+                        type="button"
+                        onClick={() => analyzeImage(s.src, "sample")}
+                        disabled={!modelReady || analyzing}
+                        aria-label={t("try-emotion.sample_portrait", { n: i + 1 })}
+                        title={t("try-emotion.sample_portrait", { n: i + 1 })}
+                        className="rounded-full p-0.5 ring-1 ring-gray-200 transition-all hover:-translate-y-0.5 hover:ring-2 hover:ring-rose-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 disabled:pointer-events-none disabled:opacity-50"
+                      >
+                        <img src={s.src} alt="" className="h-9 w-9 rounded-full object-cover" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPreviewSample(s.src);
+                        }}
+                        aria-label={t("try-emotion.sample_expand", { n: i + 1 })}
+                        title={t("try-emotion.sample_expand", { n: i + 1 })}
+                        className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gray-900 text-white opacity-0 shadow-sm ring-2 ring-white transition-opacity group-hover/sample:opacity-100 focus-visible:opacity-100 focus-visible:outline-none"
+                      >
+                        <Expand className="h-2.5 w-2.5" />
+                      </button>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -1058,6 +1073,43 @@ export default function TryEmotion() {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Sample portrait lightbox */}
+      <AnimatePresence>
+        {previewSample && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/80 p-6 backdrop-blur-sm"
+            onClick={() => setPreviewSample(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.15 }}
+              className="relative max-h-[85vh] max-w-md"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={previewSample}
+                alt=""
+                className="max-h-[85vh] w-full rounded-2xl object-contain shadow-2xl"
+              />
+              <button
+                type="button"
+                onClick={() => setPreviewSample(null)}
+                aria-label={t("try-emotion.close_preview")}
+                title={t("try-emotion.close_preview")}
+                className="absolute -right-3 -top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white text-gray-900 shadow-lg ring-1 ring-gray-200 transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

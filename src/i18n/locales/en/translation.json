@@ -1193,6 +1193,8 @@
         "clear_image": "Remove",
         "samples_label": "No camera? Try a portrait:",
         "sample_portrait": "Sample portrait {{n}}",
+        "sample_expand": "Enlarge portrait {{n}}",
+        "close_preview": "Close enlarged view",
         "tab_expressions": "Expressions",
         "tab_log": "Log",
         "dominant_label": "Dominant emotion",
