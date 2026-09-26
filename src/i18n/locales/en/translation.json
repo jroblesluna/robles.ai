@@ -2178,6 +2178,18 @@
         },
         "items": [
             {
+                "id": "sitechatbot",
+                "href": "/try-chatbot",
+                "status": "live",
+                "icon": "Bot",
+                "from": "from-violet-500",
+                "to": "to-indigo-600",
+                "modelType": "LLM · Conversational Agent",
+                "title": "Your chatbot in 60 seconds",
+                "description": "Paste your website URL and chat with an assistant trained on your content, ready to serve and sell around the clock.",
+                "benefit": "24/7 service and sales without adding staff"
+            },
+            {
                 "id": "identity",
                 "href": "/try-identity",
                 "status": "live",
@@ -2248,18 +2260,6 @@
                 "title": "Customer experience without surveys",
                 "description": "Turn on your camera and watch the AI read 7 expressions live: the basis for measuring satisfaction in stores or at events, in aggregate. Everything is processed on your device.",
                 "benefit": "Satisfaction measured instantly, no surveys"
-            },
-            {
-                "id": "sitechatbot",
-                "href": "/try-chatbot",
-                "status": "live",
-                "icon": "Bot",
-                "from": "from-violet-500",
-                "to": "to-indigo-600",
-                "modelType": "LLM · Conversational Agent",
-                "title": "Your chatbot in 60 seconds",
-                "description": "Paste your website URL and chat with an assistant trained on your content, ready to serve and sell around the clock.",
-                "benefit": "24/7 service and sales without adding staff"
             },
             {
                 "id": "docextract",

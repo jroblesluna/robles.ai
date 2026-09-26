@@ -2178,6 +2178,18 @@
         },
         "items": [
             {
+                "id": "sitechatbot",
+                "href": "/try-chatbot",
+                "status": "live",
+                "icon": "Bot",
+                "from": "from-violet-500",
+                "to": "to-indigo-600",
+                "modelType": "LLM · Agente Conversacional",
+                "title": "Tu chatbot en 60 segundos",
+                "description": "Pega la URL de tu web y conversa con un asistente entrenado con tu contenido, listo para atender y vender las 24 horas.",
+                "benefit": "Atención y ventas 24/7 sin sumar personal"
+            },
+            {
                 "id": "identity",
                 "href": "/try-identity",
                 "status": "live",
@@ -2248,18 +2260,6 @@
                 "title": "Experiencia del cliente sin encuestas",
                 "description": "Enciende tu cámara y mira cómo la IA lee 7 expresiones en vivo: la base para medir satisfacción en tienda o eventos, en agregado. Todo se procesa en tu dispositivo.",
                 "benefit": "Satisfacción medida al instante, sin encuestas"
-            },
-            {
-                "id": "sitechatbot",
-                "href": "/try-chatbot",
-                "status": "live",
-                "icon": "Bot",
-                "from": "from-violet-500",
-                "to": "to-indigo-600",
-                "modelType": "LLM · Agente Conversacional",
-                "title": "Tu chatbot en 60 segundos",
-                "description": "Pega la URL de tu web y conversa con un asistente entrenado con tu contenido, listo para atender y vender las 24 horas.",
-                "benefit": "Atención y ventas 24/7 sin sumar personal"
             },
             {
                 "id": "docextract",
