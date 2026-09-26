@@ -247,6 +247,8 @@ function getDemoContext(pagePath: string): string {
     '/try-emotion': `The visitor is on the Facial Emotion Recognition Demo page. This demo uses face-api.js (TensorFlow.js) in the browser to detect faces, draw a 68-point facial landmark mesh, and classify facial expressions into 7 emotions (neutral, happy, sad, angry, surprised, fearful, disgusted) in real time via webcam or an uploaded image. All processing happens locally in the browser — no images or biometric data are sent to any server or stored.`,
 
     '/try-transcription': `The visitor is on the Speech-to-Text & Diarization Demo page. This live demo captures audio from the user's microphone and streams it over a WebSocket to a Deepgram-powered backend (Nova-3 model). Transcripts appear in real time with speaker diarization — each speaker is labelled separately. After recording, the user can run an AI analysis (POST /analyze) that detects the industry, assigns speaker roles, extracts a terminology map (basic and specialized forms of each term), and generates a structured summary. Audio is streamed through and not stored anywhere — nothing persists after the session ends. The demo runs at /try-transcription.`,
+
+    '/try-chatbot': `The visitor is on the "Your chatbot in 60 seconds" demo page. They paste their own website URL; the backend crawls up to 20 pages of that site over static HTML (same host only, honoring robots.txt, with anti-SSRF checks), indexes the text into a private per-session Pinecone namespace, and then answers questions using only that content with gpt-4o-mini. The assistant answers strictly from the crawled site and says so when it doesn't know. Nothing is persisted — the crawled content lives in an ephemeral namespace that expires after 24 hours. JavaScript-only sites may expose no text (there is no headless browser). The demo runs at /try-chatbot.`,
   };
 
   const base = demoDescriptions[pagePath] ||
@@ -268,10 +270,11 @@ const DEMO_BUSINESS_ANGLE: Record<string, string> = {
   '/try-transcription': 'automatic meeting and call notes — who said what, topics and key terms, ready when the call ends, saving hours of minute-writing and enabling call-center QA. Fits call centers, sales, healthcare and legal.',
   '/try-object-detection': 'cameras that count, detect and alert on their own — inventory counts, occupancy and safety. Fits retail, warehouses, manufacturing, logistics and cities. Our Smart City case study shows this kind of system can achieve up to 27% less crime and 42% faster emergency response.',
   '/try-emotion': 'aggregated, anonymous customer-experience measurement in stores or at events, without surveys. Do NOT suggest it for evaluating employees or students — emotion recognition is restricted in workplaces and education in some jurisdictions (e.g. the EU AI Act).',
+  '/try-chatbot': 'a chatbot trained on the visitor\'s own website in under a minute — answers visitors and sells 24/7 without adding staff, and handles after-hours inquiries that would otherwise go unanswered. Fits any business with a website. Our telco case study shows this kind of assistant can autonomously resolve up to 78% of inquiries.',
 };
 
 const DEMOS_WITH_CALCULATOR = new Set([
-  '/try-identity', '/try-rag', '/try-langchain', '/try-transcription', '/try-object-detection',
+  '/try-identity', '/try-rag', '/try-langchain', '/try-transcription', '/try-object-detection', '/try-chatbot',
 ]);
 
 const DEMO_SALES_GUIDANCE =

@@ -12,7 +12,7 @@ Public website of **Robles.AI**, built with **Vite + React (TypeScript)** on the
 - **Modern UI** with Tailwind, framer-motion, shadcn, and recharts.
 - **Ad Landing Page** (`/get-started`): bilingual (EN/ES) conversion-focused page with process steps, services, technologies, pricing, roadmap table, Why Now stats, and CTA. All images served locally.
 - **AI Chatbot Widget (Robly)**: floating widget replacing the old WhatsApp bubble. GPT-4o-mini powered with SSE streaming, page-context awareness, contact data collection, and conversation storage. Features Robly SVG avatar with 4 animated moods (idle/listening/thinking/speaking). Entrance sequence at 10s/20s/22s.
-- **AI Demos Lab** (`/demos`, catalog in `DemosCatalog.tsx`): six live demos — `/try-identity`, `/try-rag`, `/try-langchain`, `/try-transcription` (real-time speech-to-text + diarization + AI analysis) backed by Cloud Run APIs, plus `/try-object-detection` and `/try-emotion` running fully in the browser. `/try-medical` is **coming soon** (no backend yet; nothing is uploaded). See [Demos](#demos).
+- **AI Demos Lab** (`/demos`, catalog in `DemosCatalog.tsx`): seven live demos — `/try-identity`, `/try-rag`, `/try-langchain`, `/try-transcription` (real-time speech-to-text + diarization + AI analysis), `/try-chatbot` (a chatbot trained on your own website: paste a URL → crawl → chat) backed by Cloud Run APIs, plus `/try-object-detection` and `/try-emotion` running fully in the browser. `/try-medical` is **coming soon** (no backend yet; nothing is uploaded). See [Demos](#demos).
 - **AI Diagnostic Quiz** (`/diagnostico-ia`): scored AI-readiness quiz → GPT-generated result → email verification → downloadable PDF report. Leads are stored in SQLite and listed in `/admin/quiz-leads`.
 - **Static blog**: posts in `server/data/posts/YYYY/MM/DD/*.json` with bilingual translations and FTS5 full-text search.
 - **Server-side SEO**: Express middleware injects correct `<title>`, `<meta>`, Open Graph, Twitter Card, hreflang, canonical, and JSON-LD tags before serving HTML to crawlers — no JavaScript needed.
@@ -245,6 +245,7 @@ All persistent state lives in `server/data/dominical.db` (gitignored). Tables:
 | `/try-rag` | TryRAG | RAG pipeline demo (Cloud Run → `rag-api.robles.ai`) |
 | `/try-medical` | TryMedical | **Coming soon** — modality picker only; no backend, nothing uploaded |
 | `/try-transcription` | TryTranscription | Real-time speech-to-text + diarization + AI analysis (Cloud Run → `transcription-api.robles.ai`) |
+| `/try-chatbot` | TryChatbot | Chatbot trained on your website: paste URL → crawl → chat (Cloud Run → `chatbot-api.robles.ai`) |
 | `/try-object-detection` | TryObjectDetection | Object detection (in-browser, COCO-SSD) |
 | `/try-emotion` | TryEmotion | Emotion recognition (in-browser, face-api.js) |
 | `/otp` | OTP | OTP second-factor page |
@@ -269,6 +270,7 @@ The AI Demos Lab (`/demos`) lists every demo with a `live` / `soon` status. The 
 | RAG pipeline | `/try-rag` | Cloud Run `rag-api.robles.ai` (repo `robles.ai-rag-api`); PDF text extracted in the browser with `pdfjs-dist` | live |
 | LangChain agent | `/try-langchain` | Cloud Run `langchain-api.robles.ai` (repo `robles.ai-langchain-api`) | live |
 | Speech-to-text + diarization | `/try-transcription` | Cloud Run `transcription-api.robles.ai` (repo `robles.ai-transcription-api`): WebSocket → Deepgram Nova-3, `/analyze` → OpenAI | live |
+| Your chatbot in 60 seconds | `/try-chatbot` | Cloud Run `chatbot-api.robles.ai` (repo `robles.ai-chatbot-api`): crawl a URL (static HTML, same-host, robots.txt, anti-SSRF) → Pinecone (ephemeral namespace, 24h TTL) → gpt-4o-mini | live |
 | Object detection | `/try-object-detection` | In the browser: TensorFlow.js COCO-SSD (`lite_mobilenet_v2`) | live |
 | Emotion recognition | `/try-emotion` | In the browser: `@vladmandic/face-api` (models from jsDelivr) | live |
 | Medical image analysis | `/try-medical` | **No backend** — modality picker only; images never leave the browser | soon |

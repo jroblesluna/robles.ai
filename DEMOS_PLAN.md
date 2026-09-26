@@ -192,8 +192,16 @@ Más impacto por hora invertida: no requiere modelos nuevos.
 
 ### Fase 2 — La demo estrella (3–5 semanas)
 
-- [ ] **D1 "Tu chatbot en 60 segundos"** (M). Rastreo acotado + ingesta en `rag-api` + chat con
-      Robly + CTA de instalación. Es la de mayor potencial de leads: se mide por separado.
+- [x] **D1 "Tu chatbot en 60 segundos"** ✅ (2026-09). Rastreo acotado + ingesta + chat +
+      CTA. Se implementó como **backend nuevo autónomo** `robles.ai-chatbot-api` (no
+      extendiendo `rag-api`): FastAPI + OpenAI (`gpt-4o-mini` + `text-embedding-3-small`) +
+      Pinecone, molde de `langchain-api` (1Gi, sin torch). Crawler propio de HTML estático
+      (`httpx` + `beautifulsoup4`, mismo host, `robots.txt`, anti-SSRF, tope 20 páginas),
+      namespace efímero por sesión con TTL 24h. Frontend `src/pages/TryChatbot.tsx`
+      (`/try-chatbot`), item de catálogo `sitechatbot` → `live`. Cloud Run
+      `chatbot-api.robles.ai` (proyecto `robles-ai-chatbot-project`). Es la de mayor
+      potencial de leads: se mide por separado. Spec en
+      `robles.ai-chatbot-api/.kiro/specs/try-chatbot-60s/`.
 
 ### Fase 3 — Alto wow, mayor inversión (4–8 semanas)
 
@@ -239,3 +247,23 @@ Esfuerzo (S=1, M=2, L=3).
 | Costo de APIs por demo completada | Facturación OpenAI/Deepgram ÷ `demo_complete` | Mantener acotado con los topes del §2.6 |
 
 Las metas numéricas se fijan después de medir la línea base; no se inventan de antemano.
+
+---
+
+## 8. Deuda de infra pendiente (no bloquea las demos)
+
+- [ ] **Renombrar el servicio Cloud Run de identity `identity-server` → `identity-api-server`**
+      para cumplir la norma de nomenclatura de los repos hermanos (`<x>-api-server`:
+      `rag-api-server`, `langchain-api-server`, `chatbot-api-server`). Hoy identity es el único
+      que quedó sin el sufijo `-api`.
+      - **Por qué está pendiente y no se hizo junto con el chatbot:** un servicio de Cloud Run no
+        se renombra in situ; hay que **crear el servicio nuevo, re-apuntar el domain mapping
+        `identity-api.robles.ai` y borrar el viejo**. Recrear el mapping **re-emite el certificado
+        TLS**, con posible downtime del dominio público hasta que el DNS resuelva y el cert se
+        emita (el AGENTS.md de identity ya documenta un incidente de cert expirado). Es alto
+        impacto sobre un servicio en producción por una mejora cosmética.
+      - **Cómo ejecutarlo (ventana con downtime breve aceptable, operador corre gcloud):**
+        actualizar `SERVICE_NAME` en `deploy_fresh_gcp.sh`, `update_docker.sh`,
+        `delete_all_gcp_resources.sh` y `.github/workflows/deploy.yml` del repo
+        `robles.ai-identity-api`; desplegar `identity-api-server`; re-crear el domain mapping
+        apuntando al servicio nuevo; borrar `identity-server`; actualizar `README.md`/`AGENTS.md`.

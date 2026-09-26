@@ -15,7 +15,8 @@ export type DemoBusinessId =
   | "langchain"
   | "speech"
   | "objectdetection"
-  | "emotion";
+  | "emotion"
+  | "sitechatbot";
 
 export interface CalculatorDefaults {
   /** Units per month (sign-ups, queries, meetings, counts…). */
@@ -37,6 +38,10 @@ export const CALCULATOR_DEFAULTS: Partial<Record<DemoBusinessId, CalculatorDefau
   objectdetection: { volume: 40, minutes: 90, automation: 70, hourlyCost: 12 },
   // Framed as aggregate customer-experience insight replacing surveys, never HR/education (§4.3).
   emotion: { volume: 600, minutes: 5, automation: 60, hourlyCost: 10 },
+  // "Tu chatbot en 60 segundos" (D1): consultas/mes que hoy atiende una persona,
+  // minutos por consulta, % que el bot resuelve solo. Referencia citable: caso telco
+  // 78% de resolución autónoma (DEMOS_PLAN.md §4.1).
+  sitechatbot: { volume: 800, minutes: 6, automation: 70, hourlyCost: 15 },
 };
 
 /**

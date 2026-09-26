@@ -18,7 +18,7 @@ describe("computeSavings", () => {
 
   it("has example inputs for every live demo", () => {
     expect(Object.keys(CALCULATOR_DEFAULTS).sort()).toEqual(
-      ["emotion", "identity", "langchain", "objectdetection", "rag", "speech"],
+      ["emotion", "identity", "langchain", "objectdetection", "rag", "sitechatbot", "speech"],
     );
   });
 });
