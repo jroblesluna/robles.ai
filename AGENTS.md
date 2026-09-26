@@ -312,8 +312,15 @@ linkedin_person_id, image_provider, dominical_notification_email,
 dominical_auto_publish, dominical_top_n, admin_jwt_secret,
 meta_app_id, meta_app_secret, instagram_business_account_id,
 instagram_access_token, facebook_page_id, facebook_page_access_token,
-meta_token_expires_at
+meta_token_expires_at,
+hostinger_api_key, gcp_sa_key, hostinger_domain, dns_cname_target
 ```
+
+> Las cuatro últimas son del **portal de backends** (`/admin/backends`, ver §21):
+> `hostinger_api_key` (token de la API de Hostinger para el DNS), `gcp_sa_key` (JSON de
+> la SA `backend-viewer@robles-ai-admin`, solo lectura de Cloud Run), `hostinger_domain`
+> (default `robles.ai`), `dns_cname_target` (default `ghs.googlehosted.com.`). Las dos
+> primeras son secretos write-only: la API nunca las devuelve.
 
 ---
 
@@ -361,6 +368,7 @@ Cada una contiene `requirements.md`, `design.md`, `tasks.md` (+ `tasks.meta.json
 | `/admin/dominical` | AdminDominicalList | Listado de reportes semanales |
 | `/admin/dominical/:id` | AdminDominicalDetail | Revisión, edición, carrusel, video, publicación |
 | `/admin/quiz-leads` | AdminQuizLeads | Leads del quiz de diagnóstico |
+| `/admin/backends` | AdminBackends | Portal de backends: conexión (Hostinger/GCP), estado DNS + Cloud Run + salud, publicar CNAMEs (ver §21) |
 | `/admin/conversations` | AdminConversationList | Inbox de chat con filtros + analítica |
 | `/admin/conversations/:id` | AdminConversationDetail | Transcript completo + datos de contacto |
 | `/admin/analytics` | AdminAnalytics | Dashboard GA4 + Meta (4 tabs) |
@@ -418,6 +426,10 @@ Cada una contiene `requirements.md`, `design.md`, `tasks.md` (+ `tasks.meta.json
 | POST | `/api/admin/analytics/refresh` | Sí | Limpiar caché de analítica |
 | POST | `/api/admin/reindex-posts` | Sí | Forzar reconstrucción del índice del blog |
 | GET | `/api/admin/quiz-leads` | Sí | Listado de leads del quiz |
+| GET/PUT | `/api/admin/backends/connections` | Sí | Estado/guardado de credenciales Hostinger+GCP (write-only) |
+| GET | `/api/admin/backends` | Sí | Listado de backends con estado DNS + salud + Cloud Run |
+| POST | `/api/admin/backends/:id/dns` | Sí | Publicar/actualizar el CNAME del backend (Hostinger) |
+| GET | `/api/admin/backends/:id/cloudrun` | Sí | Estado Cloud Run (solo lectura) de un backend |
 
 > La ruta `generate-video` ya figura también en README.md.
 
@@ -669,3 +681,51 @@ En desarrollo, disponible en `http://localhost:5173` (ajustable con `PORT`).
 - Specs de features por módulo (fuente de verdad histórica de diseño): `.kiro/specs/*/`
   (contienen `requirements.md` / `design.md` / `tasks.md` — NO son documentación
   del proyecto, son artefactos del flujo de specs; no borrar).
+
+---
+
+## 21. Portal de administración de backends (`/admin/backends`)
+
+Portal para **conectar, ver el estado y publicar el DNS** de los backends de demo
+(los servicios de Cloud Run: identity, rag, langchain, transcription, chatbot). Spec:
+`.kiro/specs/admin-backend-management/`. v1 = opción de solo lectura hacia GCP +
+escritura de DNS por Hostinger; el sitio nunca despliega/opera Cloud Run (eso lo hacen
+los scripts y el CI/CD de cada repo).
+
+### Qué hace
+- **Conexiones:** guarda en `settings` (BD) la `hostinger_api_key` y el `gcp_sa_key`
+  (JSON de la SA). Ambos **write-only**: el `GET` reporta solo `connected: bool`, nunca
+  el valor. Editable desde la UI (conectar/rotar sin redesplegar).
+- **Estado por backend:** DNS (¿existe el CNAME `<sub>-api → ghs.googlehosted.com.`?
+  `ok`/`missing`/`mismatch`/`unknown`), salud (ping público a `/health`), y Cloud Run
+  (revisión + ready, solo lectura).
+- **Publicar DNS:** `POST /:id/dns` crea/actualiza el CNAME del backend vía Hostinger
+  (idempotente). El `name`/`target` salen del **registry del servidor**, nunca del body.
+
+### Arquitectura (server)
+- `server/backendRoutes.ts` → montado en `/api/admin/backends` con `requireAuth`.
+  Endpoints: `GET/PUT /connections`, `GET /`, `POST /:id/dns`, `GET /:id/cloudrun`.
+- `server/services/backends/registry.ts` → catálogo declarativo de los 5 backends
+  (id, subdominio, proyecto/servicio Cloud Run reales). Ojo: identity es `identity-server`
+  (sin `-api`).
+- `server/services/dns/DnsProvider.ts` (interfaz) + `HostingerDnsProvider.ts` (impl v1,
+  API DNS de Hostinger `GET/PUT /api/dns/v1/zones/{domain}`). La interfaz existe para el
+  swap futuro a **Cloud DNS** cuando se migre a GCP (ver `DEMOS_PLAN.md` §8).
+- `server/services/gcp/googleAuth.ts` → JWT bearer grant (RS256) desde `gcp_sa_key`,
+  canje por access token. **Scope `cloud-platform`** (el `.read-only` da 403
+  `ACCESS_TOKEN_SCOPE_INSUFFICIENT` en la Cloud Run Admin API; la lectura-sólo se
+  garantiza por IAM: la SA solo tiene `roles/run.viewer`).
+- `server/services/gcp/cloudRunClient.ts` → `getServiceStatus` (GET v2 API, sin métodos
+  de escritura). `server/services/backends/health.ts` → `pingHealth`.
+
+### Infra GCP: proyecto raíz `robles-ai-admin`
+La SA de lectura vive en un **proyecto raíz dedicado** `robles-ai-admin` (no en un
+backend, para no acoplar el acceso a un proyecto descartable), con `roles/run.viewer`
+en los 5 proyectos (cross-project). El proyecto raíz **no necesita billing** para alojar
+la SA ni para las lecturas (la cuota de billing de la cuenta estaba llena con los 5
+backends). Este proyecto será además el hogar del sitio y de Cloud DNS cuando se migre
+todo a GCP (`DEMOS_PLAN.md` §8).
+
+### Producción
+Tras desplegar, cargar las credenciales **desde la UI** (`/admin/backends`): la API key
+de Hostinger y el JSON de la SA `backend-viewer@robles-ai-admin`. No van en `.env`.

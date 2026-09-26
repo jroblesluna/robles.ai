@@ -20,6 +20,7 @@ import { generateHistoricalPosts } from '@/scripts/generateHistoricalPosts';
 import { addOneDay, subtractOneDay } from '@/utils/managmentDate';
 import adminRouter from './adminRoutes.js';
 import analyticsRouter from './analyticsRoutes.js';
+import backendRouter from './backendRoutes.js';
 import publicRouter from './publicRoutes.js';
 import searchRouter from './searchRoutes.js';
 import chatRouter from './chatRoutes.js';
@@ -47,6 +48,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Analytics routes
   app.use('/api/admin/analytics', analyticsRouter);
+
+  // Backend management routes (DNS via Hostinger + Cloud Run read-only + health)
+  app.use('/api/admin/backends', backendRouter);
 
   // Public routes (no auth — Meta servers need to access slide images)
   app.use('/api/public', publicRouter);

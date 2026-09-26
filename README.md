@@ -257,6 +257,7 @@ All persistent state lives in `server/data/dominical.db` (gitignored). Tables:
 | `/admin/conversations` | AdminConversationList | Chat inbox with filters + analytics |
 | `/admin/conversations/:id` | AdminConversationDetail | Full transcript + contact data |
 | `/admin/analytics` | AdminAnalytics | GA4 + Meta dashboard (4 tabs) |
+| `/admin/backends` | AdminBackends | Backend portal: connect Hostinger/GCP, see DNS + Cloud Run + health status, publish CNAMEs (read-only towards GCP) |
 
 ---
 

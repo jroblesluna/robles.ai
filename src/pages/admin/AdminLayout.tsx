@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useState } from "react";
 import { useLocation, Link } from "wouter";
-import { LayoutDashboard, Newspaper, Settings, LogOut, BarChart3, MessageSquare, ClipboardList, Menu, X } from "lucide-react";
+import { LayoutDashboard, Newspaper, Settings, LogOut, BarChart3, MessageSquare, ClipboardList, Server, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import AdminSetup from "./AdminSetup";
@@ -16,6 +16,7 @@ const navLinks = [
   { href: "/admin/conversations", label: "Conversations", icon: MessageSquare },
   { href: "/admin/quiz-leads", label: "Quiz Leads", icon: ClipboardList },
   { href: "/admin/dominical", label: "Dominical", icon: Newspaper },
+  { href: "/admin/backends", label: "Backends", icon: Server },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 

@@ -267,3 +267,27 @@ Las metas numéricas se fijan después de medir la línea base; no se inventan d
         `delete_all_gcp_resources.sh` y `.github/workflows/deploy.yml` del repo
         `robles.ai-identity-api`; desplegar `identity-api-server`; re-crear el domain mapping
         apuntando al servicio nuevo; borrar `identity-server`; actualizar `README.md`/`AGENTS.md`.
+
+- [ ] **Migrar todo Robles.AI a GCP (incluida la gestión de DNS).** Hoy la arquitectura
+      está partida: el **sitio** (`robles.ai`) corre en un **VPS de Hostinger con PM2** y el
+      **DNS** de `robles.ai` lo administra **Hostinger**, mientras que los **backends de demo**
+      (identity, rag, langchain, transcription, chatbot) viven en **GCP Cloud Run**. El objetivo
+      es consolidar todo en GCP:
+      - **Proyecto raíz `robles-ai-admin`** → es el hogar de la infraestructura de
+        administración (ya se crea en la spec `admin-backend-management` para alojar la SA
+        `backend-viewer` cross-project). En la migración, **el sitio `robles.ai` debería
+        vivir dentro de este proyecto raíz** (su Cloud Run + CI/CD), consolidando el núcleo
+        de la arquitectura GCP ahí en vez de en un proyecto de backend.
+      - **Sitio** → mover de VPS/PM2 a GCP (Cloud Run en `robles-ai-admin`), con su propio CI/CD.
+      - **DNS** → pasar la zona de `robles.ai` de Hostinger a **Cloud DNS** (en el mismo
+        proyecto raíz `robles-ai-admin`). Esto vuelve
+        innecesaria la integración con la API de Hostinger del portal de admin (ver spec
+        `admin-backend-management`): la gestión de CNAMEs pasaría a hacerse contra Cloud DNS con
+        la misma service account de GCP, unificando credenciales.
+      - **Impacto en el portal de admin:** el `HostingerDnsClient` quedaría reemplazado por un
+        `CloudDnsClient`; el resto del portal (catálogo de backends, estado Cloud Run read-only,
+        health-checks) se mantiene. Diseñar el portal con el DNS detrás de una interfaz
+        (`DnsProvider`) para que el cambio Hostinger→Cloud DNS sea un swap de implementación.
+      - **Por qué pendiente:** es una migración de infraestructura mayor (downtime de DNS,
+        recreación de certs, mover el runtime del sitio) que excede el alcance de las demos y
+        debe planificarse en su propia ventana. No bloquea nada actual.
