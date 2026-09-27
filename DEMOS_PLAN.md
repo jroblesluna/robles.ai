@@ -181,10 +181,16 @@ Más impacto por hora invertida: no requiere modelos nuevos.
 
 ### Fase 1 — Quick wins sobre infra existente (2–4 semanas)
 
-- [ ] **D2 Facturas y documentos → datos** (S–M). LLM con visión, salida con esquema validado,
-      descarga CSV/Excel, documentos de ejemplo precargados. Nuevo `docextract-api` en Cloud Run
-      siguiendo las convenciones de los otros repos (scale to zero, `prune_registry.sh`,
-      `rotate_secret.sh`).
+- [x] **D2 Facturas y documentos → datos** ✅ (2026-09). LLM con visión (`gpt-4o-mini`),
+      salida con esquema validado (Pydantic), un único invoke que detecta el tipo de documento
+      y extrae campos + bounding boxes opcionales. Backend nuevo autónomo
+      `robles.ai-docextract-api` (FastAPI, molde de `langchain-api`, **sin Pinecone ni
+      LangChain** — pura extracción, sin RAG), 1Gi, `--max-instances=4`, tope de tamaño +
+      rate limit desde el día uno. Frontend `src/pages/TryDocExtract.tsx` (`/try-docextract`):
+      subir imagen/PDF → base64 en el navegador → tabla + JSON + overlay de bounding boxes +
+      descarga JSON/CSV/Excel. Item de catálogo `docextract` → `live`. Cloud Run
+      `docextract-api.robles.ai` (proyecto `robles-ai-docextract-project`). Spec en
+      `robles.ai-docextract-api/.kiro/specs/try-docextract/`.
 - [ ] **D3 Notas de reunión en vivo** (M). Extiende `transcription-api` con el mensaje WS
       `notes`: estado por secciones con ids estables, flush cada ~25 s o ~15 finales, ops
       validadas (`upsert_topic`, `append_point`, `add_action`…) y `/analyze` como consolidación
@@ -207,7 +213,15 @@ Más impacto por hora invertida: no requiere modelos nuevos.
 
 - [ ] **D5 Simulador de fraude** (M).
 - [ ] **D4 Recepcionista por voz** (L), con los topes de costo de §4.4 desde el día uno.
-- [ ] **D6 Pronóstico con tu CSV** (M).
+- [x] **D6 Pronóstico con tu CSV** ✅ (2026-09). Se implementó **100% en el navegador** (sin
+      backend, sin GCP, sin costo): descomposición aditiva estilo Holt-Winters (nivel +
+      tendencia lineal + perfil estacional promediado, con detección automática de la estación
+      por autocorrelación) y bandas de incertidumbre q10/q50/q90 a partir de los residuos en
+      muestra. Frontend `src/pages/TryForecast.tsx` (`/try-forecast`): presets de ejemplo
+      (estándar / al alza / estacional / volátil) o CSV propio del visitante, horizonte 24
+      pasos (≈1 día) o 168 (≈1 semana), gráfica recharts (histórico + mediana + banda + línea
+      de tendencia) y descarga CSV. Lógica en `src/lib/forecast.ts` (con tests). Item de
+      catálogo `forecast` → `live`.
 - [ ] **D7 Estudio de foto de producto** (S–M).
 
 > Los plazos son estimaciones para una persona trabajando con asistencia de IA; conviene

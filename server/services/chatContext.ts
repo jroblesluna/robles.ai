@@ -249,6 +249,10 @@ function getDemoContext(pagePath: string): string {
     '/try-transcription': `The visitor is on the Speech-to-Text & Diarization Demo page. This live demo captures audio from the user's microphone and streams it over a WebSocket to a Deepgram-powered backend (Nova-3 model). Transcripts appear in real time with speaker diarization — each speaker is labelled separately. After recording, the user can run an AI analysis (POST /analyze) that detects the industry, assigns speaker roles, extracts a terminology map (basic and specialized forms of each term), and generates a structured summary. Audio is streamed through and not stored anywhere — nothing persists after the session ends. The demo runs at /try-transcription.`,
 
     '/try-chatbot': `The visitor is on the "Your chatbot in 60 seconds" demo page. They paste their own website URL; the backend crawls up to 20 pages of that site over static HTML (same host only, honoring robots.txt, with anti-SSRF checks), indexes the text into a private per-session Pinecone namespace, and then answers questions using only that content with gpt-4o-mini. The assistant answers strictly from the crawled site and says so when it doesn't know. Nothing is persisted — the crawled content lives in an ephemeral namespace that expires after 24 hours. JavaScript-only sites may expose no text (there is no headless browser). The demo runs at /try-chatbot.`,
+
+    '/try-docextract': `The visitor is on the Document Data Extraction demo page. They upload an image or PDF of a document (invoice, receipt, ID, form, contract, etc.); the backend sends it to an OpenAI vision model in a SINGLE pass that detects the document type and extracts the key fields as structured data (JSON), with a confidence score per field and optional bounding boxes. The visitor sees a table plus the raw JSON, an overlay of located fields on the document, and can download the result as JSON, CSV or Excel. It is pure data extraction — no RAG, no OCR step, no templates per document type. Nothing is persisted: the document is processed in memory for the request and discarded. The demo runs at /try-docextract.`,
+
+    '/try-forecast': `The visitor is on the Time-Series Forecasting demo page. They pick an example series (standard, trending, seasonal, volatile) or upload their own CSV of historical values; the forecast is computed ENTIRELY in the browser (additive Holt-Winters style: level + linear trend + averaged seasonal profile, auto-detecting the season length) and shown with a median line and q10/q90 uncertainty bands over a chosen horizon (24 steps ≈ a day, or 168 ≈ a week). They can download the forecast as CSV. Nothing leaves the browser — there is no server call. The demo runs at /try-forecast.`,
   };
 
   const base = demoDescriptions[pagePath] ||
@@ -271,10 +275,13 @@ const DEMO_BUSINESS_ANGLE: Record<string, string> = {
   '/try-object-detection': 'cameras that count, detect and alert on their own — inventory counts, occupancy and safety. Fits retail, warehouses, manufacturing, logistics and cities. Our Smart City case study shows this kind of system can achieve up to 27% less crime and 42% faster emergency response.',
   '/try-emotion': 'aggregated, anonymous customer-experience measurement in stores or at events, without surveys. Do NOT suggest it for evaluating employees or students — emotion recognition is restricted in workplaces and education in some jurisdictions (e.g. the EU AI Act).',
   '/try-chatbot': 'a chatbot trained on the visitor\'s own website in under a minute — answers visitors and sells 24/7 without adding staff, and handles after-hours inquiries that would otherwise go unanswered. Fits any business with a website. Our telco case study shows this kind of assistant can autonomously resolve up to 78% of inquiries.',
+  '/try-docextract': 'turn documents into structured data automatically — invoices, receipts, IDs and forms read in one pass instead of typed in by hand, cutting data-entry hours and errors. Fits finance, operations, onboarding and logistics. Our finance case study shows automated extraction reaching 99.2% accuracy and $4.5M+ saved a year.',
+  '/try-forecast': 'fast, repeatable forecasts of demand, sales or usage with uncertainty bands — replaces slow spreadsheet planning, so teams cut stockouts and overstock. Fits retail, supply chain, finance and operations. This demo runs entirely in the browser, so their data never leaves the page.',
 };
 
 const DEMOS_WITH_CALCULATOR = new Set([
   '/try-identity', '/try-rag', '/try-langchain', '/try-transcription', '/try-object-detection', '/try-chatbot',
+  '/try-docextract', '/try-forecast',
 ]);
 
 const DEMO_SALES_GUIDANCE =

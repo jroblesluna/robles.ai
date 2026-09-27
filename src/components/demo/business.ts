@@ -16,7 +16,9 @@ export type DemoBusinessId =
   | "speech"
   | "objectdetection"
   | "emotion"
-  | "sitechatbot";
+  | "sitechatbot"
+  | "docextract"
+  | "forecast";
 
 export interface CalculatorDefaults {
   /** Units per month (sign-ups, queries, meetings, counts…). */
@@ -42,6 +44,12 @@ export const CALCULATOR_DEFAULTS: Partial<Record<DemoBusinessId, CalculatorDefau
   // minutos por consulta, % que el bot resuelve solo. Referencia citable: caso telco
   // 78% de resolución autónoma (DEMOS_PLAN.md §4.1).
   sitechatbot: { volume: 800, minutes: 6, automation: 70, hourlyCost: 15 },
+  // D2 "Document data extraction": documents keyed in by hand per month, minutes
+  // each takes, % the model reads automatically. Example values, not claims.
+  docextract: { volume: 1200, minutes: 6, automation: 85, hourlyCost: 15 },
+  // D6 "Forecast": manual forecasting/planning cycles per month, minutes each
+  // takes today, % the automated forecast replaces of that effort.
+  forecast: { volume: 60, minutes: 45, automation: 70, hourlyCost: 25 },
 };
 
 /**
