@@ -9,6 +9,10 @@ import {
   Loader2,
   RefreshCw,
   Plug,
+  Activity as ActivityIcon,
+  Moon,
+  Zap,
+  HelpCircle,
 } from "lucide-react";
 
 /**
@@ -18,7 +22,15 @@ import {
  * Credentials are write-only from here (server never returns their values).
  */
 
-interface HealthStatus { alive: boolean; ms: number | null; warm?: boolean; }
+interface Activity {
+  available: boolean;
+  lastRequestAt?: string;
+  requestsInWindow?: number;
+  running?: boolean;
+  windowHours?: number;
+  error?: string;
+}
+interface PingStatus { alive: boolean; ms: number | null; warm?: boolean; }
 interface CloudRunStatus {
   available: boolean; exists?: boolean; url?: string; ready?: boolean;
   latestRevision?: string; region?: string; error?: string;
@@ -26,7 +38,7 @@ interface CloudRunStatus {
 interface BackendItem {
   id: string; label: string; subdomain: string; publicUrl: string;
   expectedTarget: string; dnsStatus: "ok" | "missing" | "mismatch" | "unknown";
-  currentTarget: string | null; health: HealthStatus; cloudRun: CloudRunStatus;
+  currentTarget: string | null; activity: Activity; cloudRun: CloudRunStatus;
 }
 interface ListResponse {
   hostingerConnected: boolean; gcpConnected: boolean; domain: string; items: BackendItem[];
@@ -39,10 +51,29 @@ const DNS_BADGE: Record<string, { cls: string; label: string }> = {
   unknown: { cls: "bg-gray-100 text-gray-500 ring-gray-200", label: "Desconocido" },
 };
 
+/** "hace 3 h", "hace 2 d", "hace un momento" — Spanish relative time from an ISO ts. */
+function relativeTime(iso?: string): string | null {
+  if (!iso) return null;
+  const then = Date.parse(iso);
+  if (Number.isNaN(then)) return null;
+  const secs = Math.max(0, Math.floor((Date.now() - then) / 1000));
+  if (secs < 60) return "hace un momento";
+  const mins = Math.floor(secs / 60);
+  if (mins < 60) return `hace ${mins} min`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `hace ${hours} h`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `hace ${days} d`;
+  const months = Math.floor(days / 30);
+  return `hace ${months} mes${months > 1 ? "es" : ""}`;
+}
+
 export default function AdminBackends() {
   const [data, setData] = useState<ListResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [publishing, setPublishing] = useState<string | null>(null);
+  const [pinging, setPinging] = useState<string | null>(null);
+  const [pingResult, setPingResult] = useState<Record<string, PingStatus>>({});
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
 
   // Connection form (write-only).
@@ -113,6 +144,35 @@ export default function AdminBackends() {
       setMsg({ kind: "err", text: "Error de red al publicar DNS." });
     } finally {
       setPublishing(null);
+    }
+  }
+
+  /**
+   * Explicit, opt-in live probe. This is the ONLY action that hits the backend
+   * directly and will cold-start (wake) a scaled-to-zero service. It is never
+   * triggered automatically — only when the admin clicks "Probar".
+   */
+  async function pingBackend(id: string) {
+    setPinging(id);
+    setMsg(null);
+    try {
+      const res = await fetch(`/api/admin/backends/${id}/ping`, { method: "POST" });
+      const json = await res.json();
+      if (!res.ok) {
+        setMsg({ kind: "err", text: json?.error?.message || "No se pudo probar el backend." });
+      } else {
+        setPingResult((prev) => ({ ...prev, [id]: json }));
+        setMsg({
+          kind: "ok",
+          text: json.alive
+            ? `${id}: respondió${json.ms != null ? ` en ${json.ms} ms` : ""}.`
+            : `${id}: no respondió (puede seguir despertando).`,
+        });
+      }
+    } catch {
+      setMsg({ kind: "err", text: "Error de red al probar el backend." });
+    } finally {
+      setPinging(null);
     }
   }
 
@@ -207,10 +267,10 @@ export default function AdminBackends() {
             <thead className="bg-gray-50 text-left text-xs uppercase tracking-wider text-gray-500">
               <tr>
                 <th className="px-4 py-3">Backend</th>
-                <th className="px-4 py-3">Salud</th>
+                <th className="px-4 py-3">Actividad</th>
                 <th className="px-4 py-3">DNS</th>
                 <th className="px-4 py-3">Cloud Run</th>
-                <th className="px-4 py-3 text-right">Acción</th>
+                <th className="px-4 py-3 text-right">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -225,7 +285,7 @@ export default function AdminBackends() {
                         {b.subdomain}.{data?.domain}
                       </a>
                     </td>
-                    <td className="px-4 py-3"><HealthCell h={b.health} /></td>
+                    <td className="px-4 py-3"><ActivityCell a={b.activity} ping={pingResult[b.id]} /></td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ${DNS_BADGE[b.dnsStatus].cls}`}>
                         {DNS_BADGE[b.dnsStatus].label}
@@ -235,19 +295,28 @@ export default function AdminBackends() {
                       )}
                     </td>
                     <td className="px-4 py-3"><CloudRunCell c={b.cloudRun} /></td>
-                    <td className="px-4 py-3 text-right">
-                      {(b.dnsStatus === "missing" || b.dnsStatus === "mismatch") && data?.hostingerConnected ? (
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-2">
+                        {(b.dnsStatus === "missing" || b.dnsStatus === "mismatch") && data?.hostingerConnected && (
+                          <button
+                            onClick={() => publishDns(b.id)}
+                            disabled={publishing === b.id}
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-violet-700 disabled:opacity-50"
+                          >
+                            {publishing === b.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Globe className="h-3.5 w-3.5" />}
+                            Publicar DNS
+                          </button>
+                        )}
                         <button
-                          onClick={() => publishDns(b.id)}
-                          disabled={publishing === b.id}
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-violet-700 disabled:opacity-50"
+                          onClick={() => pingBackend(b.id)}
+                          disabled={pinging === b.id}
+                          title="Envía una petición real a /health. Esto DESPIERTA el servicio si está en reposo."
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 disabled:opacity-50"
                         >
-                          {publishing === b.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Globe className="h-3.5 w-3.5" />}
-                          Publicar DNS
+                          {pinging === b.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5" />}
+                          Probar
                         </button>
-                      ) : (
-                        <span className="text-xs text-gray-300">—</span>
-                      )}
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -272,11 +341,39 @@ function ConnBadge({ connected }: { connected: boolean }) {
   );
 }
 
-function HealthCell({ h }: { h: HealthStatus }) {
-  if (!h.alive) return <span className="inline-flex items-center gap-1 text-xs text-gray-400"><XCircle className="h-3.5 w-3.5" /> Dormido</span>;
+/**
+ * Activity derived from Cloud Monitoring (never a live ping). Shows whether the
+ * service currently has instances up (En uso) or is scaled to zero (En reposo),
+ * plus when it last served traffic. If the manual "Probar" button was used, its
+ * result is shown as an extra line.
+ */
+function ActivityCell({ a, ping }: { a: Activity; ping?: PingStatus }) {
+  const pingLine = ping && (
+    <span className={`block text-[11px] ${ping.alive ? "text-emerald-600" : "text-gray-400"}`}>
+      {ping.alive ? `probado: vivo${ping.ms != null ? ` · ${ping.ms} ms` : ""}` : "probado: sin respuesta"}
+    </span>
+  );
+
+  if (!a.available) {
+    return <span className="inline-flex items-center gap-1 text-xs text-gray-400"><HelpCircle className="h-3.5 w-3.5" /> GCP no conectado{pingLine}</span>;
+  }
+  if (a.error) {
+    const label = a.error === "monitoring_forbidden" ? "Sin permiso de métricas" : "Métricas no disponibles";
+    return <span className="inline-flex items-center gap-1 text-xs text-amber-600"><AlertTriangle className="h-3.5 w-3.5" /> {label}{pingLine}</span>;
+  }
+
+  const rel = relativeTime(a.lastRequestAt);
+  const state = a.running
+    ? { icon: <ActivityIcon className="h-3.5 w-3.5" />, cls: "text-emerald-700", text: "En uso" }
+    : { icon: <Moon className="h-3.5 w-3.5" />, cls: "text-gray-500", text: "En reposo" };
+
   return (
-    <span className="inline-flex items-center gap-1 text-xs text-emerald-700">
-      <CheckCircle2 className="h-3.5 w-3.5" /> Vivo{h.ms != null ? ` · ${h.ms} ms` : ""}
+    <span className="block">
+      <span className={`inline-flex items-center gap-1 text-xs ${state.cls}`}>{state.icon} {state.text}</span>
+      <span className="block text-[11px] text-gray-400">
+        {rel ? `última actividad ${rel}` : `sin actividad en ${a.windowHours ? Math.round(a.windowHours / 24) : 7} d`}
+      </span>
+      {pingLine}
     </span>
   );
 }

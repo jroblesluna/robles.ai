@@ -179,9 +179,18 @@ de la Cloud Run Admin API. **Solo lectura** — el VPS nunca opera/despliega/des
   los health-checks siguen funcionando).
 - **R5.4** **Prohibido** cualquier método de escritura sobre Cloud Run en v1 (deploy,
   update, delete, scale). El cliente GCP solo expone lectura.
-- **R5.5** Health-check independiente de GCP: además del estado Cloud Run, el portal
-  pinea `GET /health` y `GET /` de cada backend (público, sin credenciales) para mostrar
-  vivo/dormido y latencia (warm/cold). Esto funciona aunque GCP no esté conectado.
+- **R5.5** Actividad **sin despertar el servicio** (corregido 2026-09). El portal
+  **NUNCA** debe pinear un backend automáticamente al cargar la página: un `GET /health`
+  directo hace cold-start de un servicio Cloud Run que escala a cero (bug original que
+  encendía Transcription solo por abrir el portal). En su lugar, la actividad se deriva de
+  **Cloud Monitoring** (lectura de telemetría GCP, sin tocar el contenedor):
+  `run.googleapis.com/request_count` → "última actividad hace Xh" y
+  `run.googleapis.com/container/instance_count` → En uso / En reposo. Requiere
+  `roles/monitoring.viewer` en cada proyecto de backend (además de `run.viewer`).
+- **R5.6** Ping en vivo **opt-in**: existe un `POST /:id/ping` que sí golpea `GET /health`
+  del backend, expuesto en la UI como un botón explícito "Probar" (etiquetado de que
+  **despierta** el servicio). Es la única ruta que toca el backend directamente y jamás se
+  invoca de forma automática.
 
 ### R6 — Manejo del token y de errores
 - **R6.1** El token de Hostinger **solo** se lee de `process.env.HOSTINGER_API_KEY` en

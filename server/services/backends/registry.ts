@@ -66,6 +66,15 @@ export const BACKENDS: BackendDef[] = [
     cloudRunService: 'transcription-api-server',
     region: 'us-central1',
   },
+  {
+    id: 'docextract',
+    label: 'DocExtract — Documentos a datos',
+    subdomain: 'docextract-api',
+    publicUrl: 'https://docextract-api.robles.ai',
+    cloudRunProject: 'robles-ai-docextract-project',
+    cloudRunService: 'docextract-api-server',
+    region: 'us-central1',
+  },
 ];
 
 export function getBackend(id: string): BackendDef | undefined {

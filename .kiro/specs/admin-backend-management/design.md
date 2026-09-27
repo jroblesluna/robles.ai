@@ -123,10 +123,19 @@ expiración. Usa `jsonwebtoken` (ya en el árbol de deps del sitio) — sin SDK 
   `latestReadyRevision`). `404` → `{exists:false}`. Sin credencial → `{available:false}`.
 - **Solo GET.** No se implementa ningún método de escritura (R5.4).
 
-## 6. Health-check — `health.ts`
-`pingHealth(publicUrl)`: `GET {publicUrl}/health` (fallback `/`) con timeout corto
-(~4s) y `mode` server-side (no CORS). Devuelve `{alive, ms}` (warm si `ms` bajo). Público,
-sin credenciales (R5.5). Se corre en paralelo para todos los backends en el `list`.
+## 6. Actividad (sin despertar) — `gcp/monitoringClient.ts` + ping opt-in
+**Corregido 2026-09.** El `list` NO pinea los backends: eso hacía cold-start de servicios
+que escalan a cero (Transcription se "encendía" solo por abrir el portal). La actividad se
+lee de **Cloud Monitoring** (`getServiceActivity`, sin tocar el contenedor):
+`run.googleapis.com/request_count` (ALIGN_SUM sobre una ventana de 7 días → `lastRequestAt`
++ `requestsInWindow`) y `run.googleapis.com/container/instance_count` (ALIGN_MAX últimos
+~10 min → `running`). Requiere `roles/monitoring.viewer` en cada proyecto. Devuelve
+`{available, lastRequestAt, requestsInWindow, running, windowHours, error}`.
+
+`health.ts::pingHealth(publicUrl)` (`GET /health`, fallback `/`, timeout ~4s) sigue
+existiendo pero **solo** se usa desde el endpoint opt-in `POST /:id/ping` (R5.6): un botón
+"Probar" explícito que el admin pulsa a sabiendas de que **despierta** el servicio. Nunca
+se llama en el `list`.
 
 ## 7. Endpoints — `server/backendRoutes.ts`
 
@@ -138,8 +147,11 @@ Montado en `server/routes.ts` como `app.use("/api/admin/backends", requireAuth, 
   `hostinger_api_key` hace una validación de prueba opcional (`getRecords`) y reporta
   `valid`. Write-only para las sensibles.
 - **`GET /`** (lista) → para cada backend del registry, en paralelo: `dnsStatus` (via
-  DnsProvider + comparación), `health` (ping), `cloudRun` (via CloudRunClient si hay SA).
-  Degradación elegante: si Hostinger/GCP no están, esos campos van `unknown`/`{available:false}`.
+  DnsProvider + comparación), `activity` (via MonitoringClient — **sin pinear**), `cloudRun`
+  (via CloudRunClient si hay SA). Degradación elegante: si Hostinger/GCP no están, esos
+  campos van `unknown`/`{available:false}`. **No** incluye ping en vivo.
+- **`POST /:id/ping`** → ping en vivo opt-in (R5.6): golpea `GET /health` del backend y
+  devuelve `{alive, ms, warm}`. Despierta el servicio; solo se dispara por acción del admin.
 - **`POST /:id/dns`** → valida `:id` en el registry (400 si no); `DnsProvider.upsertCname(
   domain, def.subdomain, def.cnameTarget ?? dns_cname_target)`; re-lee y devuelve estado.
   Log de auditoría (R7). El `name`/`target` salen del registry, nunca del body (R4.3).

@@ -701,31 +701,43 @@ los scripts y el CI/CD de cada repo).
   (JSON de la SA). Ambos **write-only**: el `GET` reporta solo `connected: bool`, nunca
   el valor. Editable desde la UI (conectar/rotar sin redesplegar).
 - **Estado por backend:** DNS (¿existe el CNAME `<sub>-api → ghs.googlehosted.com.`?
-  `ok`/`missing`/`mismatch`/`unknown`), salud (ping público a `/health`), y Cloud Run
-  (revisión + ready, solo lectura).
+  `ok`/`missing`/`mismatch`/`unknown`), **actividad** (En uso / En reposo + "última
+  actividad hace Xh") y Cloud Run (revisión + ready, solo lectura).
+- **La lista NUNCA despierta un backend (corregido 2026-09).** Antes se pineaba
+  `GET /health` de cada servicio al cargar la página, lo que hacía cold-start de los que
+  escalan a cero (Transcription se "encendía" solo por abrir el portal). Ahora la actividad
+  se lee de **Cloud Monitoring** (`monitoringClient.ts`: `request_count` → última actividad,
+  `container/instance_count` → En uso/En reposo), que consulta telemetría de GCP sin tocar
+  el contenedor. Requiere `roles/monitoring.viewer` en cada proyecto (además de `run.viewer`).
+- **Ping en vivo opt-in:** botón "Probar" → `POST /:id/ping` que sí golpea `GET /health`
+  (única ruta que toca el backend directamente y **lo despierta**); solo por acción explícita
+  del admin, nunca automático.
 - **Publicar DNS:** `POST /:id/dns` crea/actualiza el CNAME del backend vía Hostinger
   (idempotente). El `name`/`target` salen del **registry del servidor**, nunca del body.
 
 ### Arquitectura (server)
 - `server/backendRoutes.ts` → montado en `/api/admin/backends` con `requireAuth`.
-  Endpoints: `GET/PUT /connections`, `GET /`, `POST /:id/dns`, `GET /:id/cloudrun`.
-- `server/services/backends/registry.ts` → catálogo declarativo de los 5 backends
-  (id, subdominio, proyecto/servicio Cloud Run reales). Ojo: identity es `identity-server`
-  (sin `-api`).
+  Endpoints: `GET/PUT /connections`, `GET /`, `POST /:id/dns`, `GET /:id/cloudrun`,
+  `POST /:id/ping` (wake+test opt-in).
+- `server/services/backends/registry.ts` → catálogo declarativo de los 6 backends
+  (id, subdominio, proyecto/servicio Cloud Run reales): chatbot, identity, rag, langchain,
+  transcription, docextract. Ojo: identity es `identity-server` (sin `-api`).
 - `server/services/dns/DnsProvider.ts` (interfaz) + `HostingerDnsProvider.ts` (impl v1,
   API DNS de Hostinger `GET/PUT /api/dns/v1/zones/{domain}`). La interfaz existe para el
   swap futuro a **Cloud DNS** cuando se migre a GCP (ver `DEMOS_PLAN.md` §8).
 - `server/services/gcp/googleAuth.ts` → JWT bearer grant (RS256) desde `gcp_sa_key`,
   canje por access token. **Scope `cloud-platform`** (el `.read-only` da 403
   `ACCESS_TOKEN_SCOPE_INSUFFICIENT` en la Cloud Run Admin API; la lectura-sólo se
-  garantiza por IAM: la SA solo tiene `roles/run.viewer`).
+  garantiza por IAM: la SA solo tiene `roles/run.viewer` + `roles/monitoring.viewer`).
 - `server/services/gcp/cloudRunClient.ts` → `getServiceStatus` (GET v2 API, sin métodos
-  de escritura). `server/services/backends/health.ts` → `pingHealth`.
+  de escritura). `server/services/gcp/monitoringClient.ts` → `getServiceActivity` (Cloud
+  Monitoring, sin tocar el servicio; usado en el `list`). `server/services/backends/health.ts`
+  → `pingHealth` (solo desde el ping opt-in `POST /:id/ping`, no en el `list`).
 
 ### Infra GCP: proyecto raíz `robles-ai-admin`
 La SA de lectura vive en un **proyecto raíz dedicado** `robles-ai-admin` (no en un
-backend, para no acoplar el acceso a un proyecto descartable), con `roles/run.viewer`
-en los 5 proyectos (cross-project). El proyecto raíz **no necesita billing** para alojar
+backend, para no acoplar el acceso a un proyecto descartable), con `roles/run.viewer` +
+`roles/monitoring.viewer` en los 6 proyectos de backend (cross-project). El proyecto raíz **no necesita billing** para alojar
 la SA ni para las lecturas (la cuota de billing de la cuenta estaba llena con los 5
 backends). Este proyecto será además el hogar del sitio y de Cloud DNS cuando se migre
 todo a GCP (`DEMOS_PLAN.md` §8).

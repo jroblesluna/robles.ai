@@ -11,12 +11,18 @@ import {
 import { HostingerDnsProvider } from './services/dns/HostingerDnsProvider.js';
 import { DnsError, type DnsRecord } from './services/dns/DnsProvider.js';
 import { getServiceStatus } from './services/gcp/cloudRunClient.js';
+import { getServiceActivity } from './services/gcp/monitoringClient.js';
 import { pingHealth } from './services/backends/health.js';
 
 /**
  * Admin portal for backend management (spec: .kiro/specs/admin-backend-management).
- * v1 = read state (DNS via Hostinger + Cloud Run read-only + health) + publish CNAMEs.
+ * v1 = read state (DNS via Hostinger + Cloud Run read-only + activity) + publish CNAMEs.
  * No destructive actions. All routes require the admin JWT.
+ *
+ * IMPORTANT: the list endpoint must NEVER wake a scale-to-zero service. Activity
+ * comes from Cloud Monitoring (request_count / instance_count), which reads GCP
+ * telemetry without touching the container. A direct GET /health cold-starts it,
+ * so live health probing is opt-in only (POST /:id/ping), never automatic.
  *
  * Credentials live in `settings` (BD) and are NEVER returned to the client — the
  * status endpoints report presence only; the PUT is write-only.
@@ -117,8 +123,10 @@ backendRouter.get('/', async (_req: Request, res: Response) => {
     BACKENDS.map(async (b) => {
       const expected = b.cnameTarget || defaultTarget;
       const dns = classifyDns(records, b.subdomain, expected);
-      const [health, cloudRun] = await Promise.all([
-        pingHealth(b.publicUrl),
+      // Activity + Cloud Run state come from GCP APIs only — no request is made
+      // to the backend itself, so a scaled-to-zero service is NEVER woken here.
+      const [activity, cloudRun] = await Promise.all([
+        getServiceActivity(gcpKey, b.cloudRunProject, b.region, b.cloudRunService),
         getServiceStatus(gcpKey, b.cloudRunProject, b.region, b.cloudRunService),
       ]);
       return {
@@ -128,7 +136,7 @@ backendRouter.get('/', async (_req: Request, res: Response) => {
         publicUrl: b.publicUrl,
         expectedTarget: expected,
         ...dns,
-        health,
+        activity,
         cloudRun,
       };
     }),
@@ -194,6 +202,25 @@ backendRouter.get('/:id/cloudrun', async (req: Request, res: Response) => {
     def.cloudRunService,
   );
   res.json(status);
+});
+
+/**
+ * POST /:id/ping — EXPLICIT, opt-in live health probe. This is the ONLY place
+ * that hits the backend directly (GET /health), which WILL cold-start a
+ * scaled-to-zero service. It exists so an admin can deliberately wake and test a
+ * backend; it is never called automatically on page load (that was the old bug).
+ */
+backendRouter.post('/:id/ping', async (req: Request, res: Response) => {
+  const def = getBackend(String(req.params.id));
+  if (!def) {
+    res.status(400).json({ error: { code: 'unknown_backend', message: 'Backend desconocido.' } });
+    return;
+  }
+  console.log(
+    `[admin/backends] ${req.adminUser?.email ?? 'admin'} manually pinged ${def.subdomain} (wakes the service)`,
+  );
+  const health = await pingHealth(def.publicUrl);
+  res.json({ id: def.id, ...health });
 });
 
 export default backendRouter;
