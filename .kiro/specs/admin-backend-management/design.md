@@ -132,6 +132,12 @@ lee de **Cloud Monitoring** (`getServiceActivity`, sin tocar el contenedor):
 ~10 min → `running`). Requiere `roles/monitoring.viewer` en cada proyecto. Devuelve
 `{available, lastRequestAt, requestsInWindow, running, windowHours, error}`.
 
+**Billing/quota:** la API de Monitoring factura al proyecto que hace la llamada y exige
+billing ahí. Como `robles-ai-admin` (hogar de la SA) es sin billing por diseño, el cliente
+envía `x-goog-user-project: <proyecto del backend>` para atribuir la cuota al proyecto del
+backend (que sí tiene billing); la SA necesita `roles/serviceusage.serviceUsageConsumer` en
+cada backend. Sin esto → `403 requires billing`. (La Cloud Run Admin API no lo requiere.)
+
 `health.ts::pingHealth(publicUrl)` (`GET /health`, fallback `/`, timeout ~4s) sigue
 existiendo pero **solo** se usa desde el endpoint opt-in `POST /:id/ping` (R5.6): un botón
 "Probar" explícito que el admin pulsa a sabiendas de que **despierta** el servicio. Nunca

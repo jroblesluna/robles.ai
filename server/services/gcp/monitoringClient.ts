@@ -41,7 +41,19 @@ async function queryTimeSeries(
 ): Promise<any> {
   const qs = new URLSearchParams(params);
   const url = `${MONITORING_BASE}/projects/${project}/timeSeries?${qs.toString()}`;
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  // Bill/quota this Monitoring call against the BACKEND project (which has
+  // billing), not the SA's home project `robles-ai-admin` (intentionally
+  // billing-free). Without this header the API bills the caller's project and
+  // returns 403 "requires billing to be enabled". The SA holds
+  // roles/serviceusage.serviceUsageConsumer on each backend project so the
+  // quota-project override is honored. Cloud Run's API doesn't need this — only
+  // Monitoring does.
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'x-goog-user-project': project,
+    },
+  });
   if (!res.ok) {
     const err = new Error(`monitoring_http_${res.status}`);
     (err as any).status = res.status;

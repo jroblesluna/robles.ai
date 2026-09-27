@@ -728,11 +728,21 @@ los scripts y el CI/CD de cada repo).
 - `server/services/gcp/googleAuth.ts` → JWT bearer grant (RS256) desde `gcp_sa_key`,
   canje por access token. **Scope `cloud-platform`** (el `.read-only` da 403
   `ACCESS_TOKEN_SCOPE_INSUFFICIENT` en la Cloud Run Admin API; la lectura-sólo se
-  garantiza por IAM: la SA solo tiene `roles/run.viewer` + `roles/monitoring.viewer`).
+  garantiza por IAM: la SA solo tiene `roles/run.viewer` + `roles/monitoring.viewer` +
+  `roles/serviceusage.serviceUsageConsumer` en cada proyecto de backend).
 - `server/services/gcp/cloudRunClient.ts` → `getServiceStatus` (GET v2 API, sin métodos
   de escritura). `server/services/gcp/monitoringClient.ts` → `getServiceActivity` (Cloud
   Monitoring, sin tocar el servicio; usado en el `list`). `server/services/backends/health.ts`
   → `pingHealth` (solo desde el ping opt-in `POST /:id/ping`, no en el `list`).
+- **Facturación de las lecturas de Monitoring (importante).** La API de Cloud Monitoring
+  (`timeSeries`) **exige billing en el proyecto que factura la llamada**. Como
+  `robles-ai-admin` (donde vive la SA) es a propósito **sin billing**, el `monitoringClient`
+  manda la cabecera **`x-goog-user-project: <proyecto del backend>`** para que la cuota/billing
+  se atribuya al proyecto del backend (que sí tiene billing), no al de la SA. Por eso la SA
+  necesita `roles/serviceusage.serviceUsageConsumer` en cada backend. Sin esto, Monitoring
+  devuelve `403 "requires billing to be enabled"`. La Cloud Run Admin API NO necesita esto
+  (por eso Cloud Run funciona aunque Monitoring falle). Se descartó vincular billing al
+  proyecto raíz para mantenerlo limpio.
 
 ### Infra GCP: proyecto raíz `robles-ai-admin`
 La SA de lectura vive en un **proyecto raíz dedicado** `robles-ai-admin` (no en un
