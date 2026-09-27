@@ -1259,7 +1259,7 @@
         "crawl_cta": "Entrenar el bot",
         "trained": "Entrenado con {{count}} páginas. Pregúntale abajo.",
         "crawl_error": "No se pudo rastrear ese sitio. Revisa la URL e intenta de nuevo.",
-        "no_text": "No pudimos leer texto de ese sitio (puede ser solo imágenes o estar hecho 100% con JavaScript). Prueba otra URL.",
+        "no_text": "No encontramos texto legible en ese sitio. Puede ser solo imágenes, estar detrás de un login, o cargar todo su contenido de forma dinámica. Prueba otra URL — una página con texto visible, como \"Nosotros\" o \"Servicios\", suele funcionar mejor.",
         "network_error": "Error de red al contactar el servicio.",
         "empty_ready_title": "Tu bot está listo",
         "empty_ready_subtitle": "Hazle una pregunta que haría un visitante.",

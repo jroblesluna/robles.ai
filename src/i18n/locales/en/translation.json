@@ -1259,7 +1259,7 @@
         "crawl_cta": "Train the bot",
         "trained": "Trained on {{count}} pages. Ask away below.",
         "crawl_error": "Couldn't crawl that site. Check the URL and try again.",
-        "no_text": "We couldn't read text from that site (it may be image-only or built entirely with JavaScript). Try another URL.",
+        "no_text": "We couldn't find readable text on that site. It may be image-only, behind a login, or a page that loads all its content dynamically. Try another URL — a page with visible text like an \"About\" or \"Services\" page usually works best.",
         "network_error": "Network error reaching the service.",
         "empty_ready_title": "Your bot is ready",
         "empty_ready_subtitle": "Ask a question your visitors would ask.",
