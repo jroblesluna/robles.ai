@@ -891,7 +891,8 @@ export default function TryObjectDetection() {
         </section>
 
         {/* Technical definition — collapsible */}
-        <SavingsCalculator demoId="objectdetection" />
+        {/* La calculadora de ahorro aparece tras la primera detección (wow → dinero). */}
+        {perf !== null && <SavingsCalculator demoId="objectdetection" />}
 
         <div className="mt-8 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
           <button

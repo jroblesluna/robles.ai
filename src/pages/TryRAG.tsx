@@ -1450,7 +1450,8 @@ export default function TryRAG() {
           </div>
         </section>
 
-        <SavingsCalculator demoId="rag" />
+        {/* La calculadora de ahorro aparece tras la primera respuesta (wow → dinero). */}
+        {hasAnswer && <SavingsCalculator demoId="rag" />}
 
         {/* ── How it works: overview (business) and technical architecture ── */}
         <HowItWorks

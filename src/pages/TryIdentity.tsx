@@ -951,7 +951,8 @@ export default function TryIdentity() {
           </div>
         </section>
 
-        <SavingsCalculator demoId="identity" />
+        {/* La calculadora de ahorro aparece tras el primer resultado (wow → dinero). */}
+        {result?.data?.output && <SavingsCalculator demoId="identity" />}
 
         {/* ── How it works (collapsible): overview and technical architecture ── */}
         <HowItWorks

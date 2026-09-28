@@ -999,8 +999,8 @@ export default function TryEmotion() {
           </div>
         </section>
 
-        {/* Technical definition — collapsible */}
-        <SavingsCalculator demoId="emotion" />
+        {/* La calculadora de ahorro aparece tras el primer análisis (wow → dinero). */}
+        {perf !== null && <SavingsCalculator demoId="emotion" />}
 
         <div className="mt-8 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
           <button

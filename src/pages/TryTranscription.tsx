@@ -1150,7 +1150,8 @@ export default function TryTranscription() {
           </div>
         </section>
 
-        <SavingsCalculator demoId="speech" />
+        {/* La calculadora de ahorro aparece tras la primera transcripción (wow → dinero). */}
+        {hasFinalTurns && <SavingsCalculator demoId="speech" />}
 
         {/* ── How it works (collapsible): overview and technical architecture ── */}
         <div className="mt-8 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">

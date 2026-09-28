@@ -444,6 +444,11 @@ export default function TryLangChain() {
       ? [1, 2, 3].map((n) => t(`try-langchain.suggest_${usingSample ? "sample" : "rag"}_${n}`))
       : [1, 2, 3].map((n) => t(`try-langchain.suggest_${mode}_${n}`));
 
+  // Hubo al menos un resultado cuando algún hilo tiene una respuesta del asistente completada.
+  const hasResult = (Object.values(threads) as Message[][]).some((thread) =>
+    thread.some((m) => m.role === "assistant" && m.state === "done"),
+  );
+
   const pillStatus: { tone: StatusTone; label: string; spinning?: boolean } =
     serviceStatus === "warming"
       ? { tone: "busy", label: t("try-langchain.status_warming"), spinning: true }
@@ -899,7 +904,8 @@ export default function TryLangChain() {
           </div>
         </section>
 
-        <SavingsCalculator demoId="langchain" />
+        {/* La calculadora de ahorro aparece tras el primer resultado (wow → dinero). */}
+        {hasResult && <SavingsCalculator demoId="langchain" />}
 
         {/* ── How it works (collapsible): overview and technical architecture ── */}
         <HowItWorks

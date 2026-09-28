@@ -427,6 +427,11 @@ export default function TryDocExtract() {
                   </li>
                 ))}
               </ul>
+
+              {/* Caso de negocio desde el inicio (el ahorro/valor se ve antes de procesar). */}
+              <div className="mt-12 w-full text-left">
+                <BusinessCase demoId="docextract" variant="banner" />
+              </div>
             </motion.div>
           )}
 

@@ -419,6 +419,11 @@ export default function TryChatbot() {
                   </li>
                 ))}
               </ul>
+
+              {/* Caso de negocio desde el inicio (el valor se ve antes de entrenar el bot). */}
+              <div className="mt-12 w-full text-left">
+                <BusinessCase demoId="sitechatbot" variant="banner" />
+              </div>
             </motion.div>
           )}
 
