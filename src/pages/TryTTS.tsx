@@ -171,6 +171,8 @@ export default function TryTTS() {
   const [studioError, setStudioError] = useState<string | null>(null);
   const [studioResult, setStudioResult] = useState<SynthResult | null>(null);
   const [previewVoiceId, setPreviewVoiceId] = useState<string | null>(null);
+  // Voz cuya muestra se esta cargando (fetch en curso): bloquea los demas previews.
+  const [previewLoadingId, setPreviewLoadingId] = useState<string | null>(null);
 
   // Narrador
   const [narrateText, setNarrateText] = useState(() => t("try-tts.narrator_example"));
@@ -184,6 +186,8 @@ export default function TryTTS() {
   const [useCase, setUseCase] = useState<UseCaseId | null>(null);
 
   const previewAudioRef = useRef<HTMLAudioElement | null>(null);
+  // Ref al <audio> del resultado de narracion, para iniciar el play automaticamente.
+  const narrateAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const logCalls: ApiCallEntry[] = calls.map((c) => ({
     key: c.id,
@@ -254,6 +258,17 @@ export default function TryTTS() {
     [],
   );
 
+  // Al llegar un resultado de narracion, iniciar el play automaticamente. Algunos
+  // navegadores bloquean el autoplay con sonido; el .catch evita un error no manejado
+  // y el usuario siempre puede darle play a los controles.
+  useEffect(() => {
+    if (!narrateResult) return;
+    const el = narrateAudioRef.current;
+    if (!el) return;
+    el.currentTime = 0;
+    el.play().catch(() => {});
+  }, [narrateResult]);
+
   function recordCall(call: ApiCall) {
     setCalls((prev) => [call, ...prev]);
   }
@@ -266,8 +281,11 @@ export default function TryTTS() {
       setPreviewVoiceId(null);
       return;
     }
+    // Si ya hay una muestra cargando, ignora el click (evita que se acoplen voces).
+    if (previewLoadingId) return;
     previewAudioRef.current?.pause();
-    setPreviewVoiceId(id);
+    setPreviewVoiceId(null);
+    setPreviewLoadingId(id);
     const started = performance.now();
     let status: number | undefined;
     let json: any = null;
@@ -279,6 +297,7 @@ export default function TryTTS() {
         const audio = new Audio(audioDataUri(json.audio_base64, json.format ?? "mp3"));
         previewAudioRef.current = audio;
         audio.onended = () => setPreviewVoiceId((cur) => (cur === id ? null : cur));
+        setPreviewVoiceId(id);
         await audio.play().catch(() => setPreviewVoiceId(null));
       } else {
         setPreviewVoiceId(null);
@@ -287,6 +306,7 @@ export default function TryTTS() {
       json = { error: { message: t("try-tts.network_error") } };
       setPreviewVoiceId(null);
     } finally {
+      setPreviewLoadingId(null);
       recordCall({
         id: uuidv4(),
         method: "GET",
@@ -449,6 +469,9 @@ export default function TryTTS() {
       {sortedVoices.map((v) => {
         const active = selected === v.id;
         const playing = previewVoiceId === v.id;
+        const loading = previewLoadingId === v.id;
+        // Mientras una muestra carga, se bloquean TODOS los previews (evita acoplar voces).
+        const previewDisabled = previewLoadingId !== null;
         return (
           <div
             key={v.id}
@@ -467,10 +490,18 @@ export default function TryTTS() {
             <button
               type="button"
               onClick={() => playSample(v.id)}
+              disabled={previewDisabled}
               aria-label={t("try-tts.preview_voice", { voice: v.label })}
-              className="flex h-8 w-8 items-center justify-center border-l border-gray-200/70 text-gray-500 transition-colors hover:bg-rose-50 hover:text-rose-600"
+              aria-busy={loading}
+              className="flex h-8 w-8 items-center justify-center border-l border-gray-200/70 text-gray-500 transition-colors hover:bg-rose-50 hover:text-rose-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-gray-500"
             >
-              {playing ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
+              {loading ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : playing ? (
+                <Pause className="h-3.5 w-3.5" />
+              ) : (
+                <Play className="h-3.5 w-3.5" />
+              )}
             </button>
           </div>
         );
@@ -514,10 +545,12 @@ export default function TryTTS() {
     result,
     filename,
     subtitles,
+    audioRef,
   }: {
     result: SynthResult;
     filename: string;
     subtitles?: Record<string, string>;
+    audioRef?: React.Ref<HTMLAudioElement>;
   }) => (
     <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
       <div className="mb-3 flex flex-wrap items-center gap-3">
@@ -530,7 +563,7 @@ export default function TryTTS() {
           {result.cache === "hit" && ` · ${t("try-tts.cache_hit")}`}
         </span>
       </div>
-      <audio src={result.audioUri} controls className="w-full" />
+      <audio ref={audioRef} src={result.audioUri} controls className="w-full" />
       <div className="mt-4 flex flex-wrap gap-2">
         <button
           type="button"
@@ -825,6 +858,7 @@ export default function TryTTS() {
                         result={narrateResult}
                         filename="robles-tts-narration.mp3"
                         subtitles={narrateResult.subtitles}
+                        audioRef={narrateAudioRef}
                       />
                       {narrateResult.segments.length > 0 && (
                         <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
