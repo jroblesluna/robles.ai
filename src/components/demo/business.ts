@@ -18,7 +18,8 @@ export type DemoBusinessId =
   | "emotion"
   | "sitechatbot"
   | "docextract"
-  | "forecast";
+  | "forecast"
+  | "tts";
 
 export interface CalculatorDefaults {
   /** Units per month (sign-ups, queries, meetings, counts…). */
@@ -50,6 +51,10 @@ export const CALCULATOR_DEFAULTS: Partial<Record<DemoBusinessId, CalculatorDefau
   // D6 "Forecast": manual forecasting/planning cycles per month, minutes each
   // takes today, % the automated forecast replaces of that effort.
   forecast: { volume: 60, minutes: 45, automation: 70, hourlyCost: 25 },
+  // "Dale voz a tu contenido" (TTS): narrations/voice-overs produced per month,
+  // minutes of voice-over recording + editing each takes today, % the AI voice
+  // replaces of that studio/editing effort. Example values, not claims.
+  tts: { volume: 40, minutes: 45, automation: 85, hourlyCost: 30 },
 };
 
 /**

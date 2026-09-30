@@ -75,6 +75,15 @@ export const BACKENDS: BackendDef[] = [
     cloudRunService: 'docextract-api-server',
     region: 'us-central1',
   },
+  {
+    id: 'tts',
+    label: 'TTS — Dale voz a tu contenido',
+    subdomain: 'tts-api',
+    publicUrl: 'https://tts-api.robles.ai',
+    cloudRunProject: 'robles-ai-tts-project',
+    cloudRunService: 'tts-api-server',
+    region: 'us-central1',
+  },
 ];
 
 export function getBackend(id: string): BackendDef | undefined {

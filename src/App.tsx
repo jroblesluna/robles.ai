@@ -32,6 +32,7 @@ const TryTranscription = lazy(() => import('@/pages/TryTranscription'));
 const TryChatbot = lazy(() => import('@/pages/TryChatbot'));
 const TryDocExtract = lazy(() => import('@/pages/TryDocExtract'));
 const TryForecast = lazy(() => import('@/pages/TryForecast'));
+const TryTTS = lazy(() => import('@/pages/TryTTS'));
 const AdminLayout = lazy(() => import('@/pages/admin/AdminLayout'));
 const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
 const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
@@ -132,6 +133,7 @@ function App() {
               <Route path="/try-chatbot" component={TryChatbot} />
               <Route path="/try-docextract" component={TryDocExtract} />
               <Route path="/try-forecast" component={TryForecast} />
+              <Route path="/try-tts" component={TryTTS} />
               <Route path="/get-started" component={Landing} />
               <Route path="/diagnostico-ia" component={Quiz} />
               <Route path="/otp" component={OTP} />

@@ -222,6 +222,7 @@ Más impacto por hora invertida: no requiere modelos nuevos.
       pasos (≈1 día) o 168 (≈1 semana), gráfica recharts (histórico + mediana + banda + línea
       de tendencia) y descarga CSV. Lógica en `src/lib/forecast.ts` (con tests). Item de
       catálogo `forecast` → `live`.
+- [x] **Dale voz a tu contenido (TTS)** (2026-09). Texto a voz neural premium con OpenAI gpt-4o-mini-tts. Dos modos: Estudio de voz (/synthesize) y Narrador de contenido (/narrate, texto largo fragmentado a audio unido con ffmpeg + subtitulos SRT/VTT), con casos precargados (marketing, articulo, tutorial, e-learning, IVR). La velocidad va como instruccion; la voz es generada por IA (revelado en la UI) y no se clonan voces reales. Frontend src/pages/TryTTS.tsx (/try-tts), catalogo tts a live. Cloud Run tts-api.robles.ai (proyecto robles-ai-tts-project, 1Gi + ffmpeg). Spec en robles.ai-tts-api/.kiro/specs/try-tts/.
 - [ ] **D7 Estudio de foto de producto** (S–M).
 
 > Los plazos son estimaciones para una persona trabajando con asistencia de IA; conviene

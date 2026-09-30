@@ -253,6 +253,8 @@ function getDemoContext(pagePath: string): string {
     '/try-docextract': `The visitor is on the Document Data Extraction demo page. They upload an image or PDF of a document (invoice, receipt, ID, form, contract, etc.); the backend sends it to an OpenAI vision model in a SINGLE pass that detects the document type and extracts the key fields as structured data (JSON), with a confidence score per field and optional bounding boxes. The visitor sees a table plus the raw JSON, an overlay of located fields on the document, and can download the result as JSON, CSV or Excel. It is pure data extraction — no RAG, no OCR step, no templates per document type. Nothing is persisted: the document is processed in memory for the request and discarded. The demo runs at /try-docextract.`,
 
     '/try-forecast': `The visitor is on the Time-Series Forecasting demo page. They pick an example series (standard, trending, seasonal, volatile) or upload their own CSV of historical values; the forecast is computed ENTIRELY in the browser (additive Holt-Winters style: level + linear trend + averaged seasonal profile, auto-detecting the season length) and shown with a median line and q10/q90 uncertainty bands over a chosen horizon (24 steps ≈ a day, or 168 ≈ a week). They can download the forecast as CSV. Nothing leaves the browser — there is no server call. The demo runs at /try-forecast.`,
+
+    '/try-tts': `The visitor is on the "Give your content a voice" text-to-speech demo page. It has two modes. In the Voice Studio they type a short line, pick one of the neural voices (with a play button to preview each) and a vibe (neutral, enthusiastic, warm, announcer, instructive, confident), adjust a speed hint, and get instant audio to play and download as MP3. In the Content Narrator they paste a long text (or pick a use-case template: marketing ad, article/blog, tutorial, e-learning course, phone IVR); the backend splits it into chunks, narrates them, stitches one audio and generates subtitles (SRT/VTT) they can download alongside the MP3. The engine is OpenAI gpt-4o-mini-tts; the vibe and speed are passed as instructions, not exact controls. The voice is AI-generated (shown clearly on the page) and no real people's voices are cloned. Nothing is persisted — the audio lives in memory only for the request. The demo runs at /try-tts.`,
   };
 
   const base = demoDescriptions[pagePath] ||
@@ -277,11 +279,12 @@ const DEMO_BUSINESS_ANGLE: Record<string, string> = {
   '/try-chatbot': 'a chatbot trained on the visitor\'s own website in under a minute — answers visitors and sells 24/7 without adding staff, and handles after-hours inquiries that would otherwise go unanswered. Fits any business with a website. Our telco case study shows this kind of assistant can autonomously resolve up to 78% of inquiries.',
   '/try-docextract': 'turn documents into structured data automatically — invoices, receipts, IDs and forms read in one pass instead of typed in by hand, cutting data-entry hours and errors. Fits finance, operations, onboarding and logistics. Our finance case study shows automated extraction reaching 99.2% accuracy and $4.5M+ saved a year.',
   '/try-forecast': 'fast, repeatable forecasts of demand, sales or usage with uncertainty bands — replaces slow spreadsheet planning, so teams cut stockouts and overstock. Fits retail, supply chain, finance and operations. This demo runs entirely in the browser, so their data never leaves the page.',
+  '/try-tts': 'turn text into a premium neural voice in seconds — marketing spots, articles, tutorials, e-learning and phone menus (IVR) narrated without a studio or a narrator, and re-narrated instantly whenever the script changes. Fits marketing, content, e-learning, product and support teams. The voice is AI-generated and no real people\'s voices are cloned.',
 };
 
 const DEMOS_WITH_CALCULATOR = new Set([
   '/try-identity', '/try-rag', '/try-langchain', '/try-transcription', '/try-object-detection', '/try-chatbot',
-  '/try-docextract', '/try-forecast',
+  '/try-docextract', '/try-forecast', '/try-tts',
 ]);
 
 const DEMO_SALES_GUIDANCE =
