@@ -130,7 +130,7 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
               e.preventDefault();
               handleNavigation("/");
             }}
-            className="flex items-center space-x-3 focus:outline-none"
+            className="flex items-center space-x-3 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 rounded-md"
           >
             <img src="/favicon.svg" alt="Robles.AI Logo" className="w-10 h-10" />
             <span className="text-xl font-bold text-gray-900">
@@ -140,7 +140,7 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
         </div>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-6 lg:space-x-8">
+        <nav aria-label={t("nav.primaryLabel")} className="hidden md:flex items-center space-x-6 lg:space-x-8">
           {navLinks.map((link) =>
             link.children ? (
               <div
@@ -238,6 +238,7 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle menu"
+            className="tap-target"
           >
             {isMobileMenuOpen ? (
               <X className="h-7 w-7 text-gray-700" />
@@ -256,16 +257,17 @@ const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="absolute top-16 left-0 w-full h-[calc(100vh-4rem)] bg-white z-40 overflow-y-auto"
+            className="absolute left-0 w-full bg-white z-40 overflow-y-auto"
+            style={{ top: "var(--header-h)", height: "calc(100vh - var(--header-h))" }}
           >
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
-              className="flex flex-col px-6 pt-6 pb-8"
+              className="flex flex-col px-6 pt-6 pb-8 min-w-0 break-anywhere"
             >
-              <nav className="flex flex-col gap-4">
+              <nav aria-label={t("nav.primaryLabel")} className="flex flex-col gap-4">
                 {navLinks.map((link) => (
                   <div key={link.id} className="rounded-xl border border-gray-200 bg-gray-50 p-4">
                     <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">

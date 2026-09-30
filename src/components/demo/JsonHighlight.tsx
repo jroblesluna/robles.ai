@@ -128,7 +128,7 @@ function Node({
 
 export function JsonHighlight({ data }: { data: unknown }) {
   return (
-    <div className="max-h-80 max-w-full overflow-auto rounded-lg border border-slate-700/60 bg-slate-800/90 p-3 font-mono text-xs leading-relaxed text-slate-300 shadow-inner">
+    <div className="break-anywhere max-h-80 min-w-0 max-w-full overflow-x-auto overflow-y-auto rounded-lg border border-slate-700/60 bg-slate-800/90 p-3 font-mono text-xs leading-relaxed text-slate-300 shadow-inner">
       {/* Root is expanded so first-level keys are visible; children start collapsed. */}
       <Node value={data} depth={0} defaultOpen={true} isLast={true} />
     </div>

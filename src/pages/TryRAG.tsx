@@ -873,7 +873,7 @@ export default function TryRAG() {
                   <ChevronRight className="h-3.5 w-3.5 transition-transform group-open:rotate-90" />
                   {t("try-rag.extracted_label")}
                 </summary>
-                <pre className="mx-3 mb-3 max-h-40 overflow-y-auto whitespace-pre-wrap rounded-md bg-gray-50 p-2.5 font-mono text-[11px] leading-relaxed text-gray-600">
+                <pre className="break-anywhere mx-3 mb-3 max-h-40 overflow-y-auto whitespace-pre-wrap rounded-md bg-gray-50 p-2.5 font-mono text-[11px] leading-relaxed text-gray-600">
                   {extractedText}
                 </pre>
               </details>
@@ -945,12 +945,12 @@ export default function TryRAG() {
                   <div className="space-y-2 px-3 pb-3">
                     {call.request !== undefined && (
                       <div>
-                        <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-400">{t("try-rag.detail_request")}</p>
+                        <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-600">{t("try-rag.detail_request")}</p>
                         <JsonHighlight data={call.request} />
                       </div>
                     )}
                     <div>
-                      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-400">{t("try-rag.detail_response")}</p>
+                      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-600">{t("try-rag.detail_response")}</p>
                       <JsonHighlight data={call.response} />
                     </div>
                   </div>
@@ -966,7 +966,7 @@ export default function TryRAG() {
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gradient-to-b from-cyan-50/50 via-white to-white py-12">
-      <div className="container mx-auto max-w-[max(72rem,70vw)] px-6">
+      <div className="container mx-auto min-w-0 max-w-[max(72rem,70vw)] px-6">
         <DemoNav tone="cyan" className="mb-8" />
 
         {/* Header: pitch + how it works (left), business case (right) */}

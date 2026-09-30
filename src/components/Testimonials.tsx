@@ -24,7 +24,7 @@ const Testimonial = ({
   <div className="bg-white rounded-xl shadow-md p-8 md:p-10 border border-gray-100 h-full">
     <div className="flex flex-col md:flex-row md:items-center mb-6">
       <div className="w-16 h-16 rounded-full bg-gray-200 mb-4 md:mb-0 md:mr-6 flex-shrink-0 overflow-hidden">
-        <img src={imageSrc} alt={name} className="w-full h-full object-cover" />
+        <img src={imageSrc} alt={name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
       </div>
       <div>
         <h3 className="text-xl font-semibold text-gray-900">{name}</h3>

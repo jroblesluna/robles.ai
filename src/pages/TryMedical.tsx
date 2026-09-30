@@ -84,7 +84,7 @@ export default function TryMedical() {
 
     return (
         <div className="bg-white min-h-screen py-12">
-            <div className="container mx-auto px-6 max-w-[max(72rem,70vw)]">
+            <div className="container mx-auto min-w-0 px-6 max-w-[max(72rem,70vw)]">
                 <DemoNav tone="emerald" className="mb-8" />
                 <div className="mb-10">
                     <div className="flex flex-col sm:flex-row items-center sm:items-center text-center sm:text-left gap-4 sm:gap-5">

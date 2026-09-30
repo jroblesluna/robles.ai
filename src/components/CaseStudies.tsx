@@ -430,11 +430,15 @@ const CaseStudyViewer = ({ study, onClose }: CaseStudyViewerProps) => {
                             {section.heading}
                           </h3>
                           {imageIndex !== null && (
-                            <img
-                              src={`/case-studies/${slug}/${images[imageIndex]}`}
-                              alt={`${section.heading} illustration`}
-                              className="mb-5 w-full rounded-xl border border-gray-100 shadow-md"
-                            />
+                            <div className="mb-5 aspect-[16/9] w-full overflow-hidden rounded-xl border border-gray-100 shadow-md">
+                              <img
+                                src={`/case-studies/${slug}/${images[imageIndex]}`}
+                                alt={`${section.heading} illustration`}
+                                loading="lazy"
+                                decoding="async"
+                                className="h-full w-full object-cover"
+                              />
+                            </div>
                           )}
                           <div
                             className="prose prose-sm sm:prose-base max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900"
@@ -507,6 +511,7 @@ function CasePanel({ study, onOpen }: { study: CaseStudy; onOpen: () => void }) 
           src={study.image}
           alt=""
           loading="lazy"
+          decoding="async"
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-black/0" />

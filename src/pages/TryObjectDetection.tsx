@@ -419,7 +419,7 @@ export default function TryObjectDetection() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50/50 via-white to-white py-12">
-      <div className="container mx-auto max-w-[max(72rem,70vw)] px-6">
+      <div className="container mx-auto min-w-0 max-w-[max(72rem,70vw)] px-6">
         <DemoNav tone="indigo" className="mb-8" />
         {/* Header: pitch + how it works (left), business case (right) */}
         <div className="mb-10 grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
@@ -650,7 +650,7 @@ export default function TryObjectDetection() {
                       <Upload className="h-6 w-6" />
                     </span>
                     <p className="mt-5 text-base font-semibold text-white">{t("try-object.upload_cta")}</p>
-                    <p className="mt-1.5 text-sm text-gray-400">{t("try-object.upload_hint")}</p>
+                    <p className="mt-1.5 text-sm text-gray-300">{t("try-object.upload_hint")}</p>
                     <span className="mt-6 inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm transition-colors group-hover:bg-gray-100">
                       <ImagePlus className="h-4 w-4" />
                       {t("try-object.browse")}
@@ -771,7 +771,7 @@ export default function TryObjectDetection() {
                       title={t(`try-object.${s.labelKey}`)}
                       className="group flex items-center gap-2 rounded-lg border border-gray-200 bg-white p-1 pr-2.5 text-xs font-medium text-gray-700 shadow-sm transition-colors hover:border-indigo-300 hover:bg-indigo-50/60 disabled:opacity-50"
                     >
-                      <img src={s.src} alt="" className="h-7 w-10 rounded-md object-cover" />
+                      <img src={s.src} alt="" loading="lazy" decoding="async" className="h-7 w-10 rounded-md object-cover" />
                       {t(`try-object.${s.labelKey}`)}
                     </button>
                   ))}
@@ -867,7 +867,7 @@ export default function TryObjectDetection() {
                         <div className="flex flex-col items-center justify-center py-8 text-center">
                           <img src="/robly-avatar/robly-standby.svg" alt="" className="mb-2 h-24 w-24 opacity-60" />
                           <p className="text-sm font-semibold text-gray-600">{t("try-object.detections_empty_title")}</p>
-                          <p className="mt-1 max-w-xs text-sm text-gray-400">
+                          <p className="mt-1 max-w-xs text-sm text-gray-600">
                             {showMedia ? t("try-object.detections_none") : t("try-object.detections_empty")}
                           </p>
                         </div>
@@ -907,7 +907,7 @@ export default function TryObjectDetection() {
               </span>
               <span>
                 <span className="block text-sm font-semibold text-gray-900">{t("try-object.tech_title")}</span>
-                <span className="block text-xs text-gray-400">{t("try-object.tech_subtitle")}</span>
+                <span className="block text-xs text-gray-600">{t("try-object.tech_subtitle")}</span>
               </span>
             </span>
             <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform ${showTech ? "rotate-180" : ""}`} />
@@ -957,7 +957,7 @@ export default function TryObjectDetection() {
                         </div>
                       ))}
                     </dl>
-                    <p className="mt-2 text-[11px] leading-relaxed text-gray-400">{t("try-object.tech_note")}</p>
+                    <p className="mt-2 text-[11px] leading-relaxed text-gray-600">{t("try-object.tech_note")}</p>
                   </div>
                 </div>
               </motion.div>

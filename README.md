@@ -14,7 +14,7 @@ Public website of **Robles.AI**, built with **Vite + React (TypeScript)** on the
 - **AI Chatbot Widget (Robly)**: floating widget replacing the old WhatsApp bubble. GPT-4o-mini powered with SSE streaming, page-context awareness, contact data collection, and conversation storage. Features Robly SVG avatar with 4 animated moods (idle/listening/thinking/speaking). Entrance sequence at 10s/20s/22s.
 - **AI Demos Lab** (`/demos`, catalog in `DemosCatalog.tsx`): seven live demos — `/try-identity`, `/try-rag`, `/try-langchain`, `/try-transcription` (real-time speech-to-text + diarization + AI analysis), `/try-chatbot` (a chatbot trained on your own website: paste a URL → crawl → chat) backed by Cloud Run APIs, plus `/try-object-detection` and `/try-emotion` running fully in the browser. `/try-medical` is **coming soon** (no backend yet; nothing is uploaded). See [Demos](#demos).
 - **AI Diagnostic Quiz** (`/diagnostico-ia`): scored AI-readiness quiz → GPT-generated result → email verification → downloadable PDF report. Leads are stored in SQLite and listed in `/admin/quiz-leads`.
-- **Static blog**: posts in `server/data/posts/YYYY/MM/DD/*.json` with bilingual translations and FTS5 full-text search.
+- **Static blog**: posts in `server/data/posts/YYYY/MM/DD/*.json` with bilingual translations and FTS5 full-text search. On `/blog`, cards open an accessible in-page **modal viewer** (`BlogModal`) with History-API deep-linking to `/blog/:slug`, prev/next, copy/share, and open-in-new-tab; a direct/cold load of `/blog/:slug` still renders the full `BlogPost` page (server-side SEO untouched). See [Blog](#blog).
 - **Server-side SEO**: Express middleware injects correct `<title>`, `<meta>`, Open Graph, Twitter Card, hreflang, canonical, and JSON-LD tags before serving HTML to crawlers — no JavaScript needed.
 - **Admin Panel** (`/admin`): JWT-authenticated dashboard with: El Dominical IA management, multi-platform publishing, carousel image and narrated video generation, conversation inbox, quiz leads, and analytics.
 - **El Dominical IA**: automated weekly newsletter. GPT-4o scores blog posts (multidimensional: novelty, people impact, economic impact, narrative potential), generates a LinkedIn/Instagram post draft, creates 1080×1080 carousel slides (gpt-image-1 + sharp + SVG overlay + pdfkit PDF), and publishes to LinkedIn, Instagram, and Facebook via their respective APIs.
@@ -31,15 +31,21 @@ Public website of **Robles.AI**, built with **Vite + React (TypeScript)** on the
 src/
   components/           # Reusable UI components
     DemosCatalog.tsx    # Demos lab catalog (home section + /demos page)
+    BlogModal.tsx       # In-page accessible blog article modal viewer
+    BlogArticle.tsx     # Shared article renderer (BlogPost + BlogModal)
+    VideoModal.tsx      # Video modal (role="dialog"); pattern reused by BlogModal
     chat/               # ChatbotWidget, ChatPanel, MessageList, MessageInput
     demo/               # Shared demo UI: JsonHighlight, InfoTip, StepCard
+    state/              # LoadingState, EmptyState, ErrorState (i18n state.* copy)
     admin/              # CarouselPreview, SlideEditor, PlatformPublishStatus, VideoGenerator
     admin/analytics/    # OverviewTab, TrafficTab, BehaviorTab, SocialTab, KpiCard
   pages/
     admin/              # AdminLayout, AdminDashboard, AdminSettings, AdminDominicalList,
                         # AdminDominicalDetail, AdminConversationList, AdminConversationDetail,
                         # AdminAnalytics, AdminQuizLeads, AdminLogin, AdminSetup
-  hooks/                # useChatSession, useSearch, useSEO
+  hooks/                # useChatSession, useSearch, useSEO, useScrollRestoration,
+                        # useReducedMotion, useBlogModalRouting
+  lib/                  # blogModal.ts (pure slug/URL helpers), analytics, forecast, utils
   scripts/              # Blog post generation, cleanup, gap detection, sitemaps
   i18n/                 # locales/en/ and locales/es/
 
@@ -389,6 +395,7 @@ All API responses cached in SQLite with TTL (today: 5min, historical: 24h). Cach
 - Full-text search via FTS5 virtual table with BM25 ranking (title-weighted), highlight snippets with `<mark>` tags
 - Hourly cron generates new posts and updates both FTS and listing indexes incrementally
 - Utility scripts: `detectGaps.ts` (find missing posts), `fillGaps.ts` (auto-complete gaps), `cleanupDuplicates.ts`
+- **In-page modal viewer** (`BlogModal`): clicking a card on `/blog` opens an accessible modal (`role="dialog"`, focus trap, body-scroll lock, Esc/backdrop/close) instead of navigating. It deep-links to `/blog/:slug` via the History API (open-in-new-tab + copy/share with a clipboard fallback), supports prev/next across the fetched posts, and restores scroll + focus to the originating card on close. The article body is rendered by the shared `BlogArticle` component; pure slug/URL helpers live in `src/lib/blogModal.ts` and the routing/state logic in `src/hooks/useBlogModalRouting.ts`. A direct or reloaded `/blog/:slug` still renders the full `BlogPost` page, so server-side SEO and sitemaps are unaffected. (Spec: `.kiro/specs/ux-overhaul/`.)
 
 ---
 
@@ -434,10 +441,13 @@ Key test files:
 - Async initialization via `initI18n()` before rendering
 
 Translation namespaces:
-- `nav`, `hero`, `footer` — site-wide UI
+- `nav`, `hero`, `footer` — site-wide UI (`nav.primaryLabel`/`nav.footerLabel` name the ARIA nav landmarks; `footer.social.*` are social-link accessible names)
 - `landing.*` — ad landing page content
 - `chat.*` — chatbot UI strings
 - `seo.*` — server-side meta tags for static pages
+- `blogModal.*` — blog modal viewer controls (close, prev/next, open-in-new-tab, copy/share)
+- `state.*` — shared loading/empty/error/retry copy for `LoadingState`/`EmptyState`/`ErrorState`
+- `videoModal.*` — accessible name + close label for the video modal dialog
 
 ---
 
@@ -729,6 +739,16 @@ meta_token_expires_at
 - Integration tests use `supertest` against the Express app
 
 > **Known local gotcha:** if SQLite-backed tests fail with `NODE_MODULE_VERSION ... was compiled against a different Node.js version`, the `better-sqlite3` native binary was built for another Node than the one running vitest. Run `npm rebuild better-sqlite3` with the same Node version you use for `npm test`. This accounts for most failures seen locally (Sep 2026) and is not a code bug.
+
+### UX / Accessibility Conventions (spec `ux-overhaul`)
+
+A cross-cutting responsive + accessibility + reduced-motion pass established a few standing conventions. Follow them for new UI:
+
+- **Global CSS tokens/utilities** (`src/index.css`): document-root overflow guard (`html, body { overflow-x: hidden }`), `.tap-target` (44px min hit area), `.break-anywhere` (wrap long URLs/tokens), the `--header-h` token (single source of the fixed-header height — use it instead of a magic number) with `scroll-margin` on anchors, a 16px mobile input rule (prevents iOS auto-zoom), a global `:focus-visible` ring, and a `prefers-reduced-motion` backstop.
+- **Reduced motion**: gate animations with `useReducedMotion` (`src/hooks/useReducedMotion.ts`) and `<MotionConfig reducedMotion="user">`; Hero/`ParticleBackground`/chatbot balloon and framer-motion entrances already respect it.
+- **Shared state components**: use `src/components/state/{LoadingState,EmptyState,ErrorState}.tsx` (copy from `state.*`) rather than ad-hoc spinners/messages; `ErrorState` (with retry) is wired into blog fetches.
+- **Responsiveness**: wrap wide content (tables, logs, JSON, transcripts) in `overflow-x-auto`; two-column layouts stack on mobile; images use `max-w-full h-auto` with `loading="lazy"` + reserved aspect-ratio below the fold.
+- **All new user-facing copy flows through i18next** (keep en/es key parity).
 
 ### Build & Data Persistence
 

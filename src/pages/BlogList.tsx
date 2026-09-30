@@ -2,9 +2,11 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'wouter';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import BlogSearch from '@/components/BlogSearch';
+import BlogModal from '@/components/BlogModal';
+import ErrorState from '@/components/state/ErrorState';
+import { useBlogModalRouting } from '@/hooks/useBlogModalRouting';
 
 const PAGE_SIZE = 30;
 const DAY_FILTERS = [1, 7, 30] as const;
@@ -54,11 +56,43 @@ export default function BlogList() {
   const [editorFilter, setEditorFilter] = useState<number | null>(null);
   const [dayFilter, setDayFilter] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const [searchActive, setSearchActive] = useState(false);
   const typeScrollRef = useRef<HTMLDivElement>(null);
 
+  // Blog modal: History-owned routing over the currently-fetched posts.
+  const { openIndex, openAt, goToIndex, close } = useBlogModalRouting(posts);
+  // Scroll position + originating card, captured before opening so we can
+  // restore the list scroll and return focus on close (Req 16.6, 24.3).
+  const savedScrollRef = useRef(0);
+  const cardRefs = useRef<Array<HTMLAnchorElement | null>>([]);
+  const openedFromIndexRef = useRef<number | null>(null);
+
   const lang = i18n.language as 'en' | 'es';
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  function handleCardClick(e: React.MouseEvent<HTMLAnchorElement>, cardIndex: number) {
+    // Preserve middle-click / cmd/ctrl/shift-click (open the real page / new tab).
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+      return;
+    }
+    e.preventDefault();
+    savedScrollRef.current = window.scrollY;
+    openedFromIndexRef.current = cardIndex;
+    openAt(cardIndex);
+  }
+
+  function handleModalClose() {
+    const fromIndex = openedFromIndexRef.current;
+    close();
+    // Restore the list scroll position and return focus to the originating card.
+    window.scrollTo(0, savedScrollRef.current);
+    if (fromIndex !== null) {
+      requestAnimationFrame(() => cardRefs.current[fromIndex]?.focus());
+    }
+    openedFromIndexRef.current = null;
+  }
 
   useEffect(() => {
     fetch('/api/editors')
@@ -72,14 +106,19 @@ export default function BlogList() {
     if (dayFilter) query.append('days', dayFilter.toString());
 
     setLoading(true);
+    setFetchError(false);
     fetch(`/api/blog?${query.toString()}`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then((data) => {
         setPosts(data.posts);
         setTotal(data.total);
       })
+      .catch(() => setFetchError(true))
       .finally(() => setLoading(false));
-  }, [page, editorFilter, dayFilter]);
+  }, [page, editorFilter, dayFilter, reloadKey]);
 
   function handleEditorFilterChange(id: number | null) {
     if (editorFilter === id) return;
@@ -167,6 +206,8 @@ export default function BlogList() {
                     <img
                       src={`/avatars/${editor.id}-headshot.png`}
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                       className="w-5 h-5 rounded-full object-cover"
                     />
                     <span>{editor.specialty}</span>
@@ -228,6 +269,11 @@ export default function BlogList() {
             </div>
           )}
 
+          {/* Fetch error — offer a retry (Req 19.3) */}
+          {!loading && fetchError && (
+            <ErrorState onRetry={() => setReloadKey((k) => k + 1)} />
+          )}
+
           {/* Loading skeletons (initial load) */}
           {posts.length === 0 && loading && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -252,7 +298,7 @@ export default function BlogList() {
 
           {/* Posts Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {posts.map((post) => {
+            {posts.map((post, cardIndex) => {
               const translation =
                 post.translations[lang] || post.translations.en;
               const postDate = extractDateTimeFromSlug(post.slug);
@@ -262,8 +308,15 @@ export default function BlogList() {
 
               return (
                 <div key={post.slug}>
-                  <Link
+                  {/* Kept as a real anchor so middle/cmd-click opens the full
+                      page in a new tab; plain left-click is intercepted to open
+                      the in-page modal (Req 11.1, 12.1). */}
+                  <a
                     href={`/blog/${post.slug}`}
+                    ref={(el) => {
+                      cardRefs.current[cardIndex] = el;
+                    }}
+                    onClick={(e) => handleCardClick(e, cardIndex)}
                     className="h-full block rounded-lg border-l-4 border border-gray-100 hover:border-purple-300 hover:-translate-y-0.5 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden bg-white p-4"
                     style={{ borderLeftColor: accentColor }}
                   >
@@ -281,23 +334,25 @@ export default function BlogList() {
                           <img
                             src={`/avatars/${editor.id}-headshot.png`}
                             alt={editor.name}
+                            loading="lazy"
+                            decoding="async"
                             className="w-6 h-6 rounded-full object-cover"
                           />
                           <span className="text-xs text-gray-600 font-medium">{editor.name}</span>
-                          <span className="text-xs text-gray-400 ml-auto">{formattedDate}</span>
+                          <span className="text-xs text-gray-600 ml-auto">{formattedDate}</span>
                         </div>
                       )}
                     </div>
-                  </Link>
+                  </a>
                 </div>
               );
             })}
           </div>
 
           {/* No results for the current filters */}
-          {!loading && posts.length === 0 && (
+          {!loading && !fetchError && posts.length === 0 && (
             <div className="text-center py-16">
-              <span className="text-sm text-gray-400">
+              <span className="text-sm text-gray-600">
                 {lang === 'es' ? 'No hay noticias para estos filtros' : 'No news for these filters'}
               </span>
             </div>
@@ -328,6 +383,15 @@ export default function BlogList() {
             </div>
           )}
         </>
+      )}
+
+      {openIndex !== null && (
+        <BlogModal
+          posts={posts}
+          index={openIndex}
+          onIndexChange={goToIndex}
+          onClose={handleModalClose}
+        />
       )}
     </div>
   );

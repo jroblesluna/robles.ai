@@ -70,8 +70,12 @@ Sitio web público de **Robles.AI**, una consultora/estudio de soluciones de Int
 src/
   components/           # Componentes UI reutilizables
     DemosCatalog.tsx    # Catálogo del laboratorio de demos (home + /demos)
+    BlogModal.tsx       # Visor de noticias del blog en modal (in-page, accesible)
+    BlogArticle.tsx     # Render del artículo compartido por BlogPost y BlogModal
+    VideoModal.tsx      # Modal de video (role="dialog"); patrón que reusa BlogModal
     chat/               # ChatbotWidget, ChatPanel, MessageList, MessageInput
     demo/               # UI compartida de demos: JsonHighlight, InfoTip, StepCard
+    state/               # LoadingState, EmptyState, ErrorState (copys i18n state.*)
     admin/               # CarouselPreview, SlideEditor, PlatformPublishStatus, VideoGenerator
     admin/analytics/     # OverviewTab, TrafficTab, BehaviorTab, SocialTab, KpiCard
   pages/
@@ -81,7 +85,8 @@ src/
     admin/               # AdminLayout, AdminDashboard, AdminSettings, AdminDominicalList,
                           # AdminDominicalDetail, AdminConversationList, AdminConversationDetail,
                           # AdminAnalytics, AdminQuizLeads, AdminLogin, AdminSetup
-  hooks/                 # useChatSession, useSearch, useSEO
+  hooks/                 # useChatSession, useSearch, useSEO, useScrollRestoration,
+                          # useReducedMotion, useBlogModalRouting
   scripts/               # Generación de posts, limpieza, detección de huecos, sitemaps
   i18n/                  # locales/en/ y locales/es/
 
@@ -265,6 +270,7 @@ Widget flotante global (`src/components/chat/ChatbotWidget.tsx`) impulsado por G
 - Búsqueda full-text vía tabla virtual FTS5 con ranking BM25 (título ponderado), snippets resaltados con `<mark>`.
 - Cron horario genera nuevos posts y actualiza incrementalmente los índices FTS y de listado.
 - Scripts de utilidad: `detectGaps.ts` (encuentra posts faltantes), `fillGaps.ts` (autocompleta huecos), `cleanupDuplicates.ts`.
+- **Visor en modal**: en `/blog` las tarjetas abren un modal accesible en la misma página (`BlogModal`) con deep-link History-API a `/blog/:slug`, prev/next, copiar/compartir y abrir en pestaña nueva (ver §18, spec `ux-overhaul`). El cold-load / entrada directa a `/blog/:slug` sigue renderizando la página completa `BlogPost` con el SEO server-side intacto.
 
 ---
 
@@ -336,6 +342,7 @@ El proyecto usa specs estilo "Kiro" (requirements/design/tasks) para features gr
 - `dominical-ia/`
 - `multi-platform-publishing/`
 - `seo-improvements/`
+- `ux-overhaul/`
 - `whatsapp-widget-time-fix/`
 
 Cada una contiene `requirements.md`, `design.md`, `tasks.md` (+ `tasks.meta.json`). Útil como fuente de verdad histórica de decisiones de diseño por feature.
@@ -492,6 +499,13 @@ Configurados en `vite.config.ts` y `vitest.config.ts`:
 - Archivos de servidor: **ESM con extensión `.js`** incluso para código fuente `.ts` (`import db from './db.js'`).
 - Archivos de frontend: alias de ruta o imports relativos sin extensión (`import { Button } from '@/components/ui/button'`).
 - `shared/schema.ts` es el único archivo cruzado cliente/servidor, importado como `@shared/schema`.
+
+### Convenciones de UX/A11y (spec `ux-overhaul`, ver §18)
+- Todo copy nuevo pasa por i18next (nunca literales); mantener paridad de claves en/es.
+- Usar las utilidades globales de `src/index.css`: `.tap-target` (mínimo 44px) en controles, `.break-anywhere` para URLs/tokens largos, y el token `--header-h` en vez del número mágico de la altura del header.
+- Envolver contenido ancho (tablas, logs, JSON, transcripts) en `overflow-x-auto`; los layouts de dos columnas apilan en móvil.
+- Animaciones nuevas deben respetar `useReducedMotion` (`src/hooks/useReducedMotion.ts`) / `<MotionConfig reducedMotion="user">` y el backstop CSS `prefers-reduced-motion`.
+- Estados de carga/vacío/error via `src/components/state/{LoadingState,EmptyState,ErrorState}.tsx` (copys `state.*`).
 
 ### Formato de posts de blog (JSON)
 
@@ -656,6 +670,13 @@ El script `start` usaba `NODE_ENV=production && node dist/index.js`. El operador
   - `transcription-api`: `/analyze` fallaba con `brain_bad_schema` en conversaciones casuales porque el modelo omitía `summary`. Se corrigió el prompt y el reintento ahora nombra los campos faltantes (los logs incluyen `schema_errors`: ruta del campo y tipo de error, nunca valores).
   - `rag-api` (cold start de ~60 s → ~29 s): los modelos de Hugging Face (MiniLM, monoT5, BGE) se incluyen en la imagen al construirla (`HF_HOME=/opt/hf-cache`), y monoT5/BGE se cargan de forma diferida (getters con lock). `POST /rag/warmup` los carga y corre una inferencia de prueba; `TryRAG` lo llama sin esperar respuesta apenas empieza el upload. Así el rerank tarda ~1.5 s en vez de ~46 s. Dos lecciones de Cloud Run con facturación por request: (1) un thread en segundo plano casi no recibe CPU entre requests, así que el trabajo pesado tiene que ocurrir *dentro* de una request; (2) los pesos van memory-mapped, así que cargar el modelo no alcanza: hasta la primera inferencia no se leen del disco.
 - **Documentos nuevos**: `REMOTION_VIDEO_CONTEXT.md` (contexto de marca + brief del video de marketing en Remotion) y `DEMOS_PLAN.md` (roadmap del laboratorio de demos priorizado por efecto wow y ahorro/ROI).
+- **UX overhaul (2026-09, spec `.kiro/specs/ux-overhaul/`)**: pasada transversal de responsive + accesibilidad + reduced-motion, más un visor de noticias del blog en modal.
+  - **Modal del blog**: las tarjetas de `/blog` ahora abren un modal accesible **en la misma página** (`src/components/BlogModal.tsx`) en vez de navegar. Deep-link con History API a `/blog/:slug` (abrir en pestaña nueva + copiar/compartir con fallback de portapapeles a un input de solo lectura auto-seleccionado), prev/next entre los posts ya traídos, cierre con Esc/backdrop/botón, bloqueo de scroll del body, focus trap y restauración de scroll + foco a la tarjeta de origen. El cold-load / entrada directa a `/blog/:slug` sigue renderizando la página completa `BlogPost` (SEO server-side y sitemaps intactos). Nuevos: `src/hooks/useBlogModalRouting.ts` (routing/estado del modal) y `src/lib/blogModal.ts` (helpers puros de slug/URL/navegación, con tests). El renderizado del artículo se extrajo a `src/components/BlogArticle.tsx`, compartido entre `BlogPost` y el modal para estructura idéntica.
+  - **Reduced-motion**: hook `src/hooks/useReducedMotion.ts` + `<MotionConfig reducedMotion="user">` que apaga Hero/`ParticleBackground`/globo del chatbot y las entradas framer-motion cuando el usuario pide menos movimiento.
+  - **Convenciones CSS globales** (`src/index.css`): guard de overflow (`html, body { overflow-x: hidden }`), utilidades `.tap-target` (44px) y `.break-anywhere`, token `--header-h` (única fuente de la altura del header) + `scroll-margin` para anclas, `input` a 16px en móvil (evita el auto-zoom de iOS), ring global de `:focus-visible` y un backstop `@media (prefers-reduced-motion: reduce)`.
+  - **Componentes de estado compartidos**: `src/components/state/{LoadingState,EmptyState,ErrorState}.tsx` (copys por i18n `state.*`); `ErrorState` con retry se cablea en los fetch del blog (se conserva el redirect 404).
+  - **Responsive/A11y transversal**: lazy-loading de imágenes (`loading="lazy"` + reserva de aspect-ratio), landmarks ARIA + `role="dialog"` (incl. `VideoModal`), layouts que apilan en móvil, wrappers `overflow-x-auto` para tablas/logs/JSON/transcripts (demos y admin), tap targets de 44px. Se preserva el patrón de overlay de canvas (`absolute inset-0 h-full w-full`) para que las cajas alineen con el medio escalado.
+  - **i18n (en+es)**: bloques nuevos `blogModal.*` y `state.*`, más `nav.primaryLabel`/`nav.footerLabel`, `videoModal.dialogLabel`/`videoModal.close` y `footer.social.*`.
 - **CI/CD del sitio**: push a `main` → GitHub Actions (`.github/workflows/deploy.yml`) → SSH al VPS → `pull.sh` (build selectivo por tipo de archivo). Ver §17.
 
 ---

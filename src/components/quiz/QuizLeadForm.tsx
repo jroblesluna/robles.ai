@@ -30,6 +30,17 @@ const QuizLeadForm = ({ onSubmit, isSubmitting }: QuizLeadFormProps) => {
     defaultValues: { name: "", email: "", company: "", whatsapp: "" },
   });
 
+  // On mobile, bring the first invalid field (and its validation message) into view.
+  const onInvalid = (errors: Record<string, unknown>) => {
+    const firstKey = Object.keys(errors)[0];
+    if (!firstKey) return;
+    const el = document.querySelector(`[name="${firstKey}"]`);
+    if (el instanceof HTMLElement) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.focus({ preventScroll: true });
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -41,7 +52,7 @@ const QuizLeadForm = ({ onSubmit, isSubmitting }: QuizLeadFormProps) => {
       <p className="text-gray-600 text-sm mb-6">{t("quiz.leadForm.subtitle")}</p>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-4 min-w-0">
           <FormField
             control={form.control}
             name="name"
@@ -98,7 +109,7 @@ const QuizLeadForm = ({ onSubmit, isSubmitting }: QuizLeadFormProps) => {
             )}
           />
 
-          <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isSubmitting}>
+          <Button type="submit" className="tap-target w-full bg-blue-600 hover:bg-blue-700" disabled={isSubmitting}>
             {isSubmitting ? t("quiz.leadForm.sending") : t("quiz.leadForm.submit")}
             {isSubmitting ? (
               <Loader2 className="ml-2 h-4 w-4 animate-spin" />

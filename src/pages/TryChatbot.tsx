@@ -358,7 +358,7 @@ export default function TryChatbot() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-violet-50/50 via-white to-white py-12">
-      <div className="container mx-auto max-w-[max(64rem,64vw)] px-6">
+      <div className="container mx-auto min-w-0 max-w-[max(64rem,64vw)] px-6">
         <DemoNav tone="violet" className="mb-8" />
 
         <AnimatePresence mode="wait">
@@ -404,7 +404,7 @@ export default function TryChatbot() {
                     {t("try-chatbot.crawl_cta")}
                   </button>
                 </div>
-                <p className="mt-3 text-sm text-gray-400">{t("try-chatbot.onboarding_hint")}</p>
+                <p className="mt-3 text-sm text-gray-600">{t("try-chatbot.onboarding_hint")}</p>
               </div>
 
               <ul className="mt-10 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-gray-500">
@@ -544,7 +544,7 @@ export default function TryChatbot() {
                         <div className="flex h-full flex-col items-center justify-center text-center">
                           <img src="/robly-avatar/robly-standby.svg" alt="" className="mb-3 h-20 w-20 opacity-60" />
                           <p className="text-sm font-semibold text-gray-700">{t("try-chatbot.empty_ready_title")}</p>
-                          <p className="mt-1 max-w-xs text-sm text-gray-400">{t("try-chatbot.empty_ready_subtitle")}</p>
+                          <p className="mt-1 max-w-xs text-sm text-gray-600">{t("try-chatbot.empty_ready_subtitle")}</p>
                           <div className="mt-4 flex flex-wrap justify-center gap-2">
                             {suggestions.map((s) => (
                               <button

@@ -30,6 +30,8 @@
         }
     },
     "nav": {
+        "primaryLabel": "Principal",
+        "footerLabel": "Pie de página",
         "features": "¿Porqué?",
         "solutions": "Soluciones",
         "company": "La Empresa",
@@ -807,7 +809,12 @@
         },
         "description": "Diagnóstico, roadmap e implementación de IA para empresas. De la identificación de oportunidades al impacto medible.",
         "rights": "Todos los derechos reservados.",
-        "tagline": "Robles.AI - Soluciones Robustas de Inteligencia Artificial"
+        "tagline": "Robles.AI - Soluciones Robustas de Inteligencia Artificial",
+        "social": {
+            "twitter": "Robles.AI en Twitter",
+            "linkedin": "Robles.AI en LinkedIn",
+            "github": "Robles.AI en GitHub"
+        }
     },
     "careers": {
         "eyebrow": "Estamos contratando",
@@ -2757,5 +2764,24 @@
         "request": "Cuerpo de la petición",
         "response": "Respuesta",
         "streaming": "Transmitiendo audio por un WebSocket en vivo…"
+    },
+    "blogModal": {
+        "close": "Cerrar",
+        "prev": "Artículo anterior",
+        "next": "Artículo siguiente",
+        "openInNewTab": "Abrir en una pestaña nueva",
+        "copyLink": "Copiar enlace",
+        "copied": "Enlace copiado",
+        "copyFallbackLabel": "Copia este enlace"
+    },
+    "videoModal": {
+        "dialogLabel": "Reproductor de video",
+        "close": "Cerrar video"
+    },
+    "state": {
+        "loading": "Cargando…",
+        "empty": "Aún no hay nada que mostrar",
+        "error": "Algo salió mal",
+        "retry": "Reintentar"
     }
 }

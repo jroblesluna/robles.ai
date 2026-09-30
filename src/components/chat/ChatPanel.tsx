@@ -120,8 +120,8 @@ export default function ChatPanel({
       transition={{ duration: 0.25, ease: 'easeOut' }}
       className="
         flex flex-col bg-white rounded-2xl shadow-2xl overflow-hidden
-        w-[calc(100vw-2rem)] h-[calc(100vh-6rem)]
-        sm:w-[400px] sm:h-[500px]
+        w-[min(calc(100vw-2rem),380px)] h-[calc(100vh-6rem)]
+        sm:h-[500px]
       "
       role="dialog"
       aria-label="Chat with Robles.AI"

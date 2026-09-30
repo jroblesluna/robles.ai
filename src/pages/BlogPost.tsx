@@ -2,6 +2,9 @@ import { changeLanguage } from 'i18next';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'wouter';
+import { BlogArticle } from '@/components/BlogArticle';
+import ErrorState from '@/components/state/ErrorState';
+import LoadingState from '@/components/state/LoadingState';
 
 interface Post {
   slug: string;
@@ -38,32 +41,6 @@ interface Editor {
   signature: string;
 }
 
-function splitIntoParagraphs(text: string): string[] {
-  // 1. If text has double line breaks, use them
-  const byDoubleBreak = text.split(/\n\s*\n/).map(p => p.trim()).filter(p => p.length > 0);
-  if (byDoubleBreak.length >= 2) return byDoubleBreak;
-
-  // 2. If text has single line breaks, use them
-  const bySingleBreak = text.split(/\n/).map(p => p.trim()).filter(p => p.length > 30);
-  if (bySingleBreak.length >= 2) return bySingleBreak;
-
-  // 3. Fallback: split into visual paragraphs every ~3 sentences
-  // Use a regex that splits on ". " followed by an uppercase letter,
-  // but NOT on decimals ($1.9), abbreviations (EE.UU.), or initials (Dr. Smith)
-  const sentenceEnders = /(?<=[.!?])\s+(?=[A-ZÀ-Ü])/g;
-  const sentences = text.split(sentenceEnders).filter(s => s.trim().length > 0);
-
-  if (sentences.length <= 3) return [text];
-
-  // Group every 3 sentences into a paragraph
-  const paragraphs: string[] = [];
-  for (let i = 0; i < sentences.length; i += 3) {
-    const group = sentences.slice(i, i + 3).join(' ');
-    paragraphs.push(group.trim());
-  }
-  return paragraphs;
-}
-
 // Extrae y convierte la fecha del slug tipo YYYY-MM-DD-HH-MM-SS
 function extractDateTimeFromSlug(slug: string): Date {
   const slugDateTime = slug
@@ -91,6 +68,8 @@ export default function BlogPost() {
   const [post, setPost] = useState<Post | null>(null);
   const [editors, setEditors] = useState<Editor[]>([]);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [fetchError, setFetchError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const params = useParams<{ slug: string }>();
   const slug = params.slug;
   const [slugWeb, setSlugWeb] = useState('');
@@ -159,11 +138,17 @@ export default function BlogPost() {
 
   useEffect(() => {
     if (slug) {
+      setFetchError(false);
       fetch(`/api/blog/${slug}`)
         .then((res) => {
+          // A genuine 404 keeps the existing not-found redirect (Req 13.4).
           if (res.status === 404) {
             window.location.href = '/not-found';
             return null;
+          }
+          // Any other non-OK status is a fetch failure → error state (Req 19.3).
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`);
           }
           return res.json();
         })
@@ -171,8 +156,10 @@ export default function BlogPost() {
           if (data) setPost(data);
         })
         .catch((err) => {
+          // Non-404 failure (network/5xx): show a retryable error state instead
+          // of a hard redirect to not-found (Req 19.3).
           console.error('Error fetching post:', err);
-          window.location.href = '/not-found';
+          setFetchError(true);
         });
     }
     fetch('/api/editors')
@@ -185,9 +172,22 @@ export default function BlogPost() {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [slug]);
+  }, [slug, reloadKey]);
 
-  if (!post) return <div className="p-6">Loading...</div>;
+  if (fetchError && !post) {
+    return (
+      <div className="container mx-auto p-6 max-w-4xl">
+        <ErrorState
+          onRetry={() => {
+            setFetchError(false);
+            setReloadKey((k) => k + 1);
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (!post) return <LoadingState className="min-h-[40vh]" />;
 
   const translation =
     post.translations[i18n.language as 'en' | 'es'] ||
@@ -232,6 +232,8 @@ export default function BlogPost() {
             <img
               src={`/avatars/antonio-robles-headshot.png`}
               alt="Antonio Robles"
+              loading="lazy"
+              decoding="async"
               className="w-14 h-14 rounded-full object-cover max-sm:w-28 max-sm:h-28"
             />
             <div className="text-left">
@@ -239,7 +241,7 @@ export default function BlogPost() {
                 ✍️ {i18n.language === 'es' ? 'Publicado por' : 'Published By'}:
               </p>
               <p className="font-semibold text-gray-800">Antonio Robles</p>
-              <p className="text-xs italic text-gray-400">We Build AI That Earns Trust.</p>
+              <p className="text-xs italic text-gray-600">We Build AI That Earns Trust.</p>
             </div>
 
             {editor && (
@@ -247,6 +249,8 @@ export default function BlogPost() {
                 <img
                   src={`/avatars/${editor.id}-headshot.png`}
                   alt={editor.name}
+                  loading="lazy"
+                  decoding="async"
                   className="w-14 h-14 rounded-full object-cover max-sm:w-28 max-sm:h-28"
                 />
                 <div className="text-left">
@@ -254,7 +258,7 @@ export default function BlogPost() {
                     🤖 {i18n.language === 'es' ? 'Asistente AI' : 'AI Assistant'}:
                   </p>
                   <p className="font-semibold text-gray-800">{editor.name}</p>
-                  <p className="text-xs italic text-gray-400">{editor.signature}</p>
+                  <p className="text-xs italic text-gray-600">{editor.signature}</p>
                 </div>
               </>
             )}
@@ -308,34 +312,7 @@ export default function BlogPost() {
         )}
 
         {/* POST CONTENT */}
-        <article className="prose prose-lg max-w-none">
-          {translation.content.map((block, idx) => (
-            <section key={idx} className="mb-8">
-              {block.heading && (
-                <h2
-                  id={`section-${idx}`}
-                  className="scroll-mt-20 relative italic mb-2 font-bold text-gray-800"
-                >
-                  {block.heading}
-                </h2>
-              )}
-              {splitIntoParagraphs(block.body).map((paragraph, pidx) => (
-                <p key={pidx} className="mb-4">{paragraph}</p>
-              ))}
-              {(translation.content.length || -1) == idx + 1 && (
-                <div className="mt-6">
-                  <a
-                    href="#toc"
-                    className="text-blue-500 text-sm hover:underline inline-flex items-center"
-                  >
-                    ↑{' '}
-                    {i18n.language === 'es' ? 'Volver al índice' : 'Back to Table of Contents'}
-                  </a>
-                </div>
-              )}
-            </section>
-          ))}
-        </article>
+        <BlogArticle content={translation.content} showBackToToc />
 
         {/* KEYWORDS */}
         {post.keywords?.length > 0 && (
@@ -378,7 +355,7 @@ export default function BlogPost() {
 
         {/* STATS */}
         {post.stats && (
-          <div className="mt-6 text-xs text-gray-400 text-center">
+          <div className="mt-6 text-xs text-gray-600 text-center">
             {i18n.language === 'es'
               ? `Tokens usados: Prompt ${post.stats.prompt_tokens}, Respuesta ${post.stats.completion_tokens}, Total ${post.stats.total_tokens}`
               : `Tokens used: Prompt ${post.stats.prompt_tokens}, Completion ${post.stats.completion_tokens}, Total ${post.stats.total_tokens}`}

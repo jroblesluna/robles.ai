@@ -464,7 +464,7 @@ export default function TryTTS() {
   const VoiceChips = ({ selected, onSelect }: { selected: string; onSelect: (id: string) => void }) => (
     <div className="flex flex-wrap gap-2">
       {sortedVoices.length === 0 && (
-        <span className="text-sm text-gray-400">{t("try-tts.voices_loading")}</span>
+        <span className="text-sm text-gray-600">{t("try-tts.voices_loading")}</span>
       )}
       {sortedVoices.map((v) => {
         const active = selected === v.id;
@@ -568,7 +568,7 @@ export default function TryTTS() {
         <button
           type="button"
           onClick={() => downloadFile(result.audioUri, filename)}
-          className={`inline-flex items-center gap-2 rounded-xl bg-gradient-to-br ${ACCENT_GRADIENT} px-4 py-2 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90`}
+          className={`inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-gradient-to-br ${ACCENT_GRADIENT} px-4 py-2 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90`}
         >
           <Download className="h-4 w-4" />
           {t("try-tts.download_mp3")}
@@ -577,7 +577,7 @@ export default function TryTTS() {
           <button
             type="button"
             onClick={() => downloadText(subtitles.srt, `${filename.replace(/\.\w+$/, "")}.srt`, "text/plain")}
-            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:border-gray-300"
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:border-gray-300"
           >
             <Captions className="h-4 w-4" />
             {t("try-tts.download_srt")}
@@ -587,7 +587,7 @@ export default function TryTTS() {
           <button
             type="button"
             onClick={() => downloadText(subtitles.vtt, `${filename.replace(/\.\w+$/, "")}.vtt`, "text/vtt")}
-            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:border-gray-300"
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:border-gray-300"
           >
             <Captions className="h-4 w-4" />
             {t("try-tts.download_vtt")}
@@ -603,7 +603,7 @@ export default function TryTTS() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50/50 via-white to-white py-12">
-      <div className="container mx-auto max-w-[max(64rem,64vw)] px-6">
+      <div className="container mx-auto min-w-0 max-w-[max(64rem,64vw)] px-6">
         <DemoNav tone="rose" className="mb-8" />
 
         {/* Header */}
@@ -849,7 +849,7 @@ export default function TryTTS() {
                   </button>
 
                   {narrateBusy && (
-                    <p className="text-center text-xs text-gray-400">{t("try-tts.narrate_working")}</p>
+                    <p className="text-center text-xs text-gray-600">{t("try-tts.narrate_working")}</p>
                   )}
 
                   {narrateResult && (

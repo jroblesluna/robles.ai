@@ -1,6 +1,7 @@
 import { useState, useEffect, Suspense, lazy } from 'react';
 import { Route, Switch, useLocation } from 'wouter';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { MotionConfig } from 'framer-motion';
 import { queryClient } from './lib/queryClient';
 import { Toaster } from '@/components/ui/toaster';
 import NotFound from '@/pages/not-found';
@@ -87,6 +88,7 @@ function App() {
   if (isAdminRoute) {
     return (
       <QueryClientProvider client={queryClient}>
+        <MotionConfig reducedMotion="user">
         <Suspense fallback={<div className="flex items-center justify-center min-h-[50vh]"><div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>}>
           <AdminLayout>
             <Switch>
@@ -104,6 +106,7 @@ function App() {
           </AdminLayout>
         </Suspense>
         <Toaster />
+        </MotionConfig>
       </QueryClientProvider>
     );
   }
@@ -111,12 +114,13 @@ function App() {
   // Public routes — with Header, Footer, and ChatbotWidget
   return (
     <QueryClientProvider client={queryClient}>
+      <MotionConfig reducedMotion="user">
       <div className="flex min-h-screen flex-col">
         <Header
           isMobileMenuOpen={isMobileMenuOpen}
           setIsMobileMenuOpen={setIsMobileMenuOpen}
         />
-        <main className="flex-grow pt-[68px]">
+        <main className="flex-grow pt-[var(--header-h)]">
           <Suspense fallback={<div className="flex items-center justify-center min-h-[50vh]"><div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>}>
             <Switch>
               <Route path="/" component={Home} />
@@ -147,6 +151,7 @@ function App() {
         <ChatbotWidget hideForMobileMenu={isMobileMenuOpen} />
         <Toaster />
       </div>
+      </MotionConfig>
     </QueryClientProvider>
   );
 }

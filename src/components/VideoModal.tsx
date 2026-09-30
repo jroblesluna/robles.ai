@@ -1,7 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 const VideoModal = ({ videoSrc, onClose }: { videoSrc: string; onClose: () => void }) => {
+  const { t } = useTranslation();
   const backdropRef = useRef(null);
 
   useEffect(() => {
@@ -54,6 +56,9 @@ const VideoModal = ({ videoSrc, onClose }: { videoSrc: string; onClose: () => vo
         exit={{ opacity: 0 }}
       >
         <motion.div
+          role="dialog"
+          aria-modal="true"
+          aria-label={t("videoModal.dialogLabel")}
           initial={{ opacity: 0, scale: 0.85 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.85 }}
@@ -63,7 +68,7 @@ const VideoModal = ({ videoSrc, onClose }: { videoSrc: string; onClose: () => vo
           <button
             onClick={onClose}
             className="absolute top-3 right-3 bg-white/90 hover:bg-white text-black rounded-full w-8 h-8 flex items-center justify-center z-10 shadow-md transition-colors"
-            aria-label="Close video"
+            aria-label={t("videoModal.close")}
           >
             ✕
           </button>

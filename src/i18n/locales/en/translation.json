@@ -30,6 +30,8 @@
         }
     },
     "nav": {
+        "primaryLabel": "Primary",
+        "footerLabel": "Footer",
         "features": "Why Us?",
         "solutions": "Solutions",
         "company": "Company",
@@ -807,7 +809,12 @@
         },
         "description": "AI diagnosis, roadmap, and implementation for businesses. From opportunity identification to measurable impact.",
         "rights": "All rights reserved.",
-        "tagline": "Robles.AI - Robust Artificial Intelligence Solutions"
+        "tagline": "Robles.AI - Robust Artificial Intelligence Solutions",
+        "social": {
+            "twitter": "Robles.AI on Twitter",
+            "linkedin": "Robles.AI on LinkedIn",
+            "github": "Robles.AI on GitHub"
+        }
     },
     "careers": {
         "eyebrow": "We're hiring",
@@ -2757,5 +2764,24 @@
         "request": "Request body",
         "response": "Response",
         "streaming": "Streaming audio over a live WebSocket…"
+    },
+    "blogModal": {
+        "close": "Close",
+        "prev": "Previous article",
+        "next": "Next article",
+        "openInNewTab": "Open in a new tab",
+        "copyLink": "Copy link",
+        "copied": "Link copied",
+        "copyFallbackLabel": "Copy this link"
+    },
+    "videoModal": {
+        "dialogLabel": "Video player",
+        "close": "Close video"
+    },
+    "state": {
+        "loading": "Loading…",
+        "empty": "Nothing to show yet",
+        "error": "Something went wrong",
+        "retry": "Try again"
     }
 }

@@ -143,7 +143,7 @@ export default function TryForecast() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-50/50 via-white to-white py-12">
-      <div className="container mx-auto max-w-[max(64rem,64vw)] px-6">
+      <div className="container mx-auto min-w-0 max-w-[max(64rem,64vw)] px-6">
         <DemoNav tone="cyan" className="mb-8" />
 
         {/* Header */}
@@ -209,7 +209,7 @@ export default function TryForecast() {
                   />
                 </label>
               </div>
-              <p className="mt-2 text-xs text-gray-400">{t("try-forecast.upload_hint")}</p>
+              <p className="mt-2 text-xs text-gray-600">{t("try-forecast.upload_hint")}</p>
               {uploadError && (
                 <p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-red-600">
                   <AlertCircle className="h-3.5 w-3.5" />
@@ -242,7 +242,7 @@ export default function TryForecast() {
               <button
                 type="button"
                 onClick={downloadCsv}
-                className={`inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-br ${ACCENT_GRADIENT} px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90`}
+                className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-gradient-to-br ${ACCENT_GRADIENT} px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90`}
               >
                 <Download className="h-4 w-4" />
                 {t("try-forecast.download_csv")}
@@ -250,7 +250,7 @@ export default function TryForecast() {
               <button
                 type="button"
                 onClick={reset}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:border-gray-300 hover:text-gray-900"
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:border-gray-300 hover:text-gray-900"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
                 {t("try-forecast.reset")}

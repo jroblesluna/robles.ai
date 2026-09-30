@@ -5,6 +5,7 @@ import { useLocation } from 'wouter';
 import { useTranslation } from 'react-i18next';
 import { useChatSession } from '../../hooks/useChatSession.js';
 import ChatPanel from './ChatPanel.js';
+import { useReducedMotion } from '../../hooks/useReducedMotion.js';
 
 // ============================================================
 // ChatbotWidget — Root floating widget component
@@ -79,6 +80,7 @@ export default function ChatbotWidget({ hideForMobileMenu = false }: { hideForMo
   const [phase, setPhase] = useState<EntrancePhase>('bubble');
   const [notificationDismissed, setNotificationDismissed] = useState(false);
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const reduceMotion = useReducedMotion();
 
   const {
     messages,
@@ -292,24 +294,33 @@ export default function ChatbotWidget({ hideForMobileMenu = false }: { hideForMo
           {showNotification && (
             <motion.div
               initial={{ opacity: 0, y: 10, scale: 0.9 }}
-              animate={{
-                opacity: 1,
-                scale: 1,
-                // Soft bounce that decays over time, then rests before the next loop
-                y: [10, -12, 0, -8, 0, -5, 0, -3, 0, -1, 0, 0],
-              }}
+              animate={
+                reduceMotion
+                  ? // Reduced motion: a single settle to rest, no looping bounce (Req 20.3).
+                    { opacity: 1, scale: 1, y: 0 }
+                  : {
+                      opacity: 1,
+                      scale: 1,
+                      // Soft bounce that decays over time, then rests before the next loop
+                      y: [10, -12, 0, -8, 0, -5, 0, -3, 0, -1, 0, 0],
+                    }
+              }
               exit={{ opacity: 0, y: 10, scale: 0.9, transition: { duration: 0.2 } }}
-              transition={{
-                opacity: { duration: 0.3 },
-                scale: { type: 'spring', stiffness: 300, damping: 25 },
-                y: {
-                  duration: 2.4,
-                  times: [0, 0.12, 0.22, 0.34, 0.46, 0.58, 0.7, 0.8, 0.88, 0.94, 0.98, 1],
-                  ease: 'easeOut',
-                  repeat: Infinity,
-                  repeatDelay: 5,
-                },
-              }}
+              transition={
+                reduceMotion
+                  ? { opacity: { duration: 0.2 }, y: { duration: 0.2 }, scale: { duration: 0.2 } }
+                  : {
+                      opacity: { duration: 0.3 },
+                      scale: { type: 'spring', stiffness: 300, damping: 25 },
+                      y: {
+                        duration: 2.4,
+                        times: [0, 0.12, 0.22, 0.34, 0.46, 0.58, 0.7, 0.8, 0.88, 0.94, 0.98, 1],
+                        ease: 'easeOut',
+                        repeat: Infinity,
+                        repeatDelay: 5,
+                      },
+                    }
+              }
               onClick={handleNotificationClick}
               className="relative bg-white rounded-xl shadow-lg px-3 py-2 sm:px-4 sm:py-3 max-w-[200px] sm:max-w-[250px] cursor-pointer"
               role="status"

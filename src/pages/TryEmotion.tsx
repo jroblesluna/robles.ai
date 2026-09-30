@@ -426,7 +426,7 @@ export default function TryEmotion() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50/50 via-white to-white py-12">
-      <div className="container mx-auto max-w-[max(72rem,70vw)] px-6">
+      <div className="container mx-auto min-w-0 max-w-[max(72rem,70vw)] px-6">
         <DemoNav tone="rose" className="mb-8" />
         {/* Header: pitch + how it works (left), business case (right) */}
         <div className="mb-10 grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
@@ -657,7 +657,7 @@ export default function TryEmotion() {
                       <Upload className="h-6 w-6" />
                     </span>
                     <p className="mt-5 text-base font-semibold text-white">{t("try-emotion.upload_cta")}</p>
-                    <p className="mt-1.5 text-sm text-gray-400">{t("try-emotion.upload_hint")}</p>
+                    <p className="mt-1.5 text-sm text-gray-300">{t("try-emotion.upload_hint")}</p>
                     <span className="mt-6 inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm transition-colors group-hover:bg-gray-100">
                       <ImagePlus className="h-4 w-4" />
                       {t("try-emotion.browse")}
@@ -779,7 +779,7 @@ export default function TryEmotion() {
                         title={t("try-emotion.sample_portrait", { n: i + 1 })}
                         className="rounded-full p-0.5 ring-1 ring-gray-200 transition-all hover:-translate-y-0.5 hover:ring-2 hover:ring-rose-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 disabled:pointer-events-none disabled:opacity-50"
                       >
-                        <img src={s.src} alt="" className="h-9 w-9 rounded-full object-cover" />
+                        <img src={s.src} alt="" loading="lazy" decoding="async" className="h-9 w-9 rounded-full object-cover" />
                       </button>
                       <button
                         type="button"
@@ -945,7 +945,7 @@ export default function TryEmotion() {
                         <div className="flex flex-col items-center justify-center py-8 text-center">
                           <img src="/robly-avatar/robly-standby.svg" alt="" className="mb-2 h-24 w-24 opacity-60" />
                           <p className="text-sm font-semibold text-gray-600">{t("try-emotion.expressions_empty_title")}</p>
-                          <p className="mt-1 max-w-xs text-sm text-gray-400">
+                          <p className="mt-1 max-w-xs text-sm text-gray-600">
                             {showMedia ? t("try-emotion.expressions_none") : t("try-emotion.expressions_empty")}
                           </p>
                         </div>
@@ -1015,7 +1015,7 @@ export default function TryEmotion() {
               </span>
               <span>
                 <span className="block text-sm font-semibold text-gray-900">{t("try-emotion.tech_title")}</span>
-                <span className="block text-xs text-gray-400">{t("try-emotion.tech_subtitle")}</span>
+                <span className="block text-xs text-gray-600">{t("try-emotion.tech_subtitle")}</span>
               </span>
             </span>
             <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform ${showTech ? "rotate-180" : ""}`} />
@@ -1065,7 +1065,7 @@ export default function TryEmotion() {
                         </div>
                       ))}
                     </dl>
-                    <p className="mt-2 text-[11px] leading-relaxed text-gray-400">{t("try-emotion.tech_note")}</p>
+                    <p className="mt-2 text-[11px] leading-relaxed text-gray-600">{t("try-emotion.tech_note")}</p>
                   </div>
                 </div>
               </motion.div>

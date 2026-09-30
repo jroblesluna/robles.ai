@@ -140,3 +140,82 @@ html {
     }
   }
 }
+
+/* ============================================================
+   UX Overhaul — shared global primitives (Design: Area 1 & 3)
+   ============================================================ */
+
+/* 1a. Global overflow guard: no page can produce a sideways scrollbar.
+   This is a backstop only — real offenders are still fixed at source into
+   scrollable regions (Req 1.1, 1.2, 1.4, 1.5). */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Long unbreakable strings (URLs, tokens, hashes) never force overflow (Req 2.3). */
+.break-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* 1c. Fixed-header height token: single source of truth for the header offset
+   and anchor scroll-margin (Req 10.1, 10.2, 4.4). */
+:root {
+  --header-h: 68px;
+}
+
+/* Anchor targets land below the fixed header instead of behind it. */
+:target {
+  scroll-margin-top: calc(var(--header-h) + 16px);
+}
+[id] {
+  scroll-margin-top: calc(var(--header-h) + 16px);
+}
+
+/* 1b. Shared tap-target utility: icon-only controls reach the 44×44 minimum
+   touch area (Req 3.1, 3.2, 5.2, 7.3, 23.2). */
+@layer utilities {
+  .tap-target {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Mobile form inputs at ≥16px so iOS Safari does not auto-zoom on focus
+   (Req 7.2). */
+@media (max-width: 767px) {
+  input:not([type='checkbox']):not([type='radio']),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* 3a. Visible keyboard focus ring for every interactive control, without
+   affecting mouse users (Req 17.1, 17.3). */
+:where(a, button, [role='button'], input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* 3b. Reduced-motion CSS backstop: near-zero non-essential motion while
+   leaving discrete state transitions perceptible (Req 20.1, 20.2, 20.4). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animated-bg {
+    animation: none;
+  }
+}

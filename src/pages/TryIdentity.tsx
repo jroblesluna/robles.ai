@@ -539,7 +539,7 @@ export default function TryIdentity() {
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gradient-to-b from-violet-50/50 via-white to-white py-12">
-      <div className="container mx-auto max-w-[max(72rem,70vw)] px-6">
+      <div className="container mx-auto min-w-0 max-w-[max(72rem,70vw)] px-6">
         <DemoNav tone="violet" className="mb-8" />
 
         {/* Header: pitch + how it works (left), business case (right) */}
@@ -647,8 +647,8 @@ export default function TryIdentity() {
                   className="flex w-full items-center gap-3 rounded-xl border border-dashed border-violet-200 bg-violet-50/40 p-3 text-left transition-colors hover:border-violet-300 hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <span className="flex -space-x-3">
-                    <img src={SAMPLE_SELFIE_URL} alt="" className="h-10 w-10 rounded-full border-2 border-white object-cover shadow-sm" />
-                    <img src={SAMPLE_DOCUMENT_URL} alt="" className="h-10 w-10 rounded-full border-2 border-white object-cover shadow-sm" />
+                    <img src={SAMPLE_SELFIE_URL} alt="" loading="lazy" decoding="async" className="h-10 w-10 rounded-full border-2 border-white object-cover shadow-sm" />
+                    <img src={SAMPLE_DOCUMENT_URL} alt="" loading="lazy" decoding="async" className="h-10 w-10 rounded-full border-2 border-white object-cover shadow-sm" />
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-sm font-semibold text-gray-900">{t("try-identity.samples_cta")}</span>
@@ -693,7 +693,7 @@ export default function TryIdentity() {
                   <div className="break-all rounded-lg border border-gray-200 bg-gray-50 p-2.5 font-mono text-xs text-gray-500">
                     {callbackUrl}
                   </div>
-                  <p className="mt-1.5 text-xs text-gray-400">{t("try-identity.webhook_hint")}</p>
+                  <p className="mt-1.5 text-xs text-gray-600">{t("try-identity.webhook_hint")}</p>
                 </div>
 
                 <Button
@@ -868,7 +868,7 @@ export default function TryIdentity() {
                             {t("try-identity.results_images")}
                             <InfoTip text={t("try-identity.tip_images")} hoverColor={TIP_HOVER} />
                           </h3>
-                          <p className="mb-3 text-xs text-gray-400">{t("try-identity.results_images_hint")}</p>
+                          <p className="mb-3 text-xs text-gray-600">{t("try-identity.results_images_hint")}</p>
                           <div className="grid grid-cols-2 gap-3">
                             {["FaceImageCV2", "CardImageCV2", "FaceLandMarksImage", "CardLandMarksImage"].map((key, idx) => {
                               const imageUrl = result.data.output[key];
@@ -1007,7 +1007,7 @@ export default function TryIdentity() {
                     </div>
                   ))}
                 </dl>
-                <p className="mt-3 text-[11px] leading-relaxed text-gray-400">{t("try-identity.tech_model_note")}</p>
+                <p className="mt-3 text-[11px] leading-relaxed text-gray-600">{t("try-identity.tech_model_note")}</p>
               </TechCard>
 
               <TechCard icon={ShieldCheck} title={t("try-identity.tech_api_title")} iconClass={ACCENT_TEXT}>

@@ -460,7 +460,7 @@ export default function TryLangChain() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50/50 via-white to-white py-12">
-      <div className="container mx-auto max-w-[max(72rem,70vw)] px-6">
+      <div className="container mx-auto min-w-0 max-w-[max(72rem,70vw)] px-6">
         <DemoNav tone="amber" className="mb-8" />
 
         {/* Header: pitch + how it works (left), business case (right) */}
@@ -960,7 +960,7 @@ export default function TryLangChain() {
                     </div>
                   ))}
                 </dl>
-                <p className="mt-3 text-[11px] leading-relaxed text-gray-400">{t("try-langchain.tech_note")}</p>
+                <p className="mt-3 text-[11px] leading-relaxed text-gray-600">{t("try-langchain.tech_note")}</p>
               </TechCard>
 
               <TechCard icon={Braces} title={t("try-langchain.tech_endpoints_title")} iconClass={ACCENT_TEXT}>
@@ -1040,7 +1040,7 @@ function DocPreview({ doc, onClose }: { doc: Doc; onClose: () => void }) {
           </span>
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-semibold text-gray-900">{doc.name}</span>
-            <span className="block text-xs text-gray-400">{t("try-langchain.kb_preview_hint")}</span>
+            <span className="block text-xs text-gray-600">{t("try-langchain.kb_preview_hint")}</span>
           </span>
           <button
             type="button"

@@ -161,7 +161,7 @@ const Apply = () => {
                   transition={{ duration: 0.4 }}
                   className="bg-white p-8 rounded-xl shadow-md w-full"
                 >
-                  <form onSubmit={handleSubmit} className="space-y-6" encType="multipart/form-data">
+                  <form onSubmit={handleSubmit} className="space-y-6 min-w-0" encType="multipart/form-data">
                     <input type="hidden" name="jobTitle" value={job?.title || ""} />
                     <div>
                       <label className="block mb-2 text-sm sm:text-base text-gray-700 font-medium">{t("careers.name")}</label>
@@ -221,7 +221,7 @@ const Apply = () => {
                     <button
                       type="submit"
                       disabled={submitting}
-                      className={`w-full px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-all duration-300 ${submitting ? "opacity-50 cursor-not-allowed" : ""
+                      className={`tap-target w-full px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-all duration-300 ${submitting ? "opacity-50 cursor-not-allowed" : ""
                         }`}
                     >
                       {submitting ? t("contact.sending") : t("careers.submit")}

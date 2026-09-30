@@ -54,6 +54,17 @@ const Contact = () => {
 
   const { isSubmitting } = form.formState;
 
+  // On mobile, bring the first invalid field (and its validation message) into view.
+  const onInvalid = (errors: Record<string, unknown>) => {
+    const firstKey = Object.keys(errors)[0];
+    if (!firstKey) return;
+    const el = document.querySelector(`[name="${firstKey}"]`);
+    if (el instanceof HTMLElement) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.focus({ preventScroll: true });
+    }
+  };
+
   const onSubmit = async (data: ContactFormValues) => {
     try {
       await apiRequest("POST", "/api/contact", data);
@@ -149,7 +160,7 @@ const Contact = () => {
             <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6">{t("contact.formTitle")}</h3>
 
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-4 sm:space-y-6 min-w-0">
                 <FormField
                   control={form.control}
                   name="name"
@@ -228,7 +239,7 @@ const Contact = () => {
 
                 <Button
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  className="tap-target w-full bg-blue-600 hover:bg-blue-700"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? t("contact.sending") : t("contact.send")}

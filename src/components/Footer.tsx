@@ -9,11 +9,11 @@ const FooterSection = ({ title, links }: { title: string, links: Array<{ name: s
       {links.map((link) => (
         <li key={link.name}>
           {link.href.includes("#") ? (
-            <a href={link.href} className="text-gray-400 hover:text-white transition-colors">
+            <a href={link.href} className="tap-target justify-start text-gray-400 hover:text-white transition-colors">
               {link.name}
             </a>
           ) : (
-            <Link href={link.href} className="text-gray-400 hover:text-white transition-colors">
+            <Link href={link.href} className="tap-target justify-start text-gray-400 hover:text-white transition-colors">
               {link.name}
             </Link>
           )}
@@ -68,27 +68,32 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Solutions */}
-          <FooterSection title={t("footer.titles.solutions")} links={solutionsLinks} />
+          {/* Footer navigation landmark (distinct from the primary nav in the
+              Header). `display:contents` keeps the 4-column grid layout intact
+              while exposing the link columns as one labeled <nav>. */}
+          <nav aria-label={t("nav.footerLabel")} className="contents">
+            {/* Solutions */}
+            <FooterSection title={t("footer.titles.solutions")} links={solutionsLinks} />
 
-          {/* Company */}
-          <FooterSection title={t("footer.titles.company")} links={companyLinks} />
+            {/* Company */}
+            <FooterSection title={t("footer.titles.company")} links={companyLinks} />
 
-          {/* Legal */}
-          <FooterSection title={t("footer.titles.legal")} links={legalLinks} />
+            {/* Legal */}
+            <FooterSection title={t("footer.titles.legal")} links={legalLinks} />
+          </nav>
         </div>
 
         <div className="border-t border-gray-800 pt-4">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
             <p className="text-gray-500 text-sm">© {currentYear} Robles.AI. {t("footer.rights")}</p>
-            <div className="flex space-x-5">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+            <div className="flex gap-1">
+              <a href="#" aria-label={t("footer.social.twitter")} className="tap-target text-gray-400 hover:text-white transition-colors">
                 <Twitter className="h-4 w-4" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+              <a href="#" aria-label={t("footer.social.linkedin")} className="tap-target text-gray-400 hover:text-white transition-colors">
                 <Linkedin className="h-4 w-4" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+              <a href="#" aria-label={t("footer.social.github")} className="tap-target text-gray-400 hover:text-white transition-colors">
                 <Github className="h-4 w-4" />
               </a>
             </div>

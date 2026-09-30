@@ -356,7 +356,7 @@ export default function TryDocExtract() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50/60 via-white to-white py-12">
-      <div className="container mx-auto max-w-[max(64rem,64vw)] px-6">
+      <div className="container mx-auto min-w-0 max-w-[max(64rem,64vw)] px-6">
         <DemoNav tone="indigo" className="mb-8" />
 
         <AnimatePresence mode="wait">
@@ -398,7 +398,7 @@ export default function TryDocExtract() {
                 >
                   <UploadCloud className={`h-10 w-10 ${ACCENT_TEXT}`} />
                   <span className="text-sm font-semibold text-gray-800">{t("try-docextract.dropzone_title")}</span>
-                  <span className="text-xs text-gray-400">{t("try-docextract.dropzone_hint")}</span>
+                  <span className="text-xs text-gray-600">{t("try-docextract.dropzone_hint")}</span>
                   <input
                     ref={inputRef}
                     type="file"
@@ -509,8 +509,8 @@ export default function TryDocExtract() {
                   {/* Documento con overlay de bounding boxes */}
                   <div className="relative flex min-h-[320px] items-center justify-center border-b border-gray-100 bg-gray-50 p-4 lg:col-span-2 lg:border-b-0 lg:border-r">
                     {previewUrl && isImage ? (
-                      <div className="relative inline-block max-h-[520px]">
-                        <img src={previewUrl} alt={fileName} className="max-h-[520px] rounded-lg object-contain" />
+                      <div className="relative inline-block max-h-[520px] max-w-full">
+                        <img src={previewUrl} alt={fileName} className="max-h-[520px] max-w-full rounded-lg object-contain" />
                         {/* Overlay: cajas normalizadas 0–1 → % del contenedor */}
                         {boxable.map((f) => {
                           const [x0, y0, x1, y1] = f.bbox as number[];
@@ -577,7 +577,7 @@ export default function TryDocExtract() {
                             key={d.label}
                             type="button"
                             onClick={d.fn}
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:border-slate-300 hover:bg-slate-50"
+                            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:border-slate-300 hover:bg-slate-50"
                           >
                             <d.icon className="h-3.5 w-3.5 text-slate-500" />
                             {d.label}
@@ -594,8 +594,8 @@ export default function TryDocExtract() {
                             <p className="text-sm">{t("try-docextract.no_fields")}</p>
                           </div>
                         ) : (
-                          <div className="overflow-hidden rounded-lg border border-gray-100">
-                            <table className="w-full text-sm">
+                          <div className="min-w-0 overflow-x-auto rounded-lg border border-gray-100">
+                            <table className="w-full min-w-[24rem] text-sm">
                               <thead>
                                 <tr className="border-b border-gray-100 bg-gray-50 text-left text-[11px] uppercase tracking-wider text-gray-400">
                                   <th className="px-3 py-2 font-semibold">{t("try-docextract.col_field")}</th>

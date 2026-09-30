@@ -5,24 +5,29 @@ import { ChevronLeft, ChevronRight, Sparkles, ArrowRight, Fingerprint, Database,
 import { fadeIn, staggerContainer } from "@/utils/animations";
 import ParticleBackground from './ParticleBackground';
 import { useTranslation } from 'react-i18next';
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 const SLIDE_COUNT = 3;
 const SLIDE_MS = 7000;
 
 const Hero = () => {
   const { t } = useTranslation();
+  const reduceMotion = useReducedMotion();
   const [slide, setSlide] = useState(0);
   // +1 = next (incoming from right), -1 = prev (incoming from left)
   const [direction, setDirection] = useState(1);
 
-  // interval keyed on `slide` so any manual nav restarts the 7s clock
+  // interval keyed on `slide` so any manual nav restarts the 7s clock.
+  // Under reduced motion, pause the auto-advance loop entirely (Req 20.1);
+  // the visitor can still step through slides manually with the arrows/dots.
   useEffect(() => {
+    if (reduceMotion) return;
     const id = setInterval(() => {
       setDirection(1);
       setSlide((s) => (s + 1) % SLIDE_COUNT);
     }, SLIDE_MS);
     return () => clearInterval(id);
-  }, [slide]);
+  }, [slide, reduceMotion]);
 
   // Jump to a specific slide (dots): infer direction from index order.
   const go = (n: number) => {
@@ -44,11 +49,19 @@ const Hero = () => {
 
   // Slide variants: enter from the side we're heading to, exit to the opposite.
   // Use full-width (%) so the slide travels the entire container, not a fixed px.
-  const slideVariants = {
-    enter: (dir: number) => ({ x: dir > 0 ? "100%" : "-100%", opacity: 0 }),
-    center: { x: "0%", opacity: 1 },
-    exit: (dir: number) => ({ x: dir > 0 ? "-100%" : "100%", opacity: 0 }),
-  };
+  // Under reduced motion, drop the horizontal travel and cross-fade instead
+  // (opacity only, essential slide change still conveyed) — Req 20.1, 20.4.
+  const slideVariants = reduceMotion
+    ? {
+        enter: { x: "0%", opacity: 0 },
+        center: { x: "0%", opacity: 1 },
+        exit: { x: "0%", opacity: 0 },
+      }
+    : {
+        enter: (dir: number) => ({ x: dir > 0 ? "100%" : "-100%", opacity: 0 }),
+        center: { x: "0%", opacity: 1 },
+        exit: (dir: number) => ({ x: dir > 0 ? "-100%" : "100%", opacity: 0 }),
+      };
 
   const slides = [
     // 0 — main pitch
@@ -202,7 +215,11 @@ const Hero = () => {
               initial="enter"
               animate="center"
               exit="exit"
-              transition={{ x: { type: "spring", stiffness: 300, damping: 30 }, opacity: { duration: 0.25 } }}
+              transition={
+                reduceMotion
+                  ? { opacity: { duration: 0.15 } }
+                  : { x: { type: "spring", stiffness: 300, damping: 30 }, opacity: { duration: 0.25 } }
+              }
               className="absolute inset-0 flex items-center justify-center"
             >
               <div className="w-full max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 px-4">

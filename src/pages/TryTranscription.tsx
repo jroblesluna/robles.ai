@@ -735,7 +735,7 @@ export default function TryTranscription() {
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gradient-to-b from-teal-50/50 via-white to-white py-12">
-      <div className="container mx-auto max-w-[max(72rem,70vw)] px-6">
+      <div className="container mx-auto min-w-0 max-w-[max(72rem,70vw)] px-6">
         <DemoNav tone="teal" className="mb-8" />
 
         {/* Header: pitch + how it works (left), business case (right) */}
@@ -1167,7 +1167,7 @@ export default function TryTranscription() {
               </span>
               <span>
                 <span className="block text-sm font-semibold text-gray-900">{t("try-transcription.tech_title")}</span>
-                <span className="block text-xs text-gray-400">{t("try-transcription.tech_subtitle")}</span>
+                <span className="block text-xs text-gray-600">{t("try-transcription.tech_subtitle")}</span>
               </span>
             </span>
             <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform ${showTech ? "rotate-180" : ""}`} />
