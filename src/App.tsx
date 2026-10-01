@@ -6,8 +6,7 @@ import { queryClient } from './lib/queryClient';
 import { Toaster } from '@/components/ui/toaster';
 import NotFound from '@/pages/not-found';
 import Home from '@/pages/Home';
-import BlogList from '@/pages/BlogList';
-import BlogPost from '@/pages/BlogPost';
+import BlogRoute from '@/pages/BlogRoute';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { initAnalytics, trackPageView } from '@/lib/analytics';
@@ -141,8 +140,10 @@ function App() {
               <Route path="/get-started" component={Landing} />
               <Route path="/diagnostico-ia" component={Quiz} />
               <Route path="/otp" component={OTP} />
-              <Route path="/blog" component={BlogList} />
-              <Route path="/blog/:slug" component={BlogPost} />
+              {/* Single route for /blog and /blog/:slug so BlogList stays
+                  mounted while the in-page modal pushes a /blog/:slug URL.
+                  BlogRoute decides list+modal vs. the full cold-load post. */}
+              <Route path="/blog/:slug?" component={BlogRoute} />
               <Route component={NotFound} />
             </Switch>
           </Suspense>
