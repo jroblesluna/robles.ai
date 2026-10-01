@@ -2772,7 +2772,14 @@
         "openInNewTab": "Open in a new tab",
         "copyLink": "Copy link",
         "copied": "Link copied",
-        "copyFallbackLabel": "Copy this link"
+        "copyFallbackLabel": "Copy this link",
+        "publishedBy": "Published By",
+        "authorName": "Antonio Robles",
+        "authorTagline": "We Build AI That Earns Trust.",
+        "aiAssistant": "AI Assistant",
+        "categories": "Categories",
+        "minRead": "min read",
+        "words": "words"
     },
     "videoModal": {
         "dialogLabel": "Video player",

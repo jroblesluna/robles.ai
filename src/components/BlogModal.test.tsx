@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
-import { BlogModal, type FullPost } from './BlogModal';
+import { BlogModal, type BlogModalEditor, type FullPost } from './BlogModal';
 import type { BlogListPost } from '@/lib/blogModal';
 
 // Stub i18n: return the key so assertions can target aria-labels deterministically.
@@ -27,17 +27,27 @@ function makePost(slug: string, title: string): BlogListPost {
   };
 }
 
+// Slugs carry a valid YYYY-MM-DD-HH-MM-SS prefix so the modal can derive a
+// display date (as the real list endpoint provides).
 const posts: BlogListPost[] = [
-  makePost('first', 'First Post'),
-  makePost('second', 'Second Post'),
-  makePost('third', 'Third Post'),
+  makePost('2025-03-28-10-00-00-first', 'First Post'),
+  makePost('2025-03-29-10-00-00-second', 'Second Post'),
+  makePost('2025-03-30-10-00-00-third', 'Third Post'),
 ];
 
-// A fetcher that resolves synchronously-ish with article content per slug.
+const editors: BlogModalEditor[] = [
+  { id: 1, name: 'Ada Editor', signature: 'Thinking in gradients.' },
+];
+
+// A fetcher that resolves synchronously-ish with article content + metadata.
 function makeFetcher(): (slug: string) => Promise<FullPost | null> {
   return (slug: string) =>
     Promise.resolve({
       slug,
+      editorId: 1,
+      date: '2025-03-28',
+      categories: ['Deep Learning', 'NLP'],
+      keywords: ['transformer'],
       translations: {
         en: { slug, title: `EN ${slug}`, excerpt: '', content: [{ heading: 'Section', body: 'Body paragraph one.' }] },
         es: { slug: `${slug}-es`, title: `ES ${slug}`, excerpt: '', content: [{ heading: 'Sección', body: 'Párrafo uno.' }] },
@@ -55,6 +65,7 @@ function setup(index = 0, overrides: Partial<Parameters<typeof BlogModal>[0]> = 
       onIndexChange={onIndexChange}
       onClose={onClose}
       fetchArticle={makeFetcher()}
+      editors={editors}
       {...overrides}
     />,
   );
@@ -152,7 +163,10 @@ describe('BlogModal', () => {
     const { rerender } = render(
       <BlogModal posts={posts} index={0} onIndexChange={() => {}} onClose={() => {}} fetchArticle={fetchArticle} />,
     );
-    const scrollRegion = screen.getByRole('heading', { level: 1 }).parentElement as HTMLElement;
+    // The title is a sticky sub-header inside the scroll container; the scroll
+    // region is that container (the sticky header's parent).
+    const heading = screen.getByRole('heading', { level: 1 });
+    const scrollRegion = heading.parentElement?.parentElement as HTMLElement;
     scrollRegion.scrollTop = 500;
     rerender(
       <BlogModal posts={posts} index={1} onIndexChange={() => {}} onClose={() => {}} fetchArticle={fetchArticle} />,
@@ -163,9 +177,35 @@ describe('BlogModal', () => {
   it('open-in-new-tab anchor points at /blog/:slug with target/rel', async () => {
     setup(0);
     const anchor = screen.getByLabelText('blogModal.openInNewTab');
-    expect(anchor).toHaveAttribute('href', '/blog/first');
+    expect(anchor).toHaveAttribute('href', '/blog/2025-03-28-10-00-00-first');
     expect(anchor).toHaveAttribute('target', '_blank');
     expect(anchor).toHaveAttribute('rel', 'noopener');
+    await screen.findByText('Body paragraph one.');
+  });
+
+  it('renders the metadata block (categories, author, AI assistant from editors prop)', async () => {
+    setup(0);
+    // Author block (fixed) + AI assistant resolved via the editors prop.
+    expect(await screen.findByText('blogModal.authorName')).toBeInTheDocument();
+    expect(screen.getByText('Ada Editor')).toBeInTheDocument();
+    expect(screen.getByText('Thinking in gradients.')).toBeInTheDocument();
+    // Category pills from the fetched full post.
+    expect(screen.getByText('Deep Learning')).toBeInTheDocument();
+    expect(screen.getByText('NLP')).toBeInTheDocument();
+  });
+
+  it('degrades the AI-assistant block when editors are unavailable', async () => {
+    setup(0, { editors: [] });
+    await screen.findByText('blogModal.authorName');
+    // No matching editor → assistant name/signature not shown.
+    expect(screen.queryByText('Ada Editor')).toBeNull();
+  });
+
+  it('keeps the sticky title as the aria-labelledby target', async () => {
+    setup(0);
+    const dialog = screen.getByRole('dialog');
+    const heading = screen.getByRole('heading', { level: 1 });
+    expect(heading).toHaveAttribute('id', dialog.getAttribute('aria-labelledby'));
     await screen.findByText('Body paragraph one.');
   });
 
@@ -193,7 +233,7 @@ describe('BlogModal', () => {
 
     const fallback = await screen.findByLabelText('blogModal.copyFallbackLabel');
     expect(fallback).toHaveAttribute('readonly');
-    expect((fallback as HTMLInputElement).value).toContain('/blog/first');
+    expect((fallback as HTMLInputElement).value).toContain('/blog/2025-03-28-10-00-00-first');
 
     await waitFor(() => {
       expect(selectSpy).toHaveBeenCalled();

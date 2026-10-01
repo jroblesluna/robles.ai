@@ -15,6 +15,13 @@ interface BlogArticleProps {
   showBackToToc?: boolean;
   /** Extra classes appended to the `<article>` element. */
   className?: string;
+  /**
+   * Visual density of the article body. `default` keeps the full-page
+   * `BlogPost` look (`prose prose-lg`, larger section headings). `compact`
+   * tightens type scale for the in-page modal: plain `prose` and smaller
+   * section headings so they don't dominate the dialog (Req 11.4 / ux-overhaul).
+   */
+  size?: 'default' | 'compact';
 }
 
 /**
@@ -55,18 +62,28 @@ export function splitIntoParagraphs(text: string): string[] {
  * body paragraphs. Shared by the full-page `BlogPost` and the in-page
  * `BlogModal` so both use one source of truth for content structure (Req 11.3).
  */
-export function BlogArticle({ content, showBackToToc = false, className }: BlogArticleProps) {
+export function BlogArticle({
+  content,
+  showBackToToc = false,
+  className,
+  size = 'default',
+}: BlogArticleProps) {
   const { i18n } = useTranslation();
 
+  const compact = size === 'compact';
+  // Full page keeps `prose-lg` + larger italic/bold headings; the modal uses a
+  // tighter `prose` scale with smaller headings so they fit the dialog.
+  const articleClass = compact ? 'prose max-w-none' : 'prose prose-lg max-w-none';
+  const headingClass = compact
+    ? 'scroll-mt-20 relative italic mb-2 text-base font-semibold text-gray-800 md:text-lg'
+    : 'scroll-mt-20 relative italic mb-2 font-bold text-gray-800';
+
   return (
-    <article className={`prose prose-lg max-w-none${className ? ` ${className}` : ''}`}>
+    <article className={`${articleClass}${className ? ` ${className}` : ''}`}>
       {content.map((block, idx) => (
         <section key={idx} className="mb-8">
           {block.heading && (
-            <h2
-              id={`section-${idx}`}
-              className="scroll-mt-20 relative italic mb-2 font-bold text-gray-800"
-            >
+            <h2 id={`section-${idx}`} className={headingClass}>
               {block.heading}
             </h2>
           )}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, cleanup } from '@testing-library/react';
 
 // Mock react-i18next (BlogArticle only reads i18n.language for the back-to-toc label).
 vi.mock('react-i18next', () => ({
@@ -54,6 +54,24 @@ describe('BlogArticle — Validates: Requirements 11.3', () => {
     const articles = container.querySelectorAll('article');
     expect(articles.length).toBe(1);
     expect(articles[0].className).toContain('prose');
+  });
+
+  it('uses prose-lg + larger headings by default, tighter prose when compact', () => {
+    const { container: def } = render(<BlogArticle content={sampleContent} />);
+    const defaultArticle = def.querySelector('article') as HTMLElement;
+    expect(defaultArticle.className).toContain('prose-lg');
+    expect((def.querySelector('h2') as HTMLElement).className).toContain('font-bold');
+
+    cleanup();
+
+    const { container: compact } = render(<BlogArticle content={sampleContent} size="compact" />);
+    const compactArticle = compact.querySelector('article') as HTMLElement;
+    expect(compactArticle.className).toContain('prose');
+    expect(compactArticle.className).not.toContain('prose-lg');
+    const compactHeading = compact.querySelector('h2') as HTMLElement;
+    expect(compactHeading.className).toContain('font-semibold');
+    // Section id scheme preserved for both sizes.
+    expect(compact.querySelector('#section-0')).not.toBeNull();
   });
 });
 

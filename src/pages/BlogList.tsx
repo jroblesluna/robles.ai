@@ -391,6 +391,7 @@ export default function BlogList() {
           index={openIndex}
           onIndexChange={goToIndex}
           onClose={handleModalClose}
+          editors={editors}
         />
       )}
     </div>

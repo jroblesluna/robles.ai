@@ -28,11 +28,35 @@ export interface BlogModalProps {
    * for the active language. Injectable for tests; defaults to `/api/blog/:slug`.
    */
   fetchArticle?: (slug: string) => Promise<FullPost | null>;
+  /**
+   * Editor directory (from `/api/editors`, already fetched by BlogList). Used
+   * to resolve the post's AI assistant name + signature by `editorId` without
+   * an extra network call. If empty, the assistant block degrades gracefully.
+   */
+  editors?: BlogModalEditor[];
+}
+
+/** Minimal editor shape needed to render the AI-assistant meta line. */
+export interface BlogModalEditor {
+  id: number;
+  name: string;
+  signature: string;
 }
 
 /** Shape of the full post returned by `/api/blog/:slug`. */
 export interface FullPost {
   slug: string;
+  /** Editor (AI assistant) id — resolved against the `editors` prop. */
+  editorId?: number;
+  /** Canonical date; the display date is derived from the slug timestamp. */
+  date?: string;
+  categories?: string[];
+  keywords?: string[];
+  stats?: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
   translations: {
     en: { slug?: string; title: string; excerpt: string; content: BlogArticleBlock[] };
     es: { slug?: string; title: string; excerpt: string; content: BlogArticleBlock[] };
@@ -40,6 +64,31 @@ export interface FullPost {
 }
 
 const HEADING_ID = 'blog-modal-title';
+
+/**
+ * Extracts the post datetime from the canonical slug's `YYYY-MM-DD-HH-MM-SS`
+ * prefix. Replicated from `BlogPost` so the modal shows an identical date.
+ */
+function extractDateTimeFromSlug(slug: string): Date {
+  const slugDateTime = slug
+    .slice(0, 19)
+    .replace(/-/g, ':')
+    .replace(/^(\d{4}):(\d{2}):(\d{2}):/, '$1-$2-$3T')
+    .replace(/:(\d{2}):(\d{2})$/, ':$1:$2Z');
+  return new Date(slugDateTime);
+}
+
+/** Localized long date + time with zone — matches `BlogPost`. */
+function formatDateWithTimeZone(date: Date, language: 'en' | 'es'): string {
+  return new Intl.DateTimeFormat(language === 'es' ? 'es-ES' : 'en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZoneName: 'short',
+  }).format(date);
+}
 
 async function defaultFetchArticle(slug: string): Promise<FullPost | null> {
   const res = await fetch(`/api/blog/${slug}`);
@@ -64,6 +113,7 @@ export function BlogModal({
   onIndexChange,
   onClose,
   fetchArticle = defaultFetchArticle,
+  editors = [],
 }: BlogModalProps) {
   const { t, i18n } = useTranslation();
   const reduceMotion = useReducedMotion();
@@ -91,6 +141,19 @@ export function BlogModal({
   const fullTranslation = full ? (full.translations[lang] ?? full.translations.en) : undefined;
   const title = fullTranslation?.title ?? listTitle;
   const content: BlogArticleBlock[] = fullTranslation?.content ?? [];
+
+  // --- Post metadata (mirrors the full-page BlogPost header) ---------------
+  const editorId = full?.editorId ?? post?.editorId;
+  const editor = editorId != null ? editors.find((e) => e.id === editorId) : undefined;
+  const categories = full?.categories ?? [];
+  const metaReady = full !== null;
+  const postDate = post ? extractDateTimeFromSlug(post.slug) : null;
+  const formattedDate = postDate ? formatDateWithTimeZone(postDate, lang) : '';
+  const wordCount = content.reduce(
+    (sum, block) => sum + block.body.split(/\s+/).filter(Boolean).length,
+    0,
+  );
+  const readingTimeMinutes = Math.ceil(wordCount / 200);
 
   // --- Fetch the full article for the active post (Req 11.2, 11.3) ---------
   useEffect(() => {
@@ -336,24 +399,105 @@ export function BlogModal({
             </div>
           )}
 
-          {/* Article region (scrollable) */}
+          {/* Article region (scrollable). The post title is a sticky sub-header
+              pinned to the top of this scroll container so it stays visible
+              while the body scrolls (Req: sticky smaller title). */}
           <div
             ref={articleScrollRef}
-            className="scrollbar-thin overflow-y-auto overscroll-contain px-6 py-6"
+            className="scrollbar-thin overflow-y-auto overscroll-contain"
             style={{ maxHeight: '85vh' }}
           >
-            <h1 id={HEADING_ID} className="mb-4 text-2xl font-bold text-gray-900 md:text-3xl">
-              {title}
-            </h1>
-            {content.length > 0 ? (
-              <BlogArticle content={content} />
-            ) : articleError ? (
-              <p className="py-8 text-center text-sm text-gray-500">{t('state.error')}</p>
-            ) : (
-              <p className="py-8 text-center text-sm text-gray-400" aria-live="polite">
-                {t('state.loading')}
-              </p>
-            )}
+            <div className="sticky top-0 z-10 border-b border-gray-100 bg-white/90 px-6 py-3 backdrop-blur">
+              <h1
+                id={HEADING_ID}
+                className="line-clamp-2 text-lg font-semibold text-gray-900 md:text-xl"
+              >
+                {title}
+              </h1>
+            </div>
+
+            <div className="px-6 py-5">
+              {/* Metadata block — mirrors BlogPost's header (categories, author,
+                  AI assistant, date, reading time), compact for the modal. */}
+              {metaReady && (
+                <div className="mb-6 border-b border-gray-100 pb-5">
+                  {categories.length > 0 && (
+                    <div className="mb-4 flex flex-wrap gap-2">
+                      {categories.map((category, idx) => (
+                        <span
+                          key={idx}
+                          className="rounded bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700"
+                        >
+                          {category}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex flex-col gap-4 text-sm text-gray-500 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+                      <div className="flex items-center gap-2">
+                        <img
+                          src="/avatars/antonio-robles-headshot.png"
+                          alt={t('blogModal.authorName')}
+                          loading="lazy"
+                          decoding="async"
+                          className="h-9 w-9 flex-shrink-0 rounded-full object-cover"
+                        />
+                        <div className="min-w-0 text-left">
+                          <p className="text-xs font-semibold text-gray-800">
+                            ✍️ {t('blogModal.publishedBy')}
+                          </p>
+                          <p className="text-sm font-semibold text-gray-800">
+                            {t('blogModal.authorName')}
+                          </p>
+                          <p className="text-xs italic text-gray-600">
+                            {t('blogModal.authorTagline')}
+                          </p>
+                        </div>
+                      </div>
+
+                      {editor && (
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={`/avatars/${editor.id}-headshot.png`}
+                            alt={editor.name}
+                            loading="lazy"
+                            decoding="async"
+                            className="h-9 w-9 flex-shrink-0 rounded-full object-cover"
+                          />
+                          <div className="min-w-0 text-left">
+                            <p className="text-xs font-semibold text-gray-800">
+                              🤖 {t('blogModal.aiAssistant')}
+                            </p>
+                            <p className="text-sm font-semibold text-gray-800">{editor.name}</p>
+                            <p className="text-xs italic text-gray-600">{editor.signature}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="text-left text-xs sm:text-right">
+                      {formattedDate && <p className="break-anywhere">{formattedDate}</p>}
+                      <p>
+                        {wordCount} {t('blogModal.words')} · {readingTimeMinutes}{' '}
+                        {t('blogModal.minRead')}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {content.length > 0 ? (
+                <BlogArticle content={content} size="compact" />
+              ) : articleError ? (
+                <p className="py-8 text-center text-sm text-gray-500">{t('state.error')}</p>
+              ) : (
+                <p className="py-8 text-center text-sm text-gray-400" aria-live="polite">
+                  {t('state.loading')}
+                </p>
+              )}
+            </div>
           </div>
         </motion.div>
       </motion.div>
