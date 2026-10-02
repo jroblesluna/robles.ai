@@ -2779,7 +2779,9 @@
         "aiAssistant": "AI Assistant",
         "categories": "Categories",
         "minRead": "min read",
-        "words": "words"
+        "words": "words",
+        "keywords": "Keywords",
+        "sources": "Sources"
     },
     "videoModal": {
         "dialogLabel": "Video player",

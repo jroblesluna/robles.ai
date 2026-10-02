@@ -2779,7 +2779,9 @@
         "aiAssistant": "Asistente AI",
         "categories": "Categorías",
         "minRead": "min de lectura",
-        "words": "palabras"
+        "words": "palabras",
+        "keywords": "Palabras clave",
+        "sources": "Fuentes"
     },
     "videoModal": {
         "dialogLabel": "Reproductor de video",
