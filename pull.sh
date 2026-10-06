@@ -5,7 +5,7 @@
 # It inspects WHICH files changed between the current and incoming commit and
 # only does the work that those changes justify:
 #   - package*.json changed        → npm install + build + restart
-#   - src/ server/ shared/ configs → build + restart
+#   - src/ server/ shared/ public/ configs → build + restart
 #   - only server/data/ (blog)     → sync data + restart (no compile)
 #   - only docs/other              → nothing
 set -euo pipefail
@@ -46,7 +46,7 @@ while IFS= read -r file; do
     case "$file" in
         package.json|package-lock.json)
             need_install=true; need_build=true; need_restart=true ;;
-        src/*|server/*|shared/*|index.html|vite.config.*|tailwind.config.*|postcss.config.*|tsconfig*|declarations.d.ts)
+        src/*|server/*|shared/*|public/*|index.html|vite.config.*|tailwind.config.*|postcss.config.*|tsconfig*|declarations.d.ts)
             need_build=true; need_restart=true ;;
     esac
     # server/data/ (blog posts) is copied into dist by postbuild; if ONLY data
