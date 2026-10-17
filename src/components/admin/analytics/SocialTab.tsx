@@ -34,14 +34,12 @@ import type { DateRange } from "./DateRangeSelector";
 interface InstagramInsightsData {
   followerCount: number;
   reach: number;
-  impressions: number;
-  profileViews: number;
+  views: number;
+  accountsEngaged: number;
   dailyMetrics: Array<{
     date: string;
     reach: number;
-    impressions: number;
     followerCount: number;
-    profileViews: number;
   }>;
 }
 
@@ -53,7 +51,7 @@ interface InstagramMediaItem {
   commentsCount: number;
   mediaType: string;
   reach: number | null;
-  impressions: number | null;
+  views: number | null;
 }
 
 interface InstagramData {
@@ -63,13 +61,13 @@ interface InstagramData {
 
 interface FacebookPageInsightsData {
   pageViews: number;
-  pageFans: number;
-  engagedUsers: number;
+  pageFollows: number;
+  postEngagements: number;
   dailyMetrics: Array<{
     date: string;
     pageViews: number;
-    engagedUsers: number;
-    pageFans: number;
+    postEngagements: number;
+    pageFollows: number;
   }>;
 }
 
@@ -176,7 +174,7 @@ export default function SocialTab({ dateRange }: SocialTabProps) {
               <FollowerGrowthChart
                 data={fbData.insights.dailyMetrics.map((d) => ({
                   date: d.date,
-                  followerCount: d.pageFans,
+                  followerCount: d.pageFollows,
                 }))}
                 platform="facebook"
               />
@@ -239,14 +237,14 @@ function InstagramMetrics({ data }: { data: InstagramInsightsData }) {
       icon: Eye,
     },
     {
-      label: "Impressions",
-      value: formatNumber(data.impressions),
+      label: "Views",
+      value: formatNumber(data.views),
       icon: TrendingUp,
     },
     {
-      label: "Profile Views",
-      value: formatNumber(data.profileViews),
-      icon: Eye,
+      label: "Accounts Engaged",
+      value: formatNumber(data.accountsEngaged),
+      icon: Users,
     },
   ];
 
@@ -269,8 +267,8 @@ function InstagramMetrics({ data }: { data: InstagramInsightsData }) {
 function FacebookMetrics({ data }: { data: FacebookPageInsightsData }) {
   const metrics = [
     {
-      label: "Page Fans",
-      value: formatNumber(data.pageFans),
+      label: "Page Followers",
+      value: formatNumber(data.pageFollows),
       icon: Users,
     },
     {
@@ -279,8 +277,8 @@ function FacebookMetrics({ data }: { data: FacebookPageInsightsData }) {
       icon: Eye,
     },
     {
-      label: "Engaged Users",
-      value: formatNumber(data.engagedUsers),
+      label: "Post Engagements",
+      value: formatNumber(data.postEngagements),
       icon: TrendingUp,
     },
   ];
@@ -343,7 +341,7 @@ function FollowerGrowthChart({
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-base font-medium">
-          {platform === "instagram" ? "Follower" : "Fan"} Growth
+          Follower Growth
         </CardTitle>
       </CardHeader>
       <CardContent>

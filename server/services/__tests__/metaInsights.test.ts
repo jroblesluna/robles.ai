@@ -58,6 +58,32 @@ function mockSettings(settings: Record<string, string | null>) {
   });
 }
 
+
+// Key-based settings mock: getSetting(key) calls prepare(...).get(key)
+function mockSettingsByKey(settings: Record<string, string>) {
+  mockGet.mockImplementation((key: string) =>
+    settings[key] !== undefined ? { value: settings[key] } : undefined
+  );
+}
+
+// Route fetch by URL: handler returns a JSON body, or { status, body } for errors
+function routeFetch(handler: (url: URL) => any) {
+  mockFetch.mockImplementation(async (raw: string) => {
+    const result = handler(new URL(raw));
+    if (result && typeof result.status === 'number') {
+      return { ok: false, status: result.status, json: async () => result.body };
+    }
+    return { ok: true, json: async () => result };
+  });
+}
+
+const day1 = '2024-01-01T00:00:00+0000';
+const day2 = '2024-01-02T00:00:00+0000';
+const invalidMetric = {
+  status: 400,
+  body: { error: { code: 100, message: '(#100) The value must be a valid insights metric' } },
+};
+
 describe('metaInsights', () => {
   describe('isMetaInsightsError', () => {
     it('returns true for valid error objects', () => {
@@ -87,13 +113,8 @@ describe('metaInsights', () => {
       }
     });
 
-    it('returns NOT_CONFIGURED when instagram_user_id is missing', async () => {
-      let callCount = 0;
-      mockGet.mockImplementation(() => {
-        callCount++;
-        if (callCount === 1) return { value: 'token-abc' }; // instagram_access_token
-        return undefined; // instagram_user_id missing
-      });
+    it('returns NOT_CONFIGURED when the account ID is missing', async () => {
+      mockSettingsByKey({ instagram_access_token: 'token-abc' });
 
       const result = await queryInstagramInsights();
 
@@ -103,47 +124,84 @@ describe('metaInsights', () => {
       }
     });
 
-    it('returns structured insights data on success', async () => {
-      let callCount = 0;
-      mockGet.mockImplementation(() => {
-        callCount++;
-        if (callCount === 1) return { value: 'ig-token-123' };
-        if (callCount === 2) return { value: 'ig-user-456' };
-        return undefined;
+    it('reads the account ID saved by Settings (instagram_business_account_id)', async () => {
+      mockSettingsByKey({
+        instagram_access_token: 'ig-token',
+        instagram_business_account_id: 'ig-biz-1',
       });
-
-      mockFetch.mockResolvedValue({
-        ok: true,
-        json: async () => ({
-          data: [
-            { name: 'impressions', period: 'day', values: [{ value: 100, end_time: '2024-01-01T00:00:00+0000' }, { value: 150, end_time: '2024-01-02T00:00:00+0000' }] },
-            { name: 'reach', period: 'day', values: [{ value: 80, end_time: '2024-01-01T00:00:00+0000' }, { value: 90, end_time: '2024-01-02T00:00:00+0000' }] },
-            { name: 'follower_count', period: 'day', values: [{ value: 500, end_time: '2024-01-01T00:00:00+0000' }, { value: 505, end_time: '2024-01-02T00:00:00+0000' }] },
-            { name: 'profile_views', period: 'day', values: [{ value: 20, end_time: '2024-01-01T00:00:00+0000' }, { value: 25, end_time: '2024-01-02T00:00:00+0000' }] },
-          ],
-        }),
-      });
+      routeFetch(() => ({ data: [] }));
 
       const result = await queryInstagramInsights();
 
       expect(isMetaInsightsError(result)).toBe(false);
+      const urls = mockFetch.mock.calls.map(([u]) => new URL(u as string).pathname);
+      expect(urls.some((p) => p.endsWith('/ig-biz-1/insights'))).toBe(true);
+    });
+
+    it('falls back to the legacy instagram_user_id key', async () => {
+      mockSettingsByKey({
+        instagram_access_token: 'ig-token',
+        instagram_user_id: 'ig-legacy-1',
+      });
+      routeFetch(() => ({ data: [] }));
+
+      const result = await queryInstagramInsights();
+
+      expect(isMetaInsightsError(result)).toBe(false);
+      const urls = mockFetch.mock.calls.map(([u]) => new URL(u as string).pathname);
+      expect(urls.some((p) => p.endsWith('/ig-legacy-1/insights'))).toBe(true);
+    });
+
+    it('requests only current metrics and returns structured insights', async () => {
+      mockSettingsByKey({
+        instagram_access_token: 'ig-token-123',
+        instagram_business_account_id: 'ig-user-456',
+      });
+      routeFetch((url) => {
+        if (!url.pathname.endsWith('/insights')) return { followers_count: 512 };
+        const metric = url.searchParams.get('metric');
+        if (metric === 'reach') {
+          return { data: [{ name: 'reach', period: 'day', values: [{ value: 80, end_time: day1 }, { value: 90, end_time: day2 }] }] };
+        }
+        if (metric === 'follower_count') {
+          return { data: [{ name: 'follower_count', period: 'day', values: [{ value: 3, end_time: day1 }, { value: 5, end_time: day2 }] }] };
+        }
+        if (metric === 'views') {
+          expect(url.searchParams.get('metric_type')).toBe('total_value');
+          return { data: [{ name: 'views', period: 'day', total_value: { value: 250 } }] };
+        }
+        if (metric === 'accounts_engaged') {
+          expect(url.searchParams.get('metric_type')).toBe('total_value');
+          return { data: [{ name: 'accounts_engaged', period: 'day', total_value: { value: 45 } }] };
+        }
+        return invalidMetric;
+      });
+
+      const result = await queryInstagramInsights();
+
+      const requested = mockFetch.mock.calls
+        .map(([u]) => new URL(u as string).searchParams.get('metric'))
+        .filter(Boolean);
+      expect(requested).not.toContain('impressions');
+      expect(requested).not.toContain('profile_views');
+
+      expect(isMetaInsightsError(result)).toBe(false);
       if (!isMetaInsightsError(result)) {
-        expect(result.followerCount).toBe(505); // latest value
+        expect(result.followerCount).toBe(512); // from the account's followers_count
         expect(result.reach).toBe(170); // 80 + 90
-        expect(result.impressions).toBe(250); // 100 + 150
-        expect(result.profileViews).toBe(45); // 20 + 25
-        expect(result.dailyMetrics).toHaveLength(2);
-        expect(result.dailyMetrics[0].date).toBe('2024-01-01');
+        expect(result.views).toBe(250);
+        expect(result.accountsEngaged).toBe(45);
+        expect(result.dailyMetrics).toEqual([
+          { date: '2024-01-01', reach: 80, followerCount: 3 },
+          { date: '2024-01-02', reach: 90, followerCount: 5 },
+        ]);
       }
     });
 
     it('returns TOKEN_EXPIRED when API returns 190 error code', async () => {
-      let callCount = 0;
-      mockGet.mockImplementation(() => {
-        callCount++;
-        if (callCount === 1) return { value: 'expired-token' };
-        if (callCount === 2) return { value: 'ig-user-456' };
-        return undefined;
+      mockSettingsByKey({
+        instagram_access_token: 'expired-token',
+        instagram_business_account_id: 'ig-user-456',
       });
 
       mockFetch.mockResolvedValue({
@@ -204,7 +262,7 @@ describe('metaInsights', () => {
           json: async () => ({
             data: [
               { name: 'reach', values: [{ value: 200 }] },
-              { name: 'impressions', values: [{ value: 300 }] },
+              { name: 'views', values: [{ value: 300 }] },
             ],
           }),
         };
@@ -218,7 +276,7 @@ describe('metaInsights', () => {
         expect(result[0].id).toBe('media-1');
         expect(result[0].likeCount).toBe(50);
         expect(result[0].reach).toBe(200);
-        expect(result[0].impressions).toBe(300);
+        expect(result[0].views).toBe(300);
       }
     });
   });
@@ -235,35 +293,62 @@ describe('metaInsights', () => {
       }
     });
 
-    it('returns structured page insights on success', async () => {
-      let callCount = 0;
-      mockGet.mockImplementation(() => {
-        callCount++;
-        if (callCount === 1) return { value: 'fb-token-123' };
-        if (callCount === 2) return { value: 'fb-page-456' };
-        return undefined;
+    it('requests current metrics and returns structured page insights', async () => {
+      mockSettingsByKey({
+        facebook_page_access_token: 'fb-token-123',
+        facebook_page_id: 'fb-page-456',
+      });
+      routeFetch((url) => {
+        const metric = url.searchParams.get('metric');
+        if (metric === 'page_views_total') {
+          return { data: [{ name: metric, period: 'day', values: [{ value: 200, end_time: day1 }, { value: 300, end_time: day2 }] }] };
+        }
+        if (metric === 'page_post_engagements') {
+          return { data: [{ name: metric, period: 'day', values: [{ value: 50, end_time: day1 }, { value: 60, end_time: day2 }] }] };
+        }
+        if (metric === 'page_follows') {
+          return { data: [{ name: metric, period: 'day', values: [{ value: 1000, end_time: day1 }, { value: 1005, end_time: day2 }] }] };
+        }
+        return invalidMetric;
       });
 
-      mockFetch.mockResolvedValue({
-        ok: true,
-        json: async () => ({
-          data: [
-            { name: 'page_views_total', period: 'day', values: [{ value: 200, end_time: '2024-01-01T00:00:00+0000' }, { value: 300, end_time: '2024-01-02T00:00:00+0000' }] },
-            { name: 'page_engaged_users', period: 'day', values: [{ value: 50, end_time: '2024-01-01T00:00:00+0000' }, { value: 60, end_time: '2024-01-02T00:00:00+0000' }] },
-            { name: 'page_fans', period: 'day', values: [{ value: 1000, end_time: '2024-01-01T00:00:00+0000' }, { value: 1005, end_time: '2024-01-02T00:00:00+0000' }] },
-          ],
-        }),
+      const result = await queryFacebookPageInsights();
+
+      const requested = mockFetch.mock.calls.map(([u]) => new URL(u as string).searchParams.get('metric'));
+      expect(requested).not.toContain('page_engaged_users');
+      expect(requested).not.toContain('page_fans');
+
+      expect(isMetaInsightsError(result)).toBe(false);
+      if (!isMetaInsightsError(result)) {
+        expect(result.pageViews).toBe(500); // 200 + 300
+        expect(result.pageFollows).toBe(1005); // latest
+        expect(result.postEngagements).toBe(110); // 50 + 60
+        expect(result.dailyMetrics).toHaveLength(2);
+      }
+    });
+
+    it('keeps the other metrics when Meta rejects one as invalid (#100)', async () => {
+      mockSettingsByKey({
+        facebook_page_access_token: 'fb-token',
+        facebook_page_id: 'fb-page',
+      });
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      routeFetch((url) => {
+        const metric = url.searchParams.get('metric');
+        if (metric === 'page_views_total') return invalidMetric;
+        return { data: [{ name: metric, period: 'day', values: [{ value: 7, end_time: day1 }] }] };
       });
 
       const result = await queryFacebookPageInsights();
 
       expect(isMetaInsightsError(result)).toBe(false);
       if (!isMetaInsightsError(result)) {
-        expect(result.pageViews).toBe(500); // 200 + 300
-        expect(result.pageFans).toBe(1005); // latest
-        expect(result.engagedUsers).toBe(110); // 50 + 60
-        expect(result.dailyMetrics).toHaveLength(2);
+        expect(result.pageViews).toBe(0);
+        expect(result.postEngagements).toBe(7);
+        expect(result.pageFollows).toBe(7);
       }
+      expect(warn).toHaveBeenCalled();
+      warn.mockRestore();
     });
 
     it('handles API error gracefully', async () => {

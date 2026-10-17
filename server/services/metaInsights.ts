@@ -16,14 +16,12 @@ export interface MetaInsightsError {
 export interface InstagramInsightsData {
   followerCount: number;
   reach: number;
-  impressions: number;
-  profileViews: number;
+  views: number;
+  accountsEngaged: number;
   dailyMetrics: Array<{
     date: string;
     reach: number;
-    impressions: number;
     followerCount: number;
-    profileViews: number;
   }>;
 }
 
@@ -35,7 +33,7 @@ export interface InstagramMediaItem {
   commentsCount: number;
   mediaType: string;
   reach: number | null;
-  impressions: number | null;
+  views: number | null;
 }
 
 export interface InstagramData {
@@ -45,13 +43,13 @@ export interface InstagramData {
 
 export interface FacebookPageInsightsData {
   pageViews: number;
-  pageFans: number;
-  engagedUsers: number;
+  pageFollows: number;
+  postEngagements: number;
   dailyMetrics: Array<{
     date: string;
     pageViews: number;
-    engagedUsers: number;
-    pageFans: number;
+    postEngagements: number;
+    pageFollows: number;
   }>;
 }
 
@@ -69,6 +67,18 @@ export interface FacebookData {
   recentPosts: FacebookPostItem[];
 }
 
+// Insights metric as returned by /{id}/insights: time series in `values`,
+// or a single aggregate in `total_value` when metric_type=total_value.
+interface InsightsMetric {
+  name: string;
+  values?: Array<{ value: number; end_time: string }>;
+  total_value?: { value: number };
+}
+
+// Window used when the caller does not pass since/until. Instagram caps
+// user insights ranges at 30 days, so stay below that.
+const DEFAULT_RANGE_DAYS = 28;
+
 // ─── Helpers ────────────────────────────────────────────────────────────────────
 
 function getSetting(key: string): string | null {
@@ -76,6 +86,23 @@ function getSetting(key: string): string | null {
     | { value: string | null }
     | undefined;
   return row?.value ?? null;
+}
+
+/**
+ * Instagram account ID as saved by /admin/settings (`instagram_business_account_id`),
+ * falling back to the legacy `instagram_user_id` key.
+ */
+function getInstagramAccountId(): string | null {
+  return getSetting('instagram_business_account_id') ?? getSetting('instagram_user_id');
+}
+
+function resolveRange(since?: string, until?: string): { since: string; until: string } {
+  if (since && until) return { since, until };
+  const now = Math.floor(Date.now() / 1000);
+  return {
+    since: since ?? String(now - DEFAULT_RANGE_DAYS * 24 * 60 * 60),
+    until: until ?? String(now),
+  };
 }
 
 /**
@@ -130,10 +157,63 @@ async function metaGet<T = any>(
   return body as T;
 }
 
+/**
+ * Query each insights metric in its own request so that one metric Meta
+ * rejects (e.g. a newly deprecated one, error #100) does not take down the
+ * rest. Token errors still abort; if every metric fails, the first error is thrown.
+ */
+async function fetchInsightsMetrics(
+  path: string,
+  accessToken: string,
+  metrics: string[],
+  params: Record<string, string>
+): Promise<Record<string, InsightsMetric>> {
+  const results = await Promise.allSettled(
+    metrics.map((metric) =>
+      metaGet<{ data: InsightsMetric[] }>(path, accessToken, { ...params, metric })
+    )
+  );
+
+  const byName: Record<string, InsightsMetric> = {};
+  const errors: unknown[] = [];
+  results.forEach((result, i) => {
+    if (result.status === 'fulfilled') {
+      for (const metric of result.value.data) byName[metric.name] = metric;
+      return;
+    }
+    const reason = result.reason;
+    if (isMetaInsightsError(reason) && reason.code === 'TOKEN_EXPIRED') throw reason;
+    errors.push(reason);
+    const message = isMetaInsightsError(reason) || reason instanceof Error ? reason.message : String(reason);
+    console.warn(`[metaInsights] Metric "${metrics[i]}" unavailable: ${message}`);
+  });
+
+  if (errors.length === metrics.length) throw errors[0];
+  return byName;
+}
+
+function sumValues(metric?: InsightsMetric): number {
+  return (metric?.values ?? []).reduce((sum, v) => sum + v.value, 0);
+}
+
+function latestValue(metric?: InsightsMetric): number {
+  const values = metric?.values ?? [];
+  return values.length > 0 ? values[values.length - 1].value : 0;
+}
+
+function valuesByDate(metric?: InsightsMetric): Map<string, number> {
+  return new Map((metric?.values ?? []).map((v) => [v.end_time.split('T')[0], v.value]));
+}
+
+function sortedDates(...series: Map<string, number>[]): string[] {
+  return Array.from(new Set(series.flatMap((s) => Array.from(s.keys())))).sort();
+}
+
 // ─── Instagram ──────────────────────────────────────────────────────────────────
 
 /**
- * Query Instagram Business Account insights: impressions, reach, follower_count, profile_views.
+ * Query Instagram Business Account insights: reach and follower_count (daily
+ * series), views and accounts_engaged (totals for the range).
  * Returns aggregated totals and daily breakdowns.
  */
 export async function queryInstagramInsights(
@@ -141,66 +221,51 @@ export async function queryInstagramInsights(
   until?: string
 ): Promise<InstagramInsightsData | MetaInsightsError> {
   const token = getSetting('instagram_access_token');
-  const igUserId = getSetting('instagram_user_id');
+  const igUserId = getInstagramAccountId();
 
   if (!token || !igUserId) {
     return {
       error: true,
       code: 'NOT_CONFIGURED',
-      message: 'Instagram credentials not configured. Please set instagram_access_token and instagram_user_id in Settings.',
+      message: 'Instagram credentials not configured. Please set the Instagram Business Account ID and access token in Settings.',
     };
   }
 
   try {
-    const params: Record<string, string> = {
-      metric: 'impressions,reach,follower_count,profile_views',
-      period: 'day',
-    };
-    if (since) params.since = since;
-    if (until) params.until = until;
+    const range = resolveRange(since, until);
 
-    const data = await metaGet<{
-      data: Array<{
-        name: string;
-        period: string;
-        values: Array<{ value: number; end_time: string }>;
-      }>;
-    }>(`/${igUserId}/insights`, token, params);
+    const [series, totals, profile] = await Promise.all([
+      fetchInsightsMetrics(`/${igUserId}/insights`, token, ['reach', 'follower_count'], {
+        period: 'day',
+        ...range,
+      }),
+      // `views` and `accounts_engaged` only support metric_type=total_value
+      fetchInsightsMetrics(`/${igUserId}/insights`, token, ['views', 'accounts_engaged'], {
+        period: 'day',
+        metric_type: 'total_value',
+        ...range,
+      }),
+      metaGet<{ followers_count?: number }>(`/${igUserId}`, token, {
+        fields: 'followers_count',
+      }).catch((err) => {
+        if (isMetaInsightsError(err) && err.code === 'TOKEN_EXPIRED') throw err;
+        return {} as { followers_count?: number };
+      }),
+    ]);
 
-    // Parse the response into structured data
-    const metricsMap: Record<string, Array<{ value: number; end_time: string }>> = {};
-    for (const metric of data.data) {
-      metricsMap[metric.name] = metric.values;
-    }
-
-    // Aggregate totals (sum for reach/impressions/profile_views, latest for follower_count)
-    const reachValues = metricsMap['reach'] || [];
-    const impressionsValues = metricsMap['impressions'] || [];
-    const followerValues = metricsMap['follower_count'] || [];
-    const profileViewsValues = metricsMap['profile_views'] || [];
-
-    const totalReach = reachValues.reduce((sum, v) => sum + v.value, 0);
-    const totalImpressions = impressionsValues.reduce((sum, v) => sum + v.value, 0);
-    const totalProfileViews = profileViewsValues.reduce((sum, v) => sum + v.value, 0);
-    const latestFollowers = followerValues.length > 0
-      ? followerValues[followerValues.length - 1].value
-      : 0;
-
-    // Build daily metrics array
-    const dates = reachValues.map((v) => v.end_time.split('T')[0]);
-    const dailyMetrics = dates.map((date, i) => ({
+    const reachByDate = valuesByDate(series['reach']);
+    const followersByDate = valuesByDate(series['follower_count']);
+    const dailyMetrics = sortedDates(reachByDate, followersByDate).map((date) => ({
       date,
-      reach: reachValues[i]?.value ?? 0,
-      impressions: impressionsValues[i]?.value ?? 0,
-      followerCount: followerValues[i]?.value ?? 0,
-      profileViews: profileViewsValues[i]?.value ?? 0,
+      reach: reachByDate.get(date) ?? 0,
+      followerCount: followersByDate.get(date) ?? 0,
     }));
 
     return {
-      followerCount: latestFollowers,
-      reach: totalReach,
-      impressions: totalImpressions,
-      profileViews: totalProfileViews,
+      followerCount: profile.followers_count ?? latestValue(series['follower_count']),
+      reach: sumValues(series['reach']),
+      views: totals['views']?.total_value?.value ?? 0,
+      accountsEngaged: totals['accounts_engaged']?.total_value?.value ?? 0,
       dailyMetrics,
     };
   } catch (err) {
@@ -214,20 +279,20 @@ export async function queryInstagramInsights(
 }
 
 /**
- * Query recent Instagram media with per-media insights (reach, impressions).
+ * Query recent Instagram media with per-media insights (reach, views).
  * Returns the last `limit` posts with their engagement metrics.
  */
 export async function queryInstagramMedia(
   limit: number = 10
 ): Promise<InstagramMediaItem[] | MetaInsightsError> {
   const token = getSetting('instagram_access_token');
-  const igUserId = getSetting('instagram_user_id');
+  const igUserId = getInstagramAccountId();
 
   if (!token || !igUserId) {
     return {
       error: true,
       code: 'NOT_CONFIGURED',
-      message: 'Instagram credentials not configured. Please set instagram_access_token and instagram_user_id in Settings.',
+      message: 'Instagram credentials not configured. Please set the Instagram Business Account ID and access token in Settings.',
     };
   }
 
@@ -251,21 +316,21 @@ export async function queryInstagramMedia(
     const mediaItems: InstagramMediaItem[] = [];
     for (const post of mediaData.data) {
       let reach: number | null = null;
-      let impressions: number | null = null;
+      let views: number | null = null;
 
       try {
         const insightsData = await metaGet<{
           data: Array<{ name: string; values: Array<{ value: number }> }>;
         }>(`/${post.id}/insights`, token, {
-          metric: 'reach,impressions',
+          metric: 'reach,views',
         });
 
         for (const metric of insightsData.data) {
           if (metric.name === 'reach' && metric.values[0]) {
             reach = metric.values[0].value;
           }
-          if (metric.name === 'impressions' && metric.values[0]) {
-            impressions = metric.values[0].value;
+          if (metric.name === 'views' && metric.values[0]) {
+            views = metric.values[0].value;
           }
         }
       } catch {
@@ -281,7 +346,7 @@ export async function queryInstagramMedia(
         commentsCount: post.comments_count,
         mediaType: post.media_type,
         reach,
-        impressions,
+        views,
       });
     }
 
@@ -315,7 +380,8 @@ export async function queryInstagram(
 // ─── Facebook ───────────────────────────────────────────────────────────────────
 
 /**
- * Query Facebook Page insights: page_views_total, page_engaged_users, page_fans.
+ * Query Facebook Page insights: page_views_total, page_post_engagements, page_follows.
+ * (page_engaged_users and page_fans were deprecated by Meta in 2024 and 2025.)
  * Returns aggregated totals and daily breakdowns.
  */
 export async function queryFacebookPageInsights(
@@ -334,49 +400,28 @@ export async function queryFacebookPageInsights(
   }
 
   try {
-    const params: Record<string, string> = {
-      metric: 'page_views_total,page_engaged_users,page_fans',
-      period: 'day',
-    };
-    if (since) params.since = since;
-    if (until) params.until = until;
+    const metrics = await fetchInsightsMetrics(
+      `/${pageId}/insights`,
+      token,
+      ['page_views_total', 'page_post_engagements', 'page_follows'],
+      { period: 'day', ...resolveRange(since, until) }
+    );
 
-    const data = await metaGet<{
-      data: Array<{
-        name: string;
-        period: string;
-        values: Array<{ value: number; end_time: string }>;
-      }>;
-    }>(`/${pageId}/insights`, token, params);
+    const viewsByDate = valuesByDate(metrics['page_views_total']);
+    const engagementsByDate = valuesByDate(metrics['page_post_engagements']);
+    const followsByDate = valuesByDate(metrics['page_follows']);
 
-    const metricsMap: Record<string, Array<{ value: number; end_time: string }>> = {};
-    for (const metric of data.data) {
-      metricsMap[metric.name] = metric.values;
-    }
-
-    const pageViewsValues = metricsMap['page_views_total'] || [];
-    const engagedUsersValues = metricsMap['page_engaged_users'] || [];
-    const pageFansValues = metricsMap['page_fans'] || [];
-
-    const totalPageViews = pageViewsValues.reduce((sum, v) => sum + v.value, 0);
-    const totalEngagedUsers = engagedUsersValues.reduce((sum, v) => sum + v.value, 0);
-    const latestPageFans = pageFansValues.length > 0
-      ? pageFansValues[pageFansValues.length - 1].value
-      : 0;
-
-    // Build daily metrics
-    const dates = pageViewsValues.map((v) => v.end_time.split('T')[0]);
-    const dailyMetrics = dates.map((date, i) => ({
+    const dailyMetrics = sortedDates(viewsByDate, engagementsByDate, followsByDate).map((date) => ({
       date,
-      pageViews: pageViewsValues[i]?.value ?? 0,
-      engagedUsers: engagedUsersValues[i]?.value ?? 0,
-      pageFans: pageFansValues[i]?.value ?? 0,
+      pageViews: viewsByDate.get(date) ?? 0,
+      postEngagements: engagementsByDate.get(date) ?? 0,
+      pageFollows: followsByDate.get(date) ?? 0,
     }));
 
     return {
-      pageViews: totalPageViews,
-      pageFans: latestPageFans,
-      engagedUsers: totalEngagedUsers,
+      pageViews: sumValues(metrics['page_views_total']),
+      pageFollows: latestValue(metrics['page_follows']),
+      postEngagements: sumValues(metrics['page_post_engagements']),
       dailyMetrics,
     };
   } catch (err) {
