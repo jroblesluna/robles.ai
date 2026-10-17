@@ -20,6 +20,7 @@ const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
 import { InstagramAdapter } from '../instagramAdapter.js';
+import { GRAPH_API_BASE } from '../../metaGraphApi.js';
 
 /** Helper to set up DB mock to return settings */
 function mockSettings(settings: Record<string, string | null>) {
@@ -37,6 +38,11 @@ function jsonResponse(data: object, status = 200): Response {
     json: () => Promise.resolve(data),
     text: () => Promise.resolve(JSON.stringify(data)),
   } as unknown as Response;
+}
+
+/** Container status poll response: ready to publish */
+function finishedResponse(): Response {
+  return jsonResponse({ status_code: 'FINISHED' });
 }
 
 /** Helper to create a failed response */
@@ -93,6 +99,7 @@ describe('InstagramAdapter', () => {
 
       const result = await adapter.validateCredentials();
       expect(result.valid).toBe(true);
+      expect(mockFetch.mock.calls[0][0]).toMatch(new RegExp(`^${GRAPH_API_BASE}/123456\\?`));
     });
 
     it('returns invalid with error when credentials are not configured', async () => {
@@ -143,6 +150,8 @@ describe('InstagramAdapter', () => {
         .mockResolvedValueOnce(jsonResponse({ id: 'container-3' }))
         // Mock carousel container creation
         .mockResolvedValueOnce(jsonResponse({ id: 'carousel-container-1' }))
+        // Mock container status poll
+        .mockResolvedValueOnce(finishedResponse())
         // Mock publish
         .mockResolvedValueOnce(jsonResponse({ id: 'media-id-final' }));
 
@@ -155,8 +164,8 @@ describe('InstagramAdapter', () => {
       expect(result.success).toBe(true);
       expect(result.platformPostId).toBe('media-id-final');
 
-      // Verify correct number of API calls: 3 items + 1 carousel + 1 publish = 5
-      expect(mockFetch).toHaveBeenCalledTimes(5);
+      // Verify correct number of API calls: 3 items + 1 carousel + 1 status poll + 1 publish = 6
+      expect(mockFetch).toHaveBeenCalledTimes(6);
 
       // Verify item container call includes is_carousel_item
       const firstCall = JSON.parse(mockFetch.mock.calls[0][1].body);
@@ -170,7 +179,8 @@ describe('InstagramAdapter', () => {
       expect(carouselCall.caption).toBe('Hello Instagram! #AI');
 
       // Verify publish call
-      const publishCall = JSON.parse(mockFetch.mock.calls[4][1].body);
+      expect(mockFetch.mock.calls[4][0]).toContain('/carousel-container-1?fields=status_code');
+      const publishCall = JSON.parse(mockFetch.mock.calls[5][1].body);
       expect(publishCall.creation_id).toBe('carousel-container-1');
     });
 
@@ -179,12 +189,13 @@ describe('InstagramAdapter', () => {
 
       const slideUrls = Array.from({ length: 12 }, (_, i) => `https://example.com/slide${i + 1}.png`);
 
-      // Mock 10 item containers + 1 carousel container + 1 publish = 12 calls
+      // Mock 10 item containers + 1 carousel container + 1 status poll + 1 publish = 13 calls
       for (let i = 1; i <= 10; i++) {
         mockFetch.mockResolvedValueOnce(jsonResponse({ id: `container-${i}` }));
       }
       mockFetch
         .mockResolvedValueOnce(jsonResponse({ id: 'carousel-container' }))
+        .mockResolvedValueOnce(finishedResponse())
         .mockResolvedValueOnce(jsonResponse({ id: 'published-media-id' }));
 
       const result = await adapter.publish({
@@ -196,8 +207,8 @@ describe('InstagramAdapter', () => {
       expect(result.success).toBe(true);
       expect(result.platformPostId).toBe('published-media-id');
 
-      // Should be 10 item containers + 1 carousel + 1 publish = 12 total calls
-      expect(mockFetch).toHaveBeenCalledTimes(12);
+      // Should be 10 item containers + 1 carousel + 1 status poll + 1 publish = 13 total calls
+      expect(mockFetch).toHaveBeenCalledTimes(13);
 
       // Verify carousel uses only first 10 container IDs
       const carouselCall = JSON.parse(mockFetch.mock.calls[10][1].body);
@@ -217,6 +228,7 @@ describe('InstagramAdapter', () => {
         .mockResolvedValueOnce(jsonResponse({ id: 'container-1' }))
         .mockResolvedValueOnce(jsonResponse({ id: 'container-2' }))
         .mockResolvedValueOnce(jsonResponse({ id: 'carousel-container' }))
+        .mockResolvedValueOnce(finishedResponse())
         .mockResolvedValueOnce(jsonResponse({ id: 'media-published' }));
 
       const result = await adapter.publish({
@@ -226,8 +238,8 @@ describe('InstagramAdapter', () => {
       });
 
       expect(result.success).toBe(true);
-      // 2 items + 1 carousel + 1 publish = 4 calls
-      expect(mockFetch).toHaveBeenCalledTimes(4);
+      // 2 items + 1 carousel + 1 status poll + 1 publish = 5 calls
+      expect(mockFetch).toHaveBeenCalledTimes(5);
     });
   });
 
@@ -245,6 +257,8 @@ describe('InstagramAdapter', () => {
       mockFetch
         // Single image container creation
         .mockResolvedValueOnce(jsonResponse({ id: 'single-container' }))
+        // Container status poll
+        .mockResolvedValueOnce(finishedResponse())
         // Publish
         .mockResolvedValueOnce(jsonResponse({ id: 'single-media-id' }));
 
@@ -258,7 +272,7 @@ describe('InstagramAdapter', () => {
       expect(result.platformPostId).toBe('single-media-id');
 
       // Verify single image container (no is_carousel_item)
-      expect(mockFetch).toHaveBeenCalledTimes(2);
+      expect(mockFetch).toHaveBeenCalledTimes(3);
       const containerCall = JSON.parse(mockFetch.mock.calls[0][1].body);
       expect(containerCall.image_url).toBe('https://example.com/slide1.png');
       expect(containerCall.caption).toBe('Single slide post');
@@ -279,6 +293,7 @@ describe('InstagramAdapter', () => {
 
       mockFetch
         .mockResolvedValueOnce(jsonResponse({ id: 'cover-container' }))
+        .mockResolvedValueOnce(finishedResponse())
         .mockResolvedValueOnce(jsonResponse({ id: 'cover-media-id' }));
 
       const result = await adapter.publish({
@@ -330,6 +345,8 @@ describe('InstagramAdapter', () => {
         .mockResolvedValueOnce(jsonResponse({ id: 'container-2' }))
         // Retry: carousel container
         .mockResolvedValueOnce(jsonResponse({ id: 'carousel-retry' }))
+        // Retry: container status poll
+        .mockResolvedValueOnce(finishedResponse())
         // Retry: publish
         .mockResolvedValueOnce(jsonResponse({ id: 'retry-media-id' }));
 
@@ -378,6 +395,7 @@ describe('InstagramAdapter', () => {
         .mockResolvedValueOnce(jsonResponse({ access_token: 'new-token', token_type: 'bearer' }))
         // Retry: single image publish (only 1 slide provided)
         .mockResolvedValueOnce(jsonResponse({ id: 'single-container' }))
+        .mockResolvedValueOnce(finishedResponse())
         .mockResolvedValueOnce(jsonResponse({ id: 'media-after-refresh' }));
 
       const result = await adapter.publish({

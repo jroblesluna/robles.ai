@@ -22,6 +22,7 @@ vi.stubGlobal('fetch', mockFetch);
 
 // Import after mocks are set up
 const { FacebookAdapter } = await import('../facebookAdapter.js');
+const { GRAPH_API_BASE } = await import('../../metaGraphApi.js');
 
 function createPublishRequest(overrides: Partial<PublishRequest> = {}): PublishRequest {
   return {
@@ -129,6 +130,7 @@ describe('FacebookAdapter', () => {
       expect(result.error).toBeUndefined();
       expect(mockFetch).toHaveBeenCalledOnce();
       expect(mockFetch.mock.calls[0][0]).toContain('/page-123?fields=id,name');
+      expect(mockFetch.mock.calls[0][0]).toMatch(new RegExp(`^${GRAPH_API_BASE}/`));
     });
 
     it('returns invalid when token is expired (401)', async () => {

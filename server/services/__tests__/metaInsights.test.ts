@@ -25,6 +25,7 @@ import {
   queryFacebookPage,
   isMetaInsightsError,
 } from '../metaInsights.js';
+import { GRAPH_API_BASE, GRAPH_API_VERSION } from '../metaGraphApi.js';
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -136,6 +137,9 @@ describe('metaInsights', () => {
       expect(isMetaInsightsError(result)).toBe(false);
       const urls = mockFetch.mock.calls.map(([u]) => new URL(u as string).pathname);
       expect(urls.some((p) => p.endsWith('/ig-biz-1/insights'))).toBe(true);
+      for (const [u] of mockFetch.mock.calls) {
+        expect(u as string).toMatch(new RegExp(`^${GRAPH_API_BASE}/`));
+      }
     });
 
     it('falls back to the legacy instagram_user_id key', async () => {
@@ -456,5 +460,12 @@ describe('metaInsights', () => {
 
       expect(isMetaInsightsError(result)).toBe(true);
     });
+  });
+});
+
+describe('Graph API version', () => {
+  it('pins a single vNN.0 version on graph.facebook.com', () => {
+    expect(GRAPH_API_VERSION).toMatch(/^v\d+\.0$/);
+    expect(GRAPH_API_BASE).toBe(`https://graph.facebook.com/${GRAPH_API_VERSION}`);
   });
 });

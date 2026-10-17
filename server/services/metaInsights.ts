@@ -2,8 +2,7 @@
 // Meta Graph API client for querying Instagram and Facebook Page insights.
 
 import db from '../db.js';
-
-const GRAPH_API_BASE = 'https://graph.facebook.com/v21.0';
+import { GRAPH_API_BASE } from './metaGraphApi.js';
 
 // ─── Types ──────────────────────────────────────────────────────────────────────
 

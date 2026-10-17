@@ -18,6 +18,7 @@ import { LinkedInAdapter } from './services/platforms/linkedinAdapter.js';
 import { InstagramAdapter } from './services/platforms/instagramAdapter.js';
 import { FacebookAdapter } from './services/platforms/facebookAdapter.js';
 import type { PlatformName, PlatformAdapter } from './services/platforms/types.js';
+import { GRAPH_API_BASE } from './services/metaGraphApi.js';
 import { rebuildListingIndex } from './listing/indexer.js';
 import chatAdminRouter from './chatAdminRoutes.js';
 
@@ -2198,7 +2199,6 @@ adminRouter.post('/test-ig-linebreaks', requireAuth, (req, res) => {
       const accountId = igUserId.value;
       const accessToken = igToken.value;
       const imageUrl = 'https://robles.ai/api/public/slides/6/0.png';
-      const GRAPH_API_BASE = 'https://graph.facebook.com/v21.0';
 
       // 5 different separator techniques
       const tests = [

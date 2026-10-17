@@ -55,7 +55,7 @@
 - GA4 Property ID derived from the ga4_measurement_id setting
 
 ### 2. Meta Insights Client (`server/services/metaInsights.ts`)
-- Uses fetch to call Meta Graph API v21.0
+- Uses fetch to call Meta Graph API (version set in server/services/metaGraphApi.ts)
 - Reads tokens from settings table (existing tokens)
 - Queries: /{ig-user-id}/insights, /{page-id}/insights, /{media-id}/insights
 

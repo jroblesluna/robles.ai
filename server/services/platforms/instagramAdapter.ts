@@ -1,9 +1,9 @@
 // server/services/platforms/instagramAdapter.ts
 
 import db from '../../db.js';
+import { GRAPH_API_BASE } from '../metaGraphApi.js';
 import type { PlatformAdapter, PublishRequest, PublishResult } from './types.js';
 
-const GRAPH_API_BASE = 'https://graph.facebook.com/v21.0';
 const MAX_CAROUSEL_IMAGES = 10;
 
 /**
