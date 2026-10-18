@@ -1,5 +1,7 @@
 # Robles.AI SEO implementation plan — approval required
 
+> **Estado de cierre — 18 octubre 2026:** POST-03/POST-04 implementados en PR #7 y verificados tras despliegue correcto. Sin observaciones abiertas en los recorridos bilingües comprobados; ver registro final. Las propuestas y gates anteriores se conservan como historial.
+
 Prepared October 17, 2026, America/Los_Angeles. Companion: [SEO_AUDIT.md](SEO_AUDIT.md).
 
 **Estado actual — 18 octubre 2026:** lotes 1–4 autorizados, fusionados mediante PR #5 y desplegados; corrección bilingüe adicional autorizada, fusionada mediante [PR #6](https://github.com/jroblesluna/robles.ai/pull/6) y desplegada con commit de fusión `1c3a39b8d846a35b714eacb1f9a0483535a3bef2`. Repo activo: `~/Dev/robles.ai`. La nueva auditoría confirma HTTP/sitemaps/modal y CTA Hero/Landing, pero descubre POST-03 (anchor de tarjeta) y POST-04 (CTA de otros componentes). Sus lotes propuestos están al final y no se implementaron durante la auditoría. Las propuestas originales siguientes conservan su contexto histórico; no implican aprobación automática de fases nuevas.
@@ -457,3 +459,16 @@ SSR/prerender selectivo, contenido comercial/editorial, métricas de campo y exp
 Implementación/publicación y auditoría iterativa autorizadas por el propietario. Rama `codex/complete-bilingual-navigation`. Los lotes A/B anteriores están implementados localmente y validados con 159 pruebas en 26 suites. Se amplió el barrido a búsqueda FTS, Team → Careers → Apply (conservando job), enlace de QuizResultFull → landing y helper de URLs con query/hash. Sin dependencias nuevas ni migraciones. Se corrigió la sincronización de refs de `useBlogModalRouting` antes de activar tarjetas recién renderizadas.
 
 Gate de producción pendiente en este commit: workflow correcto para el SHA fusionado; auditoría HTTP completa de sitemap y nueve pares; navegador sobre anchor nativo/carga directa/modal/cierre; CTA de casos y calculadora EN/ES y contacto; búsqueda EN/ES; empleos y postulación sin enviar formularios. Registrar los resultados después del despliegue. No cerrar POST-03/POST-04 solo por tests locales.
+
+
+## Registro de cierre en producción — PR #7
+
+**Lotes A/B/C de POST-03/POST-04 completados** dentro de navegación bilingüe. Código fusionado en `78bb1bd4ec92ac9559f38a704dc673b0cce867cd`; [PR #7](https://github.com/jroblesluna/robles.ai/pull/7), [workflow exitoso](https://github.com/jroblesluna/robles.ai/actions/runs/39151534769). Se esperó despliegue antes de auditar.
+
+- Tarjeta real → nueva pestaña EN, modal, compartir y cierre/foco: verificados. ES mantiene su ruta limpia.
+- CTA de casos (ambos layouts y viewer), calculadora, contacto y empleo/postulación: verificados en producción, manteniendo idioma, parámetros y fragmento.
+- Barrido adicional de FTS, equipo, ofertas de empleo y enlace de informe del quiz implementado; búsqueda EN/ES y postulación ES verificados en producción. El informe del quiz se verifica con fixture, sin crear datos de lead.
+- 159 tests en 26 suites y build final aprobados; 13 errores TypeScript preexistentes, cero nuevos. Sin dependencias, migraciones o cambios de datos/infrastructura.
+- Auditoría HTTP final: 21 sitemaps, 24,366 URLs únicas, nueve pares EN/ES, 34 estáticas, metadatos/schema/errores/cache correctos en las muestras. Evidencia y límites completos en el apartado final de `SEO_AUDIT.md`.
+
+**No quedan observaciones abiertas de estos recorridos bilingües.** No hace falta otro release de aplicación dentro de este alcance con la evidencia actual. SSR, contenido, medición externa y validación integral de formularios/backends se mantienen separados; no se presentan como terminados. Este registro posterior solo modifica documentación y no requiere repetir compilación/tests del código ya validado.

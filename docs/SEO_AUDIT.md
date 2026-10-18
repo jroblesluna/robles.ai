@@ -1,6 +1,8 @@
 # Robles.AI technical SEO, content, architecture and GEO audit
 
-> **Estado actual — verificación de PROD del 18 octubre 2026, 17:35–17:39 UTC:** PR #6 desplegado correctamente. Las URLs bilingües de los nueve artículos y sus sitemaps funcionan; los CTA del Hero y landing conservan español. La revisión descubrió un consumidor pendiente en las tarjetas del blog y CTA residuales en otras secciones. Consulte **“Nueva auditoría de producción tras PR #6”** al final. Las observaciones originales siguientes son históricas y no representan automáticamente defectos actuales.
+> **Cierre de producción — PR #7, 18 octubre 2026:** POST-03 y POST-04 corregidos y verificados después del despliegue. No se detectaron observaciones abiertas en los recorridos de navegación bilingüe comprobados. Véase el apartado final “Cierre verificado de navegación bilingüe”. Los hallazgos anteriores se conservan como historial; SSR/contenido/medición permanecen fuera de este ciclo.
+
+> **Verificación anterior — PR #6, 18 octubre 2026, 17:35–17:39 UTC:** PR #6 desplegado correctamente. Las URLs bilingües de los nueve artículos y sus sitemaps funcionan; los CTA del Hero y landing conservan español. La revisión descubrió un consumidor pendiente en las tarjetas del blog y CTA residuales en otras secciones. Consulte **“Nueva auditoría de producción tras PR #6”** al final. Las observaciones originales siguientes son históricas y no representan automáticamente defectos actuales.
 
 Audit date: October 17, 2026, America/Los_Angeles. Public responses were collected around 21:53–22:00 PDT (October 18 UTC). Audit only: no application changes, deployments, commits, data writes, account changes or dependency installations.
 
@@ -536,3 +538,51 @@ El propietario autorizó corregir, publicar, fusionar y repetir la auditoría un
 Las pruebas renderizan componentes reales y cubren EN/ES, slugs coincidentes y distintos, clic normal/modificado, modal, foco/historial, detalle de caso de estudio, diagnóstico y contacto de calculadora, empleos y enlace final del quiz. Se ajustó la sincronización de refs del modal antes de interacción con tarjetas recién comprometidas. **159 pruebas / 26 suites aprobadas**; el estado de producción se verificará después del despliegue. Los fallos iniciales intermitentes de apertura/cierre motivaron revisar esa sincronización, no omitir las pruebas. Sin cambios en datos de producción, APIs, dependencias o infraestructura.
 
 Este ciclo cierra navegación bilingüe; no implica que SSR, contenido editorial, Core Web Vitals de campo o acceso a Search Console se hayan resuelto.
+
+
+## Cierre verificado de navegación bilingüe
+
+**Resultado:** POST-03 y POST-04 cerrados en producción. No se detectaron defectos adicionales en los recorridos de navegación bilingüe comprobados tras este release. No es una certificación de ausencia absoluta de defectos en todo el sitio ni cierre del roadmap general de SEO.
+
+### Release y validación
+
+- Código: [PR #7](https://github.com/jroblesluna/robles.ai/pull/7), commit `6a20f7552b73a1be43ad27623aacd8aaefe2eaf3`, fusión `78bb1bd4ec92ac9559f38a704dc673b0cce867cd`.
+- [Despliegue del release](https://github.com/jroblesluna/robles.ai/actions/runs/39151534769): `completed / success` para ese SHA; se esperó su finalización antes de auditar.
+- Local: **159 pruebas aprobadas en 26 suites**, build final aprobado. TypeScript: los mismos **13 errores preexistentes**, sin firmas nuevas. Se corrigió la sincronización de las refs del modal antes de la interacción con tarjetas recién renderizadas; después pasó el conjunto completo, incluidas apertura/cierre y pruebas del BlogList real.
+- Auditoría HTTP posterior: 18 octubre 2026, aproximadamente 17:54 UTC; navegador hasta aproximadamente 17:58 UTC. Sin instalaciones, migraciones, cambios de datos de producción, tracking nuevo o cambios de infraestructura.
+
+### Evidencia de cierre de POST-03
+
+En `/blog?page=2`, el anchor real de Shivoo tiene `/blog/2026-10-15-18-00-00-shivoo-studios-reality-reframe-podcast?lang=en`. Se abrió ese destino en otra pestaña real y mostró H1, idioma y canonical ingleses. El clic normal conservó el modal EN, su URL explícita y enlace para nueva pestaña; cerrar restauró página 2, canonical y foco en la tarjeta con href correcto. En `/blog?lang=es&page=2`, la tarjeta usa el ES limpio. No se depende de que el handler del modal corrija un anchor equivocado.
+
+### Evidencia de cierre de POST-04 y barrido relacionado
+
+| Recorrido | Resultado posterior al despliegue |
+| --- | --- |
+| Portada ES / CaseStudies | Los dos enlaces de los diseños responsive contienen `?lang=es`; clic real llega a diagnóstico ES con H1 español. |
+| Detalle de caso ES | Abierto mediante teclado; el CTA del viewer contiene `?lang=es` y su activación llega a diagnóstico ES. |
+| Calculadora Forecast ES → diagnóstico | “Diagnóstico gratis” enlaza y llega a `/diagnostico-ia?lang=es`, H1 y `lang=es`. |
+| Calculadora → contacto ES | URL `/?lang=es#contact`, canonical español y título “Contáctanos”. Tras asentarse el scroll, sección con top aproximado 84 px y H2 a 148 px dentro del viewport de 720 px. No se ejecutó el formulario. |
+| Calculadora EN | Enlace de diagnóstico limpio `/diagnostico-ia`; CTA de contacto llega a `/#contact`, `lang=en`, canonical raíz y “Contact Us”. |
+| Búsqueda FTS EN/ES | Resultado real de Shivoo conserva `?lang=en` / `?lang=es`. La búsqueda ES abre el artículo español y normaliza su canonical a URL ES limpia. Idioma explícito evita ambigüedad del slug original de FTS. |
+| Equipo → Empleos ES | Navegación a `/careers?lang=es`; los cuatro enlaces de postulación conservan `job` y `lang=es`. |
+| Postulación ES | Clic en oferta Full Stack llega a `/apply?job=fullstack&lang=es`, muestra “Postular Ahora — Desarrollador Full Stack” y canonical `/apply?lang=es`. Sin enviar datos ni currículum. |
+| Enlace final del informe del quiz | Cubierto con fixture del componente real en EN/ES; no se generó un lead real para forzar la pantalla privada de resultado en producción. |
+| Barrido de portada ES | Cero anchors internos de páginas estáticas públicas sin `lang=es`, excluyendo los selectores de idioma deliberados. Búsqueda de fuente de enlaces/navegación públicos cubrió las rutas modificadas; los endpoints de descarga API y enlaces externos no se transformaron. |
+
+Los primeros intentos de interacción por coordenadas implícitas con contenido en movimiento se volvieron a inspeccionar antes de decidir; se repitió la navegación con la página asentada/teclado. No se clasificaron errores de selector o etiquetas de automatización incorrectas como fallos del producto.
+
+### Auditoría técnica de regresión posterior
+
+- **21 sitemaps**, todos 200 y XML parseable: **24,366 loc y 24,366 URLs únicas**, **34 URLs estáticas** y **12,166 pares de artículos**. API de listado: `12166`. Cero errores de reciprocidad, autorreferencia o destinos de idioma idénticos.
+- **Nueve pares con slug compartido:** las 18 URLs canónicas EN/ES devuelven 200 con idioma/canonical correctos; compatibilidad de redirecciones y variante UTM conservada.
+- **59 respuestas de artículos** con comprobaciones de idioma/schema/canonical: cero fallos; JSON-LD parseable. No equivale a rich results ni validación factual de cada artículo.
+- Cero errores nuevos en las aserciones HTTP de metadatos, locale o red. Los 404 y 308 de prueba son los esperados; no se observaron 5xx en las muestras.
+- Cache HTML `no-cache`; JS/CSS con hash mantienen cache inmutable y gzip. JS principal observado `index-S4tn7sms.js`, transferencia gzip **153,361 bytes**; CSS gzip **25,025 bytes**. No son LCP/INP/CLS ni presupuesto total de la página.
+- HEAD de las rutas privadas comprobadas mantiene 404; no se descargó contenido potencialmente privado. Cero errores de consola en las consultas efectuadas sobre el recorrido final.
+
+### Límites que se mantienen
+
+Se verificaron recorridos concretos de frontend/HTTP, no cada interacción posible. No se enviaron formularios/lead/correo ni archivos, no se ejecutaron inferencias de pago o procesos de publicación, y no se revisaron administración o credenciales. Pruebas con fixtures cubren los estados que requerirían producir datos reales, especialmente el enlace del informe del quiz. La comprobación visual de esta ronda fue a 1280 px; no certifica todos los dispositivos ni accesibilidad integral.
+
+SSR/prerender de contenido, revisión editorial, estrategia de servicios, métricas de campo y estado real de indexación siguen siendo trabajo independiente del roadmap original. No se accedió a cuentas de GSC/Bing/GA4/CRM, ni se cambiaron configuraciones de producción. No se declara que estas correcciones garanticen rankings o inclusión en buscadores de IA.
