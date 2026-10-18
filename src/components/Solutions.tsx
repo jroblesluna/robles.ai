@@ -1,6 +1,7 @@
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { useState } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Cpu, Eye, MessageSquare, BarChart3, Play, AlertTriangle, Sparkles } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Cpu, Eye, MessageSquare, BarChart3, Play, Pause, AlertTriangle, Sparkles } from "lucide-react";
 import { fadeIn, staggerContainer } from "@/utils/animations";
 import { useTranslation } from "react-i18next";
 import VideoModal from "@/components/VideoModal";
@@ -242,14 +243,16 @@ const Solutions = () => {
   const reduceMotion = useReducedMotion();
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [autoEnabled, setAutoEnabled] = useState(false);
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
 
   const solutions = t("solutions.items", { returnObjects: true }) as SolutionItem[];
   const current = solutions[active] ?? solutions[0];
-  const autoplay = !reduceMotion;
+  const autoplay = autoEnabled && !reduceMotion;
 
   return (
-    <section id="solutions" className="relative scroll-mt-10 bg-white py-24">
+    <section id="solutions" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}
+      onFocusCapture={event => { if (!(event.target as HTMLElement).closest('[data-rotation-control]')) setAutoEnabled(false); }} className="relative scroll-mt-10 bg-white py-24">
       <style>{`@keyframes sol-progress{from{transform:scaleX(0)}to{transform:scaleX(1)}}`}</style>
 
       <motion.div
@@ -285,16 +288,23 @@ const Solutions = () => {
           </motion.p>
         </div>
 
+        <div className="mb-5 flex justify-center">
+          <button type="button" data-rotation-control="solutions" aria-controls="solutions-options"
+            onClick={() => setAutoEnabled(value => !value)} disabled={reduceMotion}
+            className="tap-target gap-2 rounded-lg border border-gray-300 px-4 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-60">
+            {autoEnabled ? <Pause aria-hidden="true" className="h-4 w-4" /> : <Play aria-hidden="true" className="h-4 w-4" />}
+            {t(autoEnabled ? "solutions.stopPreview" : "solutions.startPreview")}
+          </button>
+        </div>
         <div className="grid gap-10 lg:grid-cols-12 lg:items-center lg:gap-12">
           {/* selector */}
           <motion.div
             variants={fadeIn}
             custom={0.3}
+            id="solutions-options"
             role="group"
             aria-label={t("solutions.title")}
             className="flex flex-col gap-2 lg:col-span-5"
-            onMouseEnter={() => setPaused(true)}
-            onMouseLeave={() => setPaused(false)}
           >
             {solutions.map((s, i) => {
               const accent = ACCENTS[s.icon] ?? ACCENTS.Cpu;
@@ -305,7 +315,7 @@ const Solutions = () => {
                   <button
                     type="button"
                     aria-pressed={isActive}
-                    onClick={() => setActive(i)}
+                    onClick={() => { setAutoEnabled(false); setActive(i); }}
                     className={`relative w-full overflow-hidden rounded-2xl p-5 text-left transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                       isActive ? "bg-gray-50 ring-1 ring-gray-200" : "hover:bg-gray-50/70"
                     }`}
@@ -321,7 +331,7 @@ const Solutions = () => {
                       <span className={`flex-1 text-base font-semibold tracking-tight transition-colors ${isActive ? "text-gray-900" : "text-gray-500"}`}>
                         {s.title}
                       </span>
-                      <span className="font-mono text-xs text-gray-300">{String(i + 1).padStart(2, "0")}</span>
+                      <span className="font-mono text-xs text-gray-600">{String(i + 1).padStart(2, "0")}</span>
                     </div>
 
                     <AnimatePresence initial={false}>
@@ -370,8 +380,6 @@ const Solutions = () => {
             variants={fadeIn}
             custom={0.4}
             className="hidden lg:col-span-7 lg:block"
-            onMouseEnter={() => setPaused(true)}
-            onMouseLeave={() => setPaused(false)}
           >
             {current && <Showcase solution={current} t={t} onPlay={() => setVideoSrc(current.videoSrc)} />}
           </motion.div>

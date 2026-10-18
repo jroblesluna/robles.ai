@@ -96,6 +96,12 @@
         "toggleMenu": "Abrir o cerrar menú"
     },
     "hero": {
+        "carouselLabel": "Destacados de Robles.AI",
+        "slide": "Diapositiva",
+        "previousSlide": "Diapositiva anterior",
+        "nextSlide": "Diapositiva siguiente",
+        "startSlides": "Iniciar presentación automática",
+        "stopSlides": "Detener presentación automática",
         "title": "Soluciones Robustas de Inteligencia Artificial",
         "subtitle": "Transforma tu negocio con tecnología de IA de vanguardia que ofrece resultados reales.",
         "cta1": "¿Porqué elegirnos?",
@@ -213,6 +219,8 @@
         "ctaButton": "Hacer el diagnóstico gratis"
     },
     "solutions": {
+        "startPreview": "Iniciar vista previa automática",
+        "stopPreview": "Detener vista previa automática",
         "eyebrow": "Qué hacemos",
         "title": "Nuestras Soluciones de IA",
         "subtitle": "Descubre cómo nuestra experiencia en IA, aprendizaje automático y visión computacional puede transformar tu negocio.",
@@ -322,8 +330,8 @@
                 "format": "En línea",
                 "regularPrice": "US$ 1250",
                 "price": "US$ 1000",
-                "buttonBg": "bg-blue-500",
-                "buttonHoverBg": "hover:bg-blue-600"
+                "buttonBg": "bg-blue-700",
+                "buttonHoverBg": "hover:bg-blue-800"
             },
             {
                 "title": "TensorFlow en Producción",
@@ -335,8 +343,8 @@
                 "format": "En línea",
                 "regularPrice": "US$ 1500",
                 "price": "US$ 1200",
-                "buttonBg": "bg-orange-500",
-                "buttonHoverBg": "hover:bg-orange-600"
+                "buttonBg": "bg-orange-700",
+                "buttonHoverBg": "hover:bg-orange-800"
             },
             {
                 "title": "Transformers de Hugging Face",
@@ -348,8 +356,8 @@
                 "format": "En línea",
                 "regularPrice": "US$ 1185",
                 "price": "US$ 950",
-                "buttonBg": "bg-yellow-500",
-                "buttonHoverBg": "hover:bg-yellow-600"
+                "buttonBg": "bg-yellow-700",
+                "buttonHoverBg": "hover:bg-yellow-800"
             },
             {
                 "title": "Desarrollo con LangChain",
@@ -361,8 +369,8 @@
                 "format": "En línea",
                 "regularPrice": "US$ 1060",
                 "price": "$US850",
-                "buttonBg": "bg-green-500",
-                "buttonHoverBg": "hover:bg-green-600",
+                "buttonBg": "bg-green-700",
+                "buttonHoverBg": "hover:bg-green-800",
                 "details": {
                     "book": {
                         "editorial": "O'Reilly Media",
@@ -610,8 +618,8 @@
                 "format": "En línea",
                 "regularPrice": "US$ 1125",
                 "price": "US$ 900",
-                "buttonBg": "bg-violet-500",
-                "buttonHoverBg": "hover:bg-violet-600"
+                "buttonBg": "bg-violet-700",
+                "buttonHoverBg": "hover:bg-violet-800"
             },
             {
                 "title": "Visión por Computadora con PyTorch",
@@ -623,8 +631,8 @@
                 "format": "En línea",
                 "regularPrice": "US$ 1500",
                 "price": "US$ 1200",
-                "buttonBg": "bg-blue-500",
-                "buttonHoverBg": "hover:bg-blue-600"
+                "buttonBg": "bg-blue-700",
+                "buttonHoverBg": "hover:bg-blue-800"
             }
         ]
     },
@@ -761,7 +769,7 @@
             {
                 "name": "Antonio Robles",
                 "position": "Fundador y Director",
-                "positionColor": "text-blue-600",
+                "positionColor": "text-blue-700",
                 "bio": "Científico de datos e investigador con 20+ años de experiencia en desarrollo de software y nuevas tecnologías para la industria de la ciberseguridad, blockchain, IoT, IA y aprendizaje automático para empresas.",
                 "image": "ar.jpg",
                 "linkedin": "https://www.linkedin.com/in/antonio-robles-luna/",
@@ -771,7 +779,7 @@
             {
                 "name": "Enrique Mendo",
                 "position": "Director de Investigación",
-                "positionColor": "text-emerald-600",
+                "positionColor": "text-emerald-700",
                 "bio": "Experto líder en visión por computadora con amplia experiencia en IA generativa, aprendizaje automático y aprendizaje profundo.",
                 "image": "em.jpg",
                 "linkedin": "https://www.linkedin.com/in/jose-enrique-mendo-huapaya-0758ab261/",
@@ -781,7 +789,7 @@
             {
                 "name": "Jaren Ramos",
                 "position": "Director de UX",
-                "positionColor": "text-violet-600",
+                "positionColor": "text-violet-700",
                 "bio": "Especialista en UX con amplia experiencia diseñando interfaces intuitivas y centradas en el usuario para productos de IA y plataformas empresariales.",
                 "image": "jr.jpg",
                 "linkedin": "https://www.linkedin.com/in/jaren-ramos-520950315/",
@@ -791,7 +799,7 @@
             {
                 "name": "Sophia Martinez",
                 "position": "Directora de Ética en IA",
-                "positionColor": "text-amber-600",
+                "positionColor": "text-amber-700",
                 "bio": "Ex profesora con experiencia en desarrollo responsable de IA, asegurando la implementación ética de nuestras soluciones.",
                 "image": "sm.jpg"
             }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { afterEach, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import en from '@/i18n/locales/en/translation.json';
 import es from '@/i18n/locales/es/translation.json';
 import Hero from '../Hero';
@@ -15,12 +15,12 @@ import Team from '../Team';
 import QuizResultFull from '../quiz/QuizResultFull';
 import { computeQuizResult } from '@/lib/quizData';
 vi.mock('@/lib/analytics', () => ({ trackDemoEvent: vi.fn() }));
-const locale = vi.hoisted(() => ({ language: 'es' as 'en' | 'es' }));
+const locale = vi.hoisted(() => ({ language: 'es' as 'en' | 'es', reduced: true }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({
   i18n: { language: locale.language, resolvedLanguage: locale.language },
   t: (key: string) => key.split('.').reduce<any>((value, part) => value?.[part], locale.language === 'es' ? es : en) ?? key,
 }) }));
-vi.mock('@/hooks/useReducedMotion', () => ({ useReducedMotion: () => true }));
+vi.mock('@/hooks/useReducedMotion', () => ({ useReducedMotion: () => locale.reduced }));
 vi.mock('../ParticleBackground', () => ({ default: () => null }));
 // Animation/layout is outside these link-contract tests; retain native interactive elements.
 vi.mock('framer-motion', async () => {
@@ -28,7 +28,7 @@ vi.mock('framer-motion', async () => {
   const tags = new Map();
   return {
     AnimatePresence: ({ children }: any) => children,
-    useReducedMotion: () => true,
+    useReducedMotion: () => locale.reduced,
     animate: (_from: number, value: number, options: any) => { options.onUpdate(value); return { stop() {} }; },
     motion: new Proxy({}, { get: (_, tag: string) => {
       if (!tags.has(tag)) tags.set(tag, React.forwardRef(({ children, ...props }: any, ref) => {
@@ -39,16 +39,16 @@ vi.mock('framer-motion', async () => {
     } }),
   };
 });
-afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
+afterEach(() => { cleanup(); locale.reduced = true; vi.useRealTimers(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 it.each(['en', 'es'] as const)('preserves %s across every Hero slide and landing diagnosis CTA', language => {
   locale.language = language;
   const suffix = language === 'es' ? '?lang=es' : '';
   const { unmount } = render(<Hero />);
   expect(screen.getByRole('link', { name: language === 'es' ? es.hero.cta2 : en.hero.cta2 })).toHaveAttribute('href', '/blog' + suffix);
   expect(screen.getByRole('link', { name: language === 'es' ? es.hero.cta3 : en.hero.cta3 })).toHaveAttribute('href', '/get-started' + suffix);
-  fireEvent.click(screen.getByRole('button', { name: 'Slide 2' }));
+  fireEvent.click(screen.getByRole('button', { name: language === 'es' ? 'Diapositiva 2' : 'Slide 2' }));
   expect(screen.getByRole('link', { name: language === 'es' ? es.quizPromo.cta : en.quizPromo.cta })).toHaveAttribute('href', '/diagnostico-ia' + suffix);
-  fireEvent.click(screen.getByRole('button', { name: 'Slide 3' }));
+  fireEvent.click(screen.getByRole('button', { name: language === 'es' ? 'Diapositiva 3' : 'Slide 3' }));
   const links = screen.getAllByRole('link').map(link => link.getAttribute('href'));
   for (const path of ['/demos', '/try-identity', '/try-rag', '/try-transcription', '/try-langchain']) expect(links).toContain(path + suffix);
   unmount();
@@ -132,4 +132,20 @@ it('exposes native pressed selector buttons and distinct public profile names', 
   render(<Team />);
   expect(screen.getByRole('link', { name: 'LinkedIn: Antonio Robles' })).toHaveAttribute('href', 'https://www.linkedin.com/in/antonio-robles-luna/');
   expect(screen.getByRole('link', { name: 'GitHub: Jaren Ramos' })).toHaveAttribute('href', 'https://github.com/JarenML');
+});
+
+it('keeps the main pitch stable until rotation is requested and stops it for reading/focus', () => {
+  locale.language = 'en'; locale.reduced = false; vi.useFakeTimers();
+  render(<Hero />);
+  act(() => { vi.advanceTimersByTime(15000); });
+  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(en.hero.title);
+  fireEvent.click(screen.getByRole('button', { name: en.hero.startSlides }));
+  act(() => { vi.advanceTimersByTime(7000); });
+  expect(screen.getByRole('link', { name: en.quizPromo.cta })).toBeInTheDocument();
+  fireEvent.focus(screen.getByRole('button', { name: 'Slide 1' }));
+  expect(screen.getByRole('button', { name: en.hero.startSlides })).toBeInTheDocument();
+  act(() => { vi.advanceTimersByTime(15000); });
+  expect(screen.getByRole('link', { name: en.quizPromo.cta })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Slide 1' }));
+  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(en.hero.title);
 });

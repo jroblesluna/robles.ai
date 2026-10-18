@@ -6,6 +6,11 @@ export default {
   darkMode: ["class"],
   content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"],
   safelist: [
+    // Locale-configured controls keep readable foreground/background pairs.
+    "bg-blue-700", "hover:bg-blue-800", "bg-orange-700", "hover:bg-orange-800",
+    "bg-yellow-700", "hover:bg-yellow-800", "bg-green-700", "hover:bg-green-800",
+    "bg-violet-700", "hover:bg-violet-800", "bg-red-700", "hover:bg-red-800",
+    "text-blue-700", "text-emerald-700", "text-amber-700", "text-violet-700",
     "bg-blue-500", "hover:bg-blue-600",
     "bg-orange-500", "hover:bg-orange-600",
     "bg-yellow-500", "hover:bg-yellow-600",

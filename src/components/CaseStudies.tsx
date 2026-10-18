@@ -72,8 +72,8 @@ const ACCENTS: Record<
     hex: "#2563eb",
   },
   emerald: {
-    value: "text-emerald-600",
-    link: "text-emerald-600",
+    value: "text-emerald-700",
+    link: "text-emerald-700",
     dot: "bg-emerald-500",
     bar: "bg-emerald-400",
     soft: "bg-emerald-50",
@@ -96,8 +96,8 @@ const ACCENTS: Record<
     hex: "#7c3aed",
   },
   amber: {
-    value: "text-amber-600",
-    link: "text-amber-600",
+    value: "text-amber-700",
+    link: "text-amber-700",
     dot: "bg-amber-500",
     bar: "bg-amber-400",
     soft: "bg-amber-50",
@@ -292,7 +292,7 @@ const CaseStudyViewer = ({ study, onClose }: CaseStudyViewerProps) => {
             {loading ? (
               <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600" />
-                <p className="text-sm text-gray-400">{study.title}</p>
+                <p className="text-sm text-gray-600">{study.title}</p>
               </div>
             ) : parsedContent ? (
               <div>
@@ -323,14 +323,14 @@ const CaseStudyViewer = ({ study, onClose }: CaseStudyViewerProps) => {
                     <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
                       {parsedContent.meta.client && (
                         <span className="inline-flex items-center gap-1.5">
-                          <Building2 className="h-4 w-4 text-gray-400" />
+                          <Building2 className="h-4 w-4 text-gray-600" />
                           <span className="font-medium text-gray-500">{parsedContent.meta.client.label}:</span>
                           {parsedContent.meta.client.value}
                         </span>
                       )}
                       {parsedContent.meta.duration && (
                         <span className="inline-flex items-center gap-1.5">
-                          <Clock className="h-4 w-4 text-gray-400" />
+                          <Clock className="h-4 w-4 text-gray-600" />
                           <span className="font-medium text-gray-500">{parsedContent.meta.duration.label}:</span>
                           {parsedContent.meta.duration.value}
                         </span>
@@ -345,7 +345,7 @@ const CaseStudyViewer = ({ study, onClose }: CaseStudyViewerProps) => {
                           <div key={m.label}>
                             <span className={`block text-2xl font-bold tracking-tight tabular-nums sm:text-3xl ${accent.value}`}>
                               {m.qualifier && (
-                                <span className="mr-1.5 align-middle text-xs font-semibold uppercase tracking-wider text-gray-400">
+                                <span className="mr-1.5 align-middle text-xs font-semibold uppercase tracking-wider text-gray-600">
                                   {m.qualifier}
                                 </span>
                               )}
@@ -359,7 +359,7 @@ const CaseStudyViewer = ({ study, onClose }: CaseStudyViewerProps) => {
 
                     {parsedContent.meta.technologies.length > 0 && (
                       <div className="mt-6">
-                        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-gray-600">
                           {t("caseStudies.techStack")}
                         </p>
                         <div className="mt-2 flex flex-wrap gap-1.5">
@@ -376,7 +376,7 @@ const CaseStudyViewer = ({ study, onClose }: CaseStudyViewerProps) => {
                     )}
 
                     {study.caseType === "illustrative" && (
-                      <p className="mt-5 text-xs italic text-gray-400">{illustrativeLabel}</p>
+                      <p className="mt-5 text-xs italic text-gray-600">{illustrativeLabel}</p>
                     )}
                   </div>
                 </div>
@@ -452,7 +452,7 @@ const CaseStudyViewer = ({ study, onClose }: CaseStudyViewerProps) => {
 
                     {parsedContent.disclaimer && (
                       <div
-                        className="prose prose-sm mt-10 max-w-none border-t border-gray-100 pt-6 prose-p:italic prose-p:text-gray-400"
+                        className="prose prose-sm mt-10 max-w-none border-t border-gray-100 pt-6 prose-p:italic prose-p:text-gray-600"
                         dangerouslySetInnerHTML={{ __html: parsedContent.disclaimer }}
                       />
                     )}
@@ -537,7 +537,7 @@ function CasePanel({ study, onOpen }: { study: CaseStudy; onOpen: () => void }) 
                 <dd>
                   <span className={`block text-base font-semibold tracking-tight tabular-nums ${accent.value}`}>
                     {m.qualifier && (
-                      <span className="mr-1 align-middle text-[10px] font-medium uppercase tracking-wider text-gray-400">
+                      <span className="mr-1 align-middle text-[10px] font-medium uppercase tracking-wider text-gray-600">
                         {m.qualifier}
                       </span>
                     )}
@@ -683,7 +683,7 @@ const CaseStudies = () => {
                 />
               )}
             </AnimatePresence>
-            <p className="mt-4 flex items-start gap-2 text-xs leading-relaxed text-gray-400">
+            <p className="mt-4 flex items-start gap-2 text-xs leading-relaxed text-gray-600">
               <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
               {t("caseStudies.footnote")}
             </p>

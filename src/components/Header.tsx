@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Menu, X, ChevronDown, Sparkles, FlaskConical } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { normalizeLanguage, staticPagePath } from '@shared/seoPolicy';
-import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 interface HeaderProps { isMobileMenuOpen: boolean; setIsMobileMenuOpen: (open: boolean) => void }
 export default function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) {
@@ -12,10 +11,8 @@ export default function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: Header
   const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
   const [, setMetadataVersion] = useState(0);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const [quizTextIndex, setQuizTextIndex] = useState(0);
   const rootRef = useRef<HTMLElement>(null);
   const mobileToggle = useRef<HTMLButtonElement>(null);
-  const reduceMotion = useReducedMotion();
   useEffect(() => {
     const observer = new MutationObserver(records => {
       if (records.some(record => Array.from(record.addedNodes).concat(Array.from(record.removedNodes)).some(node =>
@@ -26,11 +23,7 @@ export default function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: Header
     observer.observe(document.head, { childList: true });
     return () => observer.disconnect();
   }, []);
-  useEffect(() => {
-    if (reduceMotion) return;
-    const timer = setInterval(() => setQuizTextIndex(i => (i + 1) % 3), 3000);
-    return () => clearInterval(timer);
-  }, [reduceMotion]);
+
   useEffect(() => {
     const closeOutside = (event: PointerEvent) => { if (!rootRef.current?.contains(event.target as Node)) setOpenMenu(null); };
     const resize = () => { if (window.innerWidth >= 1280) setIsMobileMenuOpen(false); };
@@ -100,7 +93,7 @@ export default function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: Header
             </div>
           ))}
           <a href={href('/demos')} onClick={close} className="tap-target gap-2 px-3 rounded-full bg-cyan-50 text-cyan-800 whitespace-nowrap"><FlaskConical aria-hidden="true" className="h-4 w-4" />{t('nav.demos')}</a>
-          <a href={href('/diagnostico-ia')} onClick={close} className="tap-target gap-2 w-60 px-3 rounded-full bg-violet-50 text-violet-800"><Sparkles aria-hidden="true" className="h-4 w-4 shrink-0" /><span>{t(`nav.quiz_${quizTextIndex + 1}`)}</span></a>
+          <a href={href('/diagnostico-ia')} onClick={close} className="tap-target gap-2 w-60 px-3 rounded-full bg-violet-50 text-violet-800"><Sparkles aria-hidden="true" className="h-4 w-4 shrink-0" /><span>{t("nav.quiz_1")}</span></a>
           <a href={href('/#contact')} onClick={close} className="tap-target px-4 rounded-md bg-blue-600 text-white whitespace-nowrap">{t('nav.contact')}</a>
         </nav>
         <button ref={mobileToggle} type="button" aria-label={t('nav.toggleMenu')} aria-expanded={isMobileMenuOpen}
@@ -112,7 +105,7 @@ export default function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: Header
         style={{ top: 'var(--header-h)', maxHeight: 'calc(100dvh - var(--header-h))' }}>
         {groups.map(group => <div key={group.id} className="rounded-xl border p-3"><h2 className="font-semibold mb-2">{group.label}</h2>{links(group)}</div>)}
         <a href={href('/demos')} onClick={close} className={`${linkClass} flex`}>{t('nav.demos')}</a>
-        <a href={href('/diagnostico-ia')} onClick={close} className={`${linkClass} flex`}>{t(`nav.quiz_${quizTextIndex + 1}`)}</a>
+        <a href={href('/diagnostico-ia')} onClick={close} className={`${linkClass} flex`}>{t("nav.quiz_1")}</a>
         <a href={href('/#contact')} onClick={close} className="tap-target w-full bg-blue-600 text-white rounded-md">{t('nav.contact')}</a>
       </nav>}
     </header>
