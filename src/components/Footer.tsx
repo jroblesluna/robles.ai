@@ -84,7 +84,7 @@ const Footer = () => {
 
         <div className="border-t border-gray-800 pt-4">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
-            <p className="text-gray-500 text-sm">© {currentYear} Robles.AI. {t("footer.rights")}</p>
+            <p className="text-gray-400 text-sm">© {currentYear} Robles.AI. {t("footer.rights")}</p>
 
           </div>
         </div>

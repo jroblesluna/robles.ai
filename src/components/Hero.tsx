@@ -1,3 +1,4 @@
+import { HOME_HERO_IMAGE } from '@shared/publicContent';
 import { normalizeLanguage, staticPagePath } from '@shared/seoPolicy';
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -68,7 +69,7 @@ const Hero = () => {
   const slides = [
     // 0 — main pitch
     {
-      mascot: "/robly-avatar/robly-dominical.svg",
+      mascot: HOME_HERO_IMAGE,
       mascotSize: "w-24 h-24 sm:w-32 sm:h-32 md:w-56 md:h-56",
       content: (
         <>
@@ -183,7 +184,7 @@ const Hero = () => {
   return (
     <motion.section
       variants={staggerContainer}
-      initial="hidden"
+      initial={false}
       animate="visible"
       className="group relative overflow-hidden animated-bg pt-5 pb-9 md:py-8"
     >
@@ -229,6 +230,9 @@ const Hero = () => {
                   <img
                     src={slides[slide].mascot}
                     alt=""
+                    width="224"
+                    height="224"
+                    fetchPriority={slide === 0 ? "high" : "auto"}
                     className={`${slides[slide].mascotSize} drop-shadow-[0_8px_16px_rgba(0,0,0,0.35)]`}
                   />
                 </div>
@@ -245,10 +249,13 @@ const Hero = () => {
               onClick={() => go(i)}
               aria-label={`Slide ${i + 1}`}
               aria-current={i === slide}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                i === slide ? "w-6 bg-white" : "w-2 bg-white/40 hover:bg-white/70"
-              }`}
-            />
+              type="button"
+              className="w-11 h-11 flex items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
+            >
+              <span aria-hidden="true" className={`h-2 rounded-full transition-all duration-300 ${
+                i === slide ? "w-6 bg-white" : "w-2 bg-white/40 group-hover:bg-white/70"
+              }`} />
+            </button>
           ))}
         </div>
       </div>

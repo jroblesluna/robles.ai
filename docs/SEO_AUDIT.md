@@ -630,3 +630,28 @@ CrUX utiliza una ventana móvil de 28 días y mínimos de muestra/eligibilidad. 
 Los registros históricos anteriores se conservan; una observación anterior sobre ausencia de HTML no describe automáticamente la versión desplegada después de POST-05. Las dependencias externas de medición permanecen explícitas y no impiden validar el código o el HTTP público.
 
 **Validación previa al release POST-05:** 168 pruebas aprobadas en 28 suites. Build de producción aprobado con `NODE_ENV=production npm run build`; bundle del servidor reconstruido tras el último ajuste. `npm run check -- --incremental false` conserva los mismos 13 errores preexistentes de `send-application`, `TryForecast`, `TryIdentity` y scripts de mantenimiento; no se añaden errores nuevos. Vista previa pública aislada sin DB/jobs/API de artículos: un artículo real se monta con H1 y 4.113 caracteres de cuerpo desde el bootstrap público.
+
+
+## Producción POST-05 y segunda iteración POST-06
+
+**Release confirmado:** [PR #9](https://github.com/jroblesluna/robles.ai/pull/9), merge `24a411a9a13279d31dae7341073382db4a24e975`, [Actions correcto](https://github.com/jroblesluna/robles.ai/actions/runs/39153213873). Auditoría HTTP del 18 octubre 2026, 18:15:32 UTC: 155 diagnósticos, 21 sitemaps, **24.368 loc únicos** (34 estáticos y 12.167 pares de artículos), nueve pares de slug compartido. Sin errores de red/XML/alternates/metadata/idioma/canonical/cuerpo en la muestra; los HTML 200 consultados tienen un H1 y documento público inicial. Los estados 301/308/404 de casos de prueba fueron esperados. Las cifras de publicaciones son una instantánea del sistema que sigue publicando.
+
+Bundle observado: `/assets/index-BAzOIUMB.js`. Portada HTML: 11.344 bytes sin comprimir, TTFB de una petición 0,177 s, diagnóstico HTTP sin throttling, **no CWV de campo**. Navegador con respuesta fresca confirma ES y enlaces de idioma; artículo con slug compartido `2026-07-11-11-00-00-china-quantum-dim-mak?lang=en` conserva título inglés, canonical EN, lang `en`, artículo de 1.986 caracteres y bootstrap tras montaje de React. El documento inicial se reemplaza, no queda duplicado en DOM.
+
+### MEASURE-02: comprobación pública adicional
+
+[CrUX Vis](https://cruxvis.withgoogle.com/) consultado con `https://robles.ai`: «CrUX data is not available». No se cambiaron protocolo/host canónico ni permisos para conseguir un resultado distinto. [Documentación de CrUX Vis](https://developer.chrome.com/docs/crux/vis). Se mantiene el estado de campo **sin muestra pública disponible**.
+
+### POST-06 — Ajustes guiados por Lighthouse tras el primer despliegue
+
+- **Categorías / severidad:** rendimiento y accesibilidad / MEDIUM; P1.
+- **Evidencia:** [medición móvil posterior a POST-05](https://pagespeed.web.dev/analysis/https-robles-ai/zohrj5ptw0?form_factor=mobile), 18 octubre, 11:15 PDT: Performance 53, Accessibility 89, Best Practices 96, SEO 100; FCP 3,0 s, LCP 9,0 s, TBT 490 ms, CLS 0,002, Speed Index 5,5 s. Su árbol de dependencias confirma el bundle `index-BAzOIUMB.js`. Es una ejecución de laboratorio; el resultado anterior a POST-05 [68/92/96/100](https://pagespeed.web.dev/analysis/https-robles-ai/xnmff8phqa?form_factor=mobile) no es una comparación estadística. No se oculta el peor LCP ni se atribuye causalidad sin repetir.
+- **Elemento LCP identificado:** `/robly-avatar/robly-dominical.svg`, descubierto por React, con retraso de recurso y render. El siguiente lote lo entrega en el HTML inicial con tamaño y prioridad alta, comparte URL con React y elimina la entrada oculta del Hero. No se añaden preloads a otras rutas ni se alteran imágenes generadas.
+- **Área táctil confirmada:** indicadores `Slide 2`/`Slide 3` con botones de 8×8. Se mantienen puntos visuales pequeños dentro de botones de 44×44 y foco visible.
+- **ARIA confirmado:** `Solutions` mezcla tabs y un botón secundario de vídeo dentro de `tablist`. Se usan grupos nombrados y botones nativos con `aria-pressed`, también en el selector equivalente de casos; no se promete comportamiento de tabs que la implementación no ofrece. Selección, vídeos y navegación se conservan.
+- **Contraste confirmado:** copyright `text-gray-500` sobre `bg-gray-900`; se eleva a `text-gray-400`.
+- **Perfiles:** LinkedIn/GitHub/contacto del equipo reciben nombres accesibles con el nombre real del perfil para distinguir destinos.
+- **Archivos:** `shared/publicContent.ts`, `server/seo/publicContent.ts`, `src/components/Hero.tsx`, `Solutions.tsx`, `CaseStudies.tsx`, `Footer.tsx`, `Team.tsx`, pruebas de contenido inicial y enlaces/controles.
+- **Complejidad:** baja–media; sin dependencias nuevas. Validar build, suites existentes, selección/foco/idioma y tamaños reales en navegador; repetir PSI después de Actions. El registro final determina el estado live.
+
+**Diagnóstico que se conserva por seguridad:** Lighthouse Best Practices detecta HTTP 401 de `/api/chat/history` cuando el visitante no tiene sesión. No es un fallo de autorización de contenido público. No se debilita ese endpoint ni se cambian políticas de autenticación para aumentar una puntuación. Los scripts de terceros/configuración GTM tampoco se cambian como ajuste de Lighthouse.

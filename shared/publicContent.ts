@@ -11,3 +11,6 @@ export const PUBLIC_CONTACT = {
   street: '20380 Stevens Creek Blvd, Suite 205',
   city: 'Cupertino, CA 95014',
 };
+
+/** The same first hero image is discoverable in initial HTML and reused by React. */
+export const HOME_HERO_IMAGE = '/robly-avatar/robly-dominical.svg';

@@ -488,3 +488,14 @@ Autorizado por el usuario el 18 octubre 2026, incluido commit/push/PR a main/fus
 **Riesgos y dependencias POST-05:** cuerpo inicial y montaje de React no son hidratación completa; vigilar composición visual y CLS. Archivo lee como máximo 30 artículos por respuesta tras el índice existente; revisar latencia en producción. Los controles interactivos siguen requiriendo JS. No se modifica infraestructura, datos, generación, DNS o seguridad. Reversión: revertir este lote de código con el flujo habitual, preservando runtime data. Estimación del lote: 1–2 jornadas con validación; datos/recrawl pueden tardar semanas y los permisos dependen del propietario.
 
 **Orden:** pruebas/build → revisión de diff → commit y PR → main → Actions completo → confirmar nuevo bundle/cuerpo por HTTP fresco → comprobar DOM y navegación EN/ES → repetir PSI y documentar diferencias de laboratorio sin afirmar causalidad → actualizar ambos documentos con resultados. Ningún estado de «sin pendientes» debe ocultar MEASURE-01/02.
+
+
+## Lote POST-06 — Validación posterior a producción
+
+| ID / prioridad | Archivos | Implementación | Dependencias y riesgos | Validación / resultado esperado |
+| --- | --- | --- | --- | --- |
+| POST-06-LCP / P1 | `shared/publicContent.ts`, `server/seo/publicContent.ts`, `src/components/Hero.tsx`, `server/seo/__tests__/publicContent.test.ts` | Imagen real LCP presente en HTML inicial, prioridad alta/tamaño explícito, misma URL que React; evitar fade de entrada del contenido principal. | Evidencia del elemento LCP en PSI. Cambia sólo presentación inicial; no garantiza score ni percentiles de campo. | HTTP muestra imagen antes de JS, navegador conserva imagen/diapositivas, repetir lab tras deploy. |
+| POST-06-A11Y / P1 | `src/components/Hero.tsx`, `Solutions.tsx`, `CaseStudies.tsx`, `Footer.tsx`, `Team.tsx`, `src/components/__tests__/LocalizedContentLinks.test.tsx` | Dots en botones 44×44; grupos y botones `aria-pressed` en selectores; copyright legible; nombres de perfiles inequívocos. | Mantener selección, reduced-motion, vídeos y enlaces de idioma. No convertir controles en tabs sin su interacción completa. | Prueba de selección/estado y perfiles; navegador móvil mide targets, teclado/foco y nueva auditoría ARIA/contraste. |
+| POST-06-VERIFY / P1 | `docs/SEO_AUDIT.md`, `docs/SEO_IMPLEMENTATION_PLAN.md` | Registrar PR #9/Actions, 155 diagnósticos, cifras de sitemap y mediciones antes/después sin mezclar lab/campo. | GSC sigue sin acceso y CrUX sin muestra pública. Auth 401 del historial anónimo se conserva. | Cerrar sólo defectos verificados; mantener dependencias externas en una lista final para el propietario. |
+
+Esfuerzo del lote: 0,5–1 jornada con pruebas y publicación. Mismo ciclo autorizado de rama/PR/main/Actions/auditoría. No requiere nueva infraestructura, datos ni tracking.

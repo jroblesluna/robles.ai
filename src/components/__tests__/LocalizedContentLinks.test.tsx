@@ -1,9 +1,10 @@
 import React from 'react';
 import { afterEach, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import en from '@/i18n/locales/en/translation.json';
 import es from '@/i18n/locales/es/translation.json';
 import Hero from '../Hero';
+import Solutions from '../Solutions';
 import Landing from '@/pages/Landing';
 import DemosCatalog from '../DemosCatalog';
 import { DemoNav } from '../demo/DemoNav';
@@ -27,6 +28,7 @@ vi.mock('framer-motion', async () => {
   const tags = new Map();
   return {
     AnimatePresence: ({ children }: any) => children,
+    useReducedMotion: () => true,
     animate: (_from: number, value: number, options: any) => { options.onUpdate(value); return { stop() {} }; },
     motion: new Proxy({}, { get: (_, tag: string) => {
       if (!tags.has(tag)) tags.set(tag, React.forwardRef(({ children, ...props }: any, ref) => {
@@ -114,4 +116,20 @@ it.each(['en', 'es'] as const)('preserves %s through careers, job selection and 
   team.unmount();
   const quiz = render(<QuizResultFull result={computeQuizResult({})} leadName="Test" leadId={null} />);
   expect(quiz.container.querySelector('a[href^="/get-started"]')).toHaveAttribute('href', '/get-started' + suffix);
+});
+
+it('exposes native pressed selector buttons and distinct public profile names', () => {
+  locale.language = 'en';
+  const solutions = render(<Solutions />);
+  const group = screen.getByRole('group', { name: en.solutions.title });
+  const option = within(group).getByRole('button', { name: /Computer Vision Systems/ });
+  expect(option).toHaveAttribute('aria-pressed', 'false');
+  fireEvent.click(option);
+  expect(option).toHaveAttribute('aria-pressed', 'true');
+  expect(within(group).getAllByRole('button', { pressed: true })).toHaveLength(1);
+  expect(screen.queryByRole('tablist')).not.toBeInTheDocument();
+  solutions.unmount();
+  render(<Team />);
+  expect(screen.getByRole('link', { name: 'LinkedIn: Antonio Robles' })).toHaveAttribute('href', 'https://www.linkedin.com/in/antonio-robles-luna/');
+  expect(screen.getByRole('link', { name: 'GitHub: Jaren Ramos' })).toHaveAttribute('href', 'https://github.com/JarenML');
 });
