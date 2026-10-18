@@ -24,7 +24,7 @@ const FooterSection = ({ title, links }: { title: string, links: Array<{ name: s
 );
 
 const Footer = () => {
-  const currentYear = new Date().getFullYear();
+  const currentYear = new Date().getUTCFullYear();
   const { t, i18n } = useTranslation();
   const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
   const localizedHref = (href: string) => {

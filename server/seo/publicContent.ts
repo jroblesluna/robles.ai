@@ -64,10 +64,10 @@ export function renderArchiveContent(posts: BlogPostData[], lang: ContentLanguag
 }
 
 /** Keep the head-only metadata injector independent; the template root is controlled. */
-export function injectPublicContent(html: string, content: string, post?: BlogPostData): string {
+export function injectPublicContent(html: string, content: string, post?: BlogPostData, hydrate = false): string {
   const root = /(<div\b[^>]*\bid=["']root["'][^>]*>)\s*(<\/div>)/;
   if (!root.test(html)) throw new Error('Public template root is missing');
-  let result = html.replace(root, (_match, start, end) => start + content + end);
+  let result = html.replace(root, (_match, start, end) => (hydrate ? start.replace(/>$/, ' data-render-mode="hydrate" data-public-document="true">') : start) + content + end);
   if (post) {
     // Only the public article shape is serialized; never forward arbitrary record fields.
     const { slug, date, image, editorId, categories, keywords, translations, sources } = post;

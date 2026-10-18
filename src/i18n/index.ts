@@ -4,8 +4,10 @@ import { explicitLanguage, normalizeLanguage } from '@shared/seoPolicy'
 
 // Inicialización asíncrona de i18next
 export const initI18n = async () => {
-  const en = await import('./locales/en/translation.json');
-  const es = await import('./locales/es/translation.json');
+  const [en, es] = await Promise.all([
+    import('./locales/en/translation.json'),
+    import('./locales/es/translation.json'),
+  ]);
 
   await i18n
     .use(initReactI18next)

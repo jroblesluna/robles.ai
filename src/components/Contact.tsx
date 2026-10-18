@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { PUBLIC_CONTACT } from '@shared/publicContent';
 // i18n version of Contact.tsx
 import { motion } from "framer-motion";
@@ -40,6 +41,8 @@ type ContactFormValues = z.infer<typeof contactFormSchema>;
 
 const Contact = () => {
   const { t } = useTranslation();
+  const [clientReady, setClientReady] = useState(false);
+  useEffect(() => { setClientReady(true); }, []);
 
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
@@ -89,7 +92,7 @@ const Contact = () => {
       <motion.div
         className="container mx-auto px-6"
         variants={staggerContainer}
-        initial="hidden"
+        initial={false}
         whileInView="visible"
         viewport={{ once: true, amount: 0.2 }}
       >
@@ -121,7 +124,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4 className="text-lg font-medium text-gray-900">{t("contact.phone")}</h4>
-                  <p className="text-gray-600">{PUBLIC_CONTACT.phone}</p>
+                  <a className="text-gray-600 hover:underline" href={PUBLIC_CONTACT.phoneHref}>{PUBLIC_CONTACT.phone}</a>
                 </div>
               </div>
 
@@ -131,7 +134,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4 className="text-lg font-medium text-gray-900">{t("contact.email")}</h4>
-                  <p className="text-gray-600">{PUBLIC_CONTACT.email}</p>
+                  <a className="text-gray-600 hover:underline" href={`mailto:${PUBLIC_CONTACT.email}`}>{PUBLIC_CONTACT.email}</a>
                 </div>
               </div>
 
@@ -161,7 +164,7 @@ const Contact = () => {
             <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6">{t("contact.formTitle")}</h3>
 
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-4 sm:space-y-6 min-w-0">
+              <form method="post" action="/api/contact" onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-4 sm:space-y-6 min-w-0">
                 <FormField
                   control={form.control}
                   name="name"
@@ -238,10 +241,11 @@ const Contact = () => {
                   )}
                 />
 
+                {!clientReady && <p className="text-sm text-gray-700">{t("contact.javascriptRequired")}</p>}
                 <Button
                   type="submit"
                   className="tap-target w-full bg-blue-600 hover:bg-blue-700"
-                  disabled={isSubmitting}
+                  disabled={!clientReady || isSubmitting}
                 >
                   {isSubmitting ? t("contact.sending") : t("contact.send")}
                   <Send className="ml-2 h-4 w-4" />

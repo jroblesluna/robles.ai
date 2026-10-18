@@ -1,6 +1,6 @@
 import { useState, useEffect, Suspense, lazy } from 'react';
 import { Route, Switch, useLocation, useSearch } from 'wouter';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider, type QueryClient } from '@tanstack/react-query';
 import { MotionConfig } from 'framer-motion';
 import { queryClient } from './lib/queryClient';
 import { Toaster } from '@/components/ui/toaster';
@@ -45,7 +45,9 @@ const AdminConversationDetail = lazy(() => import('@/pages/admin/AdminConversati
 const AdminQuizLeads = lazy(() => import('@/pages/admin/AdminQuizLeads'));
 const AdminBackends = lazy(() => import('@/pages/admin/AdminBackends'));
 
-function App() {
+function App({ client = queryClient }: { client?: QueryClient } = {}) {
+  const [clientReady, setClientReady] = useState(false);
+  useEffect(() => { setClientReady(true); }, []);
   const search = useSearch();
   const [location] = useLocation(); // 👈 de wouter
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -96,7 +98,7 @@ function App() {
   // the auth check — which used to look like a full page reload.
   if (isAdminRoute) {
     return (
-      <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={client}>
         <MotionConfig reducedMotion="user">
         <Suspense fallback={<div className="flex items-center justify-center min-h-[50vh]"><div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>}>
           <AdminLayout>
@@ -122,7 +124,7 @@ function App() {
 
   // Public routes — with Header, Footer, and ChatbotWidget
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={client}>
       <MotionConfig reducedMotion="user">
       <div className="flex min-h-screen flex-col">
         <Header
@@ -159,7 +161,7 @@ function App() {
           </Suspense>
         </main>
         <Footer />
-        <ChatbotWidget hideForMobileMenu={isMobileMenuOpen} />
+        {clientReady && <ChatbotWidget hideForMobileMenu={isMobileMenuOpen} />}
         <Toaster />
       </div>
       </MotionConfig>

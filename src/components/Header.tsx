@@ -7,6 +7,8 @@ import { useReducedMotion } from '@/hooks/useReducedMotion';
 interface HeaderProps { isMobileMenuOpen: boolean; setIsMobileMenuOpen: (open: boolean) => void }
 export default function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) {
   const { i18n, t } = useTranslation();
+  const [clientReady, setClientReady] = useState(false);
+  useEffect(() => { setClientReady(true); }, []);
   const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
   const [, setMetadataVersion] = useState(0);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -42,7 +44,7 @@ export default function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: Header
     return staticPagePath(path || '/', lang) + (fragment ? `#${fragment}` : '');
   };
   const languageHref = (next: 'en' | 'es') => {
-    if (typeof window === 'undefined') return staticPagePath('/', next);
+    if (!clientReady) return staticPagePath('/', next);
     if (window.location.pathname.startsWith('/blog/')) {
       const alternate = document.head.querySelector<HTMLLinkElement>(`link[rel="alternate"][hreflang="${next}"]`);
       if (alternate) { const url = new URL(alternate.href); return url.pathname + url.search; }

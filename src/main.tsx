@@ -1,16 +1,13 @@
-import { createRoot } from "react-dom/client";
-import App from "./App";
-import "./index.css";
-import { initI18n } from './i18n'; // 👈 ahora es una función async
+import { createRoot, hydrateRoot } from 'react-dom/client';
+import { Root } from './Root';
+import './index.css';
+import i18n, { initI18n } from './i18n';
 
-const renderApp = async () => {
-  //console.log("main.tsx: awaiting initI18n() to finish");
-  await initI18n(); // 👈 inicializa i18next antes de renderizar
-  //console.log("main.tsx: initI18n() finished, now rendering App");
-
-  createRoot(document.getElementById("root")!).render(
-    <App />
-  );
-};
-
-renderApp();
+async function renderApp() {
+  await initI18n();
+  const root = document.getElementById('root')!;
+  const app = <Root instance={i18n} path={window.location.pathname + window.location.search} />;
+  if (root.dataset.renderMode === 'hydrate') hydrateRoot(root, app);
+  else createRoot(root).render(app);
+}
+void renderApp();

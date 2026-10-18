@@ -808,6 +808,7 @@
         "hoursTitle": "Business Hours",
         "hoursWeek": "Monday - Friday: 9:00 AM - 6:00 PM PST",
         "hoursWeekend": "Saturday - Sunday: Closed",
+        "javascriptRequired": "This form needs JavaScript. You can also contact us using the email link.",
         "formTitle": "Send us a Message",
         "name": "Name",
         "emailPlaceholder": "Your email",

@@ -1,11 +1,12 @@
 // @vitest-environment node
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import express from 'express';
 import request from 'supertest';
 import { load } from 'cheerio';
 import { mkdtemp, mkdir, writeFile, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { createMetaInjector } from '../metaInjector.js';
 import { mountPublicSite } from '../../publicServing.js';
 import { mountSitemapRoutes } from '../sitemapRoutes.js';
 
@@ -89,7 +90,7 @@ describe('actual production-layout public middleware', () => {
     expect(load(res.text)('link[rel="canonical"]').attr('href')).toBe('https://robles.ai/blog?lang=es&page=2');
     expect(load(res.text)('title').text()).toContain('Página 2');
   });
-  it.each(['/not-a-route', '/blog/missing-post', `/blog/${enSlug}-invented`, '/assets/missing.js', '/logo.png', '/og-image.png', '/index.js', '/src/i18n/locales/en/translation.json', '/data/dominical.db', '/data/posts/post.json', '/api/missing'])('returns a real 404 without exposing private artifacts: %s', async path => {
+  it.each(['/not-a-route', '/blog/missing-post', `/blog/${enSlug}-invented`, '/assets/missing.js', '/logo.png', '/og-image.png', '/index.js', '/ssr/entry-server.js', '/ssr/assets/AdminDashboard.js', '/src/i18n/locales/en/translation.json', '/data/dominical.db', '/data/posts/post.json', '/api/missing'])('returns a real 404 without exposing private artifacts: %s', async path => {
     const res = await request(app).get(path).expect(404);
     expect(res.text).not.toContain('private fixture');
     expect(res.text).not.toContain('private server bundle');
@@ -156,4 +157,23 @@ it('sitemap collision destinations are distinct, reciprocal and resolve to their
     const html = await request(app).get(href.replace('https://robles.ai', '')).expect(200);
     expect(load(html.text)('html').attr('lang')).toBe(lang);
   }
+});
+
+it('enables hydration only for the public home when a renderer is provided', async () => {
+  const renderHome = vi.fn(async (_url: string, translations: Record<string, any>) => `<main><h1>${translations.hero.title}</h1></main>`);
+  const isolated = express();
+  isolated.use(createMetaInjector({ mode: 'production', distPath: join(root, 'dist'), sourcePath: join(root, 'index.html'), renderHome }).handler);
+  const home = await request(isolated).get('/?lang=es').expect(200);
+  expect(load(home.text)('#root').attr('data-render-mode')).toBe('hydrate');
+  expect(load(home.text)('h1').text()).toContain('Inteligencia Artificial');
+  const careers = await request(isolated).get('/careers').expect(200);
+  expect(load(careers.text)('#root').attr('data-render-mode')).toBeUndefined();
+  await request(isolated).get('/admin').expect(200).expect('X-Robots-Tag', 'noindex, nofollow');
+  expect(renderHome).toHaveBeenCalledTimes(1);
+});
+it('does not expose rendering errors or silently claim a failed home is healthy', async () => {
+  const isolated = express();
+  isolated.use(createMetaInjector({ mode: 'production', distPath: join(root, 'dist'), sourcePath: join(root, 'index.html'), renderHome: async () => { throw new Error('private diagnostic detail'); } }).handler);
+  const response = await request(isolated).get('/').expect(503).expect('Retry-After', '60');
+  expect(response.text).not.toContain('private diagnostic detail');
 });

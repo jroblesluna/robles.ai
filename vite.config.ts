@@ -7,7 +7,7 @@ import svgr from 'vite-plugin-svgr';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-export default defineConfig({
+export default defineConfig(({ isSsrBuild }) => ({
   root: path.resolve(__dirname, "."), // Configura la raíz del proyecto en la carpeta 'client'
   plugins: [
     react(),
@@ -21,10 +21,11 @@ export default defineConfig({
     include: ['react', 'react-dom', 'react/jsx-dev-runtime', 'react/jsx-runtime'], // Vite optimization
   },
   build: {
+    copyPublicDir: !isSsrBuild,
     outDir: 'dist',
     emptyOutDir: true,
     chunkSizeWarningLimit: 1000,
-    rollupOptions: {
+    rollupOptions: isSsrBuild ? {} : {
       output: {
         manualChunks: {
           'vendor-motion': ['framer-motion'],
@@ -41,4 +42,4 @@ export default defineConfig({
       "@shared": path.resolve(__dirname, "shared"),
     },
   },
-});
+}));

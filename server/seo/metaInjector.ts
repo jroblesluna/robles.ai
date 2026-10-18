@@ -49,9 +49,9 @@ export function createMetaInjector(config: MetaInjectorConfig): MetaInjectorResu
       return fallbacks[lang];
     }
   }
-  async function send(reqUrl: string, res: Parameters<RequestHandler>[1], status: number, meta: PageMeta, content = '', post?: BlogPostData) {
+  async function send(reqUrl: string, res: Parameters<RequestHandler>[1], status: number, meta: PageMeta, content = '', post?: BlogPostData, hydrate = false) {
     res.status(status).set({ 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' })
-      .end(injectPublicContent(injectMeta(await template(reqUrl), meta), content, post));
+      .end(injectPublicContent(injectMeta(await template(reqUrl), meta), content, post, hydrate));
   }
   const handler: RequestHandler = async (req, res, next) => {
     if (req.method !== 'GET' && req.method !== 'HEAD') return next();
@@ -103,8 +103,9 @@ export function createMetaInjector(config: MetaInjectorConfig): MetaInjectorResu
           const selected = filtered ? [] : entries.slice((page - 1) * 30, page * 30);
           const posts: BlogPostData[] = await Promise.all(selected.map(entry => readFile(entry.filePath, 'utf8').then(JSON.parse)));
           content = renderArchiveContent(posts, lang, locale, page, filtered ? 0 : entries.length);
-        } else content = renderStaticContent(path, lang, locale, url);
-        await send(req.originalUrl, res, 200, meta, content);
+        } else if (path === '/' && config.renderHome) content = await config.renderHome(req.originalUrl, locale);
+        else content = renderStaticContent(path, lang, locale, url);
+        await send(req.originalUrl, res, 200, meta, content, undefined, path === '/' && !!config.renderHome);
         return;
       } else if (utilityRoute.test(path)) {
         const lang = queryLang ?? 'en';

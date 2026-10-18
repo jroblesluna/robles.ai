@@ -808,6 +808,7 @@
         "hoursTitle": "Horario de atención",
         "hoursWeek": "Lunes a Viernes: 9:00 AM - 6:00 PM PST",
         "hoursWeekend": "Sábado y Domingo: Cerrado",
+        "javascriptRequired": "Este formulario necesita JavaScript. También puedes contactarnos mediante el enlace de correo.",
         "formTitle": "Envíanos un mensaje",
         "name": "Nombre",
         "emailPlaceholder": "Tu correo electrónico",

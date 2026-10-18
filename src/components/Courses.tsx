@@ -352,7 +352,7 @@ const Courses = () => {
       <motion.div
         className="container mx-auto px-6"
         variants={staggerContainer}
-        initial="hidden"
+        initial={false}
         whileInView="visible"
         viewport={{ once: true, amount: 0.2 }}
       >
