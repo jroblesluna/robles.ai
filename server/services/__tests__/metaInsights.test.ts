@@ -450,6 +450,49 @@ describe('metaInsights', () => {
 
       expect(isMetaInsightsError(result)).toBe(true);
     });
+
+    it('returns insights with a warning when recent media is not permitted', async () => {
+      mockSettingsByKey({ instagram_access_token: 'ig-token', instagram_business_account_id: 'ig-1' });
+      routeFetch((url) => {
+        if (url.pathname.endsWith('/ig-1/media')) {
+          return { status: 400, body: { error: { code: 10, message: '(#10) Application does not have permission for this action' } } };
+        }
+        if (url.pathname.endsWith('/ig-1/insights')) {
+          const metric = url.searchParams.get('metric')!;
+          return metric === 'views' || metric === 'accounts_engaged'
+            ? { data: [{ name: metric, total_value: { value: 7 } }] }
+            : { data: [{ name: metric, values: [{ value: 3, end_time: day1 }] }] };
+        }
+        return { followers_count: 42 };
+      });
+
+      const result = await queryInstagram();
+
+      expect(isMetaInsightsError(result)).toBe(false);
+      if (!isMetaInsightsError(result)) {
+        expect(result.insights.followerCount).toBe(42);
+        expect(result.recentMedia).toEqual([]);
+        expect(result.warnings?.[0]).toContain('(#10)');
+      }
+    });
+
+    it('still fails when recent media reports an expired token', async () => {
+      mockSettingsByKey({ instagram_access_token: 'ig-token', instagram_business_account_id: 'ig-1' });
+      routeFetch((url) => {
+        if (url.pathname.endsWith('/ig-1/media')) {
+          return { status: 400, body: { error: { code: 190, message: 'expired' } } };
+        }
+        if (url.pathname.endsWith('/ig-1/insights')) {
+          return { data: [{ name: url.searchParams.get('metric')!, values: [{ value: 1, end_time: day1 }] }] };
+        }
+        return { followers_count: 1 };
+      });
+
+      const result = await queryInstagram();
+
+      expect(isMetaInsightsError(result)).toBe(true);
+      if (isMetaInsightsError(result)) expect(result.code).toBe('TOKEN_EXPIRED');
+    });
   });
 
   describe('queryFacebookPage (combined)', () => {
@@ -459,6 +502,25 @@ describe('metaInsights', () => {
       const result = await queryFacebookPage();
 
       expect(isMetaInsightsError(result)).toBe(true);
+    });
+
+    it('returns insights with a warning when recent posts are not permitted', async () => {
+      mockSettingsByKey({ facebook_page_access_token: 'fb-token', facebook_page_id: 'page-1' });
+      routeFetch((url) => {
+        if (url.pathname.endsWith('/page-1/posts')) {
+          return { status: 400, body: { error: { code: 10, message: "(#10) This endpoint requires the 'pages_read_user_content' permission" } } };
+        }
+        return { data: [{ name: url.searchParams.get('metric')!, values: [{ value: 5, end_time: day1 }, { value: 6, end_time: day2 }] }] };
+      });
+
+      const result = await queryFacebookPage();
+
+      expect(isMetaInsightsError(result)).toBe(false);
+      if (!isMetaInsightsError(result)) {
+        expect(result.insights.pageViews).toBe(11);
+        expect(result.recentPosts).toEqual([]);
+        expect(result.warnings?.[0]).toContain('pages_read_user_content');
+      }
     });
   });
 });

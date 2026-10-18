@@ -57,6 +57,7 @@ interface InstagramMediaItem {
 interface InstagramData {
   insights: InstagramInsightsData;
   recentMedia: InstagramMediaItem[];
+  warnings?: string[];
 }
 
 interface FacebookPageInsightsData {
@@ -83,6 +84,7 @@ interface FacebookPostItem {
 interface FacebookData {
   insights: FacebookPageInsightsData;
   recentPosts: FacebookPostItem[];
+  warnings?: string[];
 }
 
 interface MetaError {
@@ -145,6 +147,7 @@ export default function SocialTab({ dateRange }: SocialTabProps) {
         ) : igError ? null : igData ? (
           <div className="space-y-6">
             <InstagramMetrics data={igData.insights} />
+            <PartialDataNotice warnings={igData.warnings} />
             {igData.insights.dailyMetrics.length > 0 && (
               <FollowerGrowthChart
                 data={igData.insights.dailyMetrics}
@@ -170,6 +173,7 @@ export default function SocialTab({ dateRange }: SocialTabProps) {
         ) : fbError ? null : fbData ? (
           <div className="space-y-6">
             <FacebookMetrics data={fbData.insights} />
+            <PartialDataNotice warnings={fbData.warnings} />
             {fbData.insights.dailyMetrics.length > 0 && (
               <FollowerGrowthChart
                 data={fbData.insights.dailyMetrics.map((d) => ({
@@ -185,6 +189,19 @@ export default function SocialTab({ dateRange }: SocialTabProps) {
           </div>
         ) : null}
       </section>
+    </div>
+  );
+}
+
+// ─── Partial Data Notice ────────────────────────────────────────────────────────
+
+function PartialDataNotice({ warnings }: { warnings?: string[] }) {
+  if (!warnings || warnings.length === 0) return null;
+  return (
+    <div role="status" className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+      {warnings.map((w) => (
+        <p key={w}>{w}</p>
+      ))}
     </div>
   );
 }

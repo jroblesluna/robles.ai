@@ -38,6 +38,8 @@ export interface InstagramMediaItem {
 export interface InstagramData {
   insights: InstagramInsightsData;
   recentMedia: InstagramMediaItem[];
+  /** Non-fatal problems (e.g. recent media unavailable for lack of permission). */
+  warnings?: string[];
 }
 
 export interface FacebookPageInsightsData {
@@ -64,6 +66,8 @@ export interface FacebookPostItem {
 export interface FacebookData {
   insights: FacebookPageInsightsData;
   recentPosts: FacebookPostItem[];
+  /** Non-fatal problems (e.g. recent posts unavailable for lack of permission). */
+  warnings?: string[];
 }
 
 // Insights metric as returned by /{id}/insights: time series in `values`,
@@ -370,8 +374,14 @@ export async function queryInstagram(
   const insights = await queryInstagramInsights(since, until);
   if (isMetaInsightsError(insights)) return insights;
 
+  // Recent media is secondary: if it fails (other than an expired token), still
+  // return the insights with an empty list and a warning.
   const recentMedia = await queryInstagramMedia();
-  if (isMetaInsightsError(recentMedia)) return recentMedia;
+  if (isMetaInsightsError(recentMedia)) {
+    if (recentMedia.code === 'TOKEN_EXPIRED') return recentMedia;
+    console.warn(`[metaInsights] Instagram recent media unavailable: ${recentMedia.message}`);
+    return { insights, recentMedia: [], warnings: [`Recent media unavailable: ${recentMedia.message}`] };
+  }
 
   return { insights, recentMedia };
 }
@@ -493,8 +503,14 @@ export async function queryFacebookPage(
   const insights = await queryFacebookPageInsights(since, until);
   if (isMetaInsightsError(insights)) return insights;
 
+  // Recent posts need extra permissions (pages_read_user_content); if they fail
+  // (other than an expired token), still return the insights with a warning.
   const recentPosts = await queryFacebookPosts();
-  if (isMetaInsightsError(recentPosts)) return recentPosts;
+  if (isMetaInsightsError(recentPosts)) {
+    if (recentPosts.code === 'TOKEN_EXPIRED') return recentPosts;
+    console.warn(`[metaInsights] Facebook recent posts unavailable: ${recentPosts.message}`);
+    return { insights, recentPosts: [], warnings: [`Recent posts unavailable: ${recentPosts.message}`] };
+  }
 
   return { insights, recentPosts };
 }
