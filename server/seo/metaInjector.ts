@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { join, dirname, resolve } from 'node:path';
 import type { RequestHandler } from 'express';
 import type { MetaInjectorConfig, BlogPostData, PageMeta } from './types.js';
-import { STATIC_PAGES, explicitLanguage, archivePage, blogPath } from '../../shared/seoPolicy.js';
+import { STATIC_PAGES, explicitLanguage, archivePage, blogPagePath } from '../../shared/seoPolicy.js';
 import enFallback from '../../src/i18n/locales/en/translation.json';
 import esFallback from '../../src/i18n/locales/es/translation.json';
 import { createSlugIndex, type SlugIndex } from './slugIndex.js';
@@ -70,14 +70,17 @@ export function createMetaInjector(config: MetaInjectorConfig): MetaInjectorResu
         if (entry) {
           const post: BlogPostData = JSON.parse(await readFile(entry.filePath, 'utf8'));
           const lang = queryLang ?? (slug === entry.esSlug ? 'es' : 'en');
-          const target = lang === 'es' ? entry.esSlug : entry.enSlug;
-          // Support existing English-slug ?lang=es backlinks with a permanent redirect.
-          if (slug !== target || url.searchParams.has('lang')) {
-            url.searchParams.delete('lang');
-            return void res.redirect(308, blogPath(target) + url.search);
-          }
-          const meta = buildBlogMeta({ post, lang, slug: target });
-          meta.jsonLd = buildBlogJsonLd({ post, lang, slug: target }, 'Robles.AI');
+          const target = new URL(blogPagePath(entry.enSlug, entry.esSlug, lang), url.origin);
+          const originalPath = url.pathname + url.search;
+          // Retain campaign/filter parameters, and retain lang only when it distinguishes EN.
+          const requiredLang = target.searchParams.get('lang');
+          if (requiredLang) url.searchParams.set('lang', requiredLang);
+          else url.searchParams.delete('lang');
+          const targetPath = target.pathname + url.search;
+          if (targetPath !== originalPath) return void res.redirect(308, targetPath);
+          const targetSlug = lang === 'es' ? entry.esSlug : entry.enSlug;
+          const meta = buildBlogMeta({ post, lang, slug: targetSlug });
+          meta.jsonLd = buildBlogJsonLd({ post, lang, slug: targetSlug }, 'Robles.AI');
           await send(req.originalUrl, res, 200, meta);
           return;
         }

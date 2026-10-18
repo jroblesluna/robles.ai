@@ -205,3 +205,18 @@ describe('blogModal pure helpers — Correctness Properties', () => {
     );
   });
 });
+
+it('uses the same collision URL for cards, sharing and opening in a new tab', async () => {
+  const { listPostPath, listPostAbsoluteUrl } = await import('./blogModal');
+  const post: BlogModalPost = { slug: 'same-slug', editorId: 1, translations: {
+    en: { slug: 'same-slug', title: 'English', excerpt: '', content: [] },
+    es: { slug: 'same-slug', title: 'Español', excerpt: '', content: [] },
+  } };
+  for (const lang of ['en', 'es'] as const) {
+    const path = '/blog/same-slug' + (lang === 'en' ? '?lang=en' : '');
+    expect(blogPath(post, lang)).toBe(path);
+    expect(listPostPath(post as any, lang)).toBe(path);
+    expect(absoluteUrl(post, lang, 'https://robles.ai')).toBe('https://robles.ai' + path);
+    expect(listPostAbsoluteUrl(post as any, 'https://robles.ai', lang)).toBe('https://robles.ai' + path);
+  }
+});

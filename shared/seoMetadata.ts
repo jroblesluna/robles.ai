@@ -1,5 +1,5 @@
 import type { BlogPostData, HreflangLink, PageMeta } from '../server/seo/types.js';
-import { STATIC_PAGES, SITE_URL, staticPagePath, blogAlternates, schemaDate, blogPath } from './seoPolicy.js';
+import { STATIC_PAGES, SITE_URL, staticPagePath, blogAlternates, schemaDate, blogPagePath } from './seoPolicy.js';
 
 const BASE_URL = SITE_URL;
 const DEFAULT_OG_IMAGE = `${BASE_URL}/images/logo.png`;
@@ -55,12 +55,12 @@ function buildHreflangLinks(enSlug: string, esSlug: string): HreflangLink[] {
  * 2. BreadcrumbList schema with Home > Blog > Post Title
  */
 export function buildBlogJsonLd(input: BlogMetaBuilderInput, _editorName: string): object[] {
-  const { post, lang, slug } = input;
+  const { post, lang } = input;
   const translation = post.translations[lang];
 
   const headline = translation.title;
   const description = truncateDescription(translation.excerpt);
-  const canonicalUrl = BASE_URL + blogPath(slug);
+  const canonicalUrl = BASE_URL + blogPagePath(post.translations.en.slug, post.translations.es.slug, lang);
   const imageUrl = resolveImageUrl(post.image);
 
   const blogPosting = {
@@ -109,16 +109,16 @@ export function buildBlogJsonLd(input: BlogMetaBuilderInput, _editorName: string
 /**
  * Builds complete PageMeta from a blog post, language, and slug.
  * - Description is truncated to 160 characters
- * - Canonical URL has no query parameters
+ * - Canonical URL distinguishes EN when translated slugs coincide
  * - Hreflang links include en, es, and x-default
  */
 export function buildBlogMeta(input: BlogMetaBuilderInput): PageMeta {
-  const { post, lang, slug } = input;
+  const { post, lang } = input;
   const translation = post.translations[lang];
 
   const title = translation.title;
   const description = truncateDescription(translation.excerpt);
-  const canonicalUrl = BASE_URL + blogPath(slug);
+  const canonicalUrl = BASE_URL + blogPagePath(post.translations.en.slug, post.translations.es.slug, lang);
   const imageUrl = resolveImageUrl(post.image);
 
   const enSlug = post.translations.en.slug;

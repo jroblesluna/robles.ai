@@ -25,11 +25,15 @@ export function staticPagePath(path: string, lang: ContentLanguage, page = 1): s
   return path + (query.size ? `?${query}` : '');
 }
 export function blogPath(slug: string): string { return `/blog/${encodeURIComponent(slug)}`; }
+/** Keep the existing Spanish URL when translated slugs collide; EN needs an explicit URL. */
+export function blogPagePath(enSlug: string, esSlug: string, lang: ContentLanguage): string {
+  return blogPath(lang === 'es' ? esSlug : enSlug) + (enSlug === esSlug && lang === 'en' ? '?lang=en' : '');
+}
 export function blogAlternates(enSlug: string, esSlug: string) {
   return [
-    { hreflang: 'en', href: SITE_URL + blogPath(enSlug) },
-    { hreflang: 'es', href: SITE_URL + blogPath(esSlug) },
-    { hreflang: 'x-default', href: SITE_URL + blogPath(enSlug) },
+    { hreflang: 'en', href: SITE_URL + blogPagePath(enSlug, esSlug, 'en') },
+    { hreflang: 'es', href: SITE_URL + blogPagePath(enSlug, esSlug, 'es') },
+    { hreflang: 'x-default', href: SITE_URL + blogPagePath(enSlug, esSlug, 'en') },
   ];
 }
 /** Slug prefixes were generated with setUTCHours; existing ISO dates retain their timezone. */

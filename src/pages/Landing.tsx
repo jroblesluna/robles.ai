@@ -1,3 +1,4 @@
+import { normalizeLanguage, staticPagePath } from '@shared/seoPolicy';
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
@@ -32,7 +33,8 @@ const fadeUp = {
 };
 
 export default function DiagnosticoIA() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
 
   const steps = [
     { num: "01", key: "step1", icon: ClipboardCheck },
@@ -116,7 +118,7 @@ export default function DiagnosticoIA() {
                 {t("landing.hero.cta")} <ArrowRight className="w-5 h-5" />
               </a>
               <Link
-                href="/diagnostico-ia"
+                href={staticPagePath("/diagnostico-ia", lang)}
                 className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/20 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-colors"
               >
                 <Sparkles className="w-5 h-5 text-emerald-400" />

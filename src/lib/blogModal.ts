@@ -1,4 +1,4 @@
-import { blogPath as articlePath } from '@shared/seoPolicy';
+import { blogPath as articlePath, blogPagePath } from '@shared/seoPolicy';
 
 // Pure URL/slug + navigation helpers for the blog in-page modal viewer.
 //
@@ -49,6 +49,9 @@ export interface BlogListPost {
  * so the modal URL uses that same canonical slug (Req 12.1, 12.4).
  */
 export function listPostPath(post: BlogListPost, lang: BlogModalLang = 'en'): string {
+  const enSlug = post.translations.en.slug;
+  const esSlug = post.translations.es.slug;
+  if (enSlug && esSlug) return blogPagePath(enSlug, esSlug, lang);
   const slug = post.translations[lang]?.slug;
   return articlePath(slug ?? post.slug) + (!slug && lang === 'es' ? '?lang=es' : '');
 }
@@ -87,7 +90,9 @@ export function slugForLang(post: BlogModalPost, lang: BlogModalLang): string {
  * Builds the app-relative `/blog/:slug` path for a post in the active language.
  */
 export function blogPath(post: BlogModalPost, lang: BlogModalLang): string {
-  return articlePath(slugForLang(post, lang));
+  return post.translations.es
+    ? blogPagePath(post.translations.en.slug, post.translations.es.slug, lang)
+    : articlePath(slugForLang(post, lang));
 }
 
 /**

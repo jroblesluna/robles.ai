@@ -1,3 +1,4 @@
+import { normalizeLanguage, staticPagePath } from '@shared/seoPolicy';
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
@@ -111,7 +112,8 @@ function BenefitLine({ text }: { text: string }) {
 
 // ── Demo card (live + roadmap share the same anatomy) ─────────────────────────
 function DemoCard({ item, index }: { item: DemoItem; index: number }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
   const Icon = ICONS[item.icon] || Sparkles;
   const isLive = item.status === "live";
   const gradient = GRADIENTS[item.id] ?? `${item.from} ${item.to}`;
@@ -194,10 +196,10 @@ function DemoCard({ item, index }: { item: DemoItem; index: number }) {
       className="h-full"
     >
       {isLive && item.href ? (
-        <Link href={item.href} className={cardClass}>{inner}</Link>
+        <Link href={staticPagePath(item.href, lang)} className={cardClass}>{inner}</Link>
       ) : (
         // Roadmap demos link to contact to register interest.
-        <a href="/#contact" className={cardClass}>{inner}</a>
+        <a href={staticPagePath("/", lang) + "#contact"} className={cardClass}>{inner}</a>
       )}
     </motion.div>
   );
@@ -361,7 +363,8 @@ export default function DemosCatalog({
   limit?: number;
   showViewAll?: boolean;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
   const allItems = (t("demosCatalog.items", { returnObjects: true }) as DemoItem[]) || [];
   const compact = !!limit;
 
@@ -432,7 +435,7 @@ export default function DemosCatalog({
                 className="h-full"
               >
                 <Link
-                  href={item.href ?? "/demos"}
+                  href={staticPagePath(item.href ?? "/demos", lang)}
                   className="group flex h-full flex-col overflow-hidden rounded-3xl bg-white ring-1 ring-gray-200/80 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_60px_-24px_rgba(16,24,40,0.28)] focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
                 >
                   <div className={`relative flex h-56 items-center justify-center overflow-hidden bg-gradient-to-b ${TINTS[item.id] ?? "from-gray-100 to-white"}`}>
@@ -467,7 +470,7 @@ export default function DemosCatalog({
               className="h-full"
             >
               <Link
-                href="/demos"
+                href={staticPagePath("/demos", lang)}
                 className="group relative flex h-full min-h-[420px] flex-col justify-end overflow-hidden rounded-3xl bg-gray-950 p-7 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
               >
                 <span className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-violet-600/40 blur-3xl" />
@@ -639,7 +642,7 @@ export default function DemosCatalog({
           <p className="text-center text-sm text-gray-500">
             {t("demosCatalog.footer_note")}{" "}
             <a
-              href="/#contact"
+              href={staticPagePath("/", lang) + "#contact"}
               className="group inline-flex items-center gap-1 font-medium text-gray-900 underline decoration-gray-300 underline-offset-4 transition-colors hover:text-violet-600 hover:decoration-violet-400"
             >
               {t("demosCatalog.footer_cta")}

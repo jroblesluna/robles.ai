@@ -69,3 +69,12 @@ describe('production sitemap implementation', () => {
     await expect(generateSitemaps(['--posts', posts, '--write'])).rejects.toThrow('explicit --output');
   });
 });
+
+it('round-trips identical-slug language pairs without duplicate URL locations', () => {
+  const slug = '2026-10-15-18-00-00-shivoo-studios-reality-reframe-podcast';
+  const xml = buildSitemapXml([{ enSlug: slug, esSlug: slug }]);
+  const urls = parse(xml).url;
+  expect(urls.map((url: any) => url.loc)).toEqual([`https://robles.ai/blog/${slug}?lang=en`, `https://robles.ai/blog/${slug}`]);
+  expect(parseExistingSitemap(xml)).toEqual([{ enSlug: slug, esSlug: slug }]);
+  for (const url of urls) expect(url['xhtml:link'].map((link: any) => link['@_href'])).toContain(url.loc);
+});

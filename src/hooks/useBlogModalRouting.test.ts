@@ -99,3 +99,15 @@ describe('useBlogModalRouting', () => {
     expect(result.current.openIndex).toBeNull();
   });
 });
+
+it('opens and replaces identical-slug English modal URLs with their language discriminator', () => {
+  const slug = 'same-slug';
+  const collision = { ...makePost(slug), translations: {
+    en: { slug, title: 'English', excerpt: '' }, es: { slug, title: 'Español', excerpt: '' },
+  } };
+  const { result } = renderHook(() => useBlogModalRouting([collision]));
+  act(() => result.current.openAt(0));
+  expect(window.location.pathname + window.location.search).toBe('/blog/same-slug?lang=en');
+  act(() => result.current.goToIndex(0));
+  expect(window.location.search).toBe('?lang=en');
+});

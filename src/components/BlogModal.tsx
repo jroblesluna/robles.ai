@@ -152,7 +152,8 @@ export function BlogModal({
     applyPageMetadata(meta);
     // A translated modal and a direct article load have the same shareable URL.
     if (window.history.state?.blogModal) {
-      window.history.replaceState(window.history.state, '', new URL(meta.canonicalUrl).pathname);
+      const url = new URL(meta.canonicalUrl);
+      window.history.replaceState(window.history.state, '', url.pathname + url.search);
     }
   }, [displayFull, post?.slug, lang]);
 
