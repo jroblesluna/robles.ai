@@ -1,5 +1,7 @@
 # Robles.AI technical SEO, content, architecture and GEO audit
 
+> **Estado actual — verificación de PROD del 18 octubre 2026, 17:35–17:39 UTC:** PR #6 desplegado correctamente. Las URLs bilingües de los nueve artículos y sus sitemaps funcionan; los CTA del Hero y landing conservan español. La revisión descubrió un consumidor pendiente en las tarjetas del blog y CTA residuales en otras secciones. Consulte **“Nueva auditoría de producción tras PR #6”** al final. Las observaciones originales siguientes son históricas y no representan automáticamente defectos actuales.
+
 Audit date: October 17, 2026, America/Los_Angeles. Public responses were collected around 21:53–22:00 PDT (October 18 UTC). Audit only: no application changes, deployments, commits, data writes, account changes or dependency installations.
 
 ## Executive Summary
@@ -426,3 +428,111 @@ Estimates overlap and are not additive guarantees. No critical indexing outage i
 ## Post-audit implementation note — October 18, 2026
 
 The owner subsequently authorized local implementation of Batches 1–4 in an isolated checkout. See the implementation record in [SEO_IMPLEMENTATION_PLAN.md](SEO_IMPLEMENTATION_PLAN.md) for the exact changed files, passing checks and remaining baseline TypeScript errors. Production has not been deployed or reclassified as fixed. Actual deployed data exposure, indexing, field performance and account metrics remain unverified.
+
+
+## Nueva auditoría de producción tras PR #6
+
+### Executive summary actualizado
+
+**El sitio está operativo en los recorridos públicos comprobados y el despliegue está confirmado. La corrección bilingüe está parcialmente cerrada: HTTP, schema, sitemap y modal funcionan, pero la tarjeta del archivo todavía construye su href por separado.** Hero, landing, catálogo y DemoNav conservan idioma. Los CTA de CaseStudies y SavingsCalculator requieren una pasada adicional.
+
+- **Release:** [PR #6](https://github.com/jroblesluna/robles.ai/pull/6), commit de cambio `399a437f8c60e66baf1a8db06ffc5479f4640d84`, commit de fusión `1c3a39b8d846a35b714eacb1f9a0483535a3bef2`.
+- **Despliegue:** [Deploy to VPS](https://github.com/jroblesluna/robles.ai/actions/runs/39147363968), `completed / success`, mismo SHA de fusión.
+- **Fecha y método:** 18 octubre 2026, aproximadamente 17:35–17:39 UTC (10:35–10:39 PDT). HTTP público con curl y TLS validado, XML/JSON/HTML analizados con biblioteca estándar, navegador real y contraste con fuente en `~/Dev/robles.ai`.
+- **Alcance:** 155 resultados conservados en el diagnóstico HTTP principal, incluido muestreo de compresión; un HEAD adicional de asset inexistente; 21 sitemaps completos; 34 URLs estáticas; 59 respuestas de artículos (incluido un variante UTM). Navegación a 1280 px por portada ES, landing ES, diagnóstico ES, artículo con colisión EN/ES, archivo EN página 2, modal, RAG ES y Forecast ES. Los artículos fuera de los nueve casos se muestrearon, no se rastreó individualmente todo el corpus.
+- **Acciones:** solo lectura de producción y actualización de estos dos documentos. Sin fixes de aplicación, commit, push, PR, merge, deploy, cambios de datos o configuración durante esta auditoría.
+
+### Resultado de los dos puntos solicitados
+
+| Punto | Estado actual en producción | Evidencia y límite |
+| --- | --- | --- |
+| Nueve slugs EN/ES compartidos | **Corregidos HTTP, canonical, alternates, schema y sitemap; modal correcto. Cierre parcial hasta POST-03.** | Las 18 URLs (9 EN con `?lang=en`, 9 ES limpias) responden 200 con idioma y canonical propios. Los nueve `?lang=es` redirigen 308 a su ES limpio. El archivo aún enlaza por separado al slug limpio en una tarjeta EN comprobada. |
+| CTA del Hero y landing pierden ES | **Corregido en esos componentes.** | Todos los slides del Hero inspeccionados; clic real portada → `/get-started?lang=es` → `/diagnostico-ia?lang=es`, con H1, lang y canonical ES. El catálogo y DemoNav también conservan ES. Otros componentes no incluidos en esos CTA mantienen el defecto: POST-04. |
+
+### Comprobaciones técnicas actuales
+
+| Área | Resultado verificado |
+| --- | --- |
+| Inventario de sitemap | `sitemap.xml` referencia **21 hijos**: estático y 20 mensuales. Todos 200 y XML parseable. **24,366 loc y 24,366 URLs distintas**, cero duplicados. **34 estáticas + 24,332 URLs de artículos**, equivalentes a **12,166 pares**. API pública de listado reporta `total: 12166` en esa ventana. Es coherencia de conteos, no reconciliación registro a registro ni cifra de indexación. |
+| Comparación con revisión anterior | La revisión anterior tenía 24,364 entradas pero 24,355 destinos únicos. Ahora hay 24,366 destinos únicos: los nueve pares ya se distinguen, además de un registro adicional en el inventario. No se atribuye a esto una mejora medida de rankings o tráfico. |
+| Idiomas en XML | Todas las entradas revisadas tienen EN/ES/x-default, autorreferencia, destinos incluidos y relaciones recíprocas. EN y ES ya no comparten el mismo destino. Mayor XML observado: 810,449 bytes / 1,450 URL, por debajo de los límites de tamaño/cantidad. |
+| Páginas estáticas | Las **34 URLs publicadas** responden 200 y canonical/lang coherentes con su entrada del sitemap. Descripciones y principales OG/Twitter no vacíos, únicos dentro de cada respuesta en los campos comprobados. No se observaron errores de estas aserciones en las muestras 200. |
+| Artículos y JSON-LD | **59 respuestas de artículos 200**: BlogPosting presente con `inLanguage`, `mainEntityOfPage` y canonical coherentes; fecha publicada con sintaxis ISO y zona horaria. Cero fallos de JSON.parse en schema. Esto no equivale a una certificación de rich results ni validación factual del contenido. |
+| Canonical del caso compartido | `.../2026-10-15-18-00-00-shivoo-studios-reality-reframe-podcast?lang=en` conserva EN y devuelve título inglés; la ruta limpia conserva ES y título español. La versión con UTM sigue EN, conserva el parámetro en la respuesta y canonicaliza al EN sin UTM. |
+| Compatibilidad | Un artículo con slugs distintos mantiene 308 de EN + `?lang=es` a ES limpio y de ES + `?lang=en` a EN limpio. Las rutas con barra final comprobadas redirigen 308 conservando parámetros. |
+| Archivo y modal | `/blog?page=2` mantiene título “Page 2”, canonical y paginación real. El modal del caso compartido muestra EN, conserva `?lang=en`, canonical/alternates y enlace de abrir en pestaña nueva correctos. Sus enlaces de idioma apuntan a las dos versiones actuales. Cerrar restaura archivo página 2, metadatos y foco en tarjeta. **El href de la tarjeta restaurada sigue incorrecto**, POST-03. |
+| Robots | 200; `Sitemap: https://robles.ai/sitemap.xml` correcto. `User-agent: * / Allow: /` conservado; no se añadieron políticas específicas de entrenamiento o búsqueda. |
+| Indexación de utilidades | `/blog?q=rag` y `/try-medical` anuncian `noindex,follow`; la demo médica sigue “Coming Soon” y fuera del sitemap. Ausencia de meta robots en páginas indexables es compatible con la conducta predeterminada, no un fallo. |
+| Errores | Página inexistente, artículo inexistente y sitemap inexistente: 404. Las páginas HTML de error incluyen noindex. HEAD de un JS inexistente también 404 `text/plain`, sin sustitución por shell 200. |
+| Dominio | Raíz HTTP y www HTTPS: 301 a `https://robles.ai/`, cuyo GET es 200. No se probó cada combinación de dominio, ruta y parámetros. |
+| Frontera pública | HEAD a `/index.js`, `/server/index.js`, `/shared/seoPolicy.ts`, `/src/i18n/locales/en/translation.json`, `/data/dominical.db`: 404. No se descargaron cuerpos potencialmente privados. No demuestra ausencia de copias adicionales ni resuelve exposición histórica. |
+| Interfaz y accesibilidad | H1/idioma/canonical consistentes en recorridos de landing, diagnóstico y artículo EN/ES. Modal conserva foco al cerrar. Sin overflow horizontal observado a 1280 px en las páginas comprobadas; RAG terminó sin imágenes fallidas. No se observaron errores de consola en las consultas de archivo/modal y RAG. No se certifica accesibilidad completa ni todos los tamaños móviles. |
+| Renderizado | Las **99 respuestas HTML 200** del diagnóstico inicial carecen de H1 en HTML fuente; el navegador sí renderiza contenido. Se mantiene CSR con inyección del head, no SSR de contenido. Esto limita fetchers sin JS, pero no demuestra falta de indexación por Google. |
+
+### Los nueve pares comprobados
+
+Para cada sufijo siguiente bajo `/blog/`, **ruta limpia = ES / 200 / canonical propio** y **misma ruta + `?lang=en` = EN / 200 / canonical propio**:
+
+- `2026-07-11-11-00-00-china-quantum-dim-mak`
+- `2026-08-30-09-00-00-elon-musk-starlink-grok-bot-robotaxis`
+- `2026-08-31-08-00-00-howard-stern-hbo-max-netflix-meta`
+- `2026-09-01-20-00-00-burning-man-ai-atlas-manchester-city`
+- `2026-09-03-04-00-00-nvidia-hugging-face-anker-mindbase-philips-hue`
+- `2026-09-08-03-00-00-meta-muse-pentagon-ai-apple-watch`
+- `2026-10-01-18-00-00-meta-vr-glasses-vs-apple-vision-pro`
+- `2026-10-12-05-00-00-apple-home-siri-ai-fitbit-edge`
+- `2026-10-15-18-00-00-shivoo-studios-reality-reframe-podcast`
+
+### POST-03 — El href de la tarjeta inglesa no usa la política compartida
+
+- **Categoría / severidad / prioridad:** multilingual, internal linking y UX; **MEDIUM / P1**. Omisión de la implementación del PR #6; no fallo general del servidor ni del sitemap.
+- **Evidencia de producción:** en `https://robles.ai/blog?page=2`, la tarjeta de “Shivoo Studios Launches Reality Reframe to Demystify XR for Business Leaders” tiene `href="/blog/2026-10-15-18-00-00-shivoo-studios-reality-reframe-podcast"`. Ese destino responde español, confirmado por HTTP y navegador. Su clic normal es interceptado y abre correctamente el modal EN, que sí cambia a `?lang=en`; la acción de compartir/abrir desde el modal también es correcta. Cerrar restaura el foco al anchor con el href incorrecto.
+- **Afectados:** tarjetas EN de los registros con slug compartido; una tarjeta comprobada en DOM. La misma expresión de fuente se aplica a los otros ocho casos, aunque no se inspeccionó su tarjeta individual en cada archivo paginado.
+- **Fuente / causa:** `src/pages/BlogList.tsx:335` construye `/blog/${post.translations[lang].slug}` directamente. No consume `listPostPath` de `src/lib/blogModal.ts`, que sí contiene la corrección. Las pruebas anteriores cubrieron el helper y el modal, pero no el href renderizado de BlogList: falta esa prueba de integración.
+- **Implicación:** abrir tarjeta en pestaña nueva, copiar su enlace o seguir el anchor desde un crawler lleva a ES pese al contexto EN. No implica que EN esté inaccesible: su URL explícita está presente en sitemap y alternates.
+- **Solución:** usar `listPostPath(post, lang)` para el href real de BlogList y probar el componente con slug coincidente, idiomas distintos y acciones de enlace nativas. Mantener el handler de clic normal del modal y su restauración de foco/historial.
+- **Complejidad:** baja, aproximadamente 1–3 horas incluidas pruebas y comprobación posterior de producción. No requiere editar slugs, datos históricos o routing.
+
+### POST-04 — CaseStudies y calculadora mantienen CTA sin idioma
+
+- **Categoría / severidad / prioridad:** multilingual y conversión; **MEDIUM / P1** para el recorrido comercial.
+- **Evidencia de producción:** en portada ES, “Haz tu diagnóstico gratis” de Casos de Estudio enlaza a `/diagnostico-ia`. Clic real termina en URL sin parámetro, `lang=en` y H1 “Discover which AI solution your company needs”. En `/try-forecast?lang=es`, el CTA visible “Diagnóstico gratis” de la calculadora también tiene href `/diagnostico-ia`; el header de esa misma página sí tiene `?lang=es`.
+- **Afectados:** portada ES y Forecast ES confirmados. La calculadora es compartida con otras demos, varias condicionadas a obtener un resultado. No se ejecutaron inferencias para mostrar esos estados; el alcance adicional se deriva de sus consumidores en fuente.
+- **Fuentes:** `src/components/CaseStudies.tsx:471,661,691`; `src/components/demo/SavingsCalculator.tsx:321`. `src/components/demo/business.ts`, `useGoToHomeSection`, también navega a `/` sin idioma: riesgo de pérdida de ES en el CTA de contacto, confirmado por lectura de código y pendiente de interacción en ese estado.
+- **Implicación:** continuidad lingüística y conversión inconsistente fuera de los CTA ya corregidos. Se trata de un alcance residual, no de una regresión observada en Hero/Landing.
+- **Solución:** aplicar `normalizeLanguage`/`staticPagePath` existentes a CaseStudies y calculadora; preservar idioma y fragmento al navegar al contacto desde `useGoToHomeSection`. Barrer enlaces internos de los componentes públicos activos para evitar más implementaciones independientes.
+- **Complejidad:** baja a media, 0.25–0.5 día con pruebas en ambas lenguas, incluyendo navegación real a destino y hash correcto.
+
+### Rendimiento, arquitectura, contenido y GEO: estado actual
+
+Mediciones de transferencia HTTP de esta ventana, realizadas desde un único cliente y sin caché previa controlada; **no son Core Web Vitals, Lighthouse ni datos de campo**:
+
+| Recurso público | Sin comprimir | Transferencia con gzip | Política actual |
+| --- | ---: | ---: | --- |
+| JS principal `index-CgZ6p9Ag.js` | 518,728 bytes | 153,348 bytes | `public, max-age=31536000, immutable` |
+| CSS principal `index-DZ96IyBO.css` | 175,003 bytes | 25,025 bytes | `public, max-age=31536000, immutable` |
+| HTML de portada | No se usa como presupuesto de contenido: es un shell con head inyectado | 1,081 bytes | `no-cache` |
+
+La respuesta HTML comprimida tuvo TTFB de 0.130 s en esa petición; no permite concluir desempeño de usuarios reales. Los recursos de la página completa, imágenes, chunks secundarios y terceros no están incluidos en esos dos presupuestos. El SHA-256 del JS público es `0e60a7d6d36d886ade2ab493a69307d61178a0e4fa9b5794c7ca4634d906b218`; se registra para trazabilidad, sin afirmar igualdad con un build de otro entorno.
+
+Siguientes mejoras del roadmap original, independientes de los dos pequeños fixes anteriores:
+
+1. **P2 — Contenido inicial útil:** evaluar prerender/SSR selectivo de portada, landing y artículos, conservando el injector y React/Vite existentes. Incluir contenido visible equivalente, no texto oculto para bots. Validar fresh content, fallbacks y preservación de APIs antes de cambiar arquitectura.
+2. **P2 — Evidencia comercial/editorial:** conservar `/get-started` como oferta de diagnóstico y roadmap; priorizar páginas diferenciadas de desarrollo personalizado, RAG y agentes/integración solo con evidencia de capacidad y aprobación editorial. Revisar utilidad, fuentes y declaraciones del blog. No se efectuó una nueva investigación de keywords/volúmenes ni un examen factual completo de 12,166 artículos.
+3. **P2 — Medición:** baseline GSC/Bing, landing pages orgánicas y leads calificados en analítica/CRM; sin acceso a cuentas no se certifican indexación, posiciones, CTR ni conversiones. No añadir otro proveedor de tracking.
+4. **P2/P3 — Rendimiento y GEO:** medir LCP/INP/CLS de campo y perfiles de carga antes de optimizar más bundles; reforzar contenido técnico original, identidad verificable y servicio específico. El head y XML son más coherentes; el cuerpo sigue necesitando JS. `llms.txt` y experimentos de GEO no sustituyen estos fundamentos ni garantizan inclusión/citas.
+
+### Límites y criterio de cierre
+
+No se enviaron formularios, leads o correos, ni se subieron archivos o activaron cámara/micrófono. Se revisó la carga de interfaces, no el resultado final de todos los servicios de IA. No se indujeron fallos 503 ni se probaron autenticación, administración, pagos, jobs o base de datos. No hubo SSH, cambio de DNS/proxy, invalidación de caché o revisión de filesystem del VPS. No se accedió a GSC/Bing/GA4/CRM ni a métricas privadas.
+
+No se confirmó una incidencia CRITICAL ni caída general. **Para cerrar por completo el trabajo bilingüe, corregir POST-03 y POST-04 y verificar sus recorridos en producción**, manteniendo separados los pendientes originales de contenido/renderizado/medición. La actualización de esta auditoría no implementa ni publica esos fixes.
+
+
+## Ciclo de cierre autorizado — POST-03 y POST-04
+
+El propietario autorizó corregir, publicar, fusionar y repetir la auditoría una vez desplegado, iterando sobre los defectos de navegación bilingüe. Rama: `codex/complete-bilingual-navigation`. Implementación local: href real de BlogList mediante `listPostPath`; CTA de CaseStudies y calculadora localizados; contacto con idioma y fragmento; barrido adicional de FTS, empleos/postulación, equipo y enlace del informe del diagnóstico. FTS conserva idioma explícito porque solo proporciona el slug original. Parámetros de aplicación como `job` se preservan.
+
+Las pruebas renderizan componentes reales y cubren EN/ES, slugs coincidentes y distintos, clic normal/modificado, modal, foco/historial, detalle de caso de estudio, diagnóstico y contacto de calculadora, empleos y enlace final del quiz. Se ajustó la sincronización de refs del modal antes de interacción con tarjetas recién comprometidas. **159 pruebas / 26 suites aprobadas**; el estado de producción se verificará después del despliegue. Los fallos iniciales intermitentes de apertura/cierre motivaron revisar esa sincronización, no omitir las pruebas. Sin cambios en datos de producción, APIs, dependencias o infraestructura.
+
+Este ciclo cierra navegación bilingüe; no implica que SSR, contenido editorial, Core Web Vitals de campo o acceso a Search Console se hayan resuelto.

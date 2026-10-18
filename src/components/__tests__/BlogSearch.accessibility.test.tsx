@@ -7,5 +7,5 @@ afterEach(cleanup);
 it('names the search field and provides actual links for search results', () => {
   render(<BlogSearch onSearchActive={vi.fn()} />);
   expect(screen.getByRole('searchbox', { name: 'blogSearch.label' })).toBeInTheDocument();
-  expect(screen.getByRole('link', { name: /RAG article/ })).toHaveAttribute('href', '/blog/2026-10-16-00-00-00-rag');
+  expect(screen.getByRole('link', { name: /RAG article/ })).toHaveAttribute('href', '/blog/2026-10-16-00-00-00-rag?lang=en');
 });

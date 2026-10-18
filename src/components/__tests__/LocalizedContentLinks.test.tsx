@@ -7,6 +7,13 @@ import Hero from '../Hero';
 import Landing from '@/pages/Landing';
 import DemosCatalog from '../DemosCatalog';
 import { DemoNav } from '../demo/DemoNav';
+import CaseStudies from '../CaseStudies';
+import { SavingsCalculator } from '../demo/SavingsCalculator';
+import Careers from '@/pages/Careers';
+import Team from '../Team';
+import QuizResultFull from '../quiz/QuizResultFull';
+import { computeQuizResult } from '@/lib/quizData';
+vi.mock('@/lib/analytics', () => ({ trackDemoEvent: vi.fn() }));
 const locale = vi.hoisted(() => ({ language: 'es' as 'en' | 'es' }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({
   i18n: { language: locale.language, resolvedLanguage: locale.language },
@@ -20,6 +27,7 @@ vi.mock('framer-motion', async () => {
   const tags = new Map();
   return {
     AnimatePresence: ({ children }: any) => children,
+    animate: (_from: number, value: number, options: any) => { options.onUpdate(value); return { stop() {} }; },
     motion: new Proxy({}, { get: (_, tag: string) => {
       if (!tags.has(tag)) tags.set(tag, React.forwardRef(({ children, ...props }: any, ref) => {
         const domProps = Object.fromEntries(Object.entries(props).filter(([key]) => !['variants', 'initial', 'animate', 'exit', 'transition', 'custom', 'whileInView', 'whileHover', 'whileTap', 'viewport', 'layout'].includes(key)));
@@ -29,7 +37,7 @@ vi.mock('framer-motion', async () => {
     } }),
   };
 });
-afterEach(cleanup);
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 it.each(['en', 'es'] as const)('preserves %s across every Hero slide and landing diagnosis CTA', language => {
   locale.language = language;
   const suffix = language === 'es' ? '?lang=es' : '';
@@ -59,4 +67,51 @@ it.each(['en', 'es'] as const)('keeps %s on catalog cards, roadmap contact and d
   catalog.unmount();
   const nav = render(<DemoNav tone="cyan" />);
   expect(nav.container.querySelector('a')).toHaveAttribute('href', '/demos' + suffix);
+});
+
+it.each(['en', 'es'] as const)('localizes %s case-study CTAs in both layouts and the detail viewer', async language => {
+  locale.language = language;
+  const suffix = language === 'es' ? '?lang=es' : '';
+  const copy = language === 'es' ? es : en;
+  vi.stubGlobal('fetch', vi.fn(async () => ({ json: async () => ({ 'smart-city': { en: '<h2>Example</h2><h3>Details</h3><p>Fixture detail</p>', es: '<h2>Ejemplo</h2><h3>Detalles</h3><p>Fixture detail</p>' } }) })));
+  const { container } = render(<CaseStudies />);
+  expect(container.querySelectorAll('a[href^="/diagnostico-ia"]')).toHaveLength(2);
+  container.querySelectorAll('a[href^="/diagnostico-ia"]').forEach(link => expect(link).toHaveAttribute('href', '/diagnostico-ia' + suffix));
+  fireEvent.click(screen.getByRole('button', { name: copy.caseStudies.readMore }));
+  await screen.findByText('Fixture detail');
+  expect(container.querySelectorAll('a[href^="/diagnostico-ia"]')).toHaveLength(3);
+  container.querySelectorAll('a[href^="/diagnostico-ia"]').forEach(link => expect(link).toHaveAttribute('href', '/diagnostico-ia' + suffix));
+});
+it.each(['en', 'es'] as const)('localizes %s calculator diagnosis and contact navigation without changing business calculations', async language => {
+  locale.language = language;
+  const suffix = language === 'es' ? '?lang=es' : '';
+  const copy = language === 'es' ? es : en;
+  window.history.replaceState(null, '', '/try-forecast' + suffix);
+  const target = document.createElement('div'); target.id = 'contact'; target.scrollIntoView = vi.fn(); document.body.appendChild(target);
+  const { container } = render(<SavingsCalculator demoId="forecast" />);
+  expect(container.querySelector('a[href^="/diagnostico-ia"]')).toHaveAttribute('href', '/diagnostico-ia' + suffix);
+  fireEvent.click(screen.getByRole('button', { name: copy.demoBusiness.labels.cta_contact }));
+  expect(window.location.pathname + window.location.search + window.location.hash).toBe('/' + suffix + '#contact');
+  await new Promise(resolve => setTimeout(resolve, 180));
+  expect(target.scrollIntoView).toHaveBeenCalledWith({ behavior: 'instant', block: 'start' });
+  target.remove();
+});
+it.each(['en', 'es'] as const)('preserves %s through careers, job selection and the quiz report landing link', language => {
+  locale.language = language;
+  const suffix = language === 'es' ? '?lang=es' : '';
+  vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+  const careers = render(<Careers />);
+  const applyLinks = Array.from(careers.container.querySelectorAll<HTMLAnchorElement>('a[href^="/apply"]'));
+  expect(applyLinks.length).toBeGreaterThan(0);
+  for (const link of applyLinks) {
+    expect(new URL(link.href).searchParams.get('lang')).toBe(language === 'es' ? 'es' : null);
+    expect(new URL(link.href).searchParams.get('job')).toBeTruthy();
+  }
+  careers.unmount();
+  const team = render(<Team />);
+  fireEvent.click(screen.getByRole('button', { name: language === 'es' ? es.team.join : en.team.join }));
+  expect(window.location.pathname + window.location.search).toBe('/careers' + suffix);
+  team.unmount();
+  const quiz = render(<QuizResultFull result={computeQuizResult({})} leadName="Test" leadId={null} />);
+  expect(quiz.container.querySelector('a[href^="/get-started"]')).toHaveAttribute('href', '/get-started' + suffix);
 });

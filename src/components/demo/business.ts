@@ -1,4 +1,7 @@
 import { useCallback, useRef } from "react";
+import { useTranslation } from "react-i18next";
+import { normalizeLanguage, staticPagePath } from "@shared/seoPolicy";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useLocation } from "wouter";
 import { trackDemoEvent } from "@/lib/analytics";
 
@@ -95,22 +98,25 @@ export function useDemoTracking(demoId: DemoBusinessId) {
 
 /**
  * Navigate to a section of the home page (e.g. "contact", "case-studies").
- * Same approach as the Header: route to "/" and scroll once the section exists
+ * Preserve URL language and fragment, then scroll once the section exists
  * (polls briefly, since Home renders its sections lazily).
  */
 export function useGoToHomeSection() {
+  const { i18n } = useTranslation();
+  const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
+  const reduceMotion = useReducedMotion();
   const [, setLocation] = useLocation();
   return useCallback(
     (sectionId: string) => {
-      setLocation("/");
+      setLocation(staticPagePath("/#" + encodeURIComponent(sectionId), lang));
       let tries = 0;
       const tick = () => {
         const el = document.getElementById(sectionId);
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (el) el.scrollIntoView({ behavior: reduceMotion ? "instant" : "smooth", block: "start" });
         else if (tries++ < 20) setTimeout(tick, 150);
       };
       setTimeout(tick, 150);
     },
-    [setLocation],
+    [setLocation, lang, reduceMotion],
   );
 }

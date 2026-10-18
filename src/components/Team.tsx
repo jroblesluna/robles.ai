@@ -1,3 +1,4 @@
+import { normalizeLanguage, staticPagePath } from "@shared/seoPolicy";
 import { motion } from "framer-motion";
 import { ExternalLink, Github, Linkedin, Mail } from "lucide-react";
 import { fadeIn, staggerContainer } from "@/utils/animations";
@@ -72,7 +73,8 @@ const TeamMember = ({
 );
 
 const Team = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
   const [, setLocation] = useLocation();
   const members = t("team.members", { returnObjects: true }) as TeamMemberProps[];
   const hiddenMembers = ["Sophia Martinez"];
@@ -128,7 +130,7 @@ const Team = () => {
           className="mt-16 text-center"
         >
           <button
-            onClick={() => setLocation("/careers")}
+            onClick={() => setLocation(staticPagePath("/careers", lang))}
             className="inline-flex items-center bg-gray-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-800 transition-all hover:-translate-y-1 hover:shadow-lg"
           >
             {t("team.join")}

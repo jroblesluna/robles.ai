@@ -211,7 +211,14 @@ describe('BlogSearch — Property 15: Search result cards render required fields
     render(<BlogSearch onSearchActive={vi.fn()} />);
 
     // Each result card should be a button element (clickable)
-    const card = screen.getByRole('button', { name: /Neural Networks Explained/ });
+    const card = screen.getByRole('link', { name: /Neural Networks Explained/ });
     expect(card).toBeInTheDocument();
   });
+});
+
+it.each(['en', 'es'] as const)('preserves the %s FTS result language in the actual link', language => {
+  mockUseSearch.mockReturnValue(defaultSearchState({ query: 'Shivoo', isSearchActive: true, hasMore: false, results: [{ slug: '2026-10-15-18-00-00-shared', language, title: 'Shared slug result', snippet: 'Snippet', excerpt: '', score: 1 }] }));
+  const { unmount } = render(<BlogSearch onSearchActive={vi.fn()} />);
+  expect(screen.getByRole('link', { name: /Shared slug result/ })).toHaveAttribute('href', '/blog/2026-10-15-18-00-00-shared?lang=' + language);
+  unmount();
 });

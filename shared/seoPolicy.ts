@@ -19,12 +19,18 @@ export function archivePage(value?: string | null): number {
   return value && /^[1-9]\d*$/.test(value) && Number.isSafeInteger(Number(value)) ? Number(value) : 1;
 }
 export function staticPagePath(path: string, lang: ContentLanguage, page = 1): string {
-  const query = new URLSearchParams();
-  if (lang === 'es') query.set('lang', 'es');
-  if (path === '/blog' && page > 1) query.set('page', String(page));
-  return path + (query.size ? `?${query}` : '');
+  const url = new URL(path, SITE_URL);
+  if (url.origin !== SITE_URL) return path;
+  const query = url.searchParams;
+  if (lang === 'es') query.set('lang', 'es'); else query.delete('lang');
+  if (url.pathname === '/blog' && page > 1) query.set('page', String(page));
+  return url.pathname + (query.size ? `?${query}` : '') + url.hash;
 }
 export function blogPath(slug: string): string { return `/blog/${encodeURIComponent(slug)}`; }
+/** FTS results store the original slug, without its translation pair. The server resolves the language. */
+export function blogSearchPath(slug: string, lang: ContentLanguage): string {
+  return blogPath(slug) + `?lang=${lang}`;
+}
 /** Keep the existing Spanish URL when translated slugs collide; EN needs an explicit URL. */
 export function blogPagePath(enSlug: string, esSlug: string, lang: ContentLanguage): string {
   return blogPath(lang === 'es' ? esSlug : enSlug) + (enSlug === esSlug && lang === 'en' ? '?lang=en' : '');
