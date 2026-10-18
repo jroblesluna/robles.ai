@@ -615,7 +615,7 @@ const CaseStudies = () => {
             <motion.div
               variants={fadeIn}
               custom={0.15}
-              role="tablist"
+              role="group"
               aria-label={t("caseStudies.eyebrow")}
               className="-mx-6 mt-6 flex gap-2 overflow-x-auto px-6 pb-1 lg:mx-0 lg:mt-8 lg:flex-col lg:gap-1 lg:overflow-visible lg:px-0"
             >
@@ -627,8 +627,7 @@ const CaseStudies = () => {
                   <button
                     key={s.id}
                     type="button"
-                    role="tab"
-                    aria-selected={selected}
+                    aria-pressed={selected}
                     onClick={() => setActive(i)}
                     className={`relative flex shrink-0 items-center gap-3 overflow-hidden rounded-xl px-4 py-2.5 text-left text-sm transition-colors lg:py-3 ${
                       selected

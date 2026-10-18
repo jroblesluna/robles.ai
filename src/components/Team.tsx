@@ -53,17 +53,17 @@ const TeamMember = ({
       {(linkedin || github || email) && (
         <div className="flex flex-wrap gap-2 mt-auto pt-2">
           {linkedin && (
-            <a href={linkedin} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0A66C2] hover:bg-[#004182] text-white text-xs font-medium transition-colors shadow-sm no-underline">
+            <a href={linkedin} aria-label={`LinkedIn: ${name}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0A66C2] hover:bg-[#004182] text-white text-xs font-medium transition-colors shadow-sm no-underline">
               <Linkedin className="w-4 h-4" /> LinkedIn
             </a>
           )}
           {github && (
-            <a href={github} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#181717] hover:bg-black text-white text-xs font-medium transition-colors shadow-sm no-underline">
+            <a href={github} aria-label={`GitHub: ${name}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#181717] hover:bg-black text-white text-xs font-medium transition-colors shadow-sm no-underline">
               <Github className="w-4 h-4" /> GitHub
             </a>
           )}
           {email && (
-            <a href={`mailto:${email}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors shadow-sm no-underline">
+            <a href={`mailto:${email}`} aria-label={`${contactLabel}: ${name}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors shadow-sm no-underline">
               <Mail className="w-4 h-4" /> {contactLabel}
             </a>
           )}

@@ -290,8 +290,8 @@ const Solutions = () => {
           <motion.div
             variants={fadeIn}
             custom={0.3}
-            role="tablist"
-            aria-orientation="vertical"
+            role="group"
+            aria-label={t("solutions.title")}
             className="flex flex-col gap-2 lg:col-span-5"
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}
@@ -304,8 +304,7 @@ const Solutions = () => {
                 <div key={s.id}>
                   <button
                     type="button"
-                    role="tab"
-                    aria-selected={isActive}
+                    aria-pressed={isActive}
                     onClick={() => setActive(i)}
                     className={`relative w-full overflow-hidden rounded-2xl p-5 text-left transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                       isActive ? "bg-gray-50 ring-1 ring-gray-200" : "hover:bg-gray-50/70"
