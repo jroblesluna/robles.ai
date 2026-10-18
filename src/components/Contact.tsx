@@ -1,3 +1,4 @@
+import { PUBLIC_CONTACT } from '@shared/publicContent';
 // i18n version of Contact.tsx
 import { motion } from "framer-motion";
 import {
@@ -120,7 +121,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4 className="text-lg font-medium text-gray-900">{t("contact.phone")}</h4>
-                  <p className="text-gray-600">+1 (408) 590-0153</p>
+                  <p className="text-gray-600">{PUBLIC_CONTACT.phone}</p>
                 </div>
               </div>
 
@@ -130,7 +131,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4 className="text-lg font-medium text-gray-900">{t("contact.email")}</h4>
-                  <p className="text-gray-600">info@robles.ai</p>
+                  <p className="text-gray-600">{PUBLIC_CONTACT.email}</p>
                 </div>
               </div>
 
@@ -140,7 +141,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4 className="text-lg font-medium text-gray-900">{t("contact.address")}</h4>
-                  <p className="text-gray-600">20380 Stevens Creek Blvd, Suite 205<br />Cupertino, CA 95014</p>
+                  <p className="text-gray-600">{PUBLIC_CONTACT.street}<br />{PUBLIC_CONTACT.city}</p>
                 </div>
               </div>
             </div>

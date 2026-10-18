@@ -4,7 +4,7 @@ import BlogPost from './BlogPost';
 const fixture = vi.hoisted(() => ({ slug: '2026-10-15-18-00-00-shared-slug', i18n: { language: 'en', changeLanguage: vi.fn().mockResolvedValue(undefined) } }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: fixture.i18n }) }));
 vi.mock('wouter', () => ({ useParams: () => ({ slug: fixture.slug }), useSearch: () => window.location.search.slice(1) }));
-afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+afterEach(() => { cleanup(); document.getElementById('public-post')?.remove(); vi.unstubAllGlobals(); });
 it('keeps direct-load content, canonical and schema in sync when only the language query changes', async () => {
   const post = { slug: fixture.slug, date: '2026-10-15', editorId: 1, categories: [], keywords: [], sources: [], translations: {
     en: { slug: fixture.slug, title: 'English article', excerpt: 'English summary', content: [{ heading: 'Results', body: 'English body' }] },
@@ -24,4 +24,21 @@ it('keeps direct-load content, canonical and schema in sync when only the langua
   expect(schema.inLanguage).toBe('es');
   expect(schema.mainEntityOfPage['@id']).toBe(`https://robles.ai/blog/${fixture.slug}`);
   expect(fixture.i18n.changeLanguage).toHaveBeenCalledWith('es');
+});
+
+it('keeps the server article immediately available without a redundant article API request', () => {
+  const post = { slug: fixture.slug, date: '2026-10-15', editorId: 1, categories: [], keywords: [], sources: [], translations: {
+    en: { slug: fixture.slug, title: 'Initial English article', excerpt: 'Summary', content: [{ heading: 'Results', body: 'Immediately available content' }] },
+    es: { slug: fixture.slug, title: 'Artículo inicial', excerpt: 'Resumen', content: [] },
+  } };
+  const script = document.createElement('script');
+  script.id = 'public-post'; script.type = 'application/json'; script.textContent = JSON.stringify(post);
+  document.body.append(script);
+  const fetcher = vi.fn(async (_url: string) => ({ ok: true, json: async () => ({ editors: [] }) }));
+  vi.stubGlobal('fetch', fetcher);
+  window.history.replaceState(null, '', `/blog/${fixture.slug}?lang=en`);
+  render(<BlogPost />);
+  expect(screen.getByRole('heading', { level: 1, name: 'Initial English article' })).toBeInTheDocument();
+  expect(screen.getByText('Immediately available content')).toBeInTheDocument();
+  expect(fetcher.mock.calls.every(([url]) => url === '/api/editors')).toBe(true);
 });

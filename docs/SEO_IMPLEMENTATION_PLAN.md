@@ -1,4 +1,4 @@
-# Robles.AI SEO implementation plan — approval required
+# Robles.AI SEO implementation plan
 
 > **Estado de cierre — 18 octubre 2026:** POST-03/POST-04 implementados en PR #7 y verificados tras despliegue correcto. Sin observaciones abiertas en los recorridos bilingües comprobados; ver registro final. Las propuestas y gates anteriores se conservan como historial.
 
@@ -472,3 +472,19 @@ Gate de producción pendiente en este commit: workflow correcto para el SHA fusi
 - Auditoría HTTP final: 21 sitemaps, 24,366 URLs únicas, nueve pares EN/ES, 34 estáticas, metadatos/schema/errores/cache correctos en las muestras. Evidencia y límites completos en el apartado final de `SEO_AUDIT.md`.
 
 **No quedan observaciones abiertas de estos recorridos bilingües.** No hace falta otro release de aplicación dentro de este alcance con la evidencia actual. SSR, contenido, medición externa y validación integral de formularios/backends se mantienen separados; no se presentan como terminados. Este registro posterior solo modifica documentación y no requiere repetir compilación/tests del código ya validado.
+
+
+## Lote autorizado POST-05 — HTML público inicial y verificación de métricas
+
+Autorizado por el usuario el 18 octubre 2026, incluido commit/push/PR a main/fusión, espera de Actions y auditoría posterior. Los gates de aprobación de secciones anteriores pertenecen a sus propuestas históricas.
+
+| ID | Prioridad / estado | Archivos exactos | Implementación / validación / resultado esperado |
+| --- | --- | --- | --- |
+| POST-05 | P1 / implementado; validación live al final | `server/seo/publicContent.ts`, `server/seo/metaInjector.ts`, `shared/publicContent.ts`, `src/components/Team.tsx`, `src/components/Contact.tsx`, `src/lib/publicPost.ts`, `src/pages/BlogPost.tsx` | Componer cuerpo visible desde locales y JSON públicos; paginar archivo; conservar cabecera/seguridad; bootstrap público de artículo para evitar petición redundante. Validar GET/HEAD, H1/texto/enlaces, EN/ES, metadata, XSS y montaje de SPA. Resultado: contenido principal consultable sin ejecutar JS, conservando UI interactiva. |
+| POST-05-T | P1 / pruebas | `server/seo/__tests__/publicContent.test.ts`, `server/seo/__tests__/metaInjector.integration.test.ts`, `src/lib/__tests__/publicPost.test.ts`, `src/pages/BlogPost.language.test.tsx` | Fixtures aislados, contenido y paginación, URLs de idioma compartido, escape HTML/JSON/fuentes, campos públicos, artículo inmediato sin llamada redundante. Regresión con suites de SEO/metadatos/sitemap/modal/CTA existentes. |
+| MEASURE-01 | P1 / bloqueado por acceso externo | Ningún archivo de aplicación; evidencia en `docs/SEO_AUDIT.md` | Sesión disponible sin acceso a propiedad de Search Console. Propietario abre cuenta autorizada; luego URL Inspection y Search Analytics con fechas/cohortes. Riesgo: confundir rastreabilidad con indexación o posición media con ranking fijo. |
+| MEASURE-02 | P1 / consultado, muestra pública insuficiente | Ningún archivo de aplicación; evidencia en `docs/SEO_AUDIT.md` | PSI devuelve No Data de campo; medir laboratorio por separado tras release. Dependencia: muestra CrUX suficiente o informe existente de GSC. Si hace falta RUM, proponer lote posterior con consentimiento/instrumentación oficial, sin añadir tracking como sustituto de resultados históricos. |
+
+**Riesgos y dependencias POST-05:** cuerpo inicial y montaje de React no son hidratación completa; vigilar composición visual y CLS. Archivo lee como máximo 30 artículos por respuesta tras el índice existente; revisar latencia en producción. Los controles interactivos siguen requiriendo JS. No se modifica infraestructura, datos, generación, DNS o seguridad. Reversión: revertir este lote de código con el flujo habitual, preservando runtime data. Estimación del lote: 1–2 jornadas con validación; datos/recrawl pueden tardar semanas y los permisos dependen del propietario.
+
+**Orden:** pruebas/build → revisión de diff → commit y PR → main → Actions completo → confirmar nuevo bundle/cuerpo por HTTP fresco → comprobar DOM y navegación EN/ES → repetir PSI y documentar diferencias de laboratorio sin afirmar causalidad → actualizar ambos documentos con resultados. Ningún estado de «sin pendientes» debe ocultar MEASURE-01/02.

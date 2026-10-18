@@ -8,6 +8,7 @@ import { BlogArticle } from '@/components/BlogArticle';
 import ErrorState from '@/components/state/ErrorState';
 import NotFound from '@/pages/not-found';
 import LoadingState from '@/components/state/LoadingState';
+import { initialPublicPost } from '@/lib/publicPost';
 
 interface Post {
   slug: string;
@@ -68,14 +69,14 @@ function formatDateWithTimeZone(date: Date, language: 'en' | 'es'): string {
 export default function BlogPost() {
   const { i18n } = useTranslation();
 
-  const [post, setPost] = useState<Post | null>(null);
+  const params = useParams<{ slug: string }>();
+  const slug = params.slug;
+  const [post, setPost] = useState<Post | null>(() => initialPublicPost<Post>(slug));
   const [editors, setEditors] = useState<Editor[]>([]);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [notFound, setNotFound] = useState(false);
   const [fetchError, setFetchError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
-  const params = useParams<{ slug: string }>();
-  const slug = params.slug;
   const search = useSearch();
   useEffect(() => {
     if (!post || !slug) return;
@@ -93,8 +94,9 @@ export default function BlogPost() {
     if (slug) {
       setFetchError(false);
       setNotFound(false);
-      setPost(null);
-      fetch(`/api/blog/${encodeURIComponent(slug)}`, { signal: controller.signal })
+      const initial = initialPublicPost<Post>(slug);
+      setPost(initial);
+      if (!initial || reloadKey > 0) fetch(`/api/blog/${encodeURIComponent(slug)}`, { signal: controller.signal })
         .then((res) => {
           // Preserve the requested URL and show not-found content instead of another 200 shell.
           if (res.status === 404) {
