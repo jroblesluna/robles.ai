@@ -53,6 +53,8 @@ describe('actual production-layout public middleware', () => {
     expect($('link[hreflang="es"]')).toHaveLength(1);
     expect(res.headers['cache-control']).toBe('no-cache');
     expect($('html').attr('lang')).toBe('en');
+    expect($('#root main h1')).toHaveLength(1);
+    expect($('#root main').text().length).toBeGreaterThan(40);
   });
   it('reads Spanish resources from the built layout and emits Spanish lang/canonical', async () => {
     const res = await request(app).get('/get-started?lang=es').expect(200);
@@ -66,6 +68,9 @@ describe('actual production-layout public middleware', () => {
     const $ = load(res.text);
     expect($('html').attr('lang')).toBe('es');
     expect($('title').text()).toBe(post.translations.es.title);
+    expect($('#root h1').text()).toBe(post.translations.es.title);
+    expect($('#root article').text()).toContain('Resultados medidos.');
+    expect(JSON.parse($('#public-post').text()).translations.es.title).toBe(post.translations.es.title);
     expect($('link[rel="canonical"]').attr('href')).toBe(`https://robles.ai/blog/${esSlug}`);
     const graphs = $('script[type="application/ld+json"]').toArray().map(e => JSON.parse($(e).text()));
     const article = graphs.find(e => e['@type'] === 'BlogPosting');

@@ -1,5 +1,7 @@
 # Robles.AI technical SEO, content, architecture and GEO audit
 
+> **Actualización autorizada — 18 octubre 2026:** se implementa HTML público inicial y reutilización del artículo en React. La validación de producción de este lote se registra al final. Search Console no concede acceso a la propiedad con la sesión disponible; PageSpeed sí fue consultado y devuelve «No Data» de campo. No se declara indexación, rankings ni aprobación de CWV sin evidencia.
+
 > **Cierre de producción — PR #7, 18 octubre 2026:** POST-03 y POST-04 corregidos y verificados después del despliegue. No se detectaron observaciones abiertas en los recorridos de navegación bilingüe comprobados. Véase el apartado final “Cierre verificado de navegación bilingüe”. Los hallazgos anteriores se conservan como historial; SSR/contenido/medición permanecen fuera de este ciclo.
 
 > **Verificación anterior — PR #6, 18 octubre 2026, 17:35–17:39 UTC:** PR #6 desplegado correctamente. Las URLs bilingües de los nueve artículos y sus sitemaps funcionan; los CTA del Hero y landing conservan español. La revisión descubrió un consumidor pendiente en las tarjetas del blog y CTA residuales en otras secciones. Consulte **“Nueva auditoría de producción tras PR #6”** al final. Las observaciones originales siguientes son históricas y no representan automáticamente defectos actuales.
@@ -586,3 +588,45 @@ Los primeros intentos de interacción por coordenadas implícitas con contenido 
 Se verificaron recorridos concretos de frontend/HTTP, no cada interacción posible. No se enviaron formularios/lead/correo ni archivos, no se ejecutaron inferencias de pago o procesos de publicación, y no se revisaron administración o credenciales. Pruebas con fixtures cubren los estados que requerirían producir datos reales, especialmente el enlace del informe del quiz. La comprobación visual de esta ronda fue a 1280 px; no certifica todos los dispositivos ni accesibilidad integral.
 
 SSR/prerender de contenido, revisión editorial, estrategia de servicios, métricas de campo y estado real de indexación siguen siendo trabajo independiente del roadmap original. No se accedió a cuentas de GSC/Bing/GA4/CRM, ni se cambiaron configuraciones de producción. No se declara que estas correcciones garanticen rankings o inclusión en buscadores de IA.
+
+
+## Nueva iteración: HTML público y medición real — 18 octubre 2026
+
+### POST-05 — Contenido inicial dependiente de JavaScript
+
+- **Categoría / severidad:** renderizado y descubrimiento / MEDIUM; P1 de robustez, sin evidencia de un fallo general de indexación.
+- **Evidencia anterior:** HTML HTTP de portada, landing, catálogo, archivo y artículos contenía metadatos pero un `#root` vacío. Google puede ejecutar JavaScript; eso no implica automáticamente que aquellas páginas no estuvieran indexadas. Otros clientes no ejecutan JavaScript.
+- **Solución aplicada:** `server/seo/publicContent.ts` compone contenido semántico visible para cualquier visitante, sin detección de bots, dentro del mismo `#root`. Usa los locales y registros públicos existentes. `server/seo/metaInjector.ts` lo incorpora después del inyector de cabecera existente, conservando canonical, hreflang, estado HTTP y políticas de caché.
+- **Alcance:** H1 y descripción por tipo de página pública, secciones comerciales de portada y landing, equipo visible y contactos compartidos con la SPA, cursos y casos con su advertencia de carácter ilustrativo, catálogo con enlaces válidos, ofertas de empleo, archivo paginado con 30 resúmenes y enlaces y texto completo de artículos con sus fuentes HTTP(S). Formularios, filtros/búsqueda y demostraciones continúan requiriendo JavaScript; las variantes filtradas del archivo siguen `noindex` y no presentan resultados sin filtrar como coincidencias.
+- **Artículo directo:** se serializa exclusivamente su forma pública, escapando `<` en JSON. `src/lib/publicPost.ts` acepta el registro sólo para alguno de sus slugs. `BlogPost.tsx` lo usa de inmediato sin una segunda descarga del artículo; la atribución editorial opcional se obtiene por la API existente.
+- **Arquitectura exacta:** HTML inicial semántico seguido por montaje de la SPA con `createRoot`; no es hidratación de todo el árbol ni SSR completo de los componentes interactivos. El montaje puede cambiar la composición visual; se debe medir CLS/LCP después de cada release, no asumir que mejora por entregar más HTML.
+- **Seguridad:** textos y atributos escapados; fuentes limitadas a HTTP(S); prueba de cierre de script, HTML inyectado y campo extra privado; sin servir archivos JSON privados, sin modificar bases, trabajos, autenticación, CSP ni endpoints de generación.
+- **Complejidad:** media; no incorpora framework, dependencias ni tracking nuevo.
+- **Validación:** pruebas HTTP en layout de producción y fixtures aislados, HTML bilingüe, cuerpo y canonical coherentes, paginación, slugs compartidos, fuentes y bootstrap de artículo; build y revisión de diff. Resultado y comprobación live en el registro de despliegue posterior.
+
+### MEASURE-01 — Indexación y posiciones reales: acceso externo pendiente
+
+**Confirmado en interfaz de Google Search Console**, 18 octubre 2026: la propiedad de dominio `robles.ai` devuelve «Oops, you don't have access to this property» con la sesión disponible y el selector no muestra propiedades. No se intentó verificar propiedad ni cambiar permisos; se solicitó al propietario abrir una cuenta con acceso. Puede existir una propiedad de prefijo en otra cuenta: no se deduce que la organización carezca de Search Console.
+
+No hay datos autorizados de cobertura, URL Inspection ni Search Analytics. Por tanto, **no están verificadas** la indexación real, el canonical elegido por Google, las impresiones, clics, CTR o posiciones por consulta. HTTP 200, sitemap, Lighthouse SEO 100 y búsquedas `site:` no sustituyen esos datos. Tampoco se inventan rankings a partir de resultados personalizados.
+
+Con acceso: registrar 90 días con fechas exactas, consultas/páginas/dispositivo/país, separar EN/ES y marca/no marca; inspeccionar portada, landing, archivo y muestra de artículos EN/ES, incluido slug compartido. Conservar verdict de indexación y canonical de Google. Comparar cohortes a 28/56/90 días del release; posición media de Search Console describe ese conjunto, no una posición universal fija. No pedir indexación masiva ni modificar ajustes como diagnóstico.
+
+### MEASURE-02 — Core Web Vitals de campo: consulta realizada, datos no disponibles
+
+**Medición real consultada:** [PageSpeed Insights, móvil, portada](https://pagespeed.web.dev/analysis?url=https%3A%2F%2Frobles.ai%2F&form_factor=mobile), informe del 18 octubre 2026 a las 11:04 PDT. La sección «Discover what your real users are experiencing» devuelve **No Data**. Su explicación: CrUX no tiene suficientes datos reales de velocidad para esta página. Esto verifica la indisponibilidad de la muestra pública; no establece que los CWV aprueben o fallen.
+
+**Laboratorio anterior al lote POST-05:** Lighthouse 13.5.0, Moto G Power emulado, Slow 4G, carga inicial de una página: Performance **68**, Accessibility **92**, Best Practices **96**, SEO **100**; FCP **2,9 s**, LCP **3,2 s**, TBT **780 ms**, CLS **0,002**, Speed Index **3,8 s**. TBT no es INP de campo. Una ejecución no constituye un percentil de usuarios ni demuestra un cambio causal por release.
+
+CrUX utiliza una ventana móvil de 28 días y mínimos de muestra/eligibilidad. No es posible fabricar ni acelerar retrospectivamente ese histórico mediante código. Con acceso a Search Console, revisar su informe de CWV por grupos/dispositivo. Si sigue sin muestras, diseñar RUM con la implementación oficial de Web Vitals y el sistema de medición ya aprobado, revisando consentimiento, muestreo, retención y umbral mínimo por cohorte antes de desplegarlo. **No se añadió tracking ni se instalaron dependencias en este lote.** Hasta entonces el resultado correcto de campo es «sin datos suficientes», no «resuelto/aprobado».
+
+### Fuentes técnicas oficiales
+
+- [Google: JavaScript SEO](https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics): Google puede renderizar JS; entregar contenido inicialmente sigue siendo útil para usuarios y otros crawlers.
+- [Google: dynamic rendering](https://developers.google.com/search/docs/crawling-indexing/javascript/dynamic-rendering): no se adopta una respuesta distinta por bot.
+- [PageSpeed: datos de campo, laboratorio y elegibilidad](https://developers.google.com/speed/docs/insights/v5/about).
+- [Search Console: URL Inspection](https://developers.google.com/webmaster-tools/v1/urlInspection.index/inspect): consulta del estado en el índice, distinta de un test HTTP live.
+
+Los registros históricos anteriores se conservan; una observación anterior sobre ausencia de HTML no describe automáticamente la versión desplegada después de POST-05. Las dependencias externas de medición permanecen explícitas y no impiden validar el código o el HTTP público.
+
+**Validación previa al release POST-05:** 168 pruebas aprobadas en 28 suites. Build de producción aprobado con `NODE_ENV=production npm run build`; bundle del servidor reconstruido tras el último ajuste. `npm run check -- --incremental false` conserva los mismos 13 errores preexistentes de `send-application`, `TryForecast`, `TryIdentity` y scripts de mantenimiento; no se añaden errores nuevos. Vista previa pública aislada sin DB/jobs/API de artículos: un artículo real se monta con H1 y 4.113 caracteres de cuerpo desde el bootstrap público.

@@ -1,3 +1,4 @@
+import { visibleTeamMembers } from '@shared/publicContent';
 import { normalizeLanguage, staticPagePath } from "@shared/seoPolicy";
 import { motion } from "framer-motion";
 import { ExternalLink, Github, Linkedin, Mail } from "lucide-react";
@@ -77,8 +78,7 @@ const Team = () => {
   const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
   const [, setLocation] = useLocation();
   const members = t("team.members", { returnObjects: true }) as TeamMemberProps[];
-  const hiddenMembers = ["Sophia Martinez"];
-  const visibleMembers = members.filter((m: any) => !hiddenMembers.includes(m.name));
+  const visibleMembers = visibleTeamMembers(members);
 
   return (
     <section id="about" className="py-16 bg-blue-50 scroll-mt-10">

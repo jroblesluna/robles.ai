@@ -8,6 +8,7 @@ import esFallback from '../../src/i18n/locales/es/translation.json';
 import { createSlugIndex, type SlugIndex } from './slugIndex.js';
 import { buildBlogMeta, buildBlogJsonLd, buildStaticMeta, buildHomeJsonLd } from './metaBuilders.js';
 import { injectMeta } from './htmlInjector.js';
+import { injectPublicContent, renderStaticContent, renderArticleContent, renderArchiveContent, publicDocument } from './publicContent.js';
 
 export interface MetaInjectorResult { handler: RequestHandler; slugIndex: SlugIndex }
 const utilityRoute = /^(?:\/otp|\/admin(?:\/(?:settings|analytics|backends|quiz-leads|conversations(?:\/[^/]+)?|dominical(?:\/[^/]+)?))?)$/;
@@ -48,9 +49,9 @@ export function createMetaInjector(config: MetaInjectorConfig): MetaInjectorResu
       return fallbacks[lang];
     }
   }
-  async function send(reqUrl: string, res: Parameters<RequestHandler>[1], status: number, meta: PageMeta) {
+  async function send(reqUrl: string, res: Parameters<RequestHandler>[1], status: number, meta: PageMeta, content = '', post?: BlogPostData) {
     res.status(status).set({ 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' })
-      .end(injectMeta(await template(reqUrl), meta));
+      .end(injectPublicContent(injectMeta(await template(reqUrl), meta), content, post));
   }
   const handler: RequestHandler = async (req, res, next) => {
     if (req.method !== 'GET' && req.method !== 'HEAD') return next();
@@ -81,17 +82,29 @@ export function createMetaInjector(config: MetaInjectorConfig): MetaInjectorResu
           const targetSlug = lang === 'es' ? entry.esSlug : entry.enSlug;
           const meta = buildBlogMeta({ post, lang, slug: targetSlug });
           meta.jsonLd = buildBlogJsonLd({ post, lang, slug: targetSlug }, 'Robles.AI');
-          await send(req.originalUrl, res, 200, meta);
+          await send(req.originalUrl, res, 200, meta, renderArticleContent(post, lang, await translations(lang)), post);
           return;
         }
       } else if (STATIC_PAGES[path]) {
         const lang = queryLang ?? 'en';
         const page = path === '/blog' ? archivePage(url.searchParams.get('page')) : 1;
-        const meta = buildStaticMeta(path, lang, await translations(lang), {
+        const locale = await translations(lang);
+        const meta = buildStaticMeta(path, lang, locale, {
           page, filtered: path === '/blog' && ['q', 'editorId', 'days'].some(k => url.searchParams.has(k)),
         });
         if (path === '/') meta.jsonLd = buildHomeJsonLd();
-        await send(req.originalUrl, res, 200, meta);
+        let content: string;
+        if (path === '/blog') {
+          await slugIndex.ready();
+          const entries = slugIndex.entries().sort((a, b) => b.enSlug.localeCompare(a.enSlug));
+          // Filter/search results are noindex and remain interactive; do not show
+          // unfiltered results as though they matched the requested filter.
+          const filtered = ['q', 'editorId', 'days'].some(key => url.searchParams.has(key));
+          const selected = filtered ? [] : entries.slice((page - 1) * 30, page * 30);
+          const posts: BlogPostData[] = await Promise.all(selected.map(entry => readFile(entry.filePath, 'utf8').then(JSON.parse)));
+          content = renderArchiveContent(posts, lang, locale, page, filtered ? 0 : entries.length);
+        } else content = renderStaticContent(path, lang, locale, url);
+        await send(req.originalUrl, res, 200, meta, content);
         return;
       } else if (utilityRoute.test(path)) {
         const lang = queryLang ?? 'en';
@@ -115,7 +128,7 @@ export function createMetaInjector(config: MetaInjectorConfig): MetaInjectorResu
       meta.canonicalUrl = meta.ogUrl = 'https://robles.ai' + path;
       meta.hreflangLinks = [];
       meta.robots = 'noindex,follow';
-      await send(req.originalUrl, res, 404, meta);
+      await send(req.originalUrl, res, 404, meta, publicDocument(`<h1>${meta.title}</h1>`, lang, await translations(lang)));
     } catch {
       console.error('[SEO] Public HTML could not be generated.');
       res.status(503).set({ 'Cache-Control': 'no-store', 'Retry-After': '60', 'X-Robots-Tag': 'noindex' })
