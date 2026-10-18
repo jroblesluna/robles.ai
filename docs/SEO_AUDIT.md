@@ -1,0 +1,428 @@
+# Robles.AI technical SEO, content, architecture and GEO audit
+
+Audit date: October 17, 2026, America/Los_Angeles. Public responses were collected around 21:53–22:00 PDT (October 18 UTC). Audit only: no application changes, deployments, commits, data writes, account changes or dependency installations.
+
+## Executive Summary
+
+Robles.AI has working bilingual content, real interactive demonstrations, a commercial diagnosis offer, crawlable article URLs, and an existing server metadata system with tests. The main problem is inconsistency between that system, static serving, client metadata, language selection, and publishing outputs. Repair these integrations before replacing architecture or increasing content volume.
+
+The most urgent confirmed defects are blank server metadata on important pages, homepage HTML cached immutably for a year, a malformed robots sitemap pointer, incomplete sitemap coverage, conflicting article canonicals, nonstandard structured-data dates, and image metadata pointing to HTML responses. Important page text is absent from sampled initial HTML but available after JavaScript rendering. This is an accessibility limitation for fetchers that do not render JavaScript, not proof of Google indexing failure.
+
+Production `/api/blog?page=1&limit=30` reported **12,156 records**; the browser showed **406 pages**. All eight referenced sitemap files parsed, but together contained only **4,214 unique URL locations**, including language/query variants. Twenty-eight of the latest 30 English article URLs were absent from those locations. This is a discovery defect; it does not establish that those articles are unindexed.
+
+The existing `/get-started` landing page already explains diagnosis, implementation stages, service categories, pricing and contact options. Preserve and improve it. Add a small number of differentiated enterprise service pages supported by demonstrations and verified delivery evidence. Do not turn every technology into a service page.
+
+No confirmed CRITICAL production incident was established. A potentially critical **public build/data boundary** concern requires prompt owner verification without downloading sensitive files (POT-SEC-01).
+
+## Scope, provenance and limitations
+
+- The selected local workspace was an empty Git repository: no application files and no commits. After clarification, the owner supplied [jroblesluna/robles.ai](https://github.com/jroblesluna/robles.ai).
+- Inspected a temporary snapshot at revision **`f55d59ab6a24d7ed3d66acc6f3f9b4d8761d6605`**. Source references below are repository-relative paths at that revision, not files present in this workspace. Example: [server/vite.ts](https://github.com/jroblesluna/robles.ai/blob/f55d59ab6a24d7ed3d66acc6f3f9b4d8761d6605/server/vite.ts#L79). Exact production deployment SHA was not independently verified.
+- Inventoried archive paths across the repository, read architecture instructions, relevant frontend/backend/SEO/publishing/deployment modules, and inspected existing tests. The snapshot contains 801 historical post JSON files, not the complete production corpus. Binary media were not exhaustively inspected.
+- Live evidence: ordinary public HTTP GET responses, headers, XML parsing, asset byte counts, browser-rendered DOM/accessibility trees and a layout screenshot. No forms, uploads, email links, publishing endpoints, generation endpoints or admin actions were submitted. Demo backend functionality was not exercised.
+- Search Console, Bing Webmaster Tools, GA4 reporting, GTM configuration, CRM, authenticated server logs, nginx configuration and Cloud Run projects were unavailable. Actual indexed pages, organic traffic, rankings, lead quality and crawler visits are unverified.
+- Initial web extraction could not read robots/sitemap; direct HTTP subsequently succeeded. Browser automation succeeded. No local Lighthouse installation or project dependencies were present; no Lighthouse, CrUX, INP, LCP or CLS results are claimed. Full keyboard/mobile/contrast certification and Google Rich Results Test were not performed.
+- Documentation is the only persistent workspace output. HTTP/source snapshots are temporary diagnostics outside the workspace. No private database or credential resource was requested.
+
+## Architecture Overview
+
+### Verified implementation
+
+| Layer | Source evidence | Status and implication |
+|---|---|---|
+| UI | `package.json`, `src/main.tsx`, `src/App.tsx` | React 19, Vite 6, TypeScript, Tailwind, Radix/shadcn components, framer-motion, wouter. `createRoot`, not hydration. |
+| Routing | `src/App.tsx`, `src/pages/BlogRoute.tsx` | Home, commercial landing, quiz, careers/apply, blog/list/detail, demos and admin routes. Most secondary routes use `React.lazy`; Home and blog routing are eager. |
+| Backend | `server/index.ts`, `server/routes.ts` | Express 4, Node, REST APIs, SQLite/better-sqlite3, SSE chat, scheduled jobs. Registering the full application starts jobs and can initialize/write the database: do not start it casually for SEO tests. |
+| Rendering | `server/vite.ts`, `server/seo/*` | Production static serving followed by metadata injection. Injects head only, explicitly preserves empty root/body. No implemented full-page SSR or SSG was found in the inspected entry paths. |
+| Content | `server/data/posts`, `server/listing/*`, `server/fts/*` | JSON content source; SQLite listing index and FTS5 search. Production content grows beyond tracked snapshot. |
+| Publishing | `server/routes.ts`, `src/scripts/generateHistoricalPosts.ts`, `postPrompt.ts`, `postUtils.ts` | Hourly generation workflow, 24 AI editorial personas, English/Spanish output, JSON save, sitemap update, index refresh. Weekly Dominical/social/video workflows are separate. |
+| SEO | `server/seo/{metaInjector,metaBuilders,htmlInjector,slugIndex,types}.ts`, `src/hooks/useSEO.ts`, `src/pages/BlogPost.tsx` | Existing canonical/hreflang/OG/Twitter/JSON-LD implementations; overlapping client/server policies need consolidation. |
+| Language | `src/i18n/index.ts`, locale JSON, Header, BlogPost | English/Spanish, browser detection and stored preference; article slugs translated, static alternatives use `?lang=es`. Language switch primarily changes client state. |
+| Analytics | `src/lib/analytics.ts`, `server/analyticsRoutes.ts`, `server/services/ga4Client.ts` | Dynamic public analytics configuration, GTM preference with direct GA4/Meta fallback, protected reporting dashboard. Live browser loaded GTM, GA4 and Meta scripts. Collection/report correctness unverified. |
+| Deployment | `.github/workflows/deploy.yml`, `pull.sh`, package build scripts | Main-branch push triggers SSH deployment to VPS and PM2. Live nginx/Express headers support this architecture; server configuration itself was unavailable. |
+| External AI demos | `src/pages/Try*.tsx`, `server/services/backends/registry.ts` | References to separate Cloud Run backends, and browser-local CV/forecasting implementations. This repo does not establish the actual deployed backend internals, IAM or Secret Manager configuration. |
+
+The current site's deployment is VPS-based in source. Do not describe the main website as Cloud Run-hosted merely because its demos use Cloud Run. Artifact Registry, Terraform, Azure, SageMaker and other stated business capabilities are not evidence of this site's implementation. `TryMedical` is a coming-soon UI, not an operational medical AI service. Firebase is absent from current dependencies. `Testimonials` is imported but commented out of Home rendering. Legacy sitemap scripts coexist with the current writer; their continued operational use is not established.
+
+### What crawlers receive
+
+1. An ordinary request to `/` is fulfilled by `express.static(distPath, {maxAge:'1y', immutable:true})` before metadata injection.
+2. Non-file routes reach `createMetaInjector`: known static routes get translated head metadata; article routes resolve JSON via `SlugIndex` and inject article metadata.
+3. Every sampled HTML page still contains `<div id="root"></div>`. There is no article text, H1, navigation or service copy in that root before JavaScript.
+4. Browser execution initializes i18next, mounts React, requests blog/editor/config APIs and renders visible content. Client effects modify title, description and sometimes canonical/hreflang.
+5. Unknown routes and failed article resolution return the generic shell with HTTP 200. Missing asset paths also fall through to HTML.
+
+This is **client-rendered content with server-side head injection**, rather than content SSR, static generation or bot-specific dynamic rendering. Google can render JavaScript; rendering alone is not a confirmed indexing defect. Initial HTML would improve robustness for non-rendering search/AI fetchers and remove reliance on multiple APIs for basic content. [Google's JavaScript processing documentation](https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics) explains the distinction.
+
+## Live inspection evidence
+
+All paths below are on `https://robles.ai` unless stated otherwise. No sampled successful public HTML response included an `X-Robots-Tag` or meta robots exclusion; absence of an exclusion is not proof of index inclusion.
+
+| URL/type | Raw HTTP/initial HTML | Browser result or comparison |
+|---|---|---|
+| `/` and `/?lang=es` | 200; Spanish default title/description, `lang=en`, no canonical/hreflang, Organization only; empty root; immutable one-year cache | `/` rendered English, `lang=en-US`, English title and service/demo/team/contact content. |
+| `/get-started` | 200; empty title/description; canonical and en/es/x-default links; empty root | `/get-started?lang=es` rendered English title/body with `lang=en-US`, while canonical retained `?lang=es`. |
+| `/blog`, `/blog?lang=es` | 200; empty title/description; route canonical and language alternates; empty root | English index has H1, 30 linked cards and button pagination showing page 1 of 406. |
+| `/careers` | 200; empty server title, empty application root | HTTP inspected; full browser flow not tested. |
+| `/diagnostico-ia`, `/demos`, `/try-rag` | 200; generic Spanish homepage metadata; no route canonical; empty root | Diagnosis/catalog discovered through rendered links. No demo API execution test. |
+| English crypto article A | 200; appropriate title/excerpt, clean canonical, en/es/x-default, Organization + BlogPosting + BreadcrumbList | Article renders, but client canonical adds `?lang=en`; sources and human publisher/AI assistant displayed. |
+| Spanish translation A-es | 200; Spanish title/excerpt, clean Spanish canonical; initial `lang=en` | Spanish article body with English interface and `lang=en-US`; client canonical adds `?lang=es`. |
+| Energy article B | 200; route-specific metadata/schema, empty root | HTTP only; no article accuracy assessment. |
+| Legacy August article with English slug + `?lang=es` | 200; Spanish metadata, canonical points to translated Spanish slug | Establishes legacy URL support at HTTP level; not a browser language correctness test. |
+| `/blog/` | 200; generic homepage head, no canonical | Different from `/blog`; trailing slash not normalized. |
+| `/seo-audit-nonexistent-20261017`, `/blog/seo-audit-nonexistent-20261017` | 200; generic homepage shell | Source supplies client not-found behavior; HTTP status is already incorrect. |
+| `/assets/seo-audit-nonexistent-20261017.js` | 200, `text/html`, homepage shell | Confirms asset fallback problem. |
+| `/og-image.png`, `/logo.png` | 200, `text/html`, homepage shell | These are metadata/schema image URLs, not usable images. `/images/logo.png` returns actual PNG. |
+| `http://robles.ai/`, `https://www.robles.ai/` | Each 301 directly to `https://robles.ai/` | Root variants verified; deep-path redirect preservation not tested. |
+
+Article A: `/blog/2026-10-16-23-00-00-ai-secures-cryptocurrency-startups`.
+
+A-es: `/blog/2026-10-16-23-00-00-ai-seguridad-criptomonedas-innovaciones`.
+
+B: `/blog/2026-10-16-22-00-00-ai-data-centers-energy-impact-and-global-diplomacy`.
+
+### Sitemap inventory
+
+`/robots.txt` returned exactly `User-agent: *`, `Allow: /`, and `Sitemap: https://robles.ai/sitemap.xmlArma ` (trailing space). The advertised malformed path itself returns the generic HTML shell. `/sitemap.xml` was accessible directly and parsed as XML.
+
+| Referenced file | URL locations |
+|---|---:|
+| `/static-pages.xml` | 4 |
+| `/sitemaps/2025-06-en.xml` | 705 |
+| `/sitemaps/2025-06-es.xml` | 705 |
+| `/sitemaps/2025-07-en.xml` | 725 |
+| `/sitemaps/2025-07-es.xml` | 725 |
+| `/sitemaps/2025-08-en.xml` | 674 |
+| `/sitemaps/2025-08-es.xml` | 674 |
+| `/sitemaps/2026-10.xml` | 2 |
+| **Unique locations** | **4,214** |
+
+Older Spanish maps use English slugs with `?lang=es`; the current map uses clean English locations with English/Spanish alternate annotations, but does not include reciprocal Spanish `<url>` entries. Referenced XML is syntactically valid. Coverage and language relationships are separate defects from XML syntax. No sitemap index or additional sitemap was advertised beyond these files. The complete internal link graph was not crawled; orphan counts and all broken links remain unverified.
+
+## Confirmed Findings
+
+Severity: CRITICAL = demonstrated severe incident/site-wide loss; HIGH = material discovery, correctness or conversion defect; MEDIUM = narrower defect or maintainability risk; LOW = smaller quality issue. These are engineering priorities, not measured ranking losses. Complexity estimates exclude approvals/deployment and assume an engineer familiar with the repo.
+
+### SEO-01 — Homepage bypasses metadata injection
+
+- **Category / severity:** metadata/rendering; HIGH. **Evidence:** live `/` and `/?lang=es` return original Spanish head without canonical/hreflang or the intended WebSite schema; browser changes title to English. `server/vite.ts:79` mounts static serving first, including automatic index handling.
+- **Affected URLs:** homepage language/query variants.
+- **Source:** `server/vite.ts`, `server/seo/metaInjector.ts`, `index.html`.
+- **Explanation / implication:** static index handling shadows the existing homepage SEO branch. Different consumers receive different language/identity metadata.
+- **Recommendation:** serve HTML through the existing metadata pipeline, restrict static handling to intended public assets, and validate both languages. Do not add a second metadata plugin.
+- **Complexity:** small–medium, 0.5–1 day, coordinated with SEO-02/03/06.
+
+### SEO-02 — HTML has a one-year immutable cache policy
+
+- **Category / severity:** performance/stability; HIGH. **Evidence:** homepage and `/?lang=es` headers contain `Cache-Control: public, max-age=31536000, immutable`.
+- **Affected URLs:** homepage and other unversioned files served by the same blanket policy.
+- **Source:** `server/vite.ts:79`.
+- **Explanation / implication:** returning visitors can retain outdated HTML and references to removed hashed assets after deployment. Actual stale-client failures were not reproduced.
+- **Recommendation:** revalidate HTML; reserve long immutable caching for content-hashed assets. Assign deliberate shorter/revalidation policies to robots, manifests and unversioned media. Preserve compression/security headers.
+- **Complexity:** small, 0.25–0.5 day plus deployment/cache verification.
+
+### SEO-03 — Important static routes emit blank or generic metadata
+
+- **Category / severity:** metadata; HIGH. **Evidence:** `/blog`, `/get-started`, `/careers` return empty `<title>` and description; demos/quiz/RAG return the generic home title. Client effects later fix some titles.
+- **Affected URLs:** listed routes and analogous unregistered demo routes.
+- **Source:** `server/seo/metaInjector.ts:18–57`, `server/seo/metaBuilders.ts:176`, `server/seo/types.ts:69`, `src/hooks/useSEO.ts`, both locale files, `package.json`.
+- **Explanation / implication:** translation-read failures are cached as empty objects; static registry omits demos/quiz. After esbuild flattens server code into `dist/index.js`, module-relative translation/editor paths resolve differently from the original source layout. This source path mismatch explains the observed fallbacks, although production filesystem paths were not inspected. Demo client metadata also shares a single generic route key.
+- **Recommendation:** explicit build-aware paths or supplied translation data, nonempty validated fallbacks, observable errors, complete route metadata registry and distinct intent-specific demo titles.
+- **Complexity:** medium, 1–2 days. Verify the actual bundled production artifact, not just unit builders.
+
+### SEO-04 — robots.txt advertises a malformed sitemap URL
+
+- **Category / severity:** discovery; HIGH. **Evidence:** live and source contain `sitemap.xmlArma`; that path returns HTML.
+- **Affected URLs:** `/robots.txt`, advertised sitemap.
+- **Source:** `public/robots.txt`.
+- **Implication / solution:** sitemap auto-discovery through this directive points to the wrong resource. Correct the URL and validate the target's XML/content type. Current `Allow: /` itself does not block search crawlers.
+- **Complexity:** small, under 0.25 day.
+
+### SEO-05 — Sitemap inventory is incomplete and uses conflicting language conventions
+
+- **Category / severity:** discovery/multilingual; HIGH. **Evidence:** complete referenced inventory above; API total 12,156; 28/30 current English URLs absent; static sitemap omits `/get-started`, quiz and demos. Current writer emits only English `<loc>` entries with bilingual annotations.
+- **Affected URLs:** blog archive, translated articles, commercial landing and selected public routes.
+- **Source:** `public/static-pages.xml`, `src/scripts/sitemapService.ts`, `generateSitemaps.ts`, `fixSitemapMissing.ts`, `server/routes.ts:954–1030`.
+- **Explanation / implication:** legacy and current writers target different directories and URL styles. Runtime historical sitemaps are not rebuilt from the current publication inventory. This weakens discovery, especially with button-only pagination.
+- **Recommendation:** one canonical URL policy and one inventory-driven sitemap writer; reconcile production data first; include both language URLs with reciprocal annotations; accurate publication/update timestamps; atomic generation. Do not run existing fix/delete scripts blindly or include every utility page by default.
+- **Complexity:** medium–large, 2–4 days plus full inventory validation. [Google's sitemap guidance](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap) supports canonical URL inclusion; sitemap inclusion is not indexing assurance.
+
+### SEO-06 — Server and client article canonicals conflict
+
+- **Category / severity:** canonicalization; HIGH. **Evidence:** article A raw canonical is clean, browser canonical adds `?lang=en`; Spanish similarly adds `?lang=es`. Client removes x-default and server alternate links.
+- **Affected URLs:** article detail pages, including A/A-es.
+- **Source:** `src/pages/BlogPost.tsx:95–137`, `server/seo/metaBuilders.ts`, `src/components/BlogModal.tsx`, `src/hooks/useBlogModalRouting.ts`.
+- **Implication / solution:** inconsistent consolidation signals across responses, rendered state and legacy sitemaps. Share one URL/metadata policy between server and client. Prefer existing translated clean article slugs, normalize legacy query variants without losing Spanish content. Keep modal and cold-load metadata equivalent, restoring list metadata on close.
+- **Complexity:** medium, 1–2 days plus modal regression tests.
+
+### SEO-07 — URL language, rendered language and HTML lang disagree
+
+- **Category / severity:** multilingual/accessibility; HIGH. **Evidence:** `/get-started?lang=es` rendered English body/title and `lang=en-US` while canonical remained Spanish; A-es rendered Spanish body but English interface and `lang=en-US`; initial Spanish HTML is `lang=en`.
+- **Affected URLs:** static Spanish query variants and translated articles; results depend on saved/browser language.
+- **Source:** `src/i18n/index.ts`, `src/App.tsx`, `src/components/Header.tsx`, `src/pages/BlogPost.tsx:86–90,192–194`, `server/seo/htmlInjector.ts`, `server/seo/types.ts`.
+- **Explanation / implication:** browser/local storage detection and strict `en`/`es` comparisons diverge; static pages do not consistently honor the server's query-language convention. Switching language changes state without consistently updating URL.
+- **Recommendation:** URL language takes precedence for indexable pages; normalize locale variants; synchronize body, metadata, lang and switch destinations. Retain `?lang=es` for static pages and translated article slugs initially. Reciprocal self-referencing alternates must resolve to the intended language. No routing framework migration is required. [Localized-page guidance](https://developers.google.com/search/docs/specialty/international/localized-versions).
+- **Complexity:** medium, 2–3 days including preference/locale matrix tests.
+
+### SEO-08 — Unknown URLs/assets return successful homepage HTML
+
+- **Category / severity:** indexability/status; HIGH. **Evidence:** missing page, missing article and missing `.js` all returned 200 with generic HTML. `/blog/` also bypasses exact static registration.
+- **Affected URLs:** unknown paths, unknown article slugs, missing assets, slash variants.
+- **Source:** `server/seo/metaInjector.ts:165–182,236–245`, `server/vite.ts`, `src/pages/BlogPost.tsx`, `src/pages/not-found.tsx`, `server/routes.ts:907–946`.
+- **Implication / solution:** soft-404 risk, duplicate shells and opaque asset failures. Use explicit public route classification, real 404s, deliberate 5xx for internal failures, proper asset fallthrough, and permanent slash normalization preserving meaningful queries. Validate article aliases against the slug index rather than the API's timestamp-prefix fuzzy match. Do not turn every SPA route into a 404.
+- **Complexity:** medium, 1–2 days.
+
+### SEO-09 — Article structured data has invalid dates and inconsistent attribution
+
+- **Category / severity:** structured data/trust; MEDIUM. **Evidence:** A and B use `datePublished`/`dateModified` such as `2026-10-16-23-00-00`; live `author` is `Person` named `Robles.AI`, while visible page names Antonio Robles as publisher and Felipe Mesh as AI assistant. JSON syntax parses; semantic correctness is the defect.
+- **Affected URLs:** generated article detail schema.
+- **Source:** `server/seo/metaBuilders.ts:60–105`, `server/seo/metaInjector.ts:18–39`, `src/scripts/generateHistoricalPosts.ts`, `src/pages/BlogPost.tsx`, `server/seo/__tests__/metaBuilders.test.ts:93–99`.
+- **Recommendation:** truthful ISO 8601 publication times with timezone, separate real modification tracking, appropriate Organization authorship or confirmed human authorship/review roles aligned with visible disclosures. Do not describe AI personas as credentialed people. Stable entity IDs can relate publisher, website, author and article. Existing tests explicitly accept malformed dates and need correction.
+- **Complexity:** medium, 1–2 days; historical dates require provenance review. [Article schema guidance](https://developers.google.com/search/docs/appearance/structured-data/article) recommends dates/authors/images but does not require every property or guarantee rich results.
+
+### SEO-10 — Article social/schema images point to HTML
+
+- **Category / severity:** image metadata; MEDIUM. **Evidence:** default `/og-image.png` and publisher `/logo.png` return 200 `text/html`; `/images/logo.png` is a real PNG. Raw and rendered article tags retain invalid defaults.
+- **Affected URLs:** article pages and metadata-injected static pages using defaults.
+- **Source:** `server/seo/metaBuilders.ts:5,86`, `index.html`, `src/pages/BlogPost.tsx`.
+- **Implication / solution:** broken preview/schema images. Use verified existing assets immediately, then appropriate licensed article/brand share images with explicit dimensions and alt metadata. Align social/schema image with representative visible imagery; return actual 404s for missing files.
+- **Complexity:** small, 0.25–0.5 day; custom artwork optional later.
+
+### SEO-11 — Main content is absent from sampled initial HTML
+
+- **Category / severity:** rendering/GEO; MEDIUM. **Evidence:** all sampled raw HTML roots empty; browser renders homepage, landing, list and articles. Injector explicitly guarantees unchanged body; frontend uses `createRoot`.
+- **Affected URLs:** homepage, landing, blog/list/detail, public demos and quiz shells.
+- **Source:** `src/main.tsx`, `server/seo/htmlInjector.ts`, `server/vite.ts`, `src/pages/BlogPost.tsx`.
+- **Implication / solution:** consumers that fetch HTML without JavaScript cannot read service/article copy or internal links. This does not prove Google render failure. Add initial public content incrementally using a shared, safe renderer or controlled prerendering integrated with current architecture; preserve React interactions and avoid duplicate visible text. Pilot landing/articles before broader adoption. Do not introduce crawler-specific content differences. [Google's rendering guidance](https://developers.google.com/search/docs/crawling-indexing/javascript/dynamic-rendering) favors sustainable rendering over a bot-specific workaround.
+- **Complexity:** large, 5–10 days for a tested pilot, broader rollout separately scoped.
+
+### SEO-12 — Archive pagination and search navigation lack crawlable links
+
+- **Category / severity:** internal discovery; HIGH given archive/sitemap gaps. **Evidence:** blog shows 406 pages, previous/next are buttons, `page` is component state only; search results use buttons. Ordinary list cards do have real article anchors, a positive.
+- **Affected URLs:** `/blog` archive/search and older articles reachable only via these interfaces or sitemaps.
+- **Source:** `src/pages/BlogList.tsx`, `src/components/BlogSearch.tsx`, `src/hooks/useSearch.ts`.
+- **Recommendation:** stable paginated URLs with real next/previous anchors and self-canonicals; refresh/back should restore page state. Keep transient filter/search combinations out of the index as appropriate without blocking article discovery. Render initial archive links with SEO-11. Avoid canonicalizing all archive pages to page 1.
+- **Complexity:** medium, 1–2 days before rendering work.
+
+### SEO-13 — Footer has placeholder links and an incorrect team fragment
+
+- **Category / severity:** linking/conversion/trust; MEDIUM. **Evidence:** privacy, terms, cookies, ethics, press and corporate socials point to `/#` or `#`; About points to `/#team`, while Team section is `id="about"`. Six service labels all point to `/#solutions`.
+- **Affected URLs:** every page containing Footer.
+- **Source:** `src/components/Footer.tsx`, `src/components/Team.tsx:82`, `src/components/Solutions.tsx`.
+- **Recommendation:** correct known fragment; link verified profiles; owner-approved policy pages or remove misleading placeholder affordances. Link service labels to specific relevant detail content when available. Existing personal profiles are not automatically corporate profiles. Policy text needs owner/legal review; no legal compliance conclusion is made here.
+- **Complexity:** small for links; 1–3 days plus content approval for policies.
+
+### SEO-14 — Desktop navigation is hover-only and clipped at intermediate width
+
+- **Category / severity:** accessibility/conversion; HIGH. **Evidence:** Header dropdown parent buttons have no click/keyboard/focus handlers or expanded state; visibility uses hover opacity/pointer-events without removing hidden buttons from keyboard order. A live screenshot at document width 823px showed clipped navigation; contact button bounds were x=938–1059, outside viewport. Clicking Language produced no open state in the inspected tree.
+- **Affected URLs:** shared desktop header, especially widths above 768px but below the full navigation width.
+- **Source:** `src/components/Header.tsx:143–234`, `src/index.css`.
+- **Recommendation:** accessible disclosure behavior, focus management, Escape support, correct aria-expanded/controls and truly hidden closed items; use anchors for destinations. Adapt breakpoint/layout to measured content width so contact/language remain usable. Respect reduced motion. No aesthetic redesign is needed.
+- **Complexity:** medium, 1–2 days; full keyboard and width matrix required.
+
+### SEO-15 — Blog publishing bypasses factual review and recent-topic memory is a stub
+
+- **Category / severity:** content/trust; HIGH. **Evidence:** generation parses model JSON then immediately saves and updates sitemap; `listRecentTopics` always returns `[]`; news retrieval falls back to sparse sources when its content filter fails. Article A contains a 50-market expansion statement while its linked source title says 40; it also assigns June 26, 2023 to a GPT 5.6-family event. These are concrete inconsistencies requiring fact-checking, not proof every underlying story is false.
+- **Affected URLs:** generated blog corpus; A is live content example.
+- **Source:** `src/scripts/{generateHistoricalPosts,postPrompt,postUtils,newsService}.ts`, `server/routes.ts` generation job.
+- **Recommendation:** source-backed claim checks, explicit review status and accountable reviewer, minimum evidence completeness, real recent-topic/semantic duplication review, factual-date validation, and a publication gate. Reject fabricated statistics/quotes and claims about Robles.AI's services. Word-count quotas are not quality controls; neither AI generation nor short length alone establishes a search penalty. [Google spam policy](https://developers.google.com/search/docs/essentials/spam-policies) concerns low-value scaled manipulation, not the mere use of AI.
+- **Complexity:** medium–large, 3–5 days for controls plus ongoing human editorial work. No automated removals recommended.
+
+### SEO-16 — Commercial service intent lacks dedicated depth and links
+
+- **Category / severity:** information architecture; MEDIUM. **Evidence:** route registry has no dedicated enterprise service pages; landing describes six services briefly; footer routes every service to one generic section; A's business-fit prose includes no specific service link. Existing demos supply valuable proof-of-capability, not proof of client outcomes.
+- **Affected URLs:** `/`, `/get-started`, `/demos`, blog articles.
+- **Source:** `src/App.tsx`, `src/pages/Landing.tsx`, `src/components/{Footer,Solutions,DemosCatalog}.tsx`, locale files.
+- **Recommendation:** strengthen current consulting offer and create only differentiated RAG, custom AI and agent/workflow pages as evidence and demand justify. Contextual article→service→demo→diagnosis paths. See Content Strategy.
+- **Complexity:** medium per page, 1–3 engineering/content days plus expert review.
+
+### SEO-17 — Application tracking omits GTM page/custom-event delivery and lead-success hooks
+
+- **Category / severity:** measurement; MEDIUM. **Evidence:** live GTM is active. `trackPageView`/`trackEvent` send only when direct GA/Meta flags are set; GTM branch returns before setting those flags. `trackDemoEvent` does push to dataLayer. Contact success, quiz and landing CTAs have no equivalent application-owned lead-success event hooks in inspected sources.
+- **Affected URLs:** SPA routes, contact/quiz/landing funnel, article modal navigation.
+- **Source:** `src/lib/analytics.ts`, `src/App.tsx`, `src/components/Contact.tsx`, `src/pages/{Quiz,Landing}.tsx`, `src/hooks/useBlogModalRouting.ts`.
+- **Implication / recommendation:** app cannot independently guarantee complete measurement under its live mode. GTM may already implement history/form triggers, so actual lost or duplicate events are unverified. Inspect GTM/GA4 first, then use one deduplicated event contract across modes, success-based lead events and qualified-lead CRM feedback. No PII or user prompts in analytics; no new tracker without approval.
+- **Complexity:** medium, 1–2 days plus account access.
+
+### SEO-18 — Search field lacks an explicit accessible label
+
+- **Category / severity:** accessibility; MEDIUM. **Evidence:** browser accessibility tree showed an unnamed text field; `BlogSearch` input provides placeholder but no label, aria-label or labelledby.
+- **Affected URLs:** `/blog` search.
+- **Source:** `src/components/BlogSearch.tsx`.
+- **Recommendation:** translated explicit label, appropriate search semantics, accessible result/loading announcement; preserve debounce/abort behavior.
+- **Complexity:** small, under 0.5 day.
+
+## Potential Issues — additional verification required
+
+| ID / priority | Evidence and uncertainty | Required next verification |
+|---|---|---|
+| **POT-SEC-01 / P0 verification** | `postbuild` copies all `server/data/` to `dist/data/`; `server/db.ts` puts SQLite with settings, admin and conversation data in `server/data`; `express.static` exposes the whole `dist` root. Source establishes an unsafe potential boundary; production file presence and nginx restrictions were not inspected. | Owner checks deployed file inventory and proxy/static access rules locally without downloading/exposing database contents. If a database snapshot is public, treat as a CRITICAL security incident and secure it before SEO work; remediation/rotation scope requires explicit owner authorization. Restrict public files rather than relying on robots.txt. |
+| POT-01 / P1 | Indexing, selected canonicals, manual actions and render failures unknown. | Search Console URL Inspection/Page Indexing/Sitemaps and Bing URL Inspection; verified bot logs. |
+| POT-02 / P1 | Root redirects verified, not deep paths, combined http+www or marketing parameter normalization. Article API accepts timestamp-prefix aliases; HTML resolver differs. | Small route matrix and full canonical inventory; preserve campaign parameters where needed, canonicalize them only according to intent. |
+| POT-03 / P2 | Modal changes address bar while preserving list mount; no equivalent full metadata update found in BlogModal. | Browser open/next/previous/back/close test comparing title, OG, canonical, schema, language and analytics. Source risk, no live modal failure asserted. |
+| POT-04 / P2 | LCP/INP/CLS and real mobile experience unknown; homepage eager modules and animations, translations before React mount, external fonts and tracking can add work. | Mobile/desktop Lighthouse and DevTools trace in controlled lab; CrUX/Search Console field data, real interactions for INP. |
+| POT-05 / P2 | Some numbers in landing marketing lack visible adjacent citations; case studies show illustrative results and explicitly disclose they are not client results. | Owner substantiates landing claims, biographies, business establishment/date, address and comparative savings. Keep illustrative disclosure; do not mark examples as verified customer results. |
+| POT-06 / P2 | Repository contains repeated headline groups, generic news breadth, no modification/reviewer fields in historical sample. No full production similarity audit. | Export production read-only inventory, stratified expert review and near-duplicate similarity analysis before merging, noindexing or removing anything. |
+| POT-07 / P2 | No Google/Bing verification markers or integration located in inspected code. | DNS/file-based verification may exist outside source. Owner verifies property ownership/access; absence of source tags is not a defect. |
+| POT-08 / P2 | No CDN configuration available; no proven WAF crawler exclusion; general security audit not performed. | Owner reviews edge/proxy, verified bot logs, cache and security tests. Do not weaken WAF/auth/CORS for crawler access. |
+
+## Blog and content assessment
+
+The snapshot's 801 historical English bodies ranged from 282 to 813 whitespace-counted words (median 477); 515 were under 500, one under 300. Two normalized title groups repeat, but no exact English body hash repeated. This is **historical source-only evidence**, not current corpus counts or proof of low quality. All 801 lacked top-level image, author, reviewer and modification-date fields; some attribution is supplied separately by UI/editor data. Current article A visibly reports 799 English words and 997 Spanish words. Increased length alone will not solve accuracy or originality.
+
+Positives: article H1 and H2 body sections, table of contents, visible sources, bilingual content, dates, AI-assistant disclosure and real article anchors in the listing. Problems: generic multi-story news can dilute relevance to enterprise buyers; A mixes crypto security, Sony startup products and stablecoin expansion. Its business-fit section claims capabilities without linking to a relevant implementation page. The generation prompt mandates numerical facts/quotes and a 2,000-word minimum without a verified evidence gate. Replace quotas with answer completeness and verifiable claims; never invent missing facts to meet a prompt.
+
+Recommended editorial rubric: factual correctness and source provenance; original engineering explanation; audience/job relevance; clear attribution and review date; reproducible implementation or useful decision framework; appropriate commercial next step. Score a sample by month, topic, language and traffic before setting retain/update/consolidate decisions. Preserve URLs while correcting content where possible; no mass deletion/noindex based on generation method.
+
+Publish fewer, stronger technical pieces: RAG retrieval evaluation with released test cases; agent tool-permission and human-approval patterns; document extraction precision/recall with labeled samples; Cloud Run cold-start measurements with reproducible environment; ERP connector failure handling; model cost/latency tradeoffs with date/model/settings. Separate measured results, lab demonstrations and illustrative scenarios. Publish code, methodology, limitations and citations when permission permits. Connect each to a relevant service and demo with descriptive anchors.
+
+## Content Strategy — commercial search intent hypotheses
+
+No paid keyword tool, search-volume export or difficulty data was available. Recommendations below are **intent/business hypotheses**, not volume-backed keyword research. Validate with Search Console queries, sales interviews and a focused SERP review before final URLs/copy. Existing public claims are not independently verified commercial delivery evidence.
+
+### Service portfolio decision
+
+| Candidate | Decision | Overlap and reason |
+|---|---|---|
+| AI consulting | Improve existing `/get-started` | Own diagnosis, prioritization and roadmap intent; do not launch a competing consulting page initially. |
+| Custom AI development | First dedicated engineering page | Covers implementation lifecycle and production delivery; distinct from advisory/diagnosis. |
+| Enterprise RAG | First specialist page | Existing RAG/document demo provides specific technical depth; enterprise permissions/evaluation need expert evidence. |
+| Agentic AI | Conditional first-wave page | Combine agents, workflow automation and integration around governed actions. Separate from retrieval-only RAG. |
+| Generative AI applications | Supporting topic under custom AI | Separate generic page would overlap heavily with custom development and RAG/agents. |
+| MLOps consulting | Defer standalone | Need buyer demand and credible operating/monitoring evidence; include production operations in custom development. |
+| ML engineering | Defer standalone | Predictive ML/forecasting section under custom development initially; split when use cases and demand warrant. |
+| Computer vision | Conditional second wave | Working browser demos justify capability explanation; require deployment/data/privacy evidence before promising enterprise outcomes. |
+| AI workflow automation | Merge with agent/integration offer | Avoid separate near-identical agent and automation pages. |
+| Enterprise AI integration | Cross-cutting topic initially | Show integrations on development/agent/RAG pages; separate only for distinct ERP/connectors buyer demand. |
+
+### Proposed page briefs
+
+**C1 — Existing consulting/diagnosis landing (SEO-16).** Audience: enterprise sponsors, operations leaders and IT decision makers in US/LatAm. Intent: evaluate an AI consultant and reduce project uncertainty. Primary topic: enterprise AI consulting/diagnosis; supporting topics: readiness, data/process audit, prioritization, security, roadmap and delivery governance. **URL:** retain `/get-started`, Spanish `?lang=es`. **Title:** “Enterprise AI Consulting & Roadmaps | Robles.AI”. **H1:** “Enterprise AI Consulting: From Diagnosis to Delivery”. Outline: buyer problems and qualification; diagnosis deliverables; four-stage process; sample clearly illustrative roadmap; who performs/reviews work; verified experience; engagement scope/pricing if owner approves; FAQs grounded in real buying questions; diagnosis/contact CTA. Links: homepage, proposed custom/RAG/agent pages, `/diagnostico-ia`, relevant technical guides. Relevance: strongest existing conversion offer; owner decides whether SME pricing/scope matches enterprise positioning.
+
+**C2 — Custom AI development (SEO-16).** Audience: CTOs, product and engineering leaders. Intent: procure a delivery partner. Primary topic: production custom AI applications; supporting topics: discovery, model/API selection, cloud architecture, secure integration, evaluation, observability and handover. **URL:** proposed `/services/custom-ai-development`. **Title:** “Custom AI Development for Enterprise Systems | Robles.AI”. **H1:** “Custom AI Applications Built for Your Enterprise Workflows”. Outline: problems and qualification; delivery stages and acceptance criteria; architectures and integration boundaries; verified technologies in context; evaluations/security and operations; working demos; evidence/limitations; engagement CTA. Links: RAG, agents, consulting, document extraction and forecasting demos, implementation articles. Relevance: broad delivery umbrella, avoids a second generic generative-AI page.
+
+**C3 — Enterprise RAG (SEO-16).** Audience: knowledge-management, support, legal/operations and IT platform teams. Intent: implement trusted search/answers over internal information. Primary topic: enterprise RAG solutions; supporting topics: connectors, ingestion/chunking, retrieval/reranking, permission filtering, citations, evaluation, freshness and operating cost. **URL:** proposed `/services/enterprise-rag`. **Title:** “Enterprise RAG Solutions & Knowledge Assistants | Robles.AI”. **H1:** “Enterprise RAG with Traceable Answers from Your Data”. Outline: suitable/unsuitable problems; architecture and supported sources; permission and tenancy model; evaluation methodology; live demo with limits; pilot deliverables; production monitoring; consultation CTA. Links: `/try-rag`, `/try-docextract`, custom development, agent integration, original retrieval benchmarks. Relevance: demonstrated capability with a clear enterprise problem; do not imply the public demo already implements every enterprise control.
+
+**C4 — Agents, automation and integration (SEO-16).** Audience: operations/IT teams automating multi-step workflows. Intent: buy agents that act safely in enterprise systems. Primary topic: governed AI agent development; supporting topics: tools/MCP, APIs/ERP, approvals, least privilege, audit logs, reliability, workflow evaluation and fallback. **URL:** proposed `/services/ai-agents-automation`. **Title:** “AI Agent Development & Workflow Automation | Robles.AI”. **H1:** “AI Agents That Connect and Execute Business Workflows”. Outline: use-case qualification; distinguish workflow/agent/chatbot; tool and approval design; integration architecture; measurable evaluation; demo limitations; phased delivery and human escalation; CTA. Links: `/try-langchain`, chatbot and transcription demos where relevant, RAG retrieval component, consulting, secure-agent technical guides. Relevance: consolidates overlapping commercial topics; launch only with expert-reviewed capability evidence.
+
+**C5 — Conditional computer vision page (SEO-16).** Audience: manufacturing/retail/logistics operations and engineering. Intent: evaluate image/video inspection and counting systems. Primary topic: enterprise computer vision; supporting topics: data collection, annotation, precision/recall, edge/cloud deployment, latency, privacy, human review. **URL:** proposed `/services/computer-vision`. **Title:** “Computer Vision Solutions for Business Operations | Robles.AI”. **H1:** “Computer Vision for Inspection, Counting and Operational Insight”. Outline: selected problems; data needs; evaluation by operating conditions; browser demo versus production architecture; limitations/privacy; pilot acceptance criteria; CTA. Links: object-detection demo, custom development, evaluation guides; do not market emotion inference or medical analysis as validated outcomes. Relevance: useful specialist capability, secondary to consulting/RAG/custom until delivery evidence is available.
+
+Information architecture: homepage → consulting and three focused service pillars → relevant demos and original technical guides → diagnosis/contact. The blog remains informational; demos remain hands-on proof. Avoid city/industry doorway pages, technology keyword inventories and near-identical English/Spanish pages generated without review. Industry pages require distinct, substantiated expertise and useful content first.
+
+## Structured-data architecture recommendations
+
+Keep existing Organization, BlogPosting and BreadcrumbList machinery. Add stable `@id` relationships and WebSite/WebPage context where useful. Service schema belongs on an actual service page and must match visible scope. Person belongs only to real accountable people with verified biographies; Organization is appropriate for organizational authorship. FAQs must be visibly useful and genuine; no FAQ rich-result promise. No ratings, reviews, certifications, awards, customer results or addresses should be inferred or fabricated. Address text already appears publicly, but business validation is required before expanding structured claims. SearchAction should only describe a working URL-search interface; `useSearch` currently initializes from empty state, so test `/blog?q=...` before emitting it.
+
+## GEO Strategy
+
+### Established foundations
+
+Fix the same content, language, canonical and discovery issues that affect ordinary search. State clearly who Robles.AI serves, what it delivers, its process, named accountable experts and demonstrable limits. Initial service/article HTML, semantic headings, descriptive links, verified entity profiles and precise source citations improve machine interpretation. Real demos are a differentiator; publish explanations of architecture and measured behavior beside them. Do not use illustrative case metrics as client results or create invented testimonials.
+
+Current robots wildcard permits crawling generally, including search and training agents; there is no specific AI-agent block in the inspected file. This is a policy observation, not proof that agents have crawled or cited the site.
+
+| Agent | Purpose / policy implication |
+|---|---|
+| Googlebot / Bingbot | Search discovery/indexing. Current wildcard allows; actual fetch/render/index outcomes require logs and webmaster tools. |
+| OAI-SearchBot | ChatGPT search crawler. Preserve public search access if that is the owner's intent; permission does not guarantee citation. |
+| GPTBot | Potential foundation-model training collection. Its policy can differ from search access; owner should choose intentionally. |
+| ChatGPT-User | User-triggered fetches, not automatic search crawling; robots restrictions may not apply. |
+| PerplexityBot | Search discovery/linking, not foundation-model training according to vendor documentation. |
+| Perplexity-User | User-triggered retrieval; vendor says it generally ignores robots.txt. |
+
+OpenAI's search, training and user-fetch controls are distinct. [Official crawler documentation](https://developers.openai.com/api/docs/bots). Perplexity documents the analogous search/user distinction. [Perplexity crawler documentation](https://docs.perplexity.ai/docs/resources/perplexity-crawlers). Do not automatically allow additional training agents or weaken authentication/WAF to satisfy discovery. Any owner-selected policy should be validated against current official agents and verified traffic; robots.txt is not access control.
+
+### Experiments, separately scoped
+
+Optional `llms.txt`, concise human-readable capability summaries, and a repeatable question/citation monitoring set can be tested after core corrections. No evidence here establishes that llms.txt is required by search or that it improves inclusion. Record query, platform, date, answer, cited URL and factual correctness; volatile manual observations are not a ranking score. Google's [AI search guidance](https://developers.google.com/search/docs/appearance/ai-features) emphasizes the existing SEO foundation; no single markup or GEO tactic guarantees results.
+
+## Performance audit
+
+### Actual network observations
+
+Single unthrottled curl transfers from this audit environment; these are resource diagnostics, not browser lab scores or field metrics.
+
+| Resource | Decoded size | Transferred compressed body |
+|---|---:|---:|
+| Main `index-CaFpm2sA.js` | 512,582 bytes | 150,578 bytes |
+| Four modulepreloaded JS chunks, combined | 346,408 bytes | 103,996 bytes |
+| **Main plus preload JS** | **858,990 bytes** | **254,574 bytes** |
+| Main stylesheet | 175,948 bytes | 25,092 bytes |
+
+JS/CSS responses used gzip and immutable caching. Single-request TTFB was roughly 0.29s for main JS and 0.31s for CSS; this is not page LCP. Totals exclude route chunks, translation chunks, fonts, images and third-party scripts. No assertion about parse/CPU cost can be made from transfer sizes alone.
+
+Positives: route lazy loading, manual vendor chunks, font preconnect and `display=swap`, lazy/async decoding on many noncritical images, reserved hero containers, reduced-motion support and HTTP compression. Risks to measure: eager Home sections and blog routing in the shared entry; both locale imports awaited before render; Google Fonts stylesheet; globally loaded chat/analytics; motion work; heavy CV/PDF modules on demo routes. Do not eager-load model weights on unrelated pages or remove all preloads without a trace. Correct HTML caching before cache tuning elsewhere.
+
+Targets after a field baseline: 75th-percentile LCP ≤2.5s, INP ≤200ms and CLS ≤0.1, segmented mobile/desktop. These are [Core Web Vitals thresholds](https://web.dev/articles/vitals), not measurements of Robles.AI. Capture three controlled cold/warm lab runs per representative route and field distributions where sufficient traffic exists. Prioritize the measured LCP element, layout shifts, long tasks and API waterfalls; avoid indiscriminate architectural complexity.
+
+## Accessibility and conversion UX
+
+Confirmed issues are SEO-14 and SEO-18; language mismatch in SEO-07 also affects assistive technology. Positives in source include a main landmark, labeled footer/primary nav, form labels/error components, image alt text, reduced-motion support and a blog modal with focus-trap/restore logic. Confirm actual behavior with keyboard and assistive-technology testing; source intent is not an accessibility pass.
+
+The 823px screenshot establishes a real header clipping issue. Mobile menu presence was observed in narrower browser states, but precise 360/390/768px regression, 200% zoom, contrast ratios and all form error states were not measured. Test without submitting production leads. Keep clear consultation/diagnosis CTAs, link phone/email directly where useful, explain data treatment next to demos/forms, and connect legal/trust links to real content. Substantiate pricing comparisons and experience claims; keep illustrative results labeled. Do not add friction or visual redesign without a measurable conversion hypothesis.
+
+## Quick Wins
+
+1. Correct robots sitemap pointer (SEO-04).
+2. Repair existing metadata path/fallback handling and route coverage (SEO-03).
+3. Let homepage use existing injector and revalidate HTML (SEO-01/02).
+4. Align clean article canonicals and locale state (SEO-06/07; test together).
+5. Replace broken image URLs with verified existing assets (SEO-10).
+6. Correct footer fragment, verified profile destinations and search label (SEO-13/18).
+7. Fix header keyboard behavior and clipping (SEO-14).
+
+Sitemap backfill is high impact but depends on production inventory and canonical policy. It is not a safe one-command quick fix. All listed changes remain proposals awaiting approval.
+
+## Architectural Recommendations
+
+- Keep React/Vite/Express. Consolidate existing metadata rather than adding parallel head managers.
+- Establish a single public route/locale/canonical contract shared by raw HTML, browser navigation and publishing.
+- Restrict public static exposure, separate HTML/hashed asset cache policies, and make unknown routes/errors truthful.
+- Pilot server-visible content for the consulting page, archive and article templates using shared content and escaping. Adopt hydration or a carefully scoped static-content enhancement only after compatibility testing; no hidden SEO duplicate bodies.
+- Generate sitemaps from publication inventory; keep content, FTS/listing/slug indexes and sitemap publishing consistent and observable.
+- Add factual/editorial gates and real update provenance before accelerating publishing.
+- Add production-artifact integration checks to deployment workflow. Existing middleware mocks do not exercise static ordering or bundled file paths.
+
+## Measurement Plan
+
+| Metric | Authority/source | Baseline and success assessment |
+|---|---|---|
+| Impressions, clicks, CTR, average position | Search Console; Bing Webmaster Tools | Export 90-day baseline by query/page/country/device; group branded/nonbranded and commercial/informational. Compare 28-day periods with seasonality and release annotations; no promised rank lift. |
+| Indexed pages and selected canonical | Search Console Page Indexing/URL Inspection; Bing inspection | Cohort known public URLs, exclude intentional utility/private pages. Record coverage, exclusions, last crawl and rendered output. Sitemap counts are not index counts. |
+| Organic landing engagement | GA4 under existing approved configuration | Session source/medium + landing page + language; audit SPA page views, modal paths, duplicates and consent behavior before relying on trends. |
+| Lead conversion | Successful contact submission, quiz email verification, consultation CTA; CRM qualification | Distinguish clicks, submitted leads, verified leads and qualified opportunities. Deduplicate event IDs, exclude admin/tests/bots; never transmit message bodies, email or tokens. |
+| Business results | CRM/sales with owner access | Qualified organic leads, opportunity rate and pipeline where attribution is supportable; content traffic alone is not the business objective. |
+| Technical correctness | Release HTTP/browser checks | Nonempty intended metadata, consistent canonicals/languages, real 404s, valid sitemap inventory and image responses. Target zero regressions in release samples. |
+| Performance | Lab traces + CrUX/Search Console field data | Route/device cohorts, p75 CWV when sample sufficient; compressed bytes and long tasks before/after, not invented PageSpeed scores. |
+| AI discovery | Verified crawler logs; manual citation sample; referral analytics | Access/error trends and attributable qualified visits. Citation presence is variable and cannot prove total visibility. |
+
+Review release checks immediately, technical/indexing cohorts after recrawl, and business/content trends at 28/56/90 days. Establish numerical growth goals only after baseline and lead-volume review. Search Console/Bing settings and new third-party tracking are outside current authorization.
+
+## Testing strategy
+
+Use existing Vitest, Supertest, fast-check, jsdom and Testing Library where installed in the real checkout. The snapshot has 76 test files; SEO tests include builders, HTML injector, slug index, middleware and sitemap tests. **No project test suite was executed** because no dependencies/build were available and starting the application can write data/run jobs. Python standard-library XML parsing, JSON parsing and HTTP response comparisons were performed as diagnostics.
+
+- Add production-bundle integration fixtures for root/static/article serving, paths, language and cache headers; isolate DB/jobs and use temporary fixtures. Never import full route registration into an uncontrolled test.
+- Assert one nonempty title/description/canonical per public route, correct OG/Twitter URLs, matching server/client metadata after navigation and modal close.
+- Test EN/ES slugs, legacy queries, locale variants, saved preference conflicts, reciprocal alternates and initial/rendered `lang`.
+- Validate sitemap XML, escaping, inventory coverage, canonical-only locations and reciprocal language entries; reject missing assets/redirect targets and private/utility routes. Validate exact robots sitemap target.
+- Test known/missing article, missing asset, unknown page, trailing slash, legacy aliases, and redirect query/path preservation; distinguish 404 from 5xx.
+- Parse JSON-LD; check valid dates, real authorship, entity URLs, actual image content types and visible-content consistency. Use Rich Results Test/Schema.org validator manually before release; semantic validation exceeds JSON parsing.
+- Test real link destinations/fragments, page-2 reload/back behavior and accessible header/search interactions.
+- Browser automation is available through the audit browser; standalone Playwright is not an existing package dependency. Add a browser package only with approval if needed for CI. Do not install unnecessary packages.
+
+## Implementation Roadmap
+
+| Phase | Scope / IDs | Dependencies | Estimated effort |
+|---|---|---|---|
+| **P0 — verify critical boundaries** | POT-SEC-01 owner checks; production SHA/data/deployment inventory; baseline exports | Owner/server read access; no sensitive HTTP downloads | 0.5–1 day verification; incident work separately scoped if confirmed |
+| **P1 — technical corrections** | SEO-01–10, SEO-12, SEO-14, SEO-18; production-path tests and public/static boundary correction if needed | Canonical/language contract, correct checkout, isolated artifact test, approved release | ~7–12 engineering days in small batches; sitemap/content inventory may add time |
+| **P2 — content and architecture** | SEO-11, SEO-13, SEO-15–17; consulting/3 service pilots, internal links, editorial gates and measurement | Expert/owner review, GTM/GSC/Bing/CRM access, rendering prototype and security review | ~3–6 weeks across engineering/editorial; optional pages separately scheduled |
+| **P3 — measured optimization/GEO experiments** | POT-03–08; trace-led performance, original benchmarks, optional llms.txt/citation monitoring | Correct P1 baseline and trustworthy measurement | 1–3 weeks initially, then periodic review |
+
+Estimates overlap and are not additive guarantees. No critical indexing outage is confirmed; P0 is a verification gate. See [SEO_IMPLEMENTATION_PLAN.md](SEO_IMPLEMENTATION_PLAN.md) for issue-level files, risks, tests and outcomes. Application implementation and production changes require owner approval; this audit stops at documentation.
+
+
+## Post-audit implementation note — October 18, 2026
+
+The owner subsequently authorized local implementation of Batches 1–4 in an isolated checkout. See the implementation record in [SEO_IMPLEMENTATION_PLAN.md](SEO_IMPLEMENTATION_PLAN.md) for the exact changed files, passing checks and remaining baseline TypeScript errors. Production has not been deployed or reclassified as fixed. Actual deployed data exposure, indexing, field performance and account metrics remain unverified.

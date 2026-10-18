@@ -242,8 +242,8 @@ describe('Property 9: JSON-LD BlogPosting schema completeness', () => {
           expect(blogPosting.image).toBeTruthy();
           expect(blogPosting.mainEntityOfPage).toBeTruthy();
 
-          // 3. author has @type "Person" and a non-empty name
-          expect(blogPosting.author['@type']).toBe('Person');
+          // 3. Organizational attribution does not present AI assistants as real people.
+          expect(blogPosting.author['@type']).toBe('Organization');
           expect(blogPosting.author.name).toBeTruthy();
           expect(typeof blogPosting.author.name).toBe('string');
           expect(blogPosting.author.name.length).toBeGreaterThan(0);

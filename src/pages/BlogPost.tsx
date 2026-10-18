@@ -1,9 +1,12 @@
-import { changeLanguage } from 'i18next';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { applyPageMetadata } from '@/lib/pageMetadata';
+import { normalizeLanguage, explicitLanguage } from '@shared/seoPolicy';
+import { buildBlogMeta, buildBlogJsonLd } from '@shared/seoMetadata';
 import { useParams } from 'wouter';
 import { BlogArticle } from '@/components/BlogArticle';
 import ErrorState from '@/components/state/ErrorState';
+import NotFound from '@/pages/not-found';
 import LoadingState from '@/components/state/LoadingState';
 
 interface Post {
@@ -68,82 +71,33 @@ export default function BlogPost() {
   const [post, setPost] = useState<Post | null>(null);
   const [editors, setEditors] = useState<Editor[]>([]);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [notFound, setNotFound] = useState(false);
   const [fetchError, setFetchError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const params = useParams<{ slug: string }>();
   const slug = params.slug;
-  const [slugWeb, setSlugWeb] = useState('');
+  useEffect(() => {
+    if (!post || !slug) return;
+    const language = explicitLanguage(new URLSearchParams(window.location.search).get('lang'))
+      ?? (post.translations.es.slug === slug ? 'es' : 'en');
+    if (normalizeLanguage(i18n.language) !== language) void i18n.changeLanguage(language);
+    const translatedSlug = post.translations[language].slug;
+    const meta = buildBlogMeta({ post, lang: language, slug: translatedSlug });
+    meta.jsonLd = buildBlogJsonLd({ post, lang: language, slug: translatedSlug }, 'Robles.AI');
+    applyPageMetadata(meta);
+  }, [post, slug, i18n]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const url = new URL(window.location.href);
-      const pathname = url.pathname;
-      const parts = pathname.split('/');
-      setSlugWeb(parts.pop() || '');
-    }
-  }, []);
-
-  useEffect(() => {
-    const queryParams = new URLSearchParams(window.location.search);
-    const language = queryParams.get('lang');
-    if (language && (language == 'es' || language == 'en')) {
-      i18n.changeLanguage(language);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!post) return;
-
-    // Limpia versiones anteriores
-    document
-      .querySelectorAll(
-        "link[rel='canonical'], link[rel='alternate'], meta[name='description']"
-      )
-      .forEach((el) => el.remove());
-
-    // Detecta idioma
-    const language_page = post.translations.es?.slug === slugWeb ? 'es' : 'en';
-
-    // Canonical dinámico según idioma activo
-    const canonical = document.createElement('link');
-    canonical.rel = 'canonical';
-    canonical.href = `https://robles.ai/blog/${slugWeb}?lang=${language_page}`;
-    document.head.appendChild(canonical);
-
-    // Alternate en
-    const altEn = document.createElement('link');
-    altEn.rel = 'alternate';
-    altEn.hreflang = 'en';
-    altEn.href = `https://robles.ai/blog/${post.translations.en?.slug}?lang=en`;
-    document.head.appendChild(altEn);
-
-    // Alternate es
-    const altEs = document.createElement('link');
-    altEs.rel = 'alternate';
-    altEs.hreflang = 'es';
-    altEs.href = `https://robles.ai/blog/${post.translations.es?.slug}?lang=es`;
-    document.head.appendChild(altEs);
-
-    // Cambiar el título según idioma
-    document.title =
-      language_page === 'es' ? post.translations.es?.title : post.translations.en?.title;
-
-    // Cambiar la meta descripción según idioma
-    const metaDescription = document.createElement('meta');
-    metaDescription.name = 'description';
-    metaDescription.content =
-      language_page === 'es' ? post.translations.es?.excerpt : post.translations.en?.excerpt;
-    document.head.appendChild(metaDescription);
-  }, [post, i18n.language, slugWeb]);
-
-  useEffect(() => {
+    const controller = new AbortController();
     if (slug) {
       setFetchError(false);
-      fetch(`/api/blog/${slug}`)
+      setNotFound(false);
+      setPost(null);
+      fetch(`/api/blog/${encodeURIComponent(slug)}`, { signal: controller.signal })
         .then((res) => {
-          // A genuine 404 keeps the existing not-found redirect (Req 13.4).
+          // Preserve the requested URL and show not-found content instead of another 200 shell.
           if (res.status === 404) {
-            window.location.href = '/not-found';
+            setNotFound(true);
             return null;
           }
           // Any other non-OK status is a fetch failure → error state (Req 19.3).
@@ -156,23 +110,27 @@ export default function BlogPost() {
           if (data) setPost(data);
         })
         .catch((err) => {
+          if (controller.signal.aborted) return;
           // Non-404 failure (network/5xx): show a retryable error state instead
           // of a hard redirect to not-found (Req 19.3).
           console.error('Error fetching post:', err);
           setFetchError(true);
         });
     }
-    fetch('/api/editors')
+    fetch('/api/editors', { signal: controller.signal })
       .then((res) => res.json())
-      .then((data) => setEditors(data.editors));
+      .then((data) => setEditors(data.editors))
+      .catch(() => { /* Editorial attribution is optional; article content remains usable. */ });
 
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 300);
     };
 
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => { controller.abort(); window.removeEventListener('scroll', handleScroll); };
   }, [slug, reloadKey]);
+
+  if (notFound) return <NotFound />;
 
   if (fetchError && !post) {
     return (
@@ -189,9 +147,9 @@ export default function BlogPost() {
 
   if (!post) return <LoadingState className="min-h-[40vh]" />;
 
-  const translation =
-    post.translations[i18n.language as 'en' | 'es'] ||
-    (post.translations.es?.slug == slugWeb ? post.translations.es : post.translations.en);
+  const pageLanguage = explicitLanguage(new URLSearchParams(window.location.search).get('lang'))
+    ?? (post.translations.es.slug === slug ? 'es' : 'en');
+  const translation = post.translations[pageLanguage];
   const editor = editors.find((e) => e.id === post.editorId);
 
   const postDate = extractDateTimeFromSlug(post.slug);

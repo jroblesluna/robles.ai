@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation, useSearch as useLocationSearch } from 'wouter';
+import { archivePage, normalizeLanguage } from '@shared/seoPolicy';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import BlogSearch from '@/components/BlogSearch';
 import BlogModal from '@/components/BlogModal';
@@ -17,8 +19,8 @@ interface Post {
   image?: string;
   editorId: number;
   translations: {
-    en: { title: string; excerpt: string; content: { heading: string; body: string }[] };
-    es: { title: string; excerpt: string; content: { heading: string; body: string }[] };
+    en: { slug?: string; title: string; excerpt: string; content: { heading: string; body: string }[] };
+    es: { slug?: string; title: string; excerpt: string; content: { heading: string; body: string }[] };
   };
 }
 
@@ -49,12 +51,14 @@ function formatDate(date: Date, language: 'en' | 'es'): string {
 
 export default function BlogList() {
   const { i18n } = useTranslation();
+  const search = useLocationSearch();
+  const [, navigate] = useLocation();
   const [posts, setPosts] = useState<Post[]>([]);
   const [total, setTotal] = useState(0);
   const [editors, setEditors] = useState<Editor[]>([]);
-  const [page, setPage] = useState(1);
-  const [editorFilter, setEditorFilter] = useState<number | null>(null);
-  const [dayFilter, setDayFilter] = useState<number | null>(null);
+  const [page, setPage] = useState(() => archivePage(new URLSearchParams(window.location.search).get('page')));
+  const [editorFilter, setEditorFilter] = useState<number | null>(() => Number(new URLSearchParams(window.location.search).get('editorId')) || null);
+  const [dayFilter, setDayFilter] = useState<number | null>(() => Number(new URLSearchParams(window.location.search).get('days')) || null);
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
@@ -69,8 +73,26 @@ export default function BlogList() {
   const cardRefs = useRef<Array<HTMLAnchorElement | null>>([]);
   const openedFromIndexRef = useRef<number | null>(null);
 
-  const lang = i18n.language as 'en' | 'es';
+  const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  useEffect(() => {
+    // A modal's article URL must not reset the archive state it overlays.
+    if (window.location.pathname !== '/blog') return;
+    const query = new URLSearchParams(search);
+    setPage(archivePage(query.get('page')));
+    setEditorFilter(Number(query.get('editorId')) || null);
+    setDayFilter(Number(query.get('days')) || null);
+  }, [search]);
+
+  function archiveHref(nextPage: number, editor = editorFilter, days = dayFilter) {
+    const query = new URLSearchParams();
+    if (lang === 'es') query.set('lang', 'es');
+    if (nextPage > 1) query.set('page', String(nextPage));
+    if (editor) query.set('editorId', String(editor));
+    if (days) query.set('days', String(days));
+    return '/blog' + (query.size ? `?${query}` : '');
+  }
 
   function handleCardClick(e: React.MouseEvent<HTMLAnchorElement>, cardIndex: number) {
     // Preserve middle-click / cmd/ctrl/shift-click (open the real page / new tab).
@@ -122,19 +144,17 @@ export default function BlogList() {
 
   function handleEditorFilterChange(id: number | null) {
     if (editorFilter === id) return;
-    setEditorFilter(id);
-    setPage(1);
+    navigate(archiveHref(1, id));
   }
 
   function handleDayFilterChange(days: number | null) {
     if (dayFilter === days) return;
-    setDayFilter(days);
-    setPage(1);
+    navigate(archiveHref(1, editorFilter, days));
   }
 
   function goToPage(next: number) {
     if (next < 1 || next > totalPages || next === page) return;
-    setPage(next);
+    navigate(archiveHref(next));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -312,7 +332,7 @@ export default function BlogList() {
                       page in a new tab; plain left-click is intercepted to open
                       the in-page modal (Req 11.1, 12.1). */}
                   <a
-                    href={`/blog/${post.slug}`}
+                    href={post.translations[lang]?.slug ? `/blog/${post.translations[lang].slug}` : `/blog/${post.slug}${lang === 'es' ? '?lang=es' : ''}`}
                     ref={(el) => {
                       cardRefs.current[cardIndex] = el;
                     }}
@@ -361,25 +381,29 @@ export default function BlogList() {
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-4 mt-10">
-              <button
-                onClick={() => goToPage(page - 1)}
-                disabled={page <= 1}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              <a
+                href={page > 1 ? archiveHref(page - 1) : undefined}
+                aria-disabled={page <= 1}
+                tabIndex={page <= 1 ? -1 : undefined}
+                onClick={event => { if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); goToPage(page - 1); } }}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 aria-disabled:opacity-40 aria-disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronLeft className="w-4 h-4" />
                 {lang === 'es' ? 'Anterior' : 'Previous'}
-              </button>
+              </a>
               <span className="text-sm text-gray-500">
                 {lang === 'es' ? `Página ${page} de ${totalPages}` : `Page ${page} of ${totalPages}`}
               </span>
-              <button
-                onClick={() => goToPage(page + 1)}
-                disabled={page >= totalPages}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              <a
+                href={page < totalPages ? archiveHref(page + 1) : undefined}
+                aria-disabled={page >= totalPages}
+                tabIndex={page >= totalPages ? -1 : undefined}
+                onClick={event => { if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); goToPage(page + 1); } }}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 aria-disabled:opacity-40 aria-disabled:cursor-not-allowed transition-colors"
               >
                 {lang === 'es' ? 'Siguiente' : 'Next'}
                 <ChevronRight className="w-4 h-4" />
-              </button>
+              </a>
             </div>
           )}
         </>

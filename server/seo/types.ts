@@ -24,10 +24,13 @@ export interface PageMeta {
   canonicalUrl: string;
   hreflangLinks: HreflangLink[];
   jsonLd?: object[];
+  language?: 'en' | 'es';
+  robots?: string;
 }
 
 /** An entry in the slug-to-file index for O(1) blog post lookup. */
 export interface SlugIndexEntry {
+  lastModified?: string;
   filePath: string; // Absolute path to JSON file
   enSlug: string;
   esSlug: string;
@@ -38,6 +41,7 @@ export interface SlugIndexEntry {
 export interface BlogPostData {
   slug: string;
   date: string;
+  dateModified?: string;
   image?: string;
   editorId: number;
   categories: string[];
@@ -62,14 +66,9 @@ export interface MetaInjectorConfig {
   mode: 'development' | 'production';
   distPath: string; // Path to built dist/ directory
   sourcePath: string; // Path to source index.html
+  postsDir?: string;
+  translationsDir?: string;
   viteTransform?: (url: string, html: string) => Promise<string>;
 }
 
-/** Registry of static page paths to their i18n translation keys. */
-export const STATIC_PAGES: Record<string, string> = {
-  '/': 'home',
-  '/blog': 'blog',
-  '/careers': 'careers',
-  '/get-started': 'landing',
-  '/apply': 'apply',
-};
+export { STATIC_PAGES } from '../../shared/seoPolicy.js';

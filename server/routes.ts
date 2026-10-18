@@ -14,7 +14,7 @@ import { sendQuizVerificationEmail } from './services/quizVerificationEmail.js';
 import { readdir, readFile, stat } from 'fs/promises';
 import { fileURLToPath } from 'url';
 import editorsData from './data/editors.json';
-import { XMLBuilder } from 'fast-xml-parser';
+import { mountSitemapRoutes } from './seo/sitemapRoutes.js';
 import cron from 'node-cron';
 import { generateHistoricalPosts } from '@/scripts/generateHistoricalPosts';
 import { addOneDay, subtractOneDay } from '@/utils/managmentDate';
@@ -838,7 +838,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return collected;
   }
 
-  app.get('/api/blog', (req: Request, res: Response) => {
+  app.get('/api/blog', async (req: Request, res: Response) => {
     try {
       let page = parseInt(req.query.page as string) || 1;
       let limit = parseInt(req.query.limit as string) || 9;
@@ -887,13 +887,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       `).get(...params) as { total: number };
 
       // Transform to match current response shape
+      const index = getSlugIndex();
+      if (index) await index.ready();
       const transformed = (posts as any[]).map((row: any) => ({
         slug: row.slug,
         date: row.date,
         editorId: row.editor_id,
         translations: {
-          en: { title: row.title_en || '', excerpt: row.excerpt_en || '' },
-          es: { title: row.title_es || '', excerpt: row.excerpt_es || '' },
+          en: { slug: index?.get(row.slug)?.enSlug ?? row.slug, title: row.title_en || '', excerpt: row.excerpt_en || '' },
+          es: { slug: index?.get(row.slug)?.esSlug, title: row.title_es || '', excerpt: row.excerpt_es || '' },
         },
       }));
 
@@ -905,44 +907,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get('/api/blog/:slug', async (req: Request, res: Response) => {
-    const { slug } = req.params;
-    const [yyyy, mm, dd] = slug.split('-');
-
-    const structuredPath = path.resolve(
-      __dirname,
-      `./data/posts/${yyyy}/${mm}/${dd}/${slug}.json`
-    );
-
+    const slug = req.params.slug;
+    if (typeof slug !== 'string') return void res.status(400).json({ success: false, error: 'Invalid slug' });
     try {
-      const data = await fs.promises.readFile(structuredPath, 'utf-8');
-      const post = JSON.parse(data);
-      console.log('📄 Exact match found:', structuredPath);
-      res.json(post);
-      return;
+      const index = getSlugIndex();
+      if (!index) return void res.status(503).json({ success: false, error: 'Content unavailable' });
+      await index.ready();
+      const entry = index.get(slug);
+      if (!entry) return void res.status(404).json({ success: false, error: 'Post not found' });
+      res.json(JSON.parse(await fs.promises.readFile(entry.filePath, 'utf8')));
     } catch {
-      // fallback
-      try {
-        const dayDir = path.resolve(__dirname, `./data/posts/${yyyy}/${mm}/${dd}`);
-        const files = await fs.promises.readdir(dayDir);
-        const prefix = slug.slice(0, 19); // YYYY-mm-DD-HH-MM-SS
-
-        const match = files.find((f) => f.startsWith(prefix) && f.endsWith('.json'));
-
-        if (match) {
-          const altPath = path.join(dayDir, match);
-          const data = await fs.promises.readFile(altPath, 'utf-8');
-          const post = JSON.parse(data);
-          console.log('🔎 Fuzzy match used:', match);
-          res.json(post);
-          return;
-        }
-
-        console.warn('⚠️ No matching post for:', slug);
-        res.status(404).json({ success: false, error: 'Post not found' });
-      } catch (err) {
-        console.error('❌ Error reading fallback folder:', err);
-        res.status(404).json({ success: false, error: 'Post not found' });
-      }
+      res.status(503).json({ success: false, error: 'Content unavailable' });
     }
   });
 
@@ -951,82 +926,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(editorsData);
   });
 
-  app.get('/sitemap.xml', async (_req: Request, res: Response) => {
-    try {
-      const sitemapFolder = path.resolve(__dirname, './data/sitemaps');
-      const staticPagesPath = path.resolve(__dirname, '../public/static-pages.xml');
-
-      // Build sitemap entries with lastmod from file modification dates
-      const sitemapEntries: { loc: string; lastmod: string }[] = [];
-
-      // Add static-pages.xml entry
-      try {
-        const staticStat = await fs.promises.stat(staticPagesPath);
-        sitemapEntries.push({
-          loc: 'https://robles.ai/static-pages.xml',
-          lastmod: staticStat.mtime.toISOString().split('T')[0],
-        });
-      } catch {
-        // If static-pages.xml doesn't exist, include without lastmod
-        sitemapEntries.push({
-          loc: 'https://robles.ai/static-pages.xml',
-          lastmod: new Date().toISOString().split('T')[0],
-        });
-      }
-
-      // Add monthly blog sitemaps
-      try {
-        const sitemapFiles = await fs.promises.readdir(sitemapFolder);
-        for (const f of sitemapFiles.filter((f) => f.endsWith('.xml'))) {
-          const filePath = path.join(sitemapFolder, f);
-          const fileStat = await fs.promises.stat(filePath);
-          sitemapEntries.push({
-            loc: `https://robles.ai/sitemaps/${f}`,
-            lastmod: fileStat.mtime.toISOString().split('T')[0],
-          });
-        }
-      } catch {
-        // If sitemaps folder doesn't exist yet, just serve with static-pages only
-      }
-
-      const builder = new XMLBuilder({ ignoreAttributes: false, format: true });
-      const sitemapIndex = {
-        sitemapindex: {
-          '@_xmlns': 'http://www.sitemaps.org/schemas/sitemap/0.9',
-          sitemap: sitemapEntries.map((entry) => ({
-            loc: entry.loc,
-            lastmod: entry.lastmod,
-          })),
-        },
-      };
-
-      const xml = builder.build(sitemapIndex);
-      res.setHeader('Content-Type', 'application/xml');
-      res.send(xml);
-    } catch (error) {
-      console.error('❌ Error generating dynamic sitemap index:', error);
-      res.status(500).send('Error generating sitemap');
-    }
-  });
-
-  app.get('/sitemaps/:filename', async (req: Request, res: Response) => {
-    const { filename } = req.params;
-    const sitemapPath = path.resolve(__dirname, `./data/sitemaps/${filename}`);
-
-    try {
-      if (!filename.endsWith('.xml')) {
-        res.status(400).send('Invalid sitemap file format');
-        return;
-      }
-
-      const content = await fs.promises.readFile(sitemapPath, 'utf-8');
-      res.setHeader('Content-Type', 'application/xml');
-      res.send(content);
-    } catch (err) {
-      console.error(`❌ Sitemap not found: ${filename}`);
-      res.status(404).send('Sitemap not found');
-    }
-  });
+  mountSitemapRoutes(app, getSlugIndex);
 
   const httpServer = createServer(app);
 

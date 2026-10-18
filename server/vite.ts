@@ -1,4 +1,4 @@
-import express, { type Express } from "express";
+import { type Express } from "express";
 import fs from "fs";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
@@ -8,6 +8,7 @@ const __dirname = dirname(__filename);
 import { type Server } from "http";
 import viteConfig from "../vite.config";
 import { createMetaInjector } from "./seo/metaInjector.js";
+import { mountPublicSite } from './publicServing.js';
 import type { SlugIndex } from "./seo/slugIndex.js";
 
 const viteLogger = createLogger();
@@ -76,15 +77,5 @@ export function serveStatic(app: Express) {
     );
   }
 
-  app.use(express.static(distPath, { maxAge: "1y", immutable: true }));
-
-  // MetaInjector middleware: injects SEO meta tags into HTML responses in production
-  const sourcePath = path.resolve(__dirname, "..", "index.html");
-  const { handler: metaInjector, slugIndex } = createMetaInjector({
-    mode: 'production',
-    distPath,
-    sourcePath,
-  });
-  _slugIndex = slugIndex;
-  app.use(metaInjector);
+  _slugIndex = mountPublicSite(app, distPath);
 }

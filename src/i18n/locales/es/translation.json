@@ -22,11 +22,55 @@
         },
         "demos": {
             "title": "Robles.AI | Demos de IA — Prueba Nuestra Tecnología",
-            "description": "Prueba nuestros demos de IA: pipelines RAG, integración de LLM, verificación de identidad y análisis de imágenes médicas."
+            "description": "Prueba nuestros demos de IA: recuperación de documentos, herramientas, transcripción, extracción documental y visión por computadora."
         },
         "quiz": {
             "title": "Robles.AI | Test de Diagnóstico IA — Descubre tu solución ideal",
             "description": "Responde 8 preguntas y descubre en minutos qué solución de Inteligencia Artificial se ajusta mejor a las necesidades de tu empresa."
+        },
+        "identity": {
+            "title": "Demo de verificación de identidad con IA | Robles.AI",
+            "description": "Compara una selfie y la foto de un documento en una demostración interactiva de IA."
+        },
+        "rag": {
+            "title": "Demo de RAG: consulta tus documentos | Robles.AI",
+            "description": "Explora recuperación, reranking y respuestas con citas de fuentes en nuestro demo de RAG."
+        },
+        "agents": {
+            "title": "Demo de agentes de IA e integración de herramientas | Robles.AI",
+            "description": "Prueba un asistente que usa herramientas, consulta documentos y devuelve resultados estructurados."
+        },
+        "chatbot": {
+            "title": "Demo de chatbot de IA para sitios web | Robles.AI",
+            "description": "Explora un chatbot de IA basado en el contenido público de un sitio web."
+        },
+        "docextract": {
+            "title": "Demo de extracción inteligente de documentos | Robles.AI",
+            "description": "Prueba extracción estructurada de facturas, contratos y formularios con nuestro demo de IA documental."
+        },
+        "forecast": {
+            "title": "Demo de pronóstico de series temporales | Robles.AI",
+            "description": "Explora pronósticos de series temporales en tu navegador con datos de ejemplo o propios."
+        },
+        "emotion": {
+            "title": "Demo de análisis de expresiones faciales | Robles.AI",
+            "description": "Explora un demo local de expresiones faciales y sus límites; las expresiones no demuestran sentimientos."
+        },
+        "objectDetection": {
+            "title": "Demo de visión por computadora: detección de objetos | Robles.AI",
+            "description": "Detecta y cuenta objetos en imágenes o video de cámara directamente en tu navegador."
+        },
+        "tts": {
+            "title": "Demo de texto a voz con IA | Robles.AI",
+            "description": "Explora síntesis de voz neural y narración en nuestro demo interactivo."
+        },
+        "transcription": {
+            "title": "Demo de transcripción en vivo con IA | Robles.AI",
+            "description": "Prueba transcripción de voz, separación de hablantes y resúmenes de conversaciones con IA."
+        },
+        "medical": {
+            "title": "Demo de IA médica — Próximamente | Robles.AI",
+            "description": "Esta demostración de IA médica todavía no está disponible. No se ofrece un servicio de diagnóstico."
         }
     },
     "nav": {
@@ -48,7 +92,8 @@
         "quiz": "Test de IA",
         "quiz_1": "¿Qué IA necesitas?",
         "quiz_2": "Encuentra tu solución IA",
-        "quiz_3": "Evalúa tu empresa"
+        "quiz_3": "Evalúa tu empresa",
+        "toggleMenu": "Abrir o cerrar menú"
     },
     "hero": {
         "title": "Soluciones Robustas de Inteligencia Artificial",
@@ -2792,5 +2837,14 @@
         "empty": "Aún no hay nada que mostrar",
         "error": "Algo salió mal",
         "retry": "Reintentar"
+    },
+    "blogSearch": {
+        "label": "Buscar artículos de IA",
+        "loading": "Cargando resultados de búsqueda",
+        "results": "Resultados de búsqueda"
+    },
+    "notFound": {
+        "title": "404 Página no encontrada",
+        "description": "Esta página no existe. Es posible que se haya eliminado o que la dirección sea incorrecta."
     }
 }

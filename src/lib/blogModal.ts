@@ -1,3 +1,5 @@
+import { blogPath as articlePath } from '@shared/seoPolicy';
+
 // Pure URL/slug + navigation helpers for the blog in-page modal viewer.
 //
 // These are intentionally free of React/DOM so they can be unit- and
@@ -26,8 +28,8 @@ export interface BlogModalPost {
 
 /**
  * A blog post as returned by the `/api/blog` LIST endpoint: it carries only
- * `title`/`excerpt` per language and the canonical top-level `slug` — NOT the
- * per-language slugs or the article `content` (those live in the full
+ * `title`/`excerpt` and language slugs when available, plus the canonical top-level
+ * `slug`. Article content lives in the full
  * `/api/blog/:slug` JSON). The modal derives its URL from the canonical `slug`
  * and lazily fetches the full post for rendering.
  */
@@ -36,8 +38,8 @@ export interface BlogListPost {
   date?: string;
   editorId: number;
   translations: {
-    en: { title: string; excerpt: string };
-    es: { title: string; excerpt: string };
+    en: { slug?: string; title: string; excerpt: string };
+    es: { slug?: string; title: string; excerpt: string };
   };
 }
 
@@ -46,16 +48,17 @@ export interface BlogListPost {
  * canonical (top-level) slug, and each card already links to `/blog/<slug>`,
  * so the modal URL uses that same canonical slug (Req 12.1, 12.4).
  */
-export function listPostPath(post: BlogListPost): string {
-  return `/blog/${post.slug}`;
+export function listPostPath(post: BlogListPost, lang: BlogModalLang = 'en'): string {
+  const slug = post.translations[lang]?.slug;
+  return articlePath(slug ?? post.slug) + (!slug && lang === 'es' ? '?lang=es' : '');
 }
 
 /** Absolute shareable link for a list post's canonical `/blog/:slug`. */
-export function listPostAbsoluteUrl(post: BlogListPost, origin?: string): string {
+export function listPostAbsoluteUrl(post: BlogListPost, origin?: string, lang: BlogModalLang = 'en'): string {
   const base =
     origin ??
     (typeof window !== 'undefined' && window.location ? window.location.origin : '');
-  return `${base}${listPostPath(post)}`;
+  return `${base}${listPostPath(post, lang)}`;
 }
 
 /**
@@ -84,7 +87,7 @@ export function slugForLang(post: BlogModalPost, lang: BlogModalLang): string {
  * Builds the app-relative `/blog/:slug` path for a post in the active language.
  */
 export function blogPath(post: BlogModalPost, lang: BlogModalLang): string {
-  return `/blog/${slugForLang(post, lang)}`;
+  return articlePath(slugForLang(post, lang));
 }
 
 /**

@@ -1,5 +1,4 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { useLocation } from 'wouter';
 import { useTranslation } from 'react-i18next';
 import { Search, X, Loader2 } from 'lucide-react';
 import { useSearch } from '@/hooks/useSearch';
@@ -29,15 +28,14 @@ function formatDateWithTimeZone(date: Date, language: 'en' | 'es'): string {
 }
 
 export default function BlogSearch({ onSearchActive }: BlogSearchProps) {
-  const { i18n } = useTranslation();
-  const [, setLocation] = useLocation();
+  const { i18n, t } = useTranslation();
   const { query, setQuery, results, isLoading, isLoadingMore, isSearchActive, hasMore, loadMore, clearSearch } = useSearch();
 
   const lang = i18n.language as 'en' | 'es';
   const observer = useRef<IntersectionObserver | null>(null);
 
   const lastResultRef = useCallback(
-    (node: HTMLButtonElement | null) => {
+    (node: HTMLAnchorElement | null) => {
       if (!hasMore) return;
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
@@ -60,7 +58,8 @@ export default function BlogSearch({ onSearchActive }: BlogSearchProps) {
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
         <input
-          type="text"
+          type="search"
+          aria-label={t("blogSearch.label")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={lang === 'es' ? 'Buscar posts...' : 'Search posts...'}
@@ -79,7 +78,7 @@ export default function BlogSearch({ onSearchActive }: BlogSearchProps) {
 
       {/* Loading State */}
       {isLoading && (
-        <div className="flex justify-center items-center py-10">
+        <div className="flex justify-center items-center py-10" role="status" aria-label={t("blogSearch.loading")}>
           <Loader2 className="w-6 h-6 text-purple-500 animate-spin" />
         </div>
       )}
@@ -102,10 +101,11 @@ export default function BlogSearch({ onSearchActive }: BlogSearchProps) {
             const isLast = index === results.length - 1;
 
             return (
-              <button
+              <a
+                href={`/blog/${result.slug}`}
                 key={`${result.slug}-${result.language}`}
                 ref={isLast ? lastResultRef : null}
-                onClick={() => setLocation(`/blog/${result.slug}`)}
+
                 className="text-left block rounded-lg border border-white hover:border-purple-400 hover:-mt-2 hover:mb-2 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden bg-white p-4"
               >
                 <div className="flex flex-col justify-between h-full">
@@ -120,7 +120,7 @@ export default function BlogSearch({ onSearchActive }: BlogSearchProps) {
                   </div>
                   <p className="text-[11px] text-gray-500 mt-auto">{formattedDate}</p>
                 </div>
-              </button>
+              </a>
             );
           })}
         </div>
@@ -128,7 +128,7 @@ export default function BlogSearch({ onSearchActive }: BlogSearchProps) {
 
       {/* Loading more indicator */}
       {isLoadingMore && (
-        <div className="flex justify-center items-center py-10">
+        <div className="flex justify-center items-center py-10" role="status" aria-label={t("blogSearch.loading")}>
           <Loader2 className="w-6 h-6 text-purple-500 animate-spin" />
         </div>
       )}

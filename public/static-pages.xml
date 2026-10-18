@@ -1,23 +1,207 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://robles.ai/</loc>
-    <priority>1.0</priority>
-    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/"/>
   </url>
   <url>
-    <loc>https://robles.ai/careers</loc>
-    <priority>0.8</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://robles.ai/apply</loc>
-    <priority>0.8</priority>
-    <changefreq>monthly</changefreq>
+    <loc>https://robles.ai/?lang=es</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/"/>
   </url>
   <url>
     <loc>https://robles.ai/blog</loc>
-    <priority>0.8</priority>
-    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/blog"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/blog?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/blog"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/blog?lang=es</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/blog"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/blog?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/blog"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/careers</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/careers"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/careers?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/careers"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/careers?lang=es</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/careers"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/careers?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/careers"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/get-started</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/get-started"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/get-started?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/get-started"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/get-started?lang=es</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/get-started"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/get-started?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/get-started"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/apply</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/apply"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/apply?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/apply"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/apply?lang=es</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/apply"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/apply?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/apply"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/diagnostico-ia</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/diagnostico-ia"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/diagnostico-ia?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/diagnostico-ia"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/diagnostico-ia?lang=es</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/diagnostico-ia"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/diagnostico-ia?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/diagnostico-ia"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/demos</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/demos"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/demos?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/demos"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/demos?lang=es</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/demos"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/demos?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/demos"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/try-identity</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/try-identity"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/try-identity?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/try-identity"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/try-identity?lang=es</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/try-identity"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/try-identity?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/try-identity"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/try-rag</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/try-rag"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/try-rag?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/try-rag"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/try-rag?lang=es</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/try-rag"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/try-rag?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/try-rag"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/try-langchain</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/try-langchain"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/try-langchain?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/try-langchain"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/try-langchain?lang=es</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/try-langchain"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/try-langchain?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/try-langchain"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/try-transcription</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/try-transcription"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/try-transcription?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/try-transcription"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/try-transcription?lang=es</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/try-transcription"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/try-transcription?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/try-transcription"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/try-chatbot</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/try-chatbot"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/try-chatbot?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/try-chatbot"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/try-chatbot?lang=es</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/try-chatbot"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/try-chatbot?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/try-chatbot"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/try-docextract</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/try-docextract"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/try-docextract?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/try-docextract"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/try-docextract?lang=es</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/try-docextract"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/try-docextract?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/try-docextract"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/try-forecast</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/try-forecast"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/try-forecast?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/try-forecast"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/try-forecast?lang=es</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/try-forecast"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/try-forecast?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/try-forecast"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/try-tts</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/try-tts"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/try-tts?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/try-tts"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/try-tts?lang=es</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/try-tts"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/try-tts?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/try-tts"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/try-object-detection</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/try-object-detection"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/try-object-detection?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/try-object-detection"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/try-object-detection?lang=es</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/try-object-detection"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/try-object-detection?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/try-object-detection"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/try-emotion</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/try-emotion"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/try-emotion?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/try-emotion"/>
+  </url>
+  <url>
+    <loc>https://robles.ai/try-emotion?lang=es</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/try-emotion"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/try-emotion?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robles.ai/try-emotion"/>
   </url>
 </urlset>

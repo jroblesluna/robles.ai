@@ -1,152 +1,71 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { updateSitemap } from './sitemapService';
-import path from 'path';
-import fs from 'fs';
-import { promises as fsPromises } from 'fs';
-import os from 'os';
-
-describe('sitemapService - updateSitemap', () => {
-  let tmpDir: string;
-  const originalEnv = process.env.NODE_ENV;
-
-  beforeEach(async () => {
-    tmpDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'sitemap-test-'));
-    // Override the sitemapFolder by setting NODE_ENV=production and CWD
-    process.env.NODE_ENV = 'production';
-    // We'll use a workaround: set cwd so dist/data/sitemaps maps to our tmpDir
+// @vitest-environment node
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { mkdtemp, readFile, readdir, rm, writeFile, mkdir } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { XMLParser } from 'fast-xml-parser';
+import { updateSitemap, buildSitemapXml, parseExistingSitemap } from './sitemapService';
+import { monthlySitemaps, staticSitemapXml } from '../../server/seo/sitemap';
+import { generateSitemaps } from './generateSitemaps';
+let root: string;
+beforeEach(async () => { root = await mkdtemp(path.join(tmpdir(), 'robles-sitemap-')); });
+afterEach(async () => { await rm(root, { recursive: true, force: true }); });
+const pair = (id: number) => ({ enSlug: `2026-10-16-23-00-00-english-${id}`, esSlug: `2026-10-16-23-00-00-espanol-${id}` });
+const parse = (text: string) => new XMLParser({ ignoreAttributes: false }).parse(text).urlset;
+describe('production sitemap implementation', () => {
+  it('lists each language with a reciprocal, self-inclusive set of alternates', () => {
+    const urls = parse(buildSitemapXml([pair(1)])).url;
+    expect(urls).toHaveLength(2);
+    urls.forEach((url: any) => {
+      const links = url['xhtml:link'];
+      expect(links).toHaveLength(3);
+      expect(links.map((l: any) => l['@_href'])).toContain(url.loc);
+      expect(links.find((l: any) => l['@_hreflang'] === 'es')['@_href']).toContain(pair(1).esSlug);
+    });
   });
-
-  afterEach(async () => {
-    process.env.NODE_ENV = originalEnv;
-    await fsPromises.rm(tmpDir, { recursive: true, force: true });
+  it('does not invent modification dates and preserves real ones', () => {
+    expect(buildSitemapXml([pair(1)])).not.toContain('lastmod');
+    expect(buildSitemapXml([{ ...pair(1), lastModified: '2026-10-17T10:00:00Z' }])).toContain('<lastmod>2026-10-17T10:00:00Z</lastmod>');
   });
-
-  it('should generate XML with xmlns:xhtml namespace', async () => {
-    const sitemapFolder = path.join(tmpDir, 'sitemaps');
-    await fsPromises.mkdir(sitemapFolder, { recursive: true });
-
-    // Directly test the output format by calling updateSitemap and reading result
-    // We'll mock the folder path by creating the file ourselves using the same logic
-    const enSlug = '2025-03-28-00-00-00-embracing-the-future';
-    const esSlug = '2025-03-28-00-00-00-abrazando-el-futuro';
-    const date = '2025-03-28';
-
-    // Write sitemap directly to our temp folder to test the format
-    const xml = buildTestSitemapXml([{ enSlug, esSlug }]);
-    const sitemapFile = path.join(sitemapFolder, '2025-03.xml');
-    await fsPromises.writeFile(sitemapFile, xml, 'utf-8');
-
-    const content = await fsPromises.readFile(sitemapFile, 'utf-8');
-    expect(content).toContain('xmlns:xhtml="http://www.w3.org/1999/xhtml"');
+  it('updates actual temporary files atomically and idempotently', async () => {
+    await updateSitemap(pair(1).enSlug, pair(1).esSlug, '2026-10-16', root);
+    const file = path.join(root, '2026-10.xml');
+    const before = await readFile(file, 'utf8');
+    await updateSitemap(pair(1).enSlug, pair(1).esSlug, '2026-10-16', root);
+    expect(await readFile(file, 'utf8')).toBe(before);
+    expect(parseExistingSitemap(before)).toEqual([pair(1)]);
+    expect(await readdir(root)).toEqual(['2026-10.xml']);
   });
-
-  it('should include xhtml:link alternate elements for EN and ES', async () => {
-    const enSlug = '2025-03-28-00-00-00-embracing-the-future';
-    const esSlug = '2025-03-28-00-00-00-abrazando-el-futuro';
-
-    const xml = buildTestSitemapXml([{ enSlug, esSlug }]);
-
-    expect(xml).toContain(`<xhtml:link rel="alternate" hreflang="en" href="https://robles.ai/blog/${enSlug}"/>`);
-    expect(xml).toContain(`<xhtml:link rel="alternate" hreflang="es" href="https://robles.ai/blog/${esSlug}"/>`);
+  it('serializes concurrent publisher calls without losing pairs', async () => {
+    await Promise.all(Array.from({ length: 20 }, (_, i) => updateSitemap(pair(i).enSlug, pair(i).esSlug, '2026-10-16', root)));
+    expect(parse(await readFile(path.join(root, '2026-10.xml'), 'utf8')).url).toHaveLength(40);
   });
-
-  it('should use clean URLs without ?lang= query parameters', async () => {
-    const enSlug = '2025-03-28-00-00-00-embracing-the-future';
-    const esSlug = '2025-03-28-00-00-00-abrazando-el-futuro';
-
-    const xml = buildTestSitemapXml([{ enSlug, esSlug }]);
-
-    expect(xml).not.toContain('?lang=');
+  it('refuses to overwrite an unpaired legacy sitemap', async () => {
+    const file = path.join(root, '2026-10.xml');
+    const legacy = '<urlset><url><loc>https://robles.ai/blog/old?lang=en</loc></url></urlset>';
+    await writeFile(file, legacy);
+    await expect(updateSitemap(pair(1).enSlug, pair(1).esSlug, '2026-10-16', root)).rejects.toThrow('language pairs');
+    expect(await readFile(file, 'utf8')).toBe(legacy);
   });
-
-  it('should use EN URL as the <loc> element', async () => {
-    const enSlug = '2025-03-28-00-00-00-embracing-the-future';
-    const esSlug = '2025-03-28-00-00-00-abrazando-el-futuro';
-
-    const xml = buildTestSitemapXml([{ enSlug, esSlug }]);
-
-    expect(xml).toContain(`<loc>https://robles.ai/blog/${enSlug}</loc>`);
+  it('splits inventories before exceeding the 50,000 URL protocol limit', () => {
+    const maps = monthlySitemaps(Array.from({ length: 25001 }, (_, i) => pair(i)));
+    expect(Object.keys(maps)).toEqual(['2026-10-1.xml', '2026-10-2.xml']);
+    expect(maps['2026-10-1.xml']).toHaveLength(25000);
+    expect(maps['2026-10-2.xml']).toHaveLength(1);
   });
-
-  it('should combine multiple entries in one sitemap file', async () => {
-    const entries = [
-      { enSlug: '2025-03-28-00-00-00-post-one', esSlug: '2025-03-28-00-00-00-post-uno' },
-      { enSlug: '2025-03-28-01-00-00-post-two', esSlug: '2025-03-28-01-00-00-post-dos' },
-    ];
-
-    const xml = buildTestSitemapXml(entries);
-
-    expect(xml).toContain('<loc>https://robles.ai/blog/2025-03-28-00-00-00-post-one</loc>');
-    expect(xml).toContain('<loc>https://robles.ai/blog/2025-03-28-01-00-00-post-two</loc>');
-    // Both should be in one file (no separate language files)
-    expect(xml.match(/<url>/g)?.length).toBe(2);
+  it('includes real public routes and excludes unavailable/private routes', () => {
+    const xml = staticSitemapXml();
+    expect(xml).toContain('/get-started?lang=es');
+    expect(xml).toContain('/demos');
+    expect(xml).not.toContain('/admin');
+    expect(xml).not.toContain('/try-medical');
   });
-
-  it('should parse existing sitemap and avoid duplicate entries', async () => {
-    const existingXml = buildTestSitemapXml([
-      { enSlug: '2025-03-28-00-00-00-existing-post', esSlug: '2025-03-28-00-00-00-post-existente' },
-    ]);
-
-    const parsed = parseTestSitemap(existingXml);
-    expect(parsed).toHaveLength(1);
-    expect(parsed[0].enSlug).toBe('2025-03-28-00-00-00-existing-post');
-    expect(parsed[0].esSlug).toBe('2025-03-28-00-00-00-post-existente');
-  });
-
-  it('should have valid XML structure', async () => {
-    const entries = [
-      { enSlug: '2025-03-28-00-00-00-test-post', esSlug: '2025-03-28-00-00-00-post-de-prueba' },
-    ];
-
-    const xml = buildTestSitemapXml(entries);
-
-    expect(xml).toMatch(/^<\?xml version="1\.0" encoding="UTF-8"\?>/);
-    expect(xml).toContain('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"');
-    expect(xml).toContain('</urlset>');
+  it('defaults inventory CLI to a read-only report and requires an explicit write destination', async () => {
+    const posts = path.join(root, 'posts'); await mkdir(posts);
+    await writeFile(path.join(posts, 'post.json'), JSON.stringify({ date: '2026-10-16', translations: { en: { slug: pair(1).enSlug }, es: { slug: pair(1).esSlug } } }));
+    const report = await generateSitemaps(['--posts', posts]);
+    expect(report).toMatchObject({ posts: 1, articleUrls: 2, write: false });
+    expect(await readdir(root)).toEqual(['posts']);
+    await expect(generateSitemaps(['--posts', posts, '--write'])).rejects.toThrow('explicit --output');
   });
 });
-
-// Helper functions that mirror the implementation logic for testing
-function buildTestSitemapXml(entries: { enSlug: string; esSlug: string }[]): string {
-  const urlEntries = entries.map((entry) => {
-    const enUrl = `https://robles.ai/blog/${entry.enSlug}`;
-    const esUrl = `https://robles.ai/blog/${entry.esSlug}`;
-
-    return `  <url>
-    <loc>${enUrl}</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="${enUrl}"/>
-    <xhtml:link rel="alternate" hreflang="es" href="${esUrl}"/>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>`;
-  });
-
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
-${urlEntries.join('\n')}
-</urlset>
-`;
-}
-
-function parseTestSitemap(content: string): { enSlug: string; esSlug: string }[] {
-  const entries: { enSlug: string; esSlug: string }[] = [];
-  const urlBlocks = content.match(/<url>[\s\S]*?<\/url>/g) || [];
-
-  for (const block of urlBlocks) {
-    let enSlug = '';
-    let esSlug = '';
-
-    const enMatch = block.match(/hreflang="en"\s+href="https:\/\/robles\.ai\/blog\/([^"]+)"/);
-    if (enMatch) enSlug = enMatch[1];
-
-    const esMatch = block.match(/hreflang="es"\s+href="https:\/\/robles\.ai\/blog\/([^"]+)"/);
-    if (esMatch) esSlug = esMatch[1];
-
-    if (enSlug) {
-      entries.push({ enSlug, esSlug: esSlug || enSlug });
-    }
-  }
-
-  return entries;
-}

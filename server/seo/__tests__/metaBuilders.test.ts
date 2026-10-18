@@ -90,23 +90,25 @@ describe('buildBlogJsonLd', () => {
       expect((result[0] as any).description.endsWith('...')).toBe(true);
     });
 
-    it('includes datePublished and dateModified from post.date', () => {
+    it('converts publication dates and omits unknown modification dates', () => {
       const post = makeSamplePost();
       const input: BlogMetaBuilderInput = { post, lang: 'en', slug: post.translations.en.slug };
       const result = buildBlogJsonLd(input, 'Clara Buzz');
 
-      expect((result[0] as any).datePublished).toBe('2025-03-28-00-00-00');
-      expect((result[0] as any).dateModified).toBe('2025-03-28-00-00-00');
+      expect((result[0] as any).datePublished).toBe('2025-03-28T00:00:00Z');
+      expect(result[0]).not.toHaveProperty('dateModified');
     });
 
-    it('includes author with editor name', () => {
+    it('credits organizational authorship instead of an AI persona', () => {
       const post = makeSamplePost();
       const input: BlogMetaBuilderInput = { post, lang: 'en', slug: post.translations.en.slug };
       const result = buildBlogJsonLd(input, 'Mike Electrum');
 
       expect((result[0] as any).author).toEqual({
-        '@type': 'Person',
-        name: 'Mike Electrum',
+        '@type': 'Organization',
+        '@id': 'https://robles.ai/#organization',
+        name: 'Robles.AI',
+        url: 'https://robles.ai',
       });
     });
 
@@ -115,12 +117,12 @@ describe('buildBlogJsonLd', () => {
       const input: BlogMetaBuilderInput = { post, lang: 'en', slug: post.translations.en.slug };
       const result = buildBlogJsonLd(input, 'Clara Buzz');
 
-      expect((result[0] as any).publisher).toEqual({
+      expect((result[0] as any).publisher).toMatchObject({
         '@type': 'Organization',
         name: 'Robles.AI',
         logo: {
           '@type': 'ImageObject',
-          url: 'https://robles.ai/logo.png',
+          url: 'https://robles.ai/images/logo.png',
         },
       });
     });
@@ -138,7 +140,7 @@ describe('buildBlogJsonLd', () => {
       const input: BlogMetaBuilderInput = { post, lang: 'en', slug: post.translations.en.slug };
       const result = buildBlogJsonLd(input, 'Clara Buzz');
 
-      expect((result[0] as any).image).toBe('https://robles.ai/og-image.png');
+      expect((result[0] as any).image).toBe('https://robles.ai/images/logo.png');
     });
 
     it('includes mainEntityOfPage with canonical URL', () => {

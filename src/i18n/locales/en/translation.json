@@ -22,11 +22,55 @@
         },
         "demos": {
             "title": "Robles.AI | AI Demos — Try Our Technology",
-            "description": "Try our AI demos: RAG pipelines, LLM integration, identity verification, and medical image analysis."
+            "description": "Try our AI demos: document retrieval, tool integration, transcription, document extraction and browser computer vision."
         },
         "quiz": {
             "title": "Robles.AI | AI Diagnosis Quiz — Find Your Ideal Solution",
             "description": "Answer 8 questions and discover in minutes which Artificial Intelligence solution best fits your company's needs."
+        },
+        "identity": {
+            "title": "Identity Verification AI Demo | Robles.AI",
+            "description": "Compare a selfie and an ID photo in an interactive AI demonstration."
+        },
+        "rag": {
+            "title": "RAG Pipeline Demo: Ask Your Documents | Robles.AI",
+            "description": "Explore document retrieval, reranking and answers with source citations in our RAG demo."
+        },
+        "agents": {
+            "title": "AI Agent and Tool Integration Demo | Robles.AI",
+            "description": "Try an AI assistant that uses tools, retrieves documents and returns structured results."
+        },
+        "chatbot": {
+            "title": "Website AI Chatbot Demo | Robles.AI",
+            "description": "Explore an AI chatbot grounded in the public content of a website."
+        },
+        "docextract": {
+            "title": "Intelligent Document Extraction Demo | Robles.AI",
+            "description": "Try structured extraction from invoices, contracts and forms with our document AI demo."
+        },
+        "forecast": {
+            "title": "Time Series Forecasting Demo | Robles.AI",
+            "description": "Explore time series forecasts in your browser using sample or uploaded data."
+        },
+        "emotion": {
+            "title": "Facial Expression Analysis Demo | Robles.AI",
+            "description": "Explore a browser-local facial expression demo and its limitations; expressions are not proof of feelings."
+        },
+        "objectDetection": {
+            "title": "Object Detection Computer Vision Demo | Robles.AI",
+            "description": "Detect and count objects in images or camera video directly in your browser."
+        },
+        "tts": {
+            "title": "AI Text to Speech Demo | Robles.AI",
+            "description": "Explore neural text to speech and narrated content in our interactive voice demo."
+        },
+        "transcription": {
+            "title": "Live AI Transcription Demo | Robles.AI",
+            "description": "Try speech transcription, speaker separation and AI conversation summaries."
+        },
+        "medical": {
+            "title": "Medical AI Demo — Coming Soon | Robles.AI",
+            "description": "This medical AI demonstration is not yet available. No diagnostic service is provided."
         }
     },
     "nav": {
@@ -48,7 +92,8 @@
         "quiz": "AI Test",
         "quiz_1": "Which AI Do You Need?",
         "quiz_2": "Find Your AI Fit",
-        "quiz_3": "Assess Your Business"
+        "quiz_3": "Assess Your Business",
+        "toggleMenu": "Toggle menu"
     },
     "hero": {
         "title": "Robust Artificial Intelligence Solutions",
@@ -2792,5 +2837,14 @@
         "empty": "Nothing to show yet",
         "error": "Something went wrong",
         "retry": "Try again"
+    },
+    "blogSearch": {
+        "label": "Search AI articles",
+        "loading": "Loading search results",
+        "results": "Search results"
+    },
+    "notFound": {
+        "title": "404 Page Not Found",
+        "description": "This page does not exist. It might have been removed, or you may have entered an incorrect URL."
     }
 }

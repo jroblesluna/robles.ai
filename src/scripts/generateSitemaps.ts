@@ -1,91 +1,26 @@
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-import { XMLBuilder } from "fast-xml-parser";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const POSTS_DIR = path.resolve(__dirname, "../../server/data/posts");
-const SITEMAP_DIR = path.resolve(__dirname, "../../public/sitemaps");
-const BASE_URL = "https://robles.ai";
-
-async function findJsonFiles(dir: string): Promise<string[]> {
-  const entries = await fs.promises.readdir(dir, { withFileTypes: true });
-  const files = await Promise.all(
-    entries.map(entry => {
-      const fullPath = path.join(dir, entry.name);
-      return entry.isDirectory() ? findJsonFiles(fullPath) : fullPath;
-    })
-  );
-  return files.flat().filter(file => file.endsWith(".json"));
-}
-
-function addToSitemapMap(
-  map: Map<string, Set<string>>,
-  yearMonth: string,
-  lang: string,
-  slug: string
-) {
-  const sitemapKey = `${yearMonth}-${lang}`;
-  const url = `${BASE_URL}/blog/${slug}?lang=${lang}`;
-  if (!map.has(sitemapKey)) {
-    map.set(sitemapKey, new Set());
+/** Read-only by default. Writing snapshots requires BOTH --write and an explicit --output directory. */
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { createSlugIndex } from '../../server/seo/slugIndex.js';
+import { buildSitemapXml, monthlySitemaps, sitemapIndexXml, staticSitemapXml } from '../../server/seo/sitemap.js';
+import { atomicWrite } from './sitemapService.js';
+export async function generateSitemaps(args = process.argv.slice(2)) {
+  const option = (key: string) => { const i = args.indexOf(key); return i >= 0 ? args[i + 1] : undefined; };
+  const postsDir = path.resolve(option('--posts') ?? path.join(process.cwd(), 'server/data/posts'));
+  const index = createSlugIndex(postsDir);
+  await index.ready();
+  const maps = monthlySitemaps(index.entries());
+  const report = { posts: index.entries().length, articleUrls: index.entries().length * 2, files: Object.keys(maps), write: args.includes('--write') };
+  if (report.write) {
+    const output = option('--output');
+    if (!output || output.startsWith('--')) throw new Error('An explicit --output directory is required with --write.');
+    const root = path.resolve(output);
+    for (const [filename, entries] of Object.entries(maps)) await atomicWrite(path.join(root, 'sitemaps', filename), buildSitemapXml(entries));
+    await atomicWrite(path.join(root, 'static-pages.xml'), staticSitemapXml());
+    await atomicWrite(path.join(root, 'sitemap.xml'), sitemapIndexXml(Object.keys(maps)));
   }
-  map.get(sitemapKey)!.add(url);
+  return report;
 }
-
-function generateXml(urls: Set<string>): string {
-  const builder = new XMLBuilder({ ignoreAttributes: false, format: true });
-  const urlset = {
-    urlset: {
-      "@_xmlns": "http://www.sitemaps.org/schemas/sitemap/0.9",
-      url: Array.from(urls).map(loc => ({
-        loc,
-        changefreq: "weekly",
-        priority: "0.8"
-      }))
-    }
-  };
-  return builder.build(urlset);
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  generateSitemaps().then(report => console.log(JSON.stringify(report, null, 2))).catch(error => { console.error(error.message); process.exitCode = 1; });
 }
-
-async function writeSitemapFiles(map: Map<string, Set<string>>) {
-  await fs.promises.mkdir(SITEMAP_DIR, { recursive: true });
-
-  for (const [filename, urls] of map.entries()) {
-    const xml = generateXml(urls);
-    const filepath = path.join(SITEMAP_DIR, `${filename}.xml`);
-    await fs.promises.writeFile(filepath, xml, "utf-8");
-    console.log(`✅ Updated: ${filepath}`);
-  }
-}
-
-async function generateSitemaps() {
-  const sitemapMap = new Map<string, Set<string>>();
-  const files = await findJsonFiles(POSTS_DIR);
-
-  for (const file of files) {
-    try {
-      const data = JSON.parse(await fs.promises.readFile(file, "utf-8"));
-      const datePart = data.date.slice(0, 7); // YYYY-MM
-      const translations = data.translations;
-
-      for (const lang of Object.keys(translations)) {
-        const slug = translations[lang]?.slug;
-        if (slug) {
-          addToSitemapMap(sitemapMap, datePart, lang, slug);
-        }
-      }
-    } catch (err) {
-      console.warn(`⚠️ Could not process file: ${file}`, err);
-    }
-  }
-
-  await writeSitemapFiles(sitemapMap);
-  console.log("🎉 Sitemaps generation complete.");
-}
-
-generateSitemaps().catch(err => {
-  console.error("❌ Failed to generate sitemaps:", err);
-});
