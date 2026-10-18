@@ -3,7 +3,7 @@ import { normalizeLanguage, staticPagePath } from '@shared/seoPolicy';
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "wouter";
-import { ChevronLeft, ChevronRight, Sparkles, ArrowRight, Fingerprint, Database, AudioLines, Link2, FlaskConical } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play, Pause, Sparkles, ArrowRight, Fingerprint, Database, AudioLines, Link2, FlaskConical } from "lucide-react";
 import { fadeIn, staggerContainer } from "@/utils/animations";
 import ParticleBackground from './ParticleBackground';
 import { useTranslation } from 'react-i18next';
@@ -17,23 +17,25 @@ const Hero = () => {
   const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
   const reduceMotion = useReducedMotion();
   const [slide, setSlide] = useState(0);
+  const [autoEnabled, setAutoEnabled] = useState(false);
+  const [hovered, setHovered] = useState(false);
   // +1 = next (incoming from right), -1 = prev (incoming from left)
   const [direction, setDirection] = useState(1);
 
-  // interval keyed on `slide` so any manual nav restarts the 7s clock.
-  // Under reduced motion, pause the auto-advance loop entirely (Req 20.1);
-  // the visitor can still step through slides manually with the arrows/dots.
+  // Rotation is opt-in. Manual navigation/focus stops it until Start is chosen
+  // again; pointer hover and reduced motion also pause automatic updates.
   useEffect(() => {
-    if (reduceMotion) return;
+    if (reduceMotion || !autoEnabled || hovered) return;
     const id = setInterval(() => {
       setDirection(1);
       setSlide((s) => (s + 1) % SLIDE_COUNT);
     }, SLIDE_MS);
     return () => clearInterval(id);
-  }, [slide, reduceMotion]);
+  }, [slide, reduceMotion, autoEnabled, hovered]);
 
   // Jump to a specific slide (dots): infer direction from index order.
   const go = (n: number) => {
+    setAutoEnabled(false);
     const target = (n + SLIDE_COUNT) % SLIDE_COUNT;
     if (target === slide) return;
     setDirection(target > slide ? 1 : -1);
@@ -42,10 +44,12 @@ const Hero = () => {
 
   // Explicit prev/next (arrows): force direction so wraparound slides correctly.
   const next = () => {
+    setAutoEnabled(false);
     setDirection(1);
     setSlide((s) => (s + 1) % SLIDE_COUNT);
   };
   const prev = () => {
+    setAutoEnabled(false);
     setDirection(-1);
     setSlide((s) => (s - 1 + SLIDE_COUNT) % SLIDE_COUNT);
   };
@@ -186,6 +190,10 @@ const Hero = () => {
       variants={staggerContainer}
       initial={false}
       animate="visible"
+      aria-label={t("hero.carouselLabel")}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocusCapture={event => { if (!(event.target as HTMLElement).closest('[data-rotation-control]')) setAutoEnabled(false); }}
       className="group relative overflow-hidden animated-bg pt-5 pb-9 md:py-8"
     >
       <div className="absolute inset-0 z-0 overflow-hidden">
@@ -208,6 +216,8 @@ const Hero = () => {
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
           variants={fadeIn}
+          id="hero-slides"
+          aria-live={autoEnabled ? "off" : "polite"}
           className="relative w-full h-[400px] sm:h-[360px] md:h-[300px] overflow-hidden"
         >
           <AnimatePresence mode="popLayout" custom={direction} initial={false}>
@@ -243,11 +253,17 @@ const Hero = () => {
         </motion.div>
 
         <div className="flex justify-center gap-2 mt-4">
+          <button type="button" data-rotation-control="hero" aria-controls="hero-slides"
+            aria-label={t(autoEnabled ? "hero.stopSlides" : "hero.startSlides")}
+            onClick={() => setAutoEnabled(value => !value)} disabled={reduceMotion}
+            className="w-11 h-11 flex items-center justify-center rounded-full text-white hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white disabled:opacity-60">
+            {autoEnabled ? <Pause aria-hidden="true" className="h-4 w-4" /> : <Play aria-hidden="true" className="h-4 w-4" />}
+          </button>
           {slides.map((_, i) => (
             <button
               key={i}
               onClick={() => go(i)}
-              aria-label={`Slide ${i + 1}`}
+              aria-label={`${t("hero.slide")} ${i + 1}`}
               aria-current={i === slide}
               type="button"
               className="w-11 h-11 flex items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
@@ -262,14 +278,14 @@ const Hero = () => {
 
       <button
         onClick={prev}
-        aria-label="Previous slide"
+        aria-label={t("hero.previousSlide")}
         className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full text-white/70 bg-white/5 hover:bg-white/20 hover:text-white opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity duration-300"
       >
         <ChevronLeft className="h-6 w-6" />
       </button>
       <button
         onClick={next}
-        aria-label="Next slide"
+        aria-label={t("hero.nextSlide")}
         className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full text-white/70 bg-white/5 hover:bg-white/20 hover:text-white opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity duration-300"
       >
         <ChevronRight className="h-6 w-6" />

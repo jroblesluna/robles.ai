@@ -96,6 +96,12 @@
         "toggleMenu": "Toggle menu"
     },
     "hero": {
+        "carouselLabel": "Robles.AI highlights",
+        "slide": "Slide",
+        "previousSlide": "Previous slide",
+        "nextSlide": "Next slide",
+        "startSlides": "Start automatic slide show",
+        "stopSlides": "Stop automatic slide show",
         "title": "Robust Artificial Intelligence Solutions",
         "subtitle": "Transform your business with cutting-edge AI technology that delivers real-world results.",
         "cta1": "Why Choose Us?",
@@ -213,6 +219,8 @@
         "ctaButton": "Take the free diagnostic"
     },
     "solutions": {
+        "startPreview": "Start automatic preview",
+        "stopPreview": "Stop automatic preview",
         "eyebrow": "What we do",
         "title": "Our AI Solutions",
         "subtitle": "Discover how our expertise in AI, machine learning, and computer vision can transform your business operations.",
@@ -322,8 +330,8 @@
                 "format": "Online",
                 "regularPrice": "$1000",
                 "price": "$800",
-                "buttonBg": "bg-blue-500",
-                "buttonHoverBg": "hover:bg-blue-600"
+                "buttonBg": "bg-blue-700",
+                "buttonHoverBg": "hover:bg-blue-800"
             },
             {
                 "title": "TensorFlow for Production",
@@ -335,8 +343,8 @@
                 "format": "Online",
                 "regularPrice": "US$ 1250",
                 "price": "US$ 1000",
-                "buttonBg": "bg-orange-500",
-                "buttonHoverBg": "hover:bg-orange-600"
+                "buttonBg": "bg-orange-700",
+                "buttonHoverBg": "hover:bg-orange-800"
             },
             {
                 "title": "Hugging Face Transformers",
@@ -348,8 +356,8 @@
                 "format": "Online",
                 "regularPrice": "US$ 1185",
                 "price": "US$ 950",
-                "buttonBg": "bg-yellow-500",
-                "buttonHoverBg": "hover:bg-yellow-600"
+                "buttonBg": "bg-yellow-700",
+                "buttonHoverBg": "hover:bg-yellow-800"
             },
             {
                 "title": "LangChain Development",
@@ -361,8 +369,8 @@
                 "format": "Online",
                 "regularPrice": "US$ 1060",
                 "price": "$US850",
-                "buttonBg": "bg-green-500",
-                "buttonHoverBg": "hover:bg-green-600",
+                "buttonBg": "bg-green-700",
+                "buttonHoverBg": "hover:bg-green-800",
                 "details": {
                     "book": {
                         "editorial": "O'Reilly Media",
@@ -610,8 +618,8 @@
                 "format": "Online",
                 "regularPrice": "US$ 1125",
                 "price": "US$ 900",
-                "buttonBg": "bg-violet-500",
-                "buttonHoverBg": "hover:bg-violet-600"
+                "buttonBg": "bg-violet-700",
+                "buttonHoverBg": "hover:bg-violet-800"
             },
             {
                 "title": "Computer Vision with PyTorch",
@@ -623,8 +631,8 @@
                 "format": "Online",
                 "regularPrice": "US$ 1500",
                 "price": "US$ 1200",
-                "buttonBg": "bg-blue-500",
-                "buttonHoverBg": "hover:bg-blue-600"
+                "buttonBg": "bg-blue-700",
+                "buttonHoverBg": "hover:bg-blue-800"
             }
         ]
     },
@@ -761,7 +769,7 @@
             {
                 "name": "Antonio Robles",
                 "position": "Founder & CEO",
-                "positionColor": "text-blue-600",
+                "positionColor": "text-blue-700",
                 "bio": "Data Scientist and researcher with 20+ years of experience in Software and New Technologies for Cybersecurity, Blockchain, IoT, AI and Machine Learning for enterprise industries.",
                 "image": "ar.jpg",
                 "linkedin": "https://www.linkedin.com/in/antonio-robles-luna/",
@@ -771,7 +779,7 @@
             {
                 "name": "Enrique Mendo",
                 "position": "Chief Technology Officer",
-                "positionColor": "text-emerald-600",
+                "positionColor": "text-emerald-700",
                 "bio": "Leading expert in Computer Vision with extensive experience in Generative AI, Machine Learning and Deep Learning.",
                 "image": "em.jpg",
                 "linkedin": "https://www.linkedin.com/in/jose-enrique-mendo-huapaya-0758ab261/",
@@ -781,7 +789,7 @@
             {
                 "name": "Jaren Ramos",
                 "position": "Director of UX",
-                "positionColor": "text-violet-600",
+                "positionColor": "text-violet-700",
                 "bio": "UX specialist with extensive experience designing intuitive, user-centered interfaces for AI-powered products and enterprise platforms.",
                 "image": "jr.jpg",
                 "linkedin": "https://www.linkedin.com/in/jaren-ramos-520950315/",
@@ -791,7 +799,7 @@
             {
                 "name": "Sophia Martinez",
                 "position": "Director of AI Ethics",
-                "positionColor": "text-amber-600",
+                "positionColor": "text-amber-700",
                 "bio": "Former professor with expertise in responsible AI development, ensuring ethical implementation of our solutions.",
                 "image": "sm.jpg"
             }

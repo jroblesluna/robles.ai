@@ -235,7 +235,7 @@ const Contact = () => {
                       </FormControl>
                       <div className="space-y-1 leading-none">
                         <FormLabel className="text-sm">{t("contact.subscribe")}</FormLabel>
-                        <p className="text-xs sm:text-sm text-gray-500">{t("contact.subscribeDesc")}</p>
+                        <p className="text-xs sm:text-sm text-gray-600">{t("contact.subscribeDesc")}</p>
                       </div>
                     </FormItem>
                   )}

@@ -78,7 +78,7 @@ const CourseDetailsModal = ({ details, onClose }: { details: any; onClose: () =>
           <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/15 via-violet-500/15 to-sky-500/15" />
           <div className="relative p-6">
             <div className="flex items-start gap-3">
-              <BookOpen className="mt-1 h-6 w-6 text-emerald-600" />
+              <BookOpen className="mt-1 h-6 w-6 text-emerald-700" />
               <div>
                 <h2 className="text-2xl font-bold leading-tight text-neutral-900 dark:text-neutral-50">
                   {details.book?.title ?? "Course details"}
@@ -199,7 +199,7 @@ const CourseDetailsModal = ({ details, onClose }: { details: any; onClose: () =>
                                           key={k}
                                           className="relative rounded-md bg-gradient-to-r from-transparent via-transparent to-transparent px-3 py-2 text-sm text-neutral-700 hover:from-emerald-50 hover:to-sky-50 dark:text-neutral-300 dark:hover:from-neutral-800/60 dark:hover:to-neutral-800/60"
                                         >
-                                          <span className="mr-2 text-emerald-600">•</span>
+                                          <span className="mr-2 text-emerald-700">•</span>
                                           {sub}
                                         </li>
                                       ))}
@@ -272,7 +272,7 @@ const CourseCard = ({
             <span className="rounded-full bg-white/90 px-3 py-1 text-sm font-medium text-neutral-800 shadow-sm backdrop-blur">
               {level}
             </span>
-            <span className="rounded-full bg-emerald-600 px-3 py-1 text-sm font-medium text-white shadow-sm">
+            <span className="rounded-full bg-emerald-700 px-3 py-1 text-sm font-medium text-white shadow-sm">
               {category}
             </span>
           </div>
@@ -302,7 +302,7 @@ const CourseCard = ({
                 onClick={() => setShowModal(true)}
                 className="col-span-2 flex items-center justify-center gap-1 rounded-md bg-white text-sm text-neutral-500 ring-1 ring-inset ring-neutral-300 transition hover:bg-neutral-50 hover:text-neutral-900 dark:bg-neutral-900 dark:text-neutral-200 dark:ring-neutral-700 dark:hover:bg-neutral-800 sm:col-span-1"
               >
-                <Sparkles className="h-4 w-4 text-emerald-600" />
+                <Sparkles className="h-4 w-4 text-emerald-700" />
                 {detailsLabel}
               </button>
             )}
@@ -318,7 +318,7 @@ const CourseCard = ({
                   <span className="font-semibold text-rose-600">{price}</span>
                 </div>
               ) : (
-                <span className="font-semibold text-emerald-600">{regularPrice}</span>
+                <span className="font-semibold text-emerald-700">{regularPrice}</span>
               )}
             </div>
             <div className="flex gap-2">

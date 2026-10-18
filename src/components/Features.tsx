@@ -56,7 +56,7 @@ const BentoCard = ({
         <div className={`flex h-11 w-11 items-center justify-center rounded-xl ring-1 ${accent.icon}`}>
           {icon}
         </div>
-        <span className="font-mono text-xs tracking-wider text-gray-300">
+        <span className="font-mono text-xs tracking-wider text-gray-600">
           {String(index).padStart(2, "0")}
         </span>
       </div>
