@@ -1,253 +1,123 @@
 import { readFile } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join, dirname, resolve } from 'node:path';
 import type { RequestHandler } from 'express';
 import type { MetaInjectorConfig, BlogPostData, PageMeta } from './types.js';
-import { STATIC_PAGES } from './types.js';
+import { STATIC_PAGES, explicitLanguage, archivePage, blogPath } from '../../shared/seoPolicy.js';
+import enFallback from '../../src/i18n/locales/en/translation.json';
+import esFallback from '../../src/i18n/locales/es/translation.json';
 import { createSlugIndex, type SlugIndex } from './slugIndex.js';
 import { buildBlogMeta, buildBlogJsonLd, buildStaticMeta, buildHomeJsonLd } from './metaBuilders.js';
 import { injectMeta } from './htmlInjector.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = join(__filename, '..');
-
-/** Path to the posts directory. */
-const POSTS_DIR = resolve(__dirname, 'data', 'posts');
-
-/** Path to the editors JSON file. */
-const EDITORS_PATH = resolve(__dirname, '..', 'data', 'editors.json');
-
-/** Path to i18n translations. */
-const I18N_DIR = resolve(__dirname, '..', '..', 'src', 'i18n', 'locales');
-
-/** Blog post URL pattern: /blog/:slug */
-const BLOG_ROUTE_REGEX = /^\/blog\/([^/?#]+)/;
-
-// --- Cached data (loaded once) ---
-
-let editorsCache: { id: number; name: string }[] | null = null;
-
-async function loadEditors(): Promise<{ id: number; name: string }[]> {
-  if (editorsCache) return editorsCache;
-  try {
-    const data = await readFile(EDITORS_PATH, 'utf-8');
-    const parsed = JSON.parse(data);
-    editorsCache = parsed.editors.map((e: any) => ({ id: e.id, name: e.name }));
-    return editorsCache!;
-  } catch {
-    editorsCache = [];
-    return editorsCache;
-  }
-}
-
-let translationsCache: Record<string, Record<string, any>> | null = null;
-
-async function loadTranslations(): Promise<Record<string, Record<string, any>>> {
-  if (translationsCache) return translationsCache;
-  try {
-    const enData = await readFile(join(I18N_DIR, 'en', 'translation.json'), 'utf-8');
-    const esData = await readFile(join(I18N_DIR, 'es', 'translation.json'), 'utf-8');
-    translationsCache = {
-      en: JSON.parse(enData),
-      es: JSON.parse(esData),
-    };
-    return translationsCache;
-  } catch {
-    translationsCache = { en: {}, es: {} };
-    return translationsCache;
-  }
-}
-
-/**
- * Resolves the editor name from the editorId.
- */
-function getEditorName(editors: { id: number; name: string }[], editorId: number): string {
-  const editor = editors.find(e => e.id === editorId);
-  return editor?.name ?? 'Robles.AI';
-}
-
-/**
- * Creates the MetaInjector Express middleware.
- *
- * This middleware intercepts requests and injects SEO meta tags into the HTML
- * template based on the route type:
- * - /blog/:slug → Blog post meta + JSON-LD
- * - Static pages (/, /blog, /careers, /get-started, /apply) → Static meta
- * - Unknown routes → Default HTML unmodified
- *
- * Requirements: 1.1, 1.5, 1.6, 1.7, 2.1, 2.5, 9.3, 9.5, 9.6
- */
-export interface MetaInjectorResult {
-  handler: RequestHandler;
-  slugIndex: SlugIndex;
-}
+export interface MetaInjectorResult { handler: RequestHandler; slugIndex: SlugIndex }
+const utilityRoute = /^(?:\/otp|\/admin(?:\/(?:settings|analytics|backends|quiz-leads|conversations(?:\/[^/]+)?|dominical(?:\/[^/]+)?))?)$/;
 
 export function createMetaInjector(config: MetaInjectorConfig): MetaInjectorResult {
-  const { mode, distPath, sourcePath, viteTransform } = config;
+  // Paths are explicit inputs, independent of esbuild's flattened module __dirname.
+  const projectRoot = dirname(config.sourcePath);
+  const dataDir = config.mode === 'production' ? join(config.distPath, 'data') : join(projectRoot, 'server', 'data');
+  const postsDir = config.postsDir ?? join(dataDir, 'posts');
+  const translationsDir = config.translationsDir ?? (config.mode === 'production'
+    ? join(config.distPath, 'src', 'i18n', 'locales') : join(projectRoot, 'src', 'i18n', 'locales'));
+  const slugIndex = createSlugIndex(resolve(postsDir));
+  const fallbacks = { en: enFallback, es: esFallback };
+  let cachedHtml: string | undefined;
+  let warnedTranslations = false;
+  const translationCache = new Map<'en' | 'es', Record<string, any>>();
 
-  // Lazy slug index initialization
-  const slugIndex: SlugIndex = createSlugIndex(POSTS_DIR);
-  let slugIndexReady = false;
-  let slugIndexInitPromise: Promise<void> | null = null;
-
-  async function ensureSlugIndex(): Promise<void> {
-    if (slugIndexReady) return;
-    if (!slugIndexInitPromise) {
-      slugIndexInitPromise = slugIndex.rebuild().then(() => {
-        slugIndexReady = true;
-      }).catch(() => {
-        // If rebuild fails, mark as ready but empty — will serve default HTML
-        slugIndexReady = true;
-      });
+  async function template(url: string) {
+    if (config.mode === 'production') {
+      cachedHtml ??= await readFile(join(config.distPath, 'index.html'), 'utf8');
+      return cachedHtml;
     }
-    await slugIndexInitPromise;
+    const html = await readFile(config.sourcePath, 'utf8');
+    return config.viteTransform ? config.viteTransform(url, html) : html;
   }
-
-  // Production HTML template cache
-  let cachedProductionHtml: string | null = null;
-
-  /**
-   * Reads the HTML template based on the current mode.
-   * - Development: reads source index.html, applies Vite transform
-   * - Production: reads dist/index.html (cached after first read)
-   */
-  async function getHtmlTemplate(url: string): Promise<string> {
-    if (mode === 'production') {
-      if (cachedProductionHtml) return cachedProductionHtml;
-      const htmlPath = join(distPath, 'index.html');
-      cachedProductionHtml = await readFile(htmlPath, 'utf-8');
-      return cachedProductionHtml;
-    }
-
-    // Development mode: read source and apply Vite transform
-    let html = await readFile(sourcePath, 'utf-8');
-    if (viteTransform) {
-      html = await viteTransform(url, html);
-    }
-    return html;
-  }
-
-  /**
-   * Determines the language from the slug index entry and request query.
-   * Priority: ?lang param (if valid) > slug matching
-   */
-  function resolveLanguage(
-    slug: string,
-    queryLang: string | undefined,
-    enSlug: string,
-    esSlug: string
-  ): 'en' | 'es' {
-    // If ?lang param is provided and valid, use it
-    if (queryLang === 'es') return 'es';
-    if (queryLang === 'en') return 'en';
-
-    // Determine language by which slug matched
-    if (slug === esSlug) return 'es';
-    return 'en';
-  }
-
-  // The actual Express middleware handler
-  const handler: RequestHandler = async (req, res, next) => {
-    const url = req.originalUrl;
-    const pathname = req.path;
-
+  async function translations(lang: 'en' | 'es') {
+    const cached = translationCache.get(lang);
+    if (cached) return cached;
     try {
-      // Check if this is a blog post route
-      const blogMatch = BLOG_ROUTE_REGEX.exec(pathname);
-
-      if (blogMatch) {
-        // --- Blog Post Route ---
-        const slug = blogMatch[1];
-
-        // Ensure slug index is ready
-        await ensureSlugIndex();
-
+      const data = JSON.parse(await readFile(join(translationsDir, lang, 'translation.json'), 'utf8'));
+      if (!data?.seo?.home?.title) throw new Error('Invalid translation resource');
+      translationCache.set(lang, data);
+      return data;
+    }
+    catch {
+      // Safe compiled fallback, not an indefinitely cached empty object. Retry next request.
+      if (!warnedTranslations) { console.warn('[SEO] Translation resource unavailable; using bundled translations.'); warnedTranslations = true; }
+      return fallbacks[lang];
+    }
+  }
+  async function send(reqUrl: string, res: Parameters<RequestHandler>[1], status: number, meta: PageMeta) {
+    res.status(status).set({ 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' })
+      .end(injectMeta(await template(reqUrl), meta));
+  }
+  const handler: RequestHandler = async (req, res, next) => {
+    if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+    const url = new URL(req.originalUrl, 'https://robles.ai');
+    const path = url.pathname;
+    const normalized = path.length > 1 ? path.replace(/\/+$/, '') : path;
+    const queryLang = explicitLanguage(url.searchParams.get('lang'));
+    try {
+      if (normalized !== path && (STATIC_PAGES[normalized] || /^\/blog\/[^/]+$/.test(normalized) || utilityRoute.test(normalized))) {
+        return void res.redirect(308, normalized + url.search);
+      }
+      const match = /^\/blog\/([^/]+)$/.exec(path);
+      if (match) {
+        await slugIndex.ready();
+        const slug = decodeURIComponent(match[1]);
         const entry = slugIndex.get(slug);
-
-        if (!entry) {
-          // Post not found — serve default HTML unmodified
-          const html = await getHtmlTemplate(url);
-          res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
+        if (entry) {
+          const post: BlogPostData = JSON.parse(await readFile(entry.filePath, 'utf8'));
+          const lang = queryLang ?? (slug === entry.esSlug ? 'es' : 'en');
+          const target = lang === 'es' ? entry.esSlug : entry.enSlug;
+          // Support existing English-slug ?lang=es backlinks with a permanent redirect.
+          if (slug !== target || url.searchParams.has('lang')) {
+            url.searchParams.delete('lang');
+            return void res.redirect(308, blogPath(target) + url.search);
+          }
+          const meta = buildBlogMeta({ post, lang, slug: target });
+          meta.jsonLd = buildBlogJsonLd({ post, lang, slug: target }, 'Robles.AI');
+          await send(req.originalUrl, res, 200, meta);
           return;
         }
-
-        // Read the blog post JSON
-        let postData: BlogPostData;
-        try {
-          const postContent = await readFile(entry.filePath, 'utf-8');
-          postData = JSON.parse(postContent);
-        } catch {
-          // If we can't read/parse the post, serve default HTML
-          const html = await getHtmlTemplate(url);
-          res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
-          return;
-        }
-
-        // Resolve language
-        const queryLang = req.query.lang as string | undefined;
-        const lang = resolveLanguage(slug, queryLang, entry.enSlug, entry.esSlug);
-
-        // The slug to use for canonical (the current language's slug)
-        const currentSlug = lang === 'en' ? entry.enSlug : entry.esSlug;
-
-        // Build meta tags
-        const meta = buildBlogMeta({ post: postData, lang, slug: currentSlug });
-
-        // Build JSON-LD
-        const editors = await loadEditors();
-        const editorName = getEditorName(editors, postData.editorId);
-        const jsonLd = buildBlogJsonLd({ post: postData, lang, slug: currentSlug }, editorName);
-        meta.jsonLd = jsonLd;
-
-        // Get HTML template and inject meta
-        const html = await getHtmlTemplate(url);
-        const injectedHtml = injectMeta(html, meta);
-
-        res.status(200).set({ 'Content-Type': 'text/html' }).end(injectedHtml);
+      } else if (STATIC_PAGES[path]) {
+        const lang = queryLang ?? 'en';
+        const page = path === '/blog' ? archivePage(url.searchParams.get('page')) : 1;
+        const meta = buildStaticMeta(path, lang, await translations(lang), {
+          page, filtered: path === '/blog' && ['q', 'editorId', 'days'].some(k => url.searchParams.has(k)),
+        });
+        if (path === '/') meta.jsonLd = buildHomeJsonLd();
+        await send(req.originalUrl, res, 200, meta);
+        return;
+      } else if (utilityRoute.test(path)) {
+        const lang = queryLang ?? 'en';
+        const meta = buildStaticMeta('/', lang, await translations(lang));
+        meta.canonicalUrl = 'https://robles.ai' + path;
+        meta.ogUrl = meta.canonicalUrl;
+        meta.hreflangLinks = [];
+        meta.robots = 'noindex,nofollow';
+        res.set('X-Robots-Tag', 'noindex, nofollow');
+        await send(req.originalUrl, res, 200, meta);
         return;
       }
-
-      // Check if this is a known static page
-      if (pathname in STATIC_PAGES) {
-        // --- Static Page Route ---
-        const queryLang = req.query.lang as string | undefined;
-        const lang: 'en' | 'es' = queryLang === 'es' ? 'es' : 'en';
-
-        // Load translations
-        const translations = await loadTranslations();
-        const langTranslations = translations[lang] ?? translations.en;
-
-        // Build static meta
-        const meta = buildStaticMeta(pathname, lang, langTranslations);
-
-        // For home page, add WebSite JSON-LD
-        if (pathname === '/') {
-          meta.jsonLd = buildHomeJsonLd();
-        }
-
-        // Get HTML template and inject meta
-        const html = await getHtmlTemplate(url);
-        const injectedHtml = injectMeta(html, meta);
-
-        res.status(200).set({ 'Content-Type': 'text/html' }).end(injectedHtml);
+      if (/\.[a-z0-9]{1,8}$/i.test(path) || /^\/(?:api|assets|data|src|shared|server)(?:\/|$)/.test(path)) {
+        res.status(404).set({ 'Cache-Control': 'no-cache', 'X-Content-Type-Options': 'nosniff' }).type('text').end('Not found');
         return;
       }
-
-      // --- Unknown Route ---
-      // Serve default HTML unmodified (let client-side router handle)
-      const html = await getHtmlTemplate(url);
-      res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
-    } catch (error) {
-      // On any error, try to serve default template unmodified
-      try {
-        const html = await getHtmlTemplate(url);
-        res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
-      } catch {
-        // If we can't even read the template, pass to next error handler
-        next(error);
-      }
+      const lang = queryLang ?? 'en';
+      const meta = buildStaticMeta('/', lang, await translations(lang));
+      meta.title = lang === 'es' ? 'Página no encontrada | Robles.AI' : 'Page not found | Robles.AI';
+      meta.ogTitle = meta.twitterTitle = meta.title;
+      meta.canonicalUrl = meta.ogUrl = 'https://robles.ai' + path;
+      meta.hreflangLinks = [];
+      meta.robots = 'noindex,follow';
+      await send(req.originalUrl, res, 404, meta);
+    } catch {
+      console.error('[SEO] Public HTML could not be generated.');
+      res.status(503).set({ 'Cache-Control': 'no-store', 'Retry-After': '60', 'X-Robots-Tag': 'noindex' })
+        .type('text').end('Temporarily unavailable');
     }
   };
-
   return { handler, slugIndex };
 }

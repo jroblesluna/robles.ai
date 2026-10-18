@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig, configDefaults } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
@@ -12,6 +12,8 @@ export default defineConfig({
   },
   test: {
     globals: true,
+    // postbuild copies source files; generated mirrors are not independent tests.
+    exclude: [...configDefaults.exclude, 'dist/**'],
     environment: 'jsdom',
     environmentMatchGlobs: [
       ['server/**/*.test.ts', 'node'],

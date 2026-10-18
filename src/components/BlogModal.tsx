@@ -3,6 +3,9 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight, Copy, ExternalLink, X } from 'lucide-react';
 import { BlogArticle, type BlogArticleBlock } from '@/components/BlogArticle';
+import { applyPageMetadata, snapshotPageMetadata } from '@/lib/pageMetadata';
+import { buildBlogMeta, buildBlogJsonLd } from '@shared/seoMetadata';
+import type { BlogPostData } from '../../server/seo/types';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import {
   type BlogListPost,
@@ -10,6 +13,9 @@ import {
   canGoNext,
   canGoPrev,
   listPostAbsoluteUrl,
+  blogPath,
+  absoluteUrl,
+  type BlogModalPost,
   listPostPath,
 } from '@/lib/blogModal';
 
@@ -32,6 +38,8 @@ export interface FullPost {
   slug: string;
   editorId?: number;
   date?: string;
+  image?: string;
+  dateModified?: string;
   categories?: string[];
   keywords?: string[];
   sources?: { title: string; url: string; source: string }[];
@@ -133,6 +141,20 @@ export function BlogModal({
     (s, b) => s + b.body.split(/\s+/).filter(Boolean).length, 0,
   );
   const readingTimeMinutes = Math.ceil(wordCount / 200);
+
+  useEffect(() => snapshotPageMetadata(), []);
+  useEffect(() => {
+    if (!displayFull || displayFull.slug !== post?.slug || !displayFull.translations[lang]?.slug) return;
+    const article = displayFull as BlogPostData;
+    const input = { post: article, lang, slug: article.translations[lang].slug };
+    const meta = buildBlogMeta(input);
+    meta.jsonLd = buildBlogJsonLd(input, 'Robles.AI');
+    applyPageMetadata(meta);
+    // A translated modal and a direct article load have the same shareable URL.
+    if (window.history.state?.blogModal) {
+      window.history.replaceState(window.history.state, '', new URL(meta.canonicalUrl).pathname);
+    }
+  }, [displayFull, post?.slug, lang]);
 
   // Prefetch a single slug, storing into the cache (no state update).
   const prefetch = useCallback((slug: string) => {
@@ -254,13 +276,13 @@ export function BlogModal({
 
   const handleCopy = useCallback(async () => {
     if (!post) return;
-    const url = listPostAbsoluteUrl(post);
+    const url = displayFull?.slug === post.slug && displayFull.translations[lang]?.slug ? absoluteUrl(displayFull as BlogModalPost, lang) : listPostAbsoluteUrl(post, undefined, lang);
     try {
       if (!navigator?.clipboard?.writeText) throw new Error('no clipboard');
       await navigator.clipboard.writeText(url);
       setCopyFailed(false); setCopied(true);
     } catch { setCopied(false); showFallback(); }
-  }, [post, showFallback]);
+  }, [post, showFallback, displayFull, lang]);
 
   useEffect(() => {
     if (!copied) return;
@@ -288,8 +310,8 @@ export function BlogModal({
 
   if (!post) return null;
 
-  const shareUrl  = listPostAbsoluteUrl(post);
-  const shareHref = listPostPath(post);
+  const shareUrl  = displayFull?.slug === post.slug && displayFull.translations[lang]?.slug ? absoluteUrl(displayFull as BlogModalPost, lang) : listPostAbsoluteUrl(post, undefined, lang);
+  const shareHref = displayFull?.slug === post.slug && displayFull.translations[lang]?.slug ? blogPath(displayFull as BlogModalPost, lang) : listPostPath(post, lang);
 
   // Dialog entrance animation
   const dialogInitial    = reduceMotion ? { opacity: 0 }           : { opacity: 0, scale: 0.95 };

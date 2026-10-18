@@ -1,5 +1,5 @@
 import { useState, useEffect, Suspense, lazy } from 'react';
-import { Route, Switch, useLocation } from 'wouter';
+import { Route, Switch, useLocation, useSearch } from 'wouter';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { MotionConfig } from 'framer-motion';
 import { queryClient } from './lib/queryClient';
@@ -13,6 +13,7 @@ import { initAnalytics, trackPageView } from '@/lib/analytics';
 import { useTranslation } from 'react-i18next';
 import ChatbotWidget from '@/components/chat/ChatbotWidget';
 import { useSEO } from '@/hooks/useSEO';
+import { STATIC_PAGES, explicitLanguage } from '@shared/seoPolicy';
 import { useScrollRestoration } from '@/hooks/useScrollRestoration';
 
 // Lazy-loaded routes (code-split into separate chunks)
@@ -45,11 +46,20 @@ const AdminQuizLeads = lazy(() => import('@/pages/admin/AdminQuizLeads'));
 const AdminBackends = lazy(() => import('@/pages/admin/AdminBackends'));
 
 function App() {
+  const search = useSearch();
   const [location] = useLocation(); // 👈 de wouter
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { i18n } = useTranslation();
 
   const isAdminRoute = location.startsWith('/admin');
+
+  // Indexable static URLs declare their language; stored/browser preferences cannot override them.
+  useEffect(() => {
+    if (STATIC_PAGES[location]) {
+      const lang = explicitLanguage(new URLSearchParams(search).get('lang')) ?? 'en';
+      if (i18n.language !== lang) void i18n.changeLanguage(lang);
+    }
+  }, [location, search, i18n]);
 
   // Initialize Analytics once when the app mounts
   useEffect(() => {

@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+import { normalizeLanguage } from '@shared/seoPolicy';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { type BlogListPost, clampIndex, listPostPath } from '@/lib/blogModal';
 
@@ -40,6 +42,9 @@ function hasHistory(): boolean {
 }
 
 export function useBlogModalRouting(posts: BlogListPost[]): UseBlogModalRouting {
+  const { i18n } = useTranslation();
+  const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
+  const listUrlRef = useRef(typeof window === 'undefined' ? BASE_PATH : window.location.pathname + window.location.search);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   // Track whether the top history entry is one this hook pushed, so `close()`
@@ -60,14 +65,15 @@ export function useBlogModalRouting(posts: BlogListPost[]): UseBlogModalRouting 
   const pathFor = useCallback((index: number): string | null => {
     const list = postsRef.current;
     if (index < 0 || index >= list.length) return null;
-    return listPostPath(list[index]);
-  }, []);
+    return listPostPath(list[index], lang);
+  }, [lang]);
 
   const openAt = useCallback(
     (index: number) => {
       const list = postsRef.current;
       if (list.length === 0) return;
       const target = clampIndex(index, list.length);
+      if (openIndexRef.current === null && typeof window !== 'undefined' && window.location.pathname === BASE_PATH) listUrlRef.current = window.location.pathname + window.location.search;
       setOpenIndex(target);
 
       const path = pathFor(target);
@@ -120,7 +126,7 @@ export function useBlogModalRouting(posts: BlogListPost[]): UseBlogModalRouting 
       if (owned) {
         window.history.back();
       } else {
-        window.history.pushState(null, '', BASE_PATH);
+        window.history.pushState(null, '', listUrlRef.current);
       }
     } catch {
       /* no-op */

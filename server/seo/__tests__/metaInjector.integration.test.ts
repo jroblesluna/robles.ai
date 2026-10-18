@@ -1,298 +1,116 @@
-import { describe, it, expect, vi } from 'vitest';
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { createMetaInjector } from '../metaInjector.js';
-import type { MetaInjectorConfig } from '../types.js';
+// @vitest-environment node
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import express from 'express';
+import request from 'supertest';
+import { load } from 'cheerio';
+import { mkdtemp, mkdir, writeFile, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
+import { mountPublicSite } from '../../publicServing.js';
+import { mountSitemapRoutes } from '../sitemapRoutes.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = resolve(__filename, '..');
+let root: string;
+let app: ReturnType<typeof express>;
+const enSlug = '2026-10-16-23-00-00-test-post';
+const esSlug = '2026-10-16-23-00-00-articulo-de-prueba';
+const post = { slug: enSlug, date: '2026-10-16-23-00-00', editorId: 1, categories: [], keywords: [], sources: [], translations: {
+  en: { slug: enSlug, title: 'A useful engineering article', excerpt: 'Evidence from an isolated fixture.', content: [{ heading: 'Results', body: 'Measured results.' }] },
+  es: { slug: esSlug, title: 'Un artículo útil de ingeniería', excerpt: 'Evidencia de una prueba aislada.', content: [{ heading: 'Resultados', body: 'Resultados medidos.' }] },
+} };
+beforeAll(async () => {
+  root = await mkdtemp(join(tmpdir(), 'robles-public-site-'));
+  const dist = join(root, 'dist');
+  for (const directory of ['assets', 'public/images', 'data/posts', 'src/i18n/locales/en', 'src/i18n/locales/es']) await mkdir(join(dist, directory), { recursive: true });
+  await writeFile(join(dist, 'index.html'), await readFile(resolve('index.html'), 'utf8'));
+  await writeFile(join(dist, 'data/posts/post.json'), JSON.stringify(post));
+  await writeFile(join(dist, 'data/dominical.db'), 'private fixture, never public');
+  await writeFile(join(dist, 'index.js'), 'private server bundle');
+  await writeFile(join(dist, 'assets/index-Ab123456.js'), 'console.log("public")');
+  await writeFile(join(dist, 'assets/unversioned.js'), 'console.log("public")');
+  await writeFile(join(dist, 'public/images/logo.png'), Buffer.from('89504e470d0a1a0a', 'hex'));
+  await writeFile(join(dist, 'public/robots.txt'), await readFile(resolve('public/robots.txt'), 'utf8'));
+  for (const lang of ['en', 'es']) await writeFile(join(dist, `src/i18n/locales/${lang}/translation.json`), await readFile(resolve(`src/i18n/locales/${lang}/translation.json`), 'utf8'));
+  app = express();
+  app.get('/api/fixture', (_req, res) => res.json({ ok: true }));
+  let index: ReturnType<typeof mountPublicSite> | null = null;
+  mountSitemapRoutes(app, () => index);
+  index = mountPublicSite(app, dist);
+});
+afterAll(async () => { await rm(root, { recursive: true, force: true }); });
 
-/** Project root */
-const PROJECT_ROOT = resolve(__dirname, '..', '..', '..');
-
-/** Source index.html path */
-const SOURCE_PATH = resolve(PROJECT_ROOT, 'index.html');
-
-/** Dist path (not used in dev mode tests, but required by config) */
-const DIST_PATH = resolve(PROJECT_ROOT, 'dist');
-
-/**
- * Creates a mock Express Request object.
- */
-function createMockReq(path: string, query: Record<string, string> = {}): any {
-  const url = path + (Object.keys(query).length > 0
-    ? '?' + new URLSearchParams(query).toString()
-    : '');
-  return {
-    originalUrl: url,
-    path,
-    query,
-  };
-}
-
-/**
- * Creates a mock Express Response object that captures the response data.
- */
-function createMockRes(): any {
-  const res: any = {
-    statusCode: 0,
-    headers: {} as Record<string, string>,
-    body: '',
-    status(code: number) {
-      res.statusCode = code;
-      return res;
-    },
-    set(headers: Record<string, string>) {
-      Object.assign(res.headers, headers);
-      return res;
-    },
-    end(html: string) {
-      res.body = html;
-      return res;
-    },
-  };
-  return res;
-}
-
-/**
- * Helper to invoke the MetaInjector middleware and return the response.
- */
-async function invokeMiddleware(
-  path: string,
-  query: Record<string, string> = {}
-): Promise<{ statusCode: number; headers: Record<string, string>; body: string }> {
-  const config: MetaInjectorConfig = {
-    mode: 'development',
-    distPath: DIST_PATH,
-    sourcePath: SOURCE_PATH,
-    // No viteTransform in test — we just use raw source HTML
-  };
-
-  const { handler: middleware } = createMetaInjector(config);
-  const req = createMockReq(path, query);
-  const res = createMockRes();
-  const next = vi.fn();
-
-  await middleware(req, res, next);
-
-  return { statusCode: res.statusCode, headers: res.headers, body: res.body };
-}
-
-describe('MetaInjector integration tests', () => {
-  describe('blog post request', () => {
-    const SLUG = '2025-03-28-00-00-00-embracing-the-future-edge-ai-and-net-zero-infrastructure';
-
-    it('returns HTML with correct title from the blog post', async () => {
-      const { body, statusCode } = await invokeMiddleware(`/blog/${SLUG}`);
-
-      expect(statusCode).toBe(200);
-      expect(body).toContain('<title>Embracing the Future: Edge AI and Net-Zero Infrastructure</title>');
-    });
-
-    it('returns HTML with correct meta description', async () => {
-      const { body } = await invokeMiddleware(`/blog/${SLUG}`);
-
-      expect(body).toContain('name="description"');
-      expect(body).toContain('Explore how cutting-edge AI and Net-Zero strategies');
-    });
-
-    it('returns HTML with Open Graph meta tags', async () => {
-      const { body } = await invokeMiddleware(`/blog/${SLUG}`);
-
-      expect(body).toContain('property="og:title"');
-      expect(body).toContain('Embracing the Future');
-      expect(body).toContain('property="og:type"');
-      expect(body).toContain('article');
-      expect(body).toContain('property="og:url"');
-      expect(body).toContain(`https://robles.ai/blog/${SLUG}`);
-    });
-
-    it('returns HTML with Twitter Card meta tags', async () => {
-      const { body } = await invokeMiddleware(`/blog/${SLUG}`);
-
-      expect(body).toContain('name="twitter:card"');
-      expect(body).toContain('summary_large_image');
-      expect(body).toContain('name="twitter:title"');
-      expect(body).toContain('Embracing the Future');
-    });
-
-    it('returns HTML with hreflang link tags', async () => {
-      const { body } = await invokeMiddleware(`/blog/${SLUG}`);
-
-      expect(body).toContain('hreflang="en"');
-      expect(body).toContain('hreflang="es"');
-      expect(body).toContain('hreflang="x-default"');
-      expect(body).toContain(`href="https://robles.ai/blog/${SLUG}"`);
-      expect(body).toContain('href="https://robles.ai/blog/2025-03-28-00-00-00-abrazando-el-futuro-ia-en-el-borde-e-infraestructura-net-zero"');
-    });
-
-    it('returns HTML with canonical link tag', async () => {
-      const { body } = await invokeMiddleware(`/blog/${SLUG}`);
-
-      expect(body).toContain(`<link rel="canonical" href="https://robles.ai/blog/${SLUG}" />`);
-    });
-
-    it('returns HTML with JSON-LD BlogPosting schema', async () => {
-      const { body } = await invokeMiddleware(`/blog/${SLUG}`);
-
-      expect(body).toContain('application/ld+json');
-      expect(body).toContain('"@type":"BlogPosting"');
-      expect(body).toContain('"headline":"Embracing the Future: Edge AI and Net-Zero Infrastructure"');
-    });
-
-    it('preserves existing Organization JSON-LD', async () => {
-      const { body } = await invokeMiddleware(`/blog/${SLUG}`);
-
-      expect(body).toContain('"@type":"Organization"');
-      expect(body).toContain('"name":"Robles.AI"');
-    });
-
-    it('preserves body content unchanged', async () => {
-      const { body } = await invokeMiddleware(`/blog/${SLUG}`);
-
-      expect(body).toContain('<div id="root"></div>');
-      expect(body).toContain('<script type="module" src="/src/main.tsx"></script>');
-    });
+describe('actual production-layout public middleware', () => {
+  it.each(['/', '/blog', '/careers', '/apply', '/get-started', '/diagnostico-ia', '/demos', '/try-rag', '/try-identity', '/try-langchain', '/try-docextract'])('delivers nonempty metadata and revalidating HTML at %s', async path => {
+    const res = await request(app).get(path).expect(200);
+    const $ = load(res.text);
+    expect($('title').text().length).toBeGreaterThan(5);
+    expect($('meta[name="description"]').attr('content')!.length).toBeGreaterThan(20);
+    expect($('link[rel="canonical"]')).toHaveLength(1);
+    expect($('link[hreflang="es"]')).toHaveLength(1);
+    expect(res.headers['cache-control']).toBe('no-cache');
+    expect($('html').attr('lang')).toBe('en');
   });
-
-  describe('blog post with ?lang=es', () => {
-    const EN_SLUG = '2025-03-28-00-00-00-embracing-the-future-edge-ai-and-net-zero-infrastructure';
-
-    it('uses Spanish translation for title when ?lang=es', async () => {
-      const { body } = await invokeMiddleware(`/blog/${EN_SLUG}`, { lang: 'es' });
-
-      expect(body).toContain('Abrazando el Futuro');
-      expect(body).not.toContain('<title>Embracing the Future');
-    });
-
-    it('uses Spanish translation for description when ?lang=es', async () => {
-      const { body } = await invokeMiddleware(`/blog/${EN_SLUG}`, { lang: 'es' });
-
-      expect(body).toContain('Explora cómo las innovaciones en IA');
-    });
-
-    it('uses Spanish slug for canonical URL when ?lang=es', async () => {
-      const { body } = await invokeMiddleware(`/blog/${EN_SLUG}`, { lang: 'es' });
-
-      expect(body).toContain('href="https://robles.ai/blog/2025-03-28-00-00-00-abrazando-el-futuro-ia-en-el-borde-e-infraestructura-net-zero"');
-    });
+  it('reads Spanish resources from the built layout and emits Spanish lang/canonical', async () => {
+    const res = await request(app).get('/get-started?lang=es').expect(200);
+    const $ = load(res.text);
+    expect($('title').text()).toContain('Empieza');
+    expect($('html').attr('lang')).toBe('es');
+    expect($('link[rel="canonical"]').attr('href')).toBe('https://robles.ai/get-started?lang=es');
   });
-
-  describe('blog post with ES slug (language detection from slug)', () => {
-    const ES_SLUG = '2025-03-28-00-00-00-abrazando-el-futuro-ia-en-el-borde-e-infraestructura-net-zero';
-
-    it('resolves language from ES slug and uses Spanish content', async () => {
-      const { body } = await invokeMiddleware(`/blog/${ES_SLUG}`);
-
-      expect(body).toContain('Abrazando el Futuro');
-    });
+  it('uses clean translated article URLs, truthful dates and organization attribution', async () => {
+    const res = await request(app).get(`/blog/${esSlug}`).expect(200);
+    const $ = load(res.text);
+    expect($('html').attr('lang')).toBe('es');
+    expect($('title').text()).toBe(post.translations.es.title);
+    expect($('link[rel="canonical"]').attr('href')).toBe(`https://robles.ai/blog/${esSlug}`);
+    const graphs = $('script[type="application/ld+json"]').toArray().map(e => JSON.parse($(e).text()));
+    const article = graphs.find(e => e['@type'] === 'BlogPosting');
+    expect(article.datePublished).toBe('2026-10-16T23:00:00Z');
+    expect(article).not.toHaveProperty('dateModified');
+    expect(article.author['@type']).toBe('Organization');
+    expect(article.image).toBe('https://robles.ai/images/logo.png');
   });
-
-  describe('static page request', () => {
-    it('returns HTML with correct title for home page', async () => {
-      const { body, statusCode } = await invokeMiddleware('/');
-
-      expect(statusCode).toBe(200);
-      expect(body).toContain('Robles.AI | AI Diagnosis');
-    });
-
-    it('returns HTML with correct description for home page', async () => {
-      const { body } = await invokeMiddleware('/');
-
-      expect(body).toContain('AI diagnosis, prioritization, and implementation');
-    });
-
-    it('returns HTML with OG tags for home page', async () => {
-      const { body } = await invokeMiddleware('/');
-
-      expect(body).toContain('property="og:type"');
-      expect(body).toContain('website');
-      expect(body).toContain('property="og:url"');
-    });
-
-    it('returns HTML with WebSite JSON-LD for home page', async () => {
-      const { body } = await invokeMiddleware('/');
-
-      expect(body).toContain('"@type":"WebSite"');
-      expect(body).toContain('"name":"Robles.AI"');
-    });
-
-    it('returns HTML with hreflang links for static page', async () => {
-      const { body } = await invokeMiddleware('/');
-
-      expect(body).toContain('hreflang="en"');
-      expect(body).toContain('hreflang="es"');
-      expect(body).toContain('hreflang="x-default"');
-    });
-
-    it('returns HTML with correct title for /blog listing', async () => {
-      const { body } = await invokeMiddleware('/blog');
-
-      expect(body).toContain('Robles.AI | AI News Center');
-    });
-
-    it('returns HTML with correct title for /careers', async () => {
-      const { body } = await invokeMiddleware('/careers');
-
-      expect(body).toContain('Robles.AI | Careers');
-    });
+  it('permanently redirects legacy query-language URLs while retaining campaign parameters', async () => {
+    await request(app).get(`/blog/${enSlug}?lang=es&utm_source=test`).expect(308).expect('Location', `/blog/${esSlug}?utm_source=test`);
+    await request(app).get(`/blog/${enSlug}?lang=en`).expect(308).expect('Location', `/blog/${enSlug}`);
   });
-
-  describe('static page with ?lang=es', () => {
-    it('uses Spanish translations for home page when ?lang=es', async () => {
-      const { body } = await invokeMiddleware('/', { lang: 'es' });
-
-      expect(body).toContain('Robles.AI | Diagnóstico y Roadmap de IA para tu negocio');
-    });
-
-    it('uses Spanish translations for /blog when ?lang=es', async () => {
-      const { body } = await invokeMiddleware('/blog', { lang: 'es' });
-
-      expect(body).toContain('Robles.AI | Centro de Noticias IA');
-    });
-
-    it('uses Spanish translations for /careers when ?lang=es', async () => {
-      const { body } = await invokeMiddleware('/careers', { lang: 'es' });
-
-      expect(body).toContain('Robles.AI | Empleos');
-    });
+  it('normalizes trailing slashes and retains archive page canonicals', async () => {
+    await request(app).get('/blog/?lang=es&page=2').expect(308).expect('Location', '/blog?lang=es&page=2');
+    const res = await request(app).get('/blog?lang=es&page=2').expect(200);
+    expect(load(res.text)('link[rel="canonical"]').attr('href')).toBe('https://robles.ai/blog?lang=es&page=2');
+    expect(load(res.text)('title').text()).toContain('Página 2');
   });
-
-  describe('unknown route', () => {
-    it('serves default HTML unmodified for unknown routes', async () => {
-      const { body, statusCode } = await invokeMiddleware('/some/unknown/path');
-
-      expect(statusCode).toBe(200);
-      // Default title should remain unchanged
-      expect(body).toContain('<title>Robles.AI | Diagnóstico y Roadmap de IA para tu negocio</title>');
-      // Body should remain untouched
-      expect(body).toContain('<div id="root"></div>');
-      expect(body).toContain('<script type="module" src="/src/main.tsx"></script>');
-    });
-
-    it('serves unmodified HTML preserving original meta description', async () => {
-      const { body } = await invokeMiddleware('/some/other/route');
-
-      // The default description from source index.html
-      expect(body).toContain('Diagnóstico, priorización e implementación de Inteligencia Artificial');
-    });
-
-    it('serves unmodified HTML preserving original OG tags', async () => {
-      const { body } = await invokeMiddleware('/api-docs');
-
-      expect(body).toContain('property="og:title"');
-      expect(body).toContain('Diagnóstico y Roadmap de IA para tu negocio');
-    });
+  it.each(['/not-a-route', '/blog/missing-post', `/blog/${enSlug}-invented`, '/assets/missing.js', '/logo.png', '/og-image.png', '/index.js', '/src/i18n/locales/en/translation.json', '/data/dominical.db', '/data/posts/post.json', '/api/missing'])('returns a real 404 without exposing private artifacts: %s', async path => {
+    const res = await request(app).get(path).expect(404);
+    expect(res.text).not.toContain('private fixture');
+    expect(res.text).not.toContain('private server bundle');
   });
-
-  describe('unknown blog slug (post not found)', () => {
-    it('serves default HTML unmodified when slug does not exist', async () => {
-      const { body, statusCode } = await invokeMiddleware('/blog/non-existent-slug-12345');
-
-      expect(statusCode).toBe(200);
-      // Default title — served unmodified
-      expect(body).toContain('<title>Robles.AI | Diagnóstico y Roadmap de IA para tu negocio</title>');
-      expect(body).toContain('<div id="root"></div>');
-    });
+  it('retains API precedence and sensible asset cache policies', async () => {
+    await request(app).get('/api/fixture').expect(200, { ok: true });
+    const asset = await request(app).get('/assets/index-Ab123456.js').expect(200);
+    expect(asset.headers['cache-control']).toBe('public, max-age=31536000, immutable');
+    const unversioned = await request(app).get('/assets/unversioned.js').expect(200);
+    expect(unversioned.headers['cache-control']).not.toContain('immutable');
+    await request(app).get('/images/logo.png').expect(200).expect('Content-Type', /image\/png/);
+    await request(app).head('/get-started').expect(200).expect('Cache-Control', 'no-cache');
+  });
+  it('keeps utility shells available while excluding them from indexing', async () => {
+    await request(app).get('/admin/backends').expect(200).expect('X-Robots-Tag', 'noindex, nofollow');
+    const res = await request(app).get('/try-medical').expect(200);
+    expect(load(res.text)('meta[name="robots"]').attr('content')).toBe('noindex,follow');
+  });
+  it('serves a correct robots target and complete bilingual sitemap inventory', async () => {
+    const robots = await request(app).get('/robots.txt').expect(200);
+    expect(robots.text).toContain('Sitemap: https://robles.ai/sitemap.xml\n');
+    const index = await request(app).get('/sitemap.xml').expect(200).expect('Content-Type', /xml/);
+    expect(index.text).toContain('/sitemaps/2026-10.xml');
+    const map = await request(app).get('/sitemaps/2026-10.xml').expect(200);
+    expect(map.text).toContain(`<loc>https://robles.ai/blog/${enSlug}</loc>`);
+    expect(map.text).toContain(`<loc>https://robles.ai/blog/${esSlug}</loc>`);
+    await request(app).get('/sitemaps/2026-10-es.xml').expect(200);
+    await request(app).get('/sitemaps/2024-01.xml').expect(404);
+    const statics = await request(app).get('/static-pages.xml').expect(200);
+    expect(statics.text).toContain('/get-started');
+    expect(statics.text).toContain('/diagnostico-ia');
+    expect(statics.text).not.toContain('/admin');
   });
 });

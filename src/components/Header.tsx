@@ -1,353 +1,107 @@
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronRight, Sparkles, FlaskConical } from "lucide-react";
-import { useTranslation } from "react-i18next";
-import { useLocation } from "wouter";
+import { useEffect, useRef, useState } from 'react';
+import { Menu, X, ChevronDown, Sparkles, FlaskConical } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { normalizeLanguage, staticPagePath } from '@shared/seoPolicy';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
-interface HeaderProps {
-  isMobileMenuOpen: boolean;
-  setIsMobileMenuOpen: (isOpen: boolean) => void;
-}
-
-const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) => {
-  const [isScrolled, setIsScrolled] = useState(false);
+interface HeaderProps { isMobileMenuOpen: boolean; setIsMobileMenuOpen: (open: boolean) => void }
+export default function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) {
   const { i18n, t } = useTranslation();
-  const [, setLocation] = useLocation();
-  const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
-  let hoverTimeout: NodeJS.Timeout;
-
+  const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [quizTextIndex, setQuizTextIndex] = useState(0);
+  const rootRef = useRef<HTMLElement>(null);
+  const mobileToggle = useRef<HTMLButtonElement>(null);
+  const reduceMotion = useReducedMotion();
   useEffect(() => {
-    const interval = setInterval(() => {
-      setQuizTextIndex((i) => (i + 1) % 3);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
+    if (reduceMotion) return;
+    const timer = setInterval(() => setQuizTextIndex(i => (i + 1) % 3), 3000);
+    return () => clearInterval(timer);
+  }, [reduceMotion]);
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 768) {
-        setIsMobileMenuOpen(false); // Cierra el menú móvil al entrar en vista escritorio
-      }
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-  interface NavLink {
-    id: string;
-    label: string;
-    href?: string;
-    children?: { id: string; label: string; href?: string }[];
-  }
+    const closeOutside = (event: PointerEvent) => { if (!rootRef.current?.contains(event.target as Node)) setOpenMenu(null); };
+    const resize = () => { if (window.innerWidth >= 1280) setIsMobileMenuOpen(false); };
+    document.addEventListener('pointerdown', closeOutside);
+    window.addEventListener('resize', resize);
+    return () => { document.removeEventListener('pointerdown', closeOutside); window.removeEventListener('resize', resize); };
+  }, [setIsMobileMenuOpen]);
 
-  const navLinks: NavLink[] = [
-    {
-      id: "company",
-      label: t("nav.company"), // Nuevo agrupador "Company"
-      children: [
-        { id: "features", label: t("nav.features") },
-        { id: "about", label: t("nav.about") },
-        { id: "solutions", label: t("nav.solutions") },
-        { id: "customers", label: t("nav.customers") },
-        { id: "careers", href: "/careers", label: t("nav.careers") },
-      ],
-    },
-    {
-      id: "resources",
-      label: t("nav.resources"), // Nuevo agrupador "Resources"
-      children: [
-        { id: "case-studies", label: t("nav.caseStudies") },
-        { id: "courses", label: t("nav.courses") },
-        { id: "blog", href: "/blog", label: t("nav.blog") },
-      ],
-    },
-    {
-      id: "language",
-      label: t("nav.language"), // Nuevo agrupador "Language"
-      children: [
-        { id: "en", label: "🇺🇸 English" },
-        { id: "es", label: "🇪🇸 Español" },
-      ],
-    },
-  ];
-
-  const handleNavigation = (idOrPath: string) => {
-    if (idOrPath.startsWith("/")) {
-      if (window.location.pathname === idOrPath) {
-        // Ya estás en la misma página
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        //history.replaceState(null, "", "/");
-      } else {
-        // No estás en la misma página
-        setLocation(idOrPath);
-        if (idOrPath === "/") {
-          // Espera un poquito y luego scroll arriba
-          setTimeout(() => {
-            window.scrollTo({ top: 0, behavior: "smooth" });
-            history.replaceState(null, "", "/");
-          }, 300); // 🔥 Espera 300ms a que renderice Home
-        }
-      }
-    } else {
-      // Anchor interno
-      setLocation("/");
-      setTimeout(() => {
-        const el = document.getElementById(idOrPath);
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth" });
-          history.replaceState(null, "", `#${idOrPath}`);
-        }
-      }, 100);
+  const href = (destination: string) => {
+    const [path, fragment] = destination.split('#');
+    return staticPagePath(path || '/', lang) + (fragment ? `#${fragment}` : '');
+  };
+  const languageHref = (next: 'en' | 'es') => {
+    if (typeof window === 'undefined') return staticPagePath('/', next);
+    if (window.location.pathname.startsWith('/blog/')) {
+      const alternate = document.head.querySelector<HTMLLinkElement>(`link[rel="alternate"][hreflang="${next}"]`);
+      if (alternate) { const url = new URL(alternate.href); return url.pathname + url.search; }
     }
+    const url = new URL(window.location.href);
+    if (next === 'es') url.searchParams.set('lang', 'es'); else url.searchParams.delete('lang');
+    return url.pathname + url.search + url.hash;
   };
-
-  const handleMouseEnter = (id: string) => {
-    clearTimeout(hoverTimeout); // cancela el cierre si regresa el mouse
-    setHoveredMenu(id);
-  };
-
-  const handleMouseLeave = () => {
-    hoverTimeout = setTimeout(() => {
-      setHoveredMenu(null);
-    }, 200); // da 200ms al usuario para bajar el mouse
-  };
-
+  const groups = [
+    { id: 'company', label: t('nav.company'), links: [
+      { label: t('nav.features'), href: '/#features' }, { label: t('nav.about'), href: '/#about' },
+      { label: t('nav.solutions'), href: '/#solutions' }, { label: t('nav.customers'), href: '/#case-studies' },
+      { label: t('nav.careers'), href: '/careers' },
+    ] },
+    { id: 'resources', label: t('nav.resources'), links: [
+      { label: t('nav.caseStudies'), href: '/#case-studies' }, { label: t('nav.courses'), href: '/#courses' },
+      { label: t('nav.blog'), href: '/blog' },
+    ] },
+    { id: 'language', label: t('nav.language'), links: [
+      { label: '🇺🇸 English', href: languageHref('en'), lang: 'en' }, { label: '🇪🇸 Español', href: languageHref('es'), lang: 'es' },
+    ] },
+  ];
+  const close = () => { setOpenMenu(null); setIsMobileMenuOpen(false); };
+  const linkClass = 'tap-target rounded-md text-gray-700 hover:bg-blue-50 hover:text-blue-700 px-3 py-2';
+  const links = (group: typeof groups[number]) => group.links.map(link => (
+    <a key={link.label} href={group.id === 'language' ? link.href : href(link.href)}
+      hrefLang={'lang' in link ? link.lang : undefined} onClick={close}
+      className={`${linkClass} flex w-full justify-start`}>{link.label}</a>
+  ));
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white shadow-sm ${isScrolled ? "shadow-md" : ""}`}>
-      <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-        {/* Logo */}
-        <div className="flex items-center space-x-3">
-          <a
-            href="/"
-            onClick={(e) => {
-              e.preventDefault();
-              handleNavigation("/");
-            }}
-            className="flex items-center space-x-3 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 rounded-md"
-          >
-            <img src="/favicon.svg" alt="Robles.AI Logo" className="w-10 h-10" />
-            <span className="text-xl font-bold text-gray-900">
-              Robles<span className="text-blue-500">.AI</span>
-            </span>
-          </a>
-        </div>
-
-        {/* Desktop Navigation */}
-        <nav aria-label={t("nav.primaryLabel")} className="hidden md:flex items-center space-x-6 lg:space-x-8">
-          {navLinks.map((link) =>
-            link.children ? (
-              <div
-                key={link.id}
-                className="relative z-50"
-                onMouseEnter={() => handleMouseEnter(link.id)}
-                onMouseLeave={handleMouseLeave}
-              >
-                <button
-                  className="flex items-center gap-1 text-gray-700 hover:text-blue-600 transition-colors whitespace-nowrap"
-                >
-                  {link.label}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className={`h-4 w-4 transform transition-transform duration-300 ${hoveredMenu === link.id ? "rotate-180" : ""}`}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-                {/* Dropdown */}
-                <div
-                  className={`absolute top-full left-0 mt-2 w-40 bg-white border rounded-md shadow-lg transform origin-top transition-all duration-200 z-50 ${hoveredMenu === link.id
-                    ? "opacity-100 scale-100 pointer-events-auto"
-                    : "opacity-0 scale-95 pointer-events-none"
-                    }`}
-                >   {link.children.map((sublink) => (
-                  <button
-                    key={sublink.id}
-                    onClick={() =>
-                      link.id === "language"
-                        ? i18n.changeLanguage(sublink.id)
-                        : handleNavigation(sublink.href || sublink.id)
-                    }
-                    className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                  >
-                    {sublink.label}
-                  </button>
-
-
-                ))}
-                </div>
-
-              </div>
-            ) : (
-              <button
-                key={link.id}
-                onClick={() => handleNavigation(link.href || link.id)}
-                className="text-gray-700 hover:text-blue-600 whitespace-nowrap transition-colors"
-              >
-                {link.label}
+    <header ref={rootRef} className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm"
+      onKeyDown={event => {
+        if (event.key === 'Escape') {
+          if (isMobileMenuOpen) { setIsMobileMenuOpen(false); mobileToggle.current?.focus(); }
+          else if (openMenu) { rootRef.current?.querySelector<HTMLButtonElement>(`#nav-toggle-${openMenu}`)?.focus(); setOpenMenu(null); }
+        }
+      }}>
+      <div className="container mx-auto px-6 py-4 flex justify-between items-center gap-4">
+        <a href={href('/')} onClick={close} className="shrink-0 flex items-center gap-3 rounded-md">
+          <img src="/favicon.svg" alt="" className="w-10 h-10" width="40" height="40" />
+          <span className="text-xl font-bold text-gray-900">Robles<span className="text-blue-500">.AI</span></span>
+        </a>
+        <nav aria-label={t('nav.primaryLabel')} className="hidden xl:flex items-center gap-4">
+          {groups.map(group => (
+            <div key={group.id} className="relative" onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setOpenMenu(current => current === group.id ? null : current); }}>
+              <button id={`nav-toggle-${group.id}`} type="button" aria-expanded={openMenu === group.id}
+                aria-controls={`nav-panel-${group.id}`} onClick={() => setOpenMenu(current => current === group.id ? null : group.id)}
+                className="tap-target gap-1 text-gray-700 whitespace-nowrap">
+                {group.label}<ChevronDown aria-hidden="true" className="w-4 h-4" />
               </button>
-            )
-          )}
-          {/* Demos Lab CTA */}
-          <button
-            onClick={() => handleNavigation("/demos")}
-            className="shrink-0 flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-cyan-50 hover:bg-cyan-100 text-cyan-700 text-sm font-medium transition-colors"
-          >
-            <FlaskConical className="h-4 w-4 shrink-0" />
-            <span className="whitespace-nowrap">{t("nav.demos")}</span>
-          </button>
-          {/* Quiz CTA */}
-          <button
-            onClick={() => handleNavigation("/diagnostico-ia")}
-            className="w-60 shrink-0 flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-violet-50 hover:bg-violet-100 text-violet-700 text-sm font-medium transition-colors overflow-hidden"
-          >
-            <Sparkles className="h-4 w-4 shrink-0" />
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={quizTextIndex}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                transition={{ duration: 0.3 }}
-                className="whitespace-nowrap"
-              >
-                {t(`nav.quiz_${quizTextIndex + 1}`)}
-              </motion.span>
-            </AnimatePresence>
-          </button>
-          {/* Contact Button */}
-          <button
-            onClick={() => handleNavigation("contact")}
-            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors hover:-translate-y-1 hover:shadow-md whitespace-nowrap"
-          >
-            {t("nav.contact")}
-          </button>
+              <div id={`nav-panel-${group.id}`} hidden={openMenu !== group.id}
+                className="absolute top-full left-0 w-48 bg-white border rounded-md shadow-lg p-1">{links(group)}</div>
+            </div>
+          ))}
+          <a href={href('/demos')} onClick={close} className="tap-target gap-2 px-3 rounded-full bg-cyan-50 text-cyan-800 whitespace-nowrap"><FlaskConical aria-hidden="true" className="h-4 w-4" />{t('nav.demos')}</a>
+          <a href={href('/diagnostico-ia')} onClick={close} className="tap-target gap-2 w-60 px-3 rounded-full bg-violet-50 text-violet-800"><Sparkles aria-hidden="true" className="h-4 w-4 shrink-0" /><span>{t(`nav.quiz_${quizTextIndex + 1}`)}</span></a>
+          <a href={href('/#contact')} onClick={close} className="tap-target px-4 rounded-md bg-blue-600 text-white whitespace-nowrap">{t('nav.contact')}</a>
         </nav>
-
-        {/* Mobile menu button */}
-        <div className="md:hidden flex items-center">
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle menu"
-            className="tap-target"
-          >
-            {isMobileMenuOpen ? (
-              <X className="h-7 w-7 text-gray-700" />
-            ) : (
-              <Menu className="h-7 w-7 text-gray-700" />
-            )}
-          </button>
-        </div>
+        <button ref={mobileToggle} type="button" aria-label={t('nav.toggleMenu')} aria-expanded={isMobileMenuOpen}
+          aria-controls="mobile-navigation" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="tap-target xl:hidden">
+          {isMobileMenuOpen ? <X aria-hidden="true" className="h-7 w-7" /> : <Menu aria-hidden="true" className="h-7 w-7" />}
+        </button>
       </div>
-
-      {/* Mobile Navigation */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="absolute left-0 w-full bg-white z-40 overflow-y-auto"
-            style={{ top: "var(--header-h)", height: "calc(100vh - var(--header-h))" }}
-          >
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.4 }}
-              className="flex flex-col px-6 pt-6 pb-8 min-w-0 break-anywhere"
-            >
-              <nav aria-label={t("nav.primaryLabel")} className="flex flex-col gap-4">
-                {navLinks.map((link) => (
-                  <div key={link.id} className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                    <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
-                      {link.label}
-                    </div>
-
-                    {link.id === "language" ? (
-                      <div className="flex gap-2">
-                        {link.children?.map((child) => (
-                          <button
-                            key={child.id}
-                            onClick={() => {
-                              setIsMobileMenuOpen(false);
-                              i18n.changeLanguage(child.id);
-                            }}
-                            className="flex-1 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 text-center hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-                          >
-                            {child.label}
-                          </button>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="flex flex-col divide-y divide-gray-200">
-                        {link.children?.map((child) => (
-                          <button
-                            key={child.id}
-                            onClick={() => {
-                              setIsMobileMenuOpen(false);
-                              handleNavigation(child.href || child.id);
-                            }}
-                            className="flex items-center justify-between rounded-lg px-2 py-2.5 text-base text-gray-700 text-left hover:bg-white hover:text-blue-600 transition-colors"
-                          >
-                            {child.label}
-                            <ChevronRight className="h-4 w-4 text-gray-300" />
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </nav>
-
-              {/* Demos Lab + Test IA + Contacto */}
-              <div className="mt-6 pt-6 border-t border-gray-200 space-y-3">
-                <button
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    handleNavigation("/demos");
-                  }}
-                  className="w-full flex items-center justify-center gap-1.5 px-6 py-3 bg-cyan-50 hover:bg-cyan-100 text-cyan-700 rounded-lg font-medium transition-colors"
-                >
-                  <FlaskConical className="h-4 w-4 shrink-0" />
-                  {t("nav.demos")}
-                </button>
-                <button
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    handleNavigation("/diagnostico-ia");
-                  }}
-                  className="w-full flex items-center justify-center gap-1.5 px-6 py-3 bg-violet-50 hover:bg-violet-100 text-violet-700 rounded-lg font-medium transition-colors"
-                >
-                  <Sparkles className="h-4 w-4 shrink-0" />
-                  {t(`nav.quiz_${quizTextIndex + 1}`)}
-                </button>
-                <button
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    handleNavigation("contact");
-                  }}
-                  className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-sm transition-colors"
-                >
-                  {t("nav.contact")}
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {isMobileMenuOpen && <nav id="mobile-navigation" aria-label={t('nav.primaryLabel')} className="xl:hidden absolute left-0 w-full bg-white overflow-y-auto p-6 space-y-5"
+        style={{ top: 'var(--header-h)', maxHeight: 'calc(100dvh - var(--header-h))' }}>
+        {groups.map(group => <div key={group.id} className="rounded-xl border p-3"><h2 className="font-semibold mb-2">{group.label}</h2>{links(group)}</div>)}
+        <a href={href('/demos')} onClick={close} className={`${linkClass} flex`}>{t('nav.demos')}</a>
+        <a href={href('/diagnostico-ia')} onClick={close} className={`${linkClass} flex`}>{t(`nav.quiz_${quizTextIndex + 1}`)}</a>
+        <a href={href('/#contact')} onClick={close} className="tap-target w-full bg-blue-600 text-white rounded-md">{t('nav.contact')}</a>
+      </nav>}
     </header>
   );
-};
-
-export default Header;
+}

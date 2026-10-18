@@ -1,58 +1,30 @@
-import { useEffect } from "react";
-import { useLocation } from "wouter";
-import { useTranslation } from "react-i18next";
+import { useEffect } from 'react';
+import { useLocation, useSearch } from 'wouter';
+import { useTranslation } from 'react-i18next';
+import { STATIC_PAGES, normalizeLanguage, archivePage } from '@shared/seoPolicy';
+import { buildStaticMeta, buildHomeJsonLd } from '@shared/seoMetadata';
+import { applyPageMetadata } from '@/lib/pageMetadata';
 
-/**
- * Sets document title and meta description based on current route and language.
- * BlogPost handles its own SEO, so it's excluded here.
- */
 export function useSEO() {
   const [location] = useLocation();
-  const { t } = useTranslation();
-
+  const search = useSearch();
+  const { i18n } = useTranslation();
   useEffect(() => {
-    // Skip for blog posts (they handle their own title)
-    if (location.startsWith("/blog/") && location !== "/blog") return;
-
-    const title = t(`seo.${getRouteKey(location)}.title`);
-    const description = t(`seo.${getRouteKey(location)}.description`);
-
-    document.title = title;
-
-    let meta = document.querySelector('meta[name="description"]') as HTMLMetaElement | null;
-    if (!meta) {
-      meta = document.createElement("meta");
-      meta.name = "description";
-      document.head.appendChild(meta);
+    if (location.startsWith('/blog/')) return;
+    const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
+    const query = new URLSearchParams(search);
+    const meta = buildStaticMeta(STATIC_PAGES[location] ? location : '/', lang, i18n.getResourceBundle(lang, 'translation') ?? {}, {
+      page: location === '/blog' ? archivePage(query.get('page')) : 1,
+      filtered: location === '/blog' && ['q', 'editorId', 'days'].some(k => query.has(k)),
+    });
+    if (location === '/') meta.jsonLd = buildHomeJsonLd();
+    if (!STATIC_PAGES[location]) {
+      meta.title = lang === 'es' ? 'Página no encontrada | Robles.AI' : 'Page not found | Robles.AI';
+      meta.ogTitle = meta.twitterTitle = meta.title;
+      meta.canonicalUrl = meta.ogUrl = `https://robles.ai${location}`;
+      meta.hreflangLinks = [];
+      meta.robots = 'noindex,nofollow';
     }
-    meta.content = description;
-
-    // Update OG tags
-    updateMeta("og:title", title);
-    updateMeta("og:description", description);
-    updateMeta("twitter:title", title);
-    updateMeta("twitter:description", description);
-  }, [location, t]);
-}
-
-function getRouteKey(path: string): string {
-  if (path === "/") return "home";
-  if (path === "/get-started") return "landing";
-  if (path === "/diagnostico-ia") return "quiz";
-  if (path === "/careers") return "careers";
-  if (path === "/apply") return "apply";
-  if (path === "/blog") return "blog";
-  if (path === "/demos") return "demos";
-  if (path.startsWith("/try-")) return "demos";
-  return "home";
-}
-
-function updateMeta(property: string, content: string) {
-  let meta = document.querySelector(`meta[property="${property}"]`) as HTMLMetaElement | null;
-  if (!meta) {
-    meta = document.querySelector(`meta[name="${property}"]`) as HTMLMetaElement | null;
-  }
-  if (meta) {
-    meta.content = content;
-  }
+    applyPageMetadata(meta);
+  }, [location, search, i18n, i18n.language]);
 }

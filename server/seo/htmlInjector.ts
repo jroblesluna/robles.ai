@@ -16,6 +16,9 @@ export function injectMeta(html: string, meta: PageMeta): string {
   }
 
   let head = html.slice(0, headEndIndex);
+  if (meta.language) head = head.replace(/<html\b[^>]*>/i, tag => tag.replace(/\s+lang=["'][^"']*["']/i, '').replace(/>$/, ` lang="${meta.language}">`));
+  head = head.replace(/<meta\s+[^>]*name=["']robots["'][^>]*>/gi, '');
+  if (meta.robots) head += `\n<meta name="robots" content="${escapeAttr(meta.robots)}">`;
   const rest = html.slice(headEndIndex); // includes </head> and everything after
 
   // 1. Replace <title>...</title>
@@ -83,7 +86,7 @@ export function injectMeta(html: string, meta: PageMeta): string {
   let newJsonLdTags = '';
   if (meta.jsonLd && meta.jsonLd.length > 0) {
     newJsonLdTags = meta.jsonLd
-      .map(obj => `  <script type="application/ld+json">${JSON.stringify(obj)}</script>`)
+      .map(obj => `  <script type="application/ld+json">${JSON.stringify(obj).replace(/</g, '\\u003c')}</script>`)
       .join('\n');
   }
 

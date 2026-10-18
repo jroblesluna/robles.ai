@@ -6,6 +6,8 @@ import type { SlugIndexEntry } from './types.js';
  * Interface for the slug-to-file index providing O(1) lookups.
  */
 export interface SlugIndex {
+  ready(): Promise<void>;
+  entries(): SlugIndexEntry[];
   get(slug: string): SlugIndexEntry | undefined;
   rebuild(): Promise<void>;
   addEntry(entry: SlugIndexEntry): void;
@@ -50,7 +52,7 @@ async function parsePostFile(filePath: string): Promise<SlugIndexEntry | undefin
     // Extract date from the slug (first 10 characters: YYYY-MM-DD)
     const date = enSlug.slice(0, 10);
 
-    return { filePath, enSlug, esSlug, date };
+    return { filePath, enSlug, esSlug, date, ...(data.dateModified ? { lastModified: data.dateModified } : {}) };
   } catch {
     return undefined;
   }
@@ -61,36 +63,36 @@ async function parsePostFile(filePath: string): Promise<SlugIndexEntry | undefin
  * The index maps both EN and ES slugs to the same entry for O(1) lookup.
  */
 export function createSlugIndex(postsDir: string): SlugIndex {
-  const slugMap = new Map<string, SlugIndexEntry>();
+  let slugMap = new Map<string, SlugIndexEntry>();
   let initialized = false;
   let initPromise: Promise<void> | null = null;
 
   async function buildIndex(): Promise<void> {
-    slugMap.clear();
+    const nextMap = new Map<string, SlugIndexEntry>();
     const files = await scanJsonFiles(postsDir);
 
     for (const filePath of files) {
       const entry = await parsePostFile(filePath);
       if (entry) {
-        slugMap.set(entry.enSlug, entry);
-        slugMap.set(entry.esSlug, entry);
+        nextMap.set(entry.enSlug, entry);
+        nextMap.set(entry.esSlug, entry);
       }
     }
 
+    slugMap = nextMap;
     initialized = true;
   }
 
-  function ensureInitialized(): void {
-    if (!initialized && !initPromise) {
-      initPromise = buildIndex().finally(() => {
-        initPromise = null;
-      });
-    }
+  async function ready(): Promise<void> {
+    if (initialized) return;
+    initPromise ??= buildIndex().finally(() => { initPromise = null; });
+    await initPromise;
   }
 
   return {
+    ready,
+    entries: () => Array.from(new Set(slugMap.values())),
     get(slug: string): SlugIndexEntry | undefined {
-      ensureInitialized();
       return slugMap.get(slug);
     },
 

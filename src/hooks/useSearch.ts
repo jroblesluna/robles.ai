@@ -32,8 +32,8 @@ const LIMIT = 9;
 
 export function useSearch(): UseSearchResult {
   const { i18n } = useTranslation();
-  const [query, setQuery] = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [query, setQuery] = useState(() => new URLSearchParams(window.location.search).get('q') ?? '');
+  const [debouncedQuery, setDebouncedQuery] = useState(() => new URLSearchParams(window.location.search).get('q') ?? '');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
