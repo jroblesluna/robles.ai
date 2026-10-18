@@ -1,3 +1,4 @@
+import { normalizeLanguage, staticPagePath } from '@shared/seoPolicy';
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "wouter";
@@ -11,7 +12,8 @@ const SLIDE_COUNT = 3;
 const SLIDE_MS = 7000;
 
 const Hero = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
   const reduceMotion = useReducedMotion();
   const [slide, setSlide] = useState(0);
   // +1 = next (incoming from right), -1 = prev (incoming from left)
@@ -84,13 +86,13 @@ const Hero = () => {
               {t("hero.cta1")}
             </a>
             <Link
-              href="/blog"
+              href={staticPagePath("/blog", lang)}
               className="px-4 py-2 bg-blue-500 text-white font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-white/20"
             >
               {t("hero.cta2")}
             </Link>
             <Link
-              href="/get-started"
+              href={staticPagePath("/get-started", lang)}
               className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
             >
               {t("hero.cta3")}
@@ -118,7 +120,7 @@ const Hero = () => {
           </p>
           <div className="flex flex-wrap justify-center md:justify-start gap-3">
             <Link
-              href="/diagnostico-ia"
+              href={staticPagePath("/diagnostico-ia", lang)}
               className="inline-flex items-center gap-2 px-4 py-2 bg-white text-blue-700 font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
             >
               {t("quizPromo.cta")}
@@ -144,7 +146,7 @@ const Hero = () => {
           </p>
           <div className="flex justify-center md:justify-start">
             <Link
-              href="/demos"
+              href={staticPagePath("/demos", lang)}
               className="inline-flex items-center gap-2 px-4 py-2 bg-white text-blue-700 font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
             >
               <FlaskConical className="h-4 w-4" />
@@ -164,7 +166,7 @@ const Hero = () => {
             ].map(({ href, key, icon: Icon, color }) => (
               <Link
                 key={href}
-                href={href}
+                href={staticPagePath(href, lang)}
                 title={t(`demosPromo.${key}`)}
                 className="inline-flex items-center gap-1.5 px-3 py-1 text-xs md:text-sm text-white/90 bg-white/10 hover:bg-white/20 border border-white/15 hover:border-white/30 rounded-full backdrop-blur-sm transition-colors duration-200"
               >

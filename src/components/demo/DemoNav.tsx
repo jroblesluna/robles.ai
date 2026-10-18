@@ -1,3 +1,4 @@
+import { normalizeLanguage, staticPagePath } from '@shared/seoPolicy';
 import { Link, useLocation } from "wouter";
 import { ArrowLeft, ArrowRight, FlaskConical } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -56,13 +57,14 @@ const TONES = {
 export type DemoTone = keyof typeof TONES;
 
 export function DemoNav({ tone, className = "" }: { tone: DemoTone; className?: string }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
   const c = TONES[tone];
   const [, navigate] = useLocation();
 
   const goBack = () => {
     if (window.history.length > 1) window.history.back();
-    else navigate("/");
+    else navigate(staticPagePath("/", lang));
   };
 
   return (
@@ -83,7 +85,7 @@ export function DemoNav({ tone, className = "" }: { tone: DemoTone; className?: 
 
       {/* Explore the rest of the Demos Lab */}
       <Link
-        href="/demos"
+        href={staticPagePath("/demos", lang)}
         className={`group inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ring-1 transition-all duration-200 hover:shadow-sm focus:outline-none focus-visible:ring-2 ${c.lab} ${c.focus}`}
       >
         <FlaskConical className="h-4 w-4 shrink-0" />

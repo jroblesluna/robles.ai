@@ -252,3 +252,16 @@ describe('BlogModal', () => {
     expect(fallback).toBeInTheDocument();
   });
 });
+
+it('retains the distinguishing English query when full identical-slug content loads', async () => {
+  const slug = '2026-10-15-18-00-00-shivoo-studios-reality-reframe-podcast';
+  const translation = { slug, title: 'English article', excerpt: 'A summary', content: [{ heading: 'Results', body: 'Collision article content' }] };
+  const full: FullPost = { slug, date: '2026-10-15', translations: { en: translation, es: { ...translation, title: 'Artículo en español' } } };
+  window.history.replaceState({ blogModal: true }, '', `/blog/${slug}?lang=en`);
+  const { unmount } = render(<BlogModal posts={[{ slug, editorId: 1, translations: full.translations }]} index={0} onIndexChange={vi.fn()} onClose={vi.fn()} fetchArticle={async () => full} />);
+  await screen.findByText('Collision article content');
+  await waitFor(() => expect(document.querySelector('link[rel="canonical"]')).toHaveAttribute('href', `https://robles.ai/blog/${slug}?lang=en`));
+  expect(window.location.pathname + window.location.search).toBe(`/blog/${slug}?lang=en`);
+  expect(screen.getByRole('link', { name: 'blogModal.openInNewTab' })).toHaveAttribute('href', `/blog/${slug}?lang=en`);
+  unmount();
+});

@@ -13,6 +13,7 @@ let root: string;
 let app: ReturnType<typeof express>;
 const enSlug = '2026-10-16-23-00-00-test-post';
 const esSlug = '2026-10-16-23-00-00-articulo-de-prueba';
+const collisionSlug = '2026-10-15-18-00-00-shivoo-studios-reality-reframe-podcast';
 const post = { slug: enSlug, date: '2026-10-16-23-00-00', editorId: 1, categories: [], keywords: [], sources: [], translations: {
   en: { slug: enSlug, title: 'A useful engineering article', excerpt: 'Evidence from an isolated fixture.', content: [{ heading: 'Results', body: 'Measured results.' }] },
   es: { slug: esSlug, title: 'Un artículo útil de ingeniería', excerpt: 'Evidencia de una prueba aislada.', content: [{ heading: 'Resultados', body: 'Resultados medidos.' }] },
@@ -23,6 +24,10 @@ beforeAll(async () => {
   for (const directory of ['assets', 'public/images', 'data/posts', 'src/i18n/locales/en', 'src/i18n/locales/es']) await mkdir(join(dist, directory), { recursive: true });
   await writeFile(join(dist, 'index.html'), await readFile(resolve('index.html'), 'utf8'));
   await writeFile(join(dist, 'data/posts/post.json'), JSON.stringify(post));
+  await writeFile(join(dist, 'data/posts/collision.json'), JSON.stringify({ ...post,
+    slug: collisionSlug,
+    translations: { en: { ...post.translations.en, slug: collisionSlug }, es: { ...post.translations.es, slug: collisionSlug } },
+  }));
   await writeFile(join(dist, 'data/dominical.db'), 'private fixture, never public');
   await writeFile(join(dist, 'index.js'), 'private server bundle');
   await writeFile(join(dist, 'assets/index-Ab123456.js'), 'console.log("public")');
@@ -113,4 +118,37 @@ describe('actual production-layout public middleware', () => {
     expect(statics.text).toContain('/diagnostico-ia');
     expect(statics.text).not.toContain('/admin');
   });
+});
+
+it('serves both languages of an identical slug without redirect loops or lost campaign parameters', async () => {
+  const path = `/blog/${collisionSlug}`;
+  for (const [query, lang, canonical] of [['', 'es', path], ['?lang=en', 'en', path + '?lang=en'], ['?lang=en&utm_source=test', 'en', path + '?lang=en']] as const) {
+    const res = await request(app).get(path + query).expect(200);
+    const $ = load(res.text);
+    expect($('html').attr('lang')).toBe(lang);
+    expect($('title').text()).toBe(post.translations[lang].title);
+    expect($('link[rel="canonical"]').attr('href')).toBe('https://robles.ai' + canonical);
+    expect($('meta[property="og:url"]').attr('content')).toBe('https://robles.ai' + canonical);
+    expect($('link[hreflang="en"]').attr('href')).toBe('https://robles.ai' + path + '?lang=en');
+    expect($('link[hreflang="es"]').attr('href')).toBe('https://robles.ai' + path);
+    const article = $('script[type="application/ld+json"]').toArray().map(e => JSON.parse($(e).text())).find(e => e['@type'] === 'BlogPosting');
+    expect(article.inLanguage).toBe(lang);
+    expect(article.mainEntityOfPage['@id']).toBe('https://robles.ai' + canonical);
+  }
+  await request(app).get(path + '?lang=es&utm_source=test').expect(308).expect('Location', path + '?utm_source=test');
+  await request(app).get(path + '?utm_source=test').expect(200);
+  await request(app).get(path + '/?lang=en').expect(308).expect('Location', path + '?lang=en');
+});
+it('sitemap collision destinations are distinct, reciprocal and resolve to their advertised language', async () => {
+  const res = await request(app).get('/sitemaps/2026-10.xml').expect(200);
+  const $ = load(res.text, { xmlMode: true });
+  const locs = $('url > loc').toArray().map(e => $(e).text());
+  expect(locs).toHaveLength(4);
+  expect(new Set(locs).size).toBe(locs.length);
+  for (const lang of ['en', 'es']) {
+    const href = `https://robles.ai/blog/${collisionSlug}` + (lang === 'en' ? '?lang=en' : '');
+    expect(locs).toContain(href);
+    const html = await request(app).get(href.replace('https://robles.ai', '')).expect(200);
+    expect(load(html.text)('html').attr('lang')).toBe(lang);
+  }
 });

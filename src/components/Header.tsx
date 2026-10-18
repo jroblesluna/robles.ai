@@ -8,11 +8,22 @@ interface HeaderProps { isMobileMenuOpen: boolean; setIsMobileMenuOpen: (open: b
 export default function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) {
   const { i18n, t } = useTranslation();
   const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
+  const [, setMetadataVersion] = useState(0);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [quizTextIndex, setQuizTextIndex] = useState(0);
   const rootRef = useRef<HTMLElement>(null);
   const mobileToggle = useRef<HTMLButtonElement>(null);
   const reduceMotion = useReducedMotion();
+  useEffect(() => {
+    const observer = new MutationObserver(records => {
+      if (records.some(record => Array.from(record.addedNodes).concat(Array.from(record.removedNodes)).some(node =>
+        node instanceof Element && node.matches('link[rel="alternate"][hreflang]')))) {
+        setMetadataVersion(version => version + 1);
+      }
+    });
+    observer.observe(document.head, { childList: true });
+    return () => observer.disconnect();
+  }, []);
   useEffect(() => {
     if (reduceMotion) return;
     const timer = setInterval(() => setQuizTextIndex(i => (i + 1) % 3), 3000);

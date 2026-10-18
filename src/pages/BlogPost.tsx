@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { applyPageMetadata } from '@/lib/pageMetadata';
 import { normalizeLanguage, explicitLanguage } from '@shared/seoPolicy';
 import { buildBlogMeta, buildBlogJsonLd } from '@shared/seoMetadata';
-import { useParams } from 'wouter';
+import { useParams, useSearch } from 'wouter';
 import { BlogArticle } from '@/components/BlogArticle';
 import ErrorState from '@/components/state/ErrorState';
 import NotFound from '@/pages/not-found';
@@ -76,16 +76,17 @@ export default function BlogPost() {
   const [reloadKey, setReloadKey] = useState(0);
   const params = useParams<{ slug: string }>();
   const slug = params.slug;
+  const search = useSearch();
   useEffect(() => {
     if (!post || !slug) return;
-    const language = explicitLanguage(new URLSearchParams(window.location.search).get('lang'))
+    const language = explicitLanguage(new URLSearchParams(search).get('lang'))
       ?? (post.translations.es.slug === slug ? 'es' : 'en');
     if (normalizeLanguage(i18n.language) !== language) void i18n.changeLanguage(language);
     const translatedSlug = post.translations[language].slug;
     const meta = buildBlogMeta({ post, lang: language, slug: translatedSlug });
     meta.jsonLd = buildBlogJsonLd({ post, lang: language, slug: translatedSlug }, 'Robles.AI');
     applyPageMetadata(meta);
-  }, [post, slug, i18n]);
+  }, [post, slug, search, i18n]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -147,7 +148,7 @@ export default function BlogPost() {
 
   if (!post) return <LoadingState className="min-h-[40vh]" />;
 
-  const pageLanguage = explicitLanguage(new URLSearchParams(window.location.search).get('lang'))
+  const pageLanguage = explicitLanguage(new URLSearchParams(search).get('lang'))
     ?? (post.translations.es.slug === slug ? 'es' : 'en');
   const translation = post.translations[pageLanguage];
   const editor = editors.find((e) => e.id === post.editorId);
