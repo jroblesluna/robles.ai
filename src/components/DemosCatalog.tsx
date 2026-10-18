@@ -399,7 +399,7 @@ export default function DemosCatalog({
         <motion.div
           className="container mx-auto max-w-[max(80rem,70vw)] px-6"
           variants={staggerContainer}
-          initial="hidden"
+          initial={false}
           whileInView="visible"
           viewport={{ once: true, amount: 0.15 }}
         >
@@ -516,7 +516,7 @@ export default function DemosCatalog({
         <motion.div
           className="container relative mx-auto max-w-[max(80rem,70vw)] px-6 pb-14 pt-20 md:pt-24"
           variants={staggerContainer}
-          initial="hidden"
+          initial={false}
           animate="visible"
         >
           <motion.span

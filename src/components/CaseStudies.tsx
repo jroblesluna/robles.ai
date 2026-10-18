@@ -595,7 +595,7 @@ const CaseStudies = () => {
       <motion.div
         className="container mx-auto max-w-[max(72rem,70vw)] px-6"
         variants={staggerContainer}
-        initial="hidden"
+        initial={false}
         whileInView="visible"
         viewport={{ once: true, amount: 0.15 }}
       >

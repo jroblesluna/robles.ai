@@ -1,0 +1,42 @@
+import { act } from 'react';
+import { renderToString } from 'react-dom/server';
+import { hydrateRoot, type Root as ReactRoot } from 'react-dom/client';
+import { createInstance } from 'i18next';
+import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import { fireEvent, within } from '@testing-library/react';
+import { Root } from './Root';
+import en from './i18n/locales/en/translation.json';
+import es from './i18n/locales/es/translation.json';
+
+let mounted: ReactRoot | undefined;
+beforeEach(() => {
+  vi.stubGlobal('IntersectionObserver', class { observe() {} unobserve() {} disconnect() {} });
+  vi.stubGlobal('ResizeObserver', class { observe() {} unobserve() {} disconnect() {} });
+  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
+});
+afterEach(async () => { if (mounted) await act(async () => { mounted!.unmount(); }); mounted = undefined; document.body.innerHTML = ''; vi.unstubAllGlobals(); vi.restoreAllMocks(); });
+it.each(['en', 'es'] as const)('hydrates %s without replacing content and keeps controls interactive', async lang => {
+  const copy = lang === 'en' ? en : es;
+  const path = '/' + (lang === 'es' ? '?lang=es' : '');
+  window.history.replaceState(null, '', path);
+  vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ messages: [] }) })));
+  const instance = createInstance();
+  await instance.init({ lng: lang, fallbackLng: 'en', resources: { en: { translation: en }, es: { translation: es } }, interpolation: { escapeValue: false } });
+  const app = <Root instance={instance} path={path} />;
+  const html = renderToString(app);
+  document.body.innerHTML = '<div id="root">' + html + '</div>';
+  const root = document.getElementById('root')!;
+  const originalHeading = root.querySelector('h1');
+  const errors = vi.fn();
+  await act(async () => { mounted = hydrateRoot(root, app, { onRecoverableError: errors }); });
+  expect(errors).not.toHaveBeenCalled();
+  expect(root.querySelector('h1')).toBe(originalHeading);
+  expect(originalHeading?.textContent).toBe(copy.hero.title);
+  expect(within(root).getByRole('button', { name: copy.contact.send })).toBeEnabled();
+  const group = within(root).getByRole('group', { name: copy.solutions.title });
+  const option = within(group).getByRole('button', { name: new RegExp(copy.solutions.items[1].title) });
+  fireEvent.click(option);
+  expect(option).toHaveAttribute('aria-pressed', 'true');
+  fireEvent.click(within(root).getByRole('button', { name: copy.nav.toggleMenu }));
+  expect(root.querySelector('#mobile-navigation')).toBeInTheDocument();
+});

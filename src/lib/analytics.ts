@@ -1,5 +1,6 @@
-import ReactGA from 'react-ga4';
-import ReactPixel from 'react-facebook-pixel';
+// Browser-only SDKs are loaded only when the existing configuration needs them.
+let ReactGA: typeof import('react-ga4').default;
+let ReactPixel: typeof import('react-facebook-pixel');
 
 let gaInitialized = false;
 let fbInitialized = false;
@@ -55,6 +56,7 @@ export const initAnalytics = async () => {
 
     // Fallback: No GTM configured — use direct GA4 and Meta Pixel injection
     if (config.ga4) {
+      ReactGA = (await import('react-ga4')).default;
       ReactGA.initialize(config.ga4);
       ReactGA.send({ hitType: 'pageview', page: window.location.pathname });
       gaInitialized = true;
@@ -62,6 +64,7 @@ export const initAnalytics = async () => {
     }
 
     if (config.metaPixel) {
+      ReactPixel = (await import('react-facebook-pixel')).default;
       ReactPixel.init(config.metaPixel);
       ReactPixel.pageView();
       fbInitialized = true;

@@ -68,6 +68,7 @@ export interface MetaInjectorConfig {
   sourcePath: string; // Path to source index.html
   postsDir?: string;
   translationsDir?: string;
+  renderHome?: (url: string, translations: Record<string, unknown>) => Promise<string>;
   viteTransform?: (url: string, html: string) => Promise<string>;
 }
 

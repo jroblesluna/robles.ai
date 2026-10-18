@@ -39,8 +39,9 @@ export async function setupVite(app: Express, server: Server) {
     allowedHosts: true as true,
   };
 
+  const resolvedConfig = await viteConfig({ command: 'serve', mode: 'development', isSsrBuild: false, isPreview: false });
   const vite = await createViteServer({
-    ...viteConfig,
+    ...resolvedConfig,
     configFile: false,
     customLogger: {
       ...viteLogger,
@@ -63,6 +64,7 @@ export async function setupVite(app: Express, server: Server) {
     distPath,
     sourcePath,
     viteTransform: (url: string, html: string) => vite.transformIndexHtml(url, html),
+    renderHome: async (url, translations) => (await vite.ssrLoadModule('/src/entry-server.tsx')).renderHome(url, translations),
   });
   _slugIndex = slugIndex;
   app.use(metaInjector);

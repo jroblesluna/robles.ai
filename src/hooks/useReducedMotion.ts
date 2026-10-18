@@ -14,12 +14,8 @@ const QUERY = '(prefers-reduced-motion: reduce)';
  * Design: Area 3 — 3b useReducedMotion hook.
  */
 export function useReducedMotion(): boolean {
-  const [reduced, setReduced] = useState<boolean>(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-      return false;
-    }
-    return window.matchMedia(QUERY).matches;
-  });
+  // Stable server/client first render; sync the preference in the effect below.
+  const [reduced, setReduced] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
