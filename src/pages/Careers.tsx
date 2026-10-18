@@ -1,3 +1,4 @@
+import { normalizeLanguage, staticPagePath } from "@shared/seoPolicy";
 import { motion } from "framer-motion";
 import { fadeIn, staggerContainer } from "@/utils/animations";
 import { useTranslation } from "react-i18next";
@@ -14,7 +15,8 @@ const JOB_STYLE: Record<string, { icon: typeof Code2; iconBg: string; iconColor:
 const DEFAULT_JOB_STYLE = { icon: Briefcase, iconBg: "bg-blue-100", iconColor: "text-blue-600" };
 
 const Careers = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -84,7 +86,7 @@ const Careers = () => {
 
                 <div>
                   <Link
-                    href={`/apply?job=${job.id}`}
+                    href={staticPagePath(`/apply?job=${encodeURIComponent(job.id)}`, lang)}
                     className="inline-flex items-center gap-1 text-blue-600 font-medium hover:text-blue-800 transition-all duration-300 group-hover:gap-2"
                   >
                     {t("careers.apply")}

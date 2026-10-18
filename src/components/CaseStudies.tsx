@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
+import { normalizeLanguage, staticPagePath } from "@shared/seoPolicy";
 import {
   Clock,
   Info,
@@ -173,7 +174,7 @@ const CaseStudyViewer = ({ study, onClose }: CaseStudyViewerProps) => {
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const slug = CASE_STUDY_SLUGS[study.id];
-  const langCode = i18n.language === "es" ? "es" : "en";
+  const langCode = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
   const images = CASE_STUDY_IMAGES[slug] || [];
   const accent = ACCENTS[study.accent] ?? ACCENTS.blue;
   const CategoryIcon = CASE_ICONS[study.id];
@@ -468,7 +469,7 @@ const CaseStudyViewer = ({ study, onClose }: CaseStudyViewerProps) => {
                         </div>
                       </div>
                       <Link
-                        href="/diagnostico-ia"
+                        href={staticPagePath("/diagnostico-ia", langCode)}
                         onClick={onClose}
                         className="group inline-flex shrink-0 items-center gap-1.5 rounded-full bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gray-800"
                       >
@@ -569,7 +570,8 @@ function CasePanel({ study, onOpen }: { study: CaseStudy; onOpen: () => void }) 
 }
 
 const CaseStudies = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const langCode = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
   const raw = t("caseStudies.items", { returnObjects: true }) as CaseStudy[];
   const studies = Array.isArray(raw) ? raw : [];
   const [active, setActive] = useState(0);
@@ -658,7 +660,7 @@ const CaseStudies = () => {
             <motion.p variants={fadeIn} custom={0.2} className="mt-6 hidden text-sm text-gray-600 lg:block">
               {t("caseStudies.otherIndustry")}{" "}
               <Link
-                href="/diagnostico-ia"
+                href={staticPagePath("/diagnostico-ia", langCode)}
                 className="group inline-flex items-center gap-1 font-semibold text-blue-600 hover:text-blue-700"
               >
                 {t("caseStudies.otherIndustryCta")}
@@ -688,7 +690,7 @@ const CaseStudies = () => {
             </p>
             <p className="mt-4 text-sm text-gray-600 lg:hidden">
               {t("caseStudies.otherIndustry")}{" "}
-              <Link href="/diagnostico-ia" className="inline-flex items-center gap-1 font-semibold text-blue-600">
+              <Link href={staticPagePath("/diagnostico-ia", langCode)} className="inline-flex items-center gap-1 font-semibold text-blue-600">
                 {t("caseStudies.otherIndustryCta")}
                 <ArrowRight className="h-4 w-4" />
               </Link>

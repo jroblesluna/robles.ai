@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocation, useSearch as useLocationSearch } from 'wouter';
 import { archivePage, normalizeLanguage } from '@shared/seoPolicy';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { listPostPath } from '@/lib/blogModal';
 import BlogSearch from '@/components/BlogSearch';
 import BlogModal from '@/components/BlogModal';
 import ErrorState from '@/components/state/ErrorState';
@@ -332,7 +333,7 @@ export default function BlogList() {
                       page in a new tab; plain left-click is intercepted to open
                       the in-page modal (Req 11.1, 12.1). */}
                   <a
-                    href={post.translations[lang]?.slug ? `/blog/${post.translations[lang].slug}` : `/blog/${post.slug}${lang === 'es' ? '?lang=es' : ''}`}
+                    href={listPostPath(post, lang)}
                     ref={(el) => {
                       cardRefs.current[cardIndex] = el;
                     }}

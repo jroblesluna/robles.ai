@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Search, X, Loader2 } from 'lucide-react';
+import { normalizeLanguage, blogSearchPath } from '@shared/seoPolicy';
 import { useSearch } from '@/hooks/useSearch';
 
 interface BlogSearchProps {
@@ -31,7 +32,7 @@ export default function BlogSearch({ onSearchActive }: BlogSearchProps) {
   const { i18n, t } = useTranslation();
   const { query, setQuery, results, isLoading, isLoadingMore, isSearchActive, hasMore, loadMore, clearSearch } = useSearch();
 
-  const lang = i18n.language as 'en' | 'es';
+  const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
   const observer = useRef<IntersectionObserver | null>(null);
 
   const lastResultRef = useCallback(
@@ -102,7 +103,7 @@ export default function BlogSearch({ onSearchActive }: BlogSearchProps) {
 
             return (
               <a
-                href={`/blog/${result.slug}`}
+                href={blogSearchPath(result.slug, result.language)}
                 key={`${result.slug}-${result.language}`}
                 ref={isLast ? lastResultRef : null}
 

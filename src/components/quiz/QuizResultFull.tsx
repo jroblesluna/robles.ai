@@ -1,3 +1,4 @@
+import { normalizeLanguage, staticPagePath } from "@shared/seoPolicy";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Link } from "wouter";
@@ -33,7 +34,8 @@ interface QuizResultFullProps {
 }
 
 const QuizResultFull = ({ result, leadName, leadId, resultMessage }: QuizResultFullProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
 
   const services = getReportServiceTags(result);
 
@@ -131,7 +133,7 @@ const QuizResultFull = ({ result, leadName, leadId, resultMessage }: QuizResultF
 
       <div className="text-center">
         <Link
-          href="/get-started"
+          href={staticPagePath("/get-started", lang)}
           className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
         >
           {t("quiz.results.learnMore")}

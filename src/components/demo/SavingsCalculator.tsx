@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "wouter";
+import { normalizeLanguage, staticPagePath } from "@shared/seoPolicy";
 import { animate } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Calculator, ClipboardCheck, ArrowRight, Info } from "lucide-react";
@@ -313,12 +314,13 @@ function Glow() {
 
 /** Primary (diagnostic) + secondary (contact) calls to action, on a dark background. */
 function Ctas({ demoId, stacked }: { demoId: DemoBusinessId; stacked?: boolean }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
   const goToSection = useGoToHomeSection();
   return (
     <div className={`flex flex-col gap-2 ${stacked ? "" : "sm:flex-row sm:items-center"}`}>
       <Link
-        href="/diagnostico-ia"
+        href={staticPagePath("/diagnostico-ia", lang)}
         onClick={() => trackDemoEvent("demo_cta_click", demoId, { cta: "diagnostic" })}
         className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-gray-900 shadow-sm transition hover:bg-emerald-50"
       >

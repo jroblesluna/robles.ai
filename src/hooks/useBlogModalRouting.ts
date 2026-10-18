@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { normalizeLanguage } from '@shared/seoPolicy';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { type BlogListPost, clampIndex, listPostPath } from '@/lib/blogModal';
 
 /**
@@ -55,10 +55,11 @@ export function useBlogModalRouting(posts: BlogListPost[]): UseBlogModalRouting 
   const openIndexRef = useRef<number | null>(null);
   const postsRef = useRef<BlogListPost[]>(posts);
 
-  useEffect(() => {
+  // Card handlers must see committed data before the newly rendered cards can be activated.
+  useLayoutEffect(() => {
     openIndexRef.current = openIndex;
   }, [openIndex]);
-  useEffect(() => {
+  useLayoutEffect(() => {
     postsRef.current = posts;
   }, [posts]);
 

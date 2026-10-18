@@ -2,7 +2,7 @@
 
 Prepared October 17, 2026, America/Los_Angeles. Companion: [SEO_AUDIT.md](SEO_AUDIT.md).
 
-**Original audit status: proposal only.** Local implementation of Batches 1–4 was authorized on October 18, 2026; see the implementation record at the end of this document. Production changes remain unapproved. The selected workspace contains only these audit documents and an empty Git repository. Application paths below refer to the owner's public repository at revision `f55d59ab6a24d7ed3d66acc6f3f9b4d8761d6605`; implementation requires the actual checkout and reconciliation with the deployed revision. Do not copy the temporary audit snapshot into production or overwrite production-generated content.
+**Estado actual — 18 octubre 2026:** lotes 1–4 autorizados, fusionados mediante PR #5 y desplegados; corrección bilingüe adicional autorizada, fusionada mediante [PR #6](https://github.com/jroblesluna/robles.ai/pull/6) y desplegada con commit de fusión `1c3a39b8d846a35b714eacb1f9a0483535a3bef2`. Repo activo: `~/Dev/robles.ai`. La nueva auditoría confirma HTTP/sitemaps/modal y CTA Hero/Landing, pero descubre POST-03 (anchor de tarjeta) y POST-04 (CTA de otros componentes). Sus lotes propuestos están al final y no se implementaron durante la auditoría. Las propuestas originales siguientes conservan su contexto histórico; no implican aprobación automática de fases nuevas.
 
 ## Execution principles and release gates
 
@@ -412,3 +412,48 @@ All paths below are relative to `implementation/`. Files below comprise the loca
 - `src/scripts/sitemapService.test.ts`
 - `src/scripts/sitemapService.ts`
 - `vitest.config.ts`
+
+
+## Correcciones pendientes tras auditoría de PROD del PR #6
+
+### Estado de aceptación
+
+- POST-01 (colisiones): nueve pares de URLs HTTP/canonical/schema/sitemap correctos y modal correcto; queda el anchor real del archivo, POST-03. No marcar el recorrido entero como terminado hasta corregirlo.
+- POST-02 (Hero/Landing): confirmado resuelto mediante navegación real ES → landing ES → diagnóstico ES; catálogo y DemoNav también conservan ES. CTA residuales de otros componentes: POST-04.
+- Sin nuevas dependencias, migraciones, ediciones de registros históricos o cambios de infraestructura necesarios para los dos fixes.
+
+### Lote A — POST-03: usar la política compartida en la tarjeta renderizada
+
+- **Prioridad / severidad:** P1 / MEDIUM; complejidad baja, 1–3 horas estimadas.
+- **Archivos:** `src/pages/BlogList.tsx`; prueba adyacente de integración de BlogList, por ejemplo `src/pages/BlogList.localeLinks.test.tsx`. Reusar `src/lib/blogModal.ts` sin introducir otra política.
+- **Implementación:** importar y usar `listPostPath(post, lang)` en el href de las tarjetas. Preservar el comportamiento de clic normal del modal y los eventos modificados/middle click nativos.
+- **Dependencias:** helper ya desplegado en PR #6; fixtures con traducciones distintas y slug coincidente, además de fixtures de slugs diferentes y listados incompletos.
+- **Riesgos:** abrir dos vistas en un clic, interferir con Ctrl/Cmd/middle click, cambiar rutas históricas o idioma cuando el listado aún no contiene slugs de traducción.
+- **Validación:** renderizar **BlogList real** con respuesta API fixture y slug coincidente; verificar href EN `?lang=en`, ES limpio, y hrefs normales sin colisión. Probar clic normal, handler con modificadores, URL/canonical/schema del modal, enlace para abrir en pestaña nueva y restauración del archivo/foco. Las pruebas de helper aisladas no bastan para este defecto. Tras deploy, inspeccionar el anchor de Shivoo en `/blog?page=2`, abrirlo en otra pestaña y comprobar H1/lang/canonical EN; repetir ES y un artículo normal.
+- **Resultado esperado:** tarjeta, modal, compartir, canonical, alternates y sitemap usan el mismo destino para cada idioma.
+
+### Lote B — POST-04: completar conservación de idioma en CTA compartidos
+
+- **Prioridad / severidad:** P1 / MEDIUM; 0.25–0.5 día estimado.
+- **Archivos:** `src/components/CaseStudies.tsx`, `src/components/demo/SavingsCalculator.tsx`, `src/components/demo/business.ts`; pruebas de componentes existentes o adyacentes. Reusar `shared/seoPolicy.ts`. Revisar consumidores de la calculadora para inventario, sin ejecutar backends para modificar datos.
+- **Implementación:** formar CTA de diagnóstico con el idioma activo normalizado; formar navegación al contacto como ruta de home localizada y hash correcto, preservando scroll/teclado. Revisar cada CTA de CaseStudies, incluidos diseños responsive y modal si procede.
+- **Dependencias:** contrato estático existente EN limpio / ES `?lang=es`. No depende de SSR, nuevas páginas comerciales, GSC ni nuevas traducciones.
+- **Riesgos:** perder fragmentos, navegar antes de que home se monte, resetear ES a EN por el efecto de App, romper comportamiento de smooth scroll o reduced motion, cambios involuntarios en tracking existente.
+- **Validación:** renderizar componentes reales en ambos idiomas; verificar todos sus hrefs, no solo helper. Caso real portada ES → CTA CaseStudies → diagnóstico ES. Forecast ES → diagnóstico de calculadora ES. CTA contacto de calculadora → home ES con sección contacto enfocada/visible según contrato. Verificar apertura de enlaces con modificadores y reduced motion sin enviar eventos a proveedores reales en tests.
+- **Resultado esperado:** continuidad del idioma en los puntos de conversión restantes, sin agregar tracking ni enviar formularios de prueba a producción.
+
+### Lote C — diagnóstico posterior y cierre
+
+- **Prioridad:** P1; depende de A/B aprobados, probados y desplegados.
+- **Archivos de documentación:** `docs/SEO_AUDIT.md`, `docs/SEO_IMPLEMENTATION_PLAN.md`.
+- **Procedimiento:** registrar SHA y resultado del workflow; repetir GET de los nueve pares, comprobación de unicidad/reciprocidad de sitemap y navegación real de las tarjetas/CTA. Revisar regresiones de parámetros UTM, barra final, 404, caches y modal. Distinguir siempre verificación de interfaz de procesamiento de formularios/inferencias.
+- **Riesgos / resultado:** evitar declarar cierre basándose solo en tests del helper. No hay nuevos cambios de aplicación, commits o publicación autorizados por la actualización de este plan en sí; se requiere la instrucción correspondiente del propietario para implementar/publicar estos lotes.
+
+SSR/prerender selectivo, contenido comercial/editorial, métricas de campo y experimentos GEO siguen separados en el roadmap original. No bloquear estos pequeños arreglos por una migración de arquitectura.
+
+
+## Ejecución del ciclo de cierre POST-03/POST-04
+
+Implementación/publicación y auditoría iterativa autorizadas por el propietario. Rama `codex/complete-bilingual-navigation`. Los lotes A/B anteriores están implementados localmente y validados con 159 pruebas en 26 suites. Se amplió el barrido a búsqueda FTS, Team → Careers → Apply (conservando job), enlace de QuizResultFull → landing y helper de URLs con query/hash. Sin dependencias nuevas ni migraciones. Se corrigió la sincronización de refs de `useBlogModalRouting` antes de activar tarjetas recién renderizadas.
+
+Gate de producción pendiente en este commit: workflow correcto para el SHA fusionado; auditoría HTTP completa de sitemap y nueve pares; navegador sobre anchor nativo/carga directa/modal/cierre; CTA de casos y calculadora EN/ES y contacto; búsqueda EN/ES; empleos y postulación sin enviar formularios. Registrar los resultados después del despliegue. No cerrar POST-03/POST-04 solo por tests locales.

@@ -28,3 +28,16 @@ it('keeps the existing Spanish URL and distinguishes English for identical artic
   expect(blogPagePath('english', 'espanol', 'en')).toBe('/blog/english');
   expect(blogPagePath('english', 'espanol', 'es')).toBe('/blog/espanol');
 });
+
+it('preserves application parameters and fragments when localizing a static destination', () => {
+  expect(staticPagePath('/apply?job=fullstack#details', 'es')).toBe('/apply?job=fullstack&lang=es#details');
+  expect(staticPagePath('/apply?job=fullstack&lang=es#details', 'en')).toBe('/apply?job=fullstack#details');
+  expect(staticPagePath('/#contact', 'es')).toBe('/?lang=es#contact');
+  expect(staticPagePath('/blog?page=2&editorId=4', 'es')).toBe('/blog?page=2&editorId=4&lang=es');
+  expect(staticPagePath('https://example.com/path?x=1', 'es')).toBe('https://example.com/path?x=1');
+});
+it('keeps the result language explicit when only the original FTS slug is known', async () => {
+  const { blogSearchPath } = await import('../seoPolicy');
+  expect(blogSearchPath('same-slug', 'en')).toBe('/blog/same-slug?lang=en');
+  expect(blogSearchPath('english-original', 'es')).toBe('/blog/english-original?lang=es');
+});
