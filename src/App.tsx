@@ -6,7 +6,6 @@ import { queryClient } from './lib/queryClient';
 import { Toaster } from '@/components/ui/toaster';
 import NotFound from '@/pages/not-found';
 import Home from '@/pages/Home';
-import BlogRoute from '@/pages/BlogRoute';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { initAnalytics, trackPageView } from '@/lib/analytics';
@@ -17,6 +16,7 @@ import { STATIC_PAGES, explicitLanguage } from '@shared/seoPolicy';
 import { useScrollRestoration } from '@/hooks/useScrollRestoration';
 
 // Lazy-loaded routes (code-split into separate chunks)
+const BlogRoute = lazy(() => import('@/pages/BlogRoute'));
 const Careers = lazy(() => import('@/pages/Careers'));
 const Apply = lazy(() => import('@/pages/Apply'));
 const OTP = lazy(() => import('@/pages/OTP'));

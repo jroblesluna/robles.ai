@@ -2,11 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Animated background for the hero section */
+/* Static first-viewport gradient avoids continuous background repainting. */
 .animated-bg {
   background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #172554 100%);
   background-size: 400% 400%;
-  animation: gradient 15s ease infinite;
   position: relative;
 }
 
