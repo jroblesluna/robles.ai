@@ -1,5 +1,13 @@
 # Robles.AI SEO implementation plan
 
+## Estado vigente — 18 octubre 2026
+
+POST-05 a POST-11 publicados y verificados por HTTP/navegador según `SEO_AUDIT.md`. Portada SSR/hidratada, cuerpo inicial público, slugs/CTA bilingües, controles, responsive y contraste corregidos en las muestras indicadas. El historial inferior conserva planes y validaciones previas; **no debe ejecutarse de nuevo como si todos sus hallazgos siguieran activos**.
+
+**Abiertos:** PERF-LCP-OPEN, MEASURE-01/02, PERF-TAGS y OPS-01. Último móvil: Performance 54/LCP 9,1 s; no se declara mejora estable de rendimiento o CWV de campo. Último lote 159 pruebas/25 suites y build aprobado; mismos 13 errores TS previos. Aplicación final PR #15 / `a447097e09120e61613c4600dba9612b16508296`; cierre posterior sólo documental.
+
+---
+
 > **Estado de cierre — 18 octubre 2026:** POST-03/POST-04 implementados en PR #7 y verificados tras despliegue correcto. Sin observaciones abiertas en los recorridos bilingües comprobados; ver registro final. Las propuestas y gates anteriores se conservan como historial.
 
 Prepared October 17, 2026, America/Los_Angeles. Companion: [SEO_AUDIT.md](SEO_AUDIT.md).
@@ -567,3 +575,16 @@ Esfuerzo: medio día incluyendo navegador y despliegue. Flujo autorizado: rama, 
 | PERF-TAGS / P1 / aprobación de medición | `src/lib/analytics.ts` y contenedor GTM externo (sin cambio aquí) | Inventario de etiquetas/propósito/consentimiento y triggers; revisar duplicación sólo con prueba y validación de leads. Dependencia: acceso al contenedor y propietario de marketing/medición. | Alterar la carga puede perder eventos; no desactivar ni diferir indiscriminadamente. Baseline/reporte antes/después, consentimiento y regresión de conversiones. Esfuerzo 1–2 jornadas después de acceso/aprobación. |
 
 POST-11: medio día incluyendo pruebas/publicación. OPS-01 se prioriza HIGH/P1: compilar **antes** de detener cualquier servicio, con releases aislados y rollback; `pm2 stop all` previo al build se confirma en `pull.sh`. No modificar ese flujo ni configuración del VPS sin autorización explícita de infraestructura.
+
+
+## Siguiente trabajo pendiente, dependencias y criterio de cierre
+
+| Issue / prioridad / esfuerzo | Archivos a revisar o modificar | Propuesta / dependencias | Riesgos / validación / resultado esperado |
+| --- | --- | --- | --- |
+| PERF-LCP-OPEN / P1 / 1–3 jornadas | `src/App.tsx`, `src/pages/Home.tsx`, `src/components/Hero.tsx`, `src/i18n/index.ts`, `src/lib/analytics.ts`, componentes motion afectados sólo según traza | Perfilado en copia aislada, aislar JS propio/animaciones/etiquetas sin publicar variantes a crawlers ni retirar medición de producción. Elegir la siguiente corrección sólo después de identificar trabajo crítico. | No atribuir a terceros todo el coste. Comparar >=3 runs equivalentes y conservar mediana/variación; comprobar SSR, navegación, modal, idiomas, formulario sin envío y conversiones instrumentadas. Objetivo LCP lab <=2,5 s en condiciones acordadas; campo se valida separadamente. |
+| MEASURE-01 / P1 / acceso + medio día | Ningún cambio de aplicación; `docs/SEO_AUDIT.md` para evidencias | Cuenta autorizada de GSC/Bing o exportación del propietario. Revisar indexación e impresiones/clics/CTR/posición por página/consulta/país/dispositivo/fecha; URLs corregidas contra controles. | No modificar propiedad ni solicitar indexación masiva sin autorización. Cierre sólo con datos autoritativos, no `site:` ni sitemap/200. |
+| MEASURE-02 / P1 / aprobación + 1 jornada + periodo de muestra | Propuestos `src/lib/webVitals.ts`, `src/main.tsx`, `src/lib/analytics.ts`, `package.json`, lockfile y pruebas de instrumentación indicadas en propuesta RUM anterior | RUM oficial sólo tras aprobar instrumentación/consentimiento y dependencia; reutilizar GA4/GTM existente y trigger aprobado, sin proveedor adicional. | No datos personales, queries/contenido, rutas admin/OTP ni duplicación de eventos. Validar eventos numéricos y deduplicación/BFCache; luego p75 de LCP/INP/CLS y muestra por dispositivo/landing, sin fabricar históricos. |
+| PERF-TAGS / P1 / decisión marketing + 1–2 jornadas | Contenedor GTM externo y `src/lib/analytics.ts` sólo si se justifica | Inventario y baseline de conversiones; aprobación de cambios de carga/triggers. | Preservar consentimiento y eventos útiles. Publicar versión controlada/rollback, comparar conversiones y lab. No retirar tracking unilateralmente. |
+| OPS-01 / P1 / autorización infraestructura + 1–2 jornadas | `pull.sh`, `.github/workflows/deploy.yml`, configuración PM2/proxy del VPS fuera del repositorio | Release aislado construido mientras versión actual sirve tráfico; comprobar salud, cambiar versión de forma controlada, rollback probado. Conservar runtime data/secrets y rutas absolutas reales. | Cambio operativo sensible: ensayo antes de producción; sondeo durante despliegue y rollback; no editar aquí sin autorización explícita. Objetivo: ausencia de 502 por build/restart. |
+
+POST-11 validado en producción: ruta diferida del blog, modal/cierre/lista, deep link inglés compartido y CTA a landing/diagnóstico ES. Diagnóstico final de 156 comprobaciones sin errores en las categorías muestreadas. No es una certificación exhaustiva del sitio ni de indexación. La estrategia comercial/editorial sigue un backlog aparte y depende de evidencia comercial/edición real; no crear servicios o resultados ficticios para cerrar una lista.

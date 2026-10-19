@@ -1,5 +1,29 @@
 # Robles.AI technical SEO, content, architecture and GEO audit
 
+## Estado vigente — cierre verificado del 18 octubre 2026
+
+Este bloque y el cierre final prevalecen sobre el historial fechado inferior. La auditoría inicial fue de sólo lectura; después el propietario autorizó correcciones, PR, merge y validación de producción. **No se declara “sin pendientes”: LCP móvil, acceso a métricas reales y disponibilidad durante despliegues siguen abiertos.**
+
+| Área | Estado actual verificado / límite |
+| --- | --- |
+| Contenido antes de JavaScript | Portada con SSR React real e hidratación EN/ES; otras rutas públicas con HTML semántico inicial desde los mismos locales/artículos y metadatos existentes. Artículo público reutilizado por React. Los controles interactivos siguen necesitando JS, lo cual es normal. No se deduce indexación de esta accesibilidad técnica. |
+| Idiomas / slugs / enlaces | Nueve pares de slug compartido pasan HTTP; canonical/alternates/idioma correctos en la muestra. Navegación a blog/landing/diagnóstico conserva ES; deep link EN compartido conserva EN. |
+| Sitemaps / metadata | Última muestra: 156 comprobaciones, 21 mapas, 24.376 ubicaciones únicas; XML/alternates/metadatos/cuerpo/idioma/red sin errores en las comprobaciones descritas. No se afirma rastreo exhaustivo de 24.376 páginas ni indexación. |
+| Lectura / responsive / contraste | Hero sin recorte en 18 combinaciones EN/ES × 3 slides × 320/390/1280 px; casos manuales; controles de rotación explícitos; CTA contrastados. Lighthouse final Accessibility 100 y SEO 100, sin garantía de accesibilidad total o ranking. |
+| Rendimiento | SSR, reducción de carga del blog, fuente sin uso retirada, prioridad/tamaño de imagen y decoración inicial estabilizada. **Último laboratorio móvil: Performance 54, LCP 9,1 s, TBT 560 ms; no resuelto.** No se acredita mejora estable frente al primer baseline. |
+| Indexación / posiciones | Search Console no concede acceso a la propiedad con la sesión disponible; Bing sin sesión de propiedad. No hay datos autoritativos de URLs indexadas, consultas o posiciones verificados. |
+| CWV de campo | PSI/CrUX sin datos suficientes; GA4 consultable, pero sin eventos convencionales LCP/INP/CLS/web_vitals entre los 38 nombres revisados. No hay p75 de campo verificable; TBT no es INP. RUM propuesto, no instalado ni activado. |
+| Operación / seguridad | Producción recuperada a 200 tras cada release; flujo actual detiene PM2 antes de compilar, con 502 observado durante despliegue. OPS-01 requiere autorización específica de infraestructura. APIs, auth, CORS, secretos, datos y tracking no se alteraron para mejorar scores. |
+| Validación del código | Último lote: 159 pruebas / 25 suites y build cliente/SSR/Express pasan. TypeScript conserva exactamente 13 errores preexistentes, sin nuevos en estos cambios. No se declara typecheck limpio. |
+
+Aplicación final: PR #15, merge `a447097e09120e61613c4600dba9612b16508296`, Actions `39180505068` success; bundle verificado `/assets/index-kN4ruRtv.js`. Los últimos cambios de este cierre son documentación, sin nuevo cambio de comportamiento.
+
+**Requiere intervención del propietario:** cuenta/exportación autorizada de GSC/Bing; aprobación de RUM y coordinación del contenedor GTM si se desea instrumentar campo; acceso/decisión de marketing para optimizar etiquetas; autorización explícita para corregir el procedimiento del VPS. La estrategia comercial/editorial del informe continúa siendo una propuesta, sin inventar casos, clientes ni resultados.
+
+---
+
+## Historial de auditoría y correcciones
+
 > **Actualización autorizada — 18 octubre 2026:** se implementa HTML público inicial y reutilización del artículo en React. La validación de producción de este lote se registra al final. Search Console no concede acceso a la propiedad con la sesión disponible; PageSpeed sí fue consultado y devuelve «No Data» de campo. No se declara indexación, rankings ni aprobación de CWV sin evidencia.
 
 > **Cierre de producción — PR #7, 18 octubre 2026:** POST-03 y POST-04 corregidos y verificados después del despliegue. No se detectaron observaciones abiertas en los recorridos de navegación bilingüe comprobados. Véase el apartado final “Cierre verificado de navegación bilingüe”. Los hallazgos anteriores se conservan como historial; SSR/contenido/medición permanecen fuera de este ciclo.
@@ -747,3 +771,22 @@ PR #14, merge `71f766c7dc35e3d60ac7323c47065bef306a47b7`, Actions `39180062544` 
 **Precisión OPS-01:** `pull.sh` ejecuta explícitamente `pm2 stop all` **antes** de `npm run build`; el sitio puede estar detenido durante toda la compilación, no sólo durante restart. La respuesta 502 de producción corrobora el riesgo de ese diseño. Corregir con releases construidos fuera del directorio activo, cambio controlado, comprobaciones y rollback requiere la autorización de infraestructura excluida del alcance actual. No ejecutar build sobre dist activo mientras sigue sirviéndose sin diseñar la transición.
 
 **Validación previa POST-11:** 159 pruebas / 25 suites, build cliente/SSR/Express aprobado y mismas 13 firmas TS preexistentes. Bundle principal 504,98 → 468,86 kB minificado; BlogRoute separado 36,38 kB. Navegador de preview confirma animation:none, blanco sobre blue-700 (6,70:1), emerald-700 (5,48:1) y teal-700 (5,47:1). El preview no monta APIs: sólo confirma carga del módulo; archivo/modal se verifican en producción tras publicar.
+
+
+## Cierre POST-11 — evidencia final de producción
+
+PR #15 y Actions `39180505068` completos; bundle `/assets/index-kN4ruRtv.js`, gradiente sin animación, colores de CTA 700 y formulario hidratado verificados en producción. Visita desde Hero ES al blog, apertura de modal, cierre con lista de 30 tarjetas conservada, regreso a `/blog?lang=es` y entrada directa al artículo inglés con slug compartido pasan. El artículo inglés conserva `html lang=en`, H1 inglés, 1.986 caracteres de cuerpo y canonical `?lang=en`. El CTA comercial llega a `/get-started?lang=es` y sus dos CTA de diagnóstico conservan `?lang=es`. No se enviaron formularios/mensajes ni se consumieron demostraciones de pago.
+
+Diagnóstico HTTP final, **19 octubre 00:24:44 UTC / 18 octubre 17:24:44 PDT**: 156 comprobaciones; 21 mapas, 24.376 URLs únicas, 34 URLs estáticas y 12.171 pares de artículo. Cero errores en XML, relaciones de idioma, metadatos, cuerpo inicial, idioma y red en la muestra. Estados esperados: 128×200, 14×308, 9×404, 2×301, además de tres verificaciones de compresión. Los 404 incluyen rutas inexistentes/artefactos privados comprobados por HEAD; no se descargaron bases de datos o secretos. Las cifras de artículos pueden crecer por la publicación existente, no por escrituras de este trabajo.
+
+[Último PSI móvil](https://pagespeed.web.dev/analysis/https-robles-ai/0tzqz8yaf6?form_factor=mobile), **18 octubre 17:24 PDT**: Performance **54**, Accessibility **100**, Best Practices **96**, SEO **100**; FCP **2,6 s**, LCP **9,1 s**, TBT **560 ms**, CLS **0,002**, Speed Index **4,8 s**. Lighthouse 13.5.0, Moto G Power emulado, Slow 4G, navegación inicial. CrUX sigue **No Data**. LCP sigue siendo el H1 con retraso de render de 2.510 ms en el desglose sin throttling. Los scores/valores son de una ejecución; no se confunden con CWV de campo ni garantía de ranking.
+
+### Pendientes abiertos, sin ocultarlos bajo scores automáticos
+
+- **PERF-LCP-OPEN — HIGH / P1, rendimiento:** LCP móvil de laboratorio repetidamente alto (7,2–9,3 s en releases recientes), incluso después de SSR. Afecta `/` EN/ES como tipo de página; las cifras PSI publicadas corresponden a la URL EN por defecto. Archivos relacionados: `src/App.tsx`, `src/pages/Home.tsx`, `src/components/Hero.tsx`, `src/i18n/index.ts`, `src/lib/analytics.ts`, componentes motion y contenedor GTM externo. La contribución individual al LCP aún no está probada. **Solución siguiente:** perfilado controlado con trazas y comparativas con/sin componentes/etiquetas en una copia aislada, conservando datos/eventos en producción; no seguir acumulando parches especulativos. Complejidad media. Validación: mediana de >=3 mediciones iguales, conservar todas, separar FCP/LCP/TBT/CLS y validar funcionamiento/negocio. La muestra de campo se verifica por separado. No atribuir todo a GTM ni afirmar que el bundle reducido resolvió el problema.
+- **MEASURE-01 — acceso externo:** propietario abre cuenta con propiedad de GSC/Bing o entrega exportaciones de Indexing/URL Inspection/Search Analytics. Posición media depende de consulta, país, dispositivo y fecha; no es un ranking fijo. No modificar verificaciones/permisos sin su intervención.
+- **MEASURE-02 — campo:** esperar muestra CrUX o usar RUM autorizado dentro de la medición existente; no fabricar históricos, no recopilar contenido de formularios/chat, queries o rutas privadas, y no añadir otro proveedor. Plan de RUM exacto en el documento de implementación.
+- **PERF-TAGS — decisión externa:** revisar con propietario del contenedor el coste/propósito/triggers/consentimiento de GA4/Meta/CAPI y establecer baseline de conversiones antes de retirar o diferir etiquetas. No se cambió configuración externa.
+- **OPS-01 — HIGH / P1:** autorizar diseño de releases aislados, health check, cambio de versión y rollback para no detener servicio durante build. No se modificó VPS, proxy, PM2 o CI/CD como parte de estas correcciones.
+
+El trabajo no permite afirmar que ya no existe ninguna observación. Se cierran los defectos de renderizado/discoverability/responsive/enlaces/controles que tienen evidencia y se dejan abiertos explícitamente los anteriores. Los 13 errores TS previos continúan como deuda separada, con firmas comparadas; no fueron introducidos ni resueltos por estos lotes.
