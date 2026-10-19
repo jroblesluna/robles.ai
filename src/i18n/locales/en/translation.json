@@ -2410,6 +2410,17 @@
         "langchainShort": "LangChain"
     },
     "demosCatalog": {
+        "documentPreview": {
+            "invoice": "Invoice",
+            "total": "Total"
+        },
+        "catalogPreview": {
+            "label": "Explore by use case",
+            "documents": "Documents and RAG",
+            "vision": "Computer vision",
+            "voice": "Voice and agents",
+            "description": "Find your use case, compare demos and try their outputs."
+        },
         "previewNotice": "Sample data",
         "eyebrow": "Interactive Playground",
         "title": "AI Demos Playground",

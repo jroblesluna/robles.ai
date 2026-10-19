@@ -2410,6 +2410,17 @@
         "langchainShort": "LangChain"
     },
     "demosCatalog": {
+        "documentPreview": {
+            "invoice": "Factura",
+            "total": "Total"
+        },
+        "catalogPreview": {
+            "label": "Explora por caso de uso",
+            "documents": "Documentos y RAG",
+            "vision": "Visión por computadora",
+            "voice": "Voz y agentes",
+            "description": "Encuentra tu caso de uso, compara las demos y prueba sus resultados."
+        },
         "previewNotice": "Datos de ejemplo",
         "eyebrow": "Laboratorio Interactivo",
         "title": "Laboratorio de Demos de IA",
