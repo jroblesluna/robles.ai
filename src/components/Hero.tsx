@@ -36,23 +36,22 @@ export default function Hero() {
               <a href="#features" className={`inline-flex min-h-11 items-center text-sm text-slate-300 underline decoration-slate-500 underline-offset-4 hover:text-white ${focus}`}>{t('hero.cta1')}</a>
               <Link href={staticPagePath('/blog', lang)} className={`inline-flex min-h-11 items-center text-sm text-slate-300 underline decoration-slate-500 underline-offset-4 hover:text-white ${focus}`}>{t('hero.cta2')}</Link>
             </div>
-            <p className="mt-6 max-w-[54ch] border-t border-slate-800 pt-5 text-sm leading-6 text-slate-400">{t('hero.capabilities')}</p>
+            <p className="mt-6 max-w-[54ch] border-t border-slate-800 pt-5 text-sm leading-6 text-slate-400"><span className="font-medium text-slate-300">{t('hero.capabilitiesLabel')}: </span>{t('hero.capabilities')}</p>
           </div>
           <aside aria-labelledby="hero-architecture-title" className="min-w-0 rounded-2xl border border-slate-700 bg-slate-900 p-5 sm:p-7">
             <p className="text-xs font-medium uppercase tracking-widest text-blue-300">{t('hero.architecture.label')}</p>
             <h2 id="hero-architecture-title" className="mt-3 text-xl font-semibold tracking-tight sm:text-2xl">{t('hero.architecture.title')}</h2>
             <p className="mt-3 text-sm leading-6 text-slate-400">{t('hero.architecture.description')}</p>
-            <ol className="mt-6 space-y-4">
-              {stages.map(({ key, icon: Icon }, index) => (
+            <ul className="mt-6 space-y-4">
+              {stages.map(({ key, icon: Icon }) => (
                 <li key={key} className="flex gap-4 rounded-xl border border-slate-700 bg-slate-950 p-4">
-                  <span aria-hidden="true" className="pt-0.5 font-mono text-xs text-blue-300">0{index + 1}</span>
                   <div className="min-w-0 flex-1">
                     <h3 className="flex items-center gap-2 text-sm font-semibold"><Icon aria-hidden="true" className="h-4 w-4 shrink-0 text-blue-300" />{t(`hero.architecture.${key}.title`)}</h3>
                     <p className="mt-2 text-sm leading-6 text-slate-300">{t(`hero.architecture.${key}.description`)}</p>
                   </div>
                 </li>
               ))}
-            </ol>
+            </ul>
             <Link href={staticPagePath('/diagnostico-ia', lang)} className={`mt-6 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-blue-300 underline underline-offset-4 hover:text-white ${focus}`}>
               {t('hero.diagnosisCta')}<ArrowRight aria-hidden="true" className="h-4 w-4 shrink-0" />
             </Link>

@@ -104,6 +104,7 @@
         "cta3": "Planificar mi proyecto de IA",
         "demosCta": "Explorar demos técnicas",
         "diagnosisCta": "Evaluar oportunidades de IA",
+        "capabilitiesLabel": "Capacidades principales",
         "capabilities": "RAG y agentes · Visión e IA documental · Integración empresarial",
         "architecture": {
             "label": "Arquitectura de referencia",
@@ -124,6 +125,7 @@
         }
     },
     "caseStudies": {
+        "close": "Cerrar caso de estudio",
         "title": "Lo que la IA puede lograr en tu industria",
         "subtitle": "Casos representativos de cómo aplicamos IA a problemas reales: el reto, la solución y las métricas que mueve.",
         "items": [
@@ -234,6 +236,7 @@
         "ctaButton": "Hacer el diagnóstico gratis"
     },
     "solutions": {
+        "backToPreview": "Volver a la ilustración",
         "startPreview": "Iniciar vista previa automática",
         "stopPreview": "Detener vista previa automática",
         "eyebrow": "Qué hacemos",
@@ -2410,6 +2413,8 @@
         "langchainShort": "LangChain"
     },
     "demosCatalog": {
+        "watchPreview": "Ver clip ilustrativo · 10 s",
+        "previewDescription": "Flujo ilustrativo de extracción documental. Datos de ejemplo; la duración del clip no indica el tiempo de procesamiento.",
         "documentPreview": {
             "invoice": "Factura",
             "total": "Total"

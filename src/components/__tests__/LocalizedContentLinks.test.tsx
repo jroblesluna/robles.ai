@@ -1,5 +1,5 @@
 import React from 'react';
-import { afterEach, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import en from '@/i18n/locales/en/translation.json';
 import es from '@/i18n/locales/es/translation.json';
@@ -38,6 +38,10 @@ vi.mock('framer-motion', async () => {
       return tags.get(tag);
     } }),
   };
+});
+beforeEach(() => {
+  vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+  vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
 });
 afterEach(() => { cleanup(); locale.reduced = true; vi.useRealTimers(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 it.each(['en', 'es'] as const)('preserves %s across the enterprise Hero and landing diagnosis CTA', language => {
@@ -155,4 +159,86 @@ it('keeps a case selected during reading and supports explicit industry selectio
   expect(buttons[1]).toHaveAttribute('aria-pressed', 'true');
   act(() => { vi.advanceTimersByTime(20000); });
   expect(buttons[1]).toHaveAttribute('aria-pressed', 'true');
+});
+
+it('advances an explicitly started preview even while the pointer is inside the section, and stops on manual selection', () => {
+  locale.language = 'en'; locale.reduced = false; vi.useFakeTimers();
+  const { container } = render(<Solutions />);
+  const group = screen.getByRole('group', { name: en.solutions.title });
+  const options = within(group).getAllByRole('button', { pressed: false });
+  fireEvent.mouseEnter(container.querySelector('#solutions')!);
+  fireEvent.click(screen.getByRole('button', { name: en.solutions.startPreview }));
+  act(() => { vi.advanceTimersByTime(7000); });
+  expect(options[0]).toHaveAttribute('aria-pressed', 'true');
+  fireEvent.click(options[1]);
+  act(() => { vi.advanceTimersByTime(21000); });
+  expect(options[1]).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByRole('button', { name: en.solutions.startPreview })).toHaveAttribute('aria-pressed', 'false');
+});
+
+it('loads only the requested solution video inline and removes it when selecting another solution', () => {
+  locale.language = 'en';
+  const { container } = render(<Solutions />);
+  expect(container.querySelector('iframe')).toBeNull();
+  fireEvent.click(screen.getAllByRole('button', { name: en.solutions.items[0].solutionCta })[0]);
+  expect(container.querySelectorAll('iframe')).toHaveLength(1);
+  expect(container.querySelector('iframe')).toHaveAttribute('title', en.solutions.items[0].title);
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  const group = screen.getByRole('group', { name: en.solutions.title });
+  fireEvent.click(within(group).getByRole('button', { name: /Computer Vision Systems/ }));
+  expect(container.querySelector('iframe')).toBeNull();
+});
+
+it('respects reduced motion for automatic solution rotation', () => {
+  locale.language = 'en'; locale.reduced = true;
+  render(<Solutions />);
+  expect(screen.getByRole('button', { name: en.solutions.startPreview })).toBeDisabled();
+});
+
+it('decodes case headings and metadata once, keeps escaped markup inert and restores document styles and focus', async () => {
+  locale.language = 'en';
+  vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+  document.documentElement.style.overflow = 'auto'; document.body.style.overflow = 'clip';
+  vi.stubGlobal('fetch', vi.fn(async () => ({ json: async () => ({ 'smart-city': { en: '<h2>Data &amp; systems</h2><p class="meta">Client: Research &amp; Development | Duration: Example<br/>Technologies: Python</p><h3>Results &amp; Impact</h3><p>&lt;script&gt;example&lt;/script&gt;</p><h3>Literal &amp;amp;</h3><p>Fixture</p>' } }) })));
+  render(<CaseStudies />);
+  const opener = screen.getByRole('button', { name: en.caseStudies.readMore });
+  opener.focus(); fireEvent.click(opener);
+  const dialog = screen.getByRole('dialog');
+  await within(dialog).findByRole('heading', { name: 'Results & Impact' });
+  expect(within(dialog).getByRole('heading', { name: 'Data & systems' })).toBeInTheDocument();
+  expect(within(dialog).getByRole('heading', { name: 'Literal &amp;' })).toBeInTheDocument();
+  expect(within(dialog).getByText('Research & Development')).toBeInTheDocument();
+  expect(dialog.querySelector('script')).toBeNull();
+  expect(dialog.querySelector('[data-case-scroll]')).toHaveClass('overscroll-contain', 'min-h-0');
+  expect(document.body.style.position).toBe('fixed');
+  expect(document.documentElement.style.overflow).toBe('hidden');
+  fireEvent.keyDown(document, { key: 'Escape' });
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  expect(document.documentElement.style.overflow).toBe('auto');
+  expect(document.body.style.overflow).toBe('clip');
+  expect(opener).toHaveFocus();
+  document.documentElement.style.overflow = ''; document.body.style.overflow = '';
+});
+
+it.each(['en', 'es'] as const)('uses the same localized posters on home and lab and loads a %s clip only on request', async language => {
+  locale.language = language;
+  vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+  const copy = language === 'es' ? es : en;
+  const home = render(<DemosCatalog limit={8} />);
+  const posters = Array.from(home.container.querySelectorAll('img')).map(img => img.getAttribute('src'));
+  expect(posters).toHaveLength(8);
+  expect(document.querySelector('video, source')).toBeNull();
+  const trigger = screen.getByRole('button', { name: copy.demosCatalog.watchPreview });
+  trigger.focus(); fireEvent.click(trigger);
+  const dialog = screen.getByRole('dialog');
+  expect(dialog.querySelector('video')).toHaveAttribute('preload', 'none');
+  expect(dialog.querySelector('source')).toHaveAttribute('src', `/demo-previews/invoice-preview-${language}.mp4`);
+  expect(dialog.querySelector('a button')).toBeNull();
+  fireEvent.click(within(dialog).getByRole('button', { name: copy.videoModal.close }));
+  expect(trigger).toHaveFocus();
+  expect(document.querySelector('video')).toBeNull();
+  home.unmount();
+  const lab = render(<DemosCatalog />);
+  const labPosters = Array.from(lab.container.querySelectorAll('img')).map(img => img.getAttribute('src'));
+  posters.forEach(poster => expect(labPosters).toContain(poster));
 });

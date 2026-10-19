@@ -1,3 +1,4 @@
+import { usePublicDialog } from "@/hooks/usePublicDialog";
 import { useEffect, useRef, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
@@ -136,6 +137,11 @@ interface CaseStudy {
   metrics: Metric[];
 }
 
+/** Decode text nodes once, without turning escaped content into live HTML. */
+function plainText(html: string) {
+  return new DOMParser().parseFromString(html, 'text/html').body.textContent ?? '';
+}
+
 /** Pulls "Client: X | Duration: Y<br/>Technologies: Z" apart without assuming
  *  a language — it just splits on the punctuation the content always uses,
  *  so it works for both the English and Spanish copy. */
@@ -148,7 +154,7 @@ function parseMeta(metaHtml: string) {
     if (!part) return null;
     const idx = part.indexOf(":");
     if (idx === -1) return null;
-    return { label: part.slice(0, idx).trim(), value: part.slice(idx + 1).trim() };
+    return { label: plainText(part.slice(0, idx)).trim(), value: plainText(part.slice(idx + 1)).trim() };
   };
 
   const client = splitLabel(clientPart);
@@ -170,6 +176,7 @@ const CaseStudyViewer = ({ study, onClose }: CaseStudyViewerProps) => {
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState(0);
 
+  const dialogRef = usePublicDialog(onClose);
   const contentRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -189,18 +196,6 @@ const CaseStudyViewer = ({ study, onClose }: CaseStudyViewerProps) => {
       .catch(() => setLoading(false));
   }, [slug, langCode]);
 
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [onClose]);
-
   // Parse HTML content into sections based on h3 headings
   const parsedContent = useMemo(() => {
     if (!htmlContent) return null;
@@ -209,7 +204,7 @@ const CaseStudyViewer = ({ study, onClose }: CaseStudyViewerProps) => {
     const metaMatch = htmlContent.match(/<p class="meta">[\s\S]*?<\/p>/);
     const disclaimerMatch = htmlContent.match(/<p class="disclaimer">[\s\S]*?<\/p>/);
 
-    const title = h2Match ? h2Match[0].replace(/<\/?h2>/g, "") : study.title;
+    const title = h2Match ? plainText(h2Match[0]) : study.title;
     const meta = metaMatch ? parseMeta(metaMatch[0]) : { client: null, duration: null, technologies: [] };
     const disclaimer = disclaimerMatch?.[0] || "";
 
@@ -224,7 +219,7 @@ const CaseStudyViewer = ({ study, onClose }: CaseStudyViewerProps) => {
     const h3Positions: { index: number; heading: string; fullMatch: string }[] = [];
 
     while ((match = h3Regex.exec(body)) !== null) {
-      h3Positions.push({ index: match.index, heading: match[1], fullMatch: match[0] });
+      h3Positions.push({ index: match.index, heading: plainText(match[1]), fullMatch: match[0] });
     }
 
     for (let i = 0; i < h3Positions.length; i++) {
@@ -253,7 +248,11 @@ const CaseStudyViewer = ({ study, onClose }: CaseStudyViewerProps) => {
   };
 
   const scrollToSection = (i: number) => {
-    sectionRefs.current[i]?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const container = contentRef.current, section = sectionRefs.current[i];
+    if (container && section) container.scrollTo({
+      top: container.scrollTop + section.getBoundingClientRect().top - container.getBoundingClientRect().top - 24,
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+    });
   };
 
   return (
@@ -266,6 +265,7 @@ const CaseStudyViewer = ({ study, onClose }: CaseStudyViewerProps) => {
         exit={{ opacity: 0 }}
       >
         <motion.div
+          ref={dialogRef} role="dialog" aria-modal="true" aria-label={study.title} tabIndex={-1}
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.9 }}
@@ -280,15 +280,15 @@ const CaseStudyViewer = ({ study, onClose }: CaseStudyViewerProps) => {
             </span>
             <button
               onClick={onClose}
-              className="ml-auto flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
-              aria-label="Close"
+              className="ml-auto flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+              aria-label={t("caseStudies.close")}
             >
               ✕
             </button>
           </div>
 
           {/* Content */}
-          <div ref={contentRef} onScroll={handleScroll} className="flex-1 overflow-y-auto">
+          <div ref={contentRef} onScroll={handleScroll} data-case-scroll className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain">
             {loading ? (
               <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600" />
