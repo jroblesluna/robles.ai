@@ -555,3 +555,15 @@ Esfuerzo: medio día incluyendo navegador y despliegue. Flujo autorizado: rama, 
 - **POST-10-INITIAL / P1:** modificar `src/components/Hero.tsx`: sección y marco nativos, primera diapositiva sin entrada motion; conservar controles, idiomas, grid responsive y transiciones posteriores. Dependencia: POST-07 SSR; sin paquetes nuevos. Riesgo: diferencias visuales/animación al volver al primer slide. Validar hidratación EN/ES, 115 pruebas de regresión del lote, build y navegador de producción; comparar PSI sin prometer causalidad. Esfuerzo: 2–4 h incluyendo release y medición.
 - **OPS-01 / P2 / autorización de infraestructura pendiente:** archivos a revisar, no modificar en este ciclo: `.github/workflows/deploy.yml`, `pull.sh`, configuración de proxy/proceso del VPS fuera del repositorio. Diseñar despliegue con health check y rollback sin detener la revisión activa. Dependencias: arquitectura/capacidad del VPS y autorización explícita; riesgo de indisponibilidad. Validación: ensayo fuera de producción y sondeo de disponibilidad durante cambio; resultado esperado: evitar 502 durante reinicios.
 - **CACHE-LEGACY / P2 / seguimiento operativo:** no hay cambio adicional de código propuesto. Comprobar HTML fresco y recomendar recarga forzada sólo a sesiones que conservaron el HTML antiguo. No confundir una copia antigua del navegador con el resultado HTTP servido actualmente.
+
+
+## Lote POST-11 — contraste y carga inicial
+
+| ID / prioridad | Archivos | Implementación / dependencias | Riesgo / validación / resultado |
+| --- | --- | --- | --- |
+| POST-11-CONTRAST / P1 | `src/components/Hero.tsx` | Fondos blue/emerald/teal 700 en los dos CTA con texto blanco. | Baja: misma ruta/texto; comprobar estilos computados y >=4,5:1; EN/ES y móvil. |
+| POST-11-PAINT / P1 | `src/index.css` | Gradiente estático sin background-position animado. | Baja: cambia sólo decoración; conservar legibilidad/layout; nueva medición lab sin garantizar campo. |
+| POST-11-SPLIT / P2 | `src/App.tsx` | `lazy` del BlogRoute bajo Suspense existente. Sin framework o paquete nuevo. | Mantener componente de ruta único para no desmontar modal/lista. Tests de links/modal/routing, SSR/hidratación, deep link y regreso, comparar chunks y navegador. |
+| PERF-TAGS / P1 / aprobación de medición | `src/lib/analytics.ts` y contenedor GTM externo (sin cambio aquí) | Inventario de etiquetas/propósito/consentimiento y triggers; revisar duplicación sólo con prueba y validación de leads. Dependencia: acceso al contenedor y propietario de marketing/medición. | Alterar la carga puede perder eventos; no desactivar ni diferir indiscriminadamente. Baseline/reporte antes/después, consentimiento y regresión de conversiones. Esfuerzo 1–2 jornadas después de acceso/aprobación. |
+
+POST-11: medio día incluyendo pruebas/publicación. OPS-01 se prioriza HIGH/P1: compilar **antes** de detener cualquier servicio, con releases aislados y rollback; `pm2 stop all` previo al build se confirma en `pull.sh`. No modificar ese flujo ni configuración del VPS sin autorización explícita de infraestructura.

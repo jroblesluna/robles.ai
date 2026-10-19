@@ -91,13 +91,13 @@ const Hero = () => {
             </a>
             <Link
               href={staticPagePath("/blog", lang)}
-              className="px-4 py-2 bg-blue-500 text-white font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-white/20"
+              className="px-4 py-2 bg-blue-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-white/20"
             >
               {t("hero.cta2")}
             </Link>
             <Link
               href={staticPagePath("/get-started", lang)}
-              className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+              className="px-4 py-2 bg-gradient-to-r from-emerald-700 to-teal-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
             >
               {t("hero.cta3")}
             </Link>
