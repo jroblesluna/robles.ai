@@ -13,4 +13,4 @@ export const PUBLIC_CONTACT = {
 };
 
 /** The same first hero image is discoverable in initial HTML and reused by React. */
-export const HOME_HERO_IMAGE = '/robly-avatar/robly-hero-static.svg';
+export const HOME_HERO_IMAGE = '/robly-avatar/robly-hero.webp';

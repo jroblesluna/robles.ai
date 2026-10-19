@@ -501,7 +501,7 @@ function CasePanel({ study, onOpen }: { study: CaseStudy; onOpen: () => void }) 
   const CategoryIcon = CASE_ICONS[study.id];
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
@@ -578,17 +578,7 @@ const CaseStudies = () => {
   const [viewerStudy, setViewerStudy] = useState<CaseStudy | null>(null);
   const current = studies[active] ?? studies[0];
 
-  // Auto-advance to the next case every 5s, matching the loading bar under
-  // each tab. Runs continuously — an earlier pause-on-hover made the bar
-  // stop every time the cursor rested anywhere over the section, which read
-  // as it "getting stuck" rather than as an intentional pause.
-  const CASE_DURATION = 5000;
-
-  useEffect(() => {
-    if (studies.length <= 1) return;
-    const id = setTimeout(() => setActive((i) => (i + 1) % studies.length), CASE_DURATION);
-    return () => clearTimeout(id);
-  }, [active, studies.length]);
+  // Keep the selected case stable while visitors read or use its controls.
 
   return (
     <section id="case-studies" className="scroll-mt-10 bg-gray-50 py-16 md:py-20">
@@ -638,19 +628,7 @@ const CaseStudies = () => {
                     <span className={`h-2 w-2 shrink-0 rounded-full ${selected ? accent.dot : "bg-gray-300"}`} />
                     <span className="whitespace-nowrap lg:flex-1">{s.category}</span>
                     {Icon && <Icon className={`hidden h-4 w-4 shrink-0 lg:block ${selected ? accent.value : "text-gray-300"}`} />}
-                    {/* Loading bar: fills over 5s while this case is showing, then the panel rotates.
-                        The ring above is `ring-inset` so its edge lines up with the border box —
-                        otherwise the default outer ring sits 1px past it and the bar reads as floating. */}
-                    <span className="absolute inset-x-0 bottom-0 h-[3px] bg-gray-100">
-                      {selected && (
-                        <span
-                          key={active}
-                          className={`block h-full origin-left rounded-full opacity-80 ${accent.bar} ${
-                            studies.length > 1 ? "animate-case-bar" : ""
-                          }`}
-                        />
-                      )}
-                    </span>
+                    {selected && <span aria-hidden="true" className={`absolute inset-x-0 bottom-0 h-[3px] ${accent.bar}`} />}
                   </button>
                 );
               })}

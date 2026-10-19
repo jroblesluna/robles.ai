@@ -25,7 +25,7 @@ describe('public response content', () => {
     expect($('#case-studies').text()).toContain(en.caseStudies.footnote);
     expect($('#about').text()).toContain('Antonio Robles');
     expect($('#about').text()).not.toContain('Sophia Martinez');
-    expect($('main > img').attr('src')).toBe('/robly-avatar/robly-hero-static.svg');
+    expect($('main > img').attr('src')).toBe('/robly-avatar/robly-hero.webp');
     expect($('main > img').attr('fetchpriority')).toBe('high');
     expect($('main > img').attr('width')).toBe('224');
   });

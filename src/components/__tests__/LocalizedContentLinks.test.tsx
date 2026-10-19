@@ -149,3 +149,18 @@ it('keeps the main pitch stable until rotation is requested and stops it for rea
   fireEvent.click(screen.getByRole('button', { name: 'Slide 1' }));
   expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(en.hero.title);
 });
+
+
+it('keeps a case selected during reading and supports explicit industry selection', () => {
+  locale.language = 'en'; vi.useFakeTimers();
+  render(<CaseStudies />);
+  const group = screen.getByRole('group', { name: en.caseStudies.eyebrow });
+  const buttons = within(group).getAllByRole('button');
+  expect(buttons[0]).toHaveAttribute('aria-pressed', 'true');
+  act(() => { vi.advanceTimersByTime(20000); });
+  expect(buttons[0]).toHaveAttribute('aria-pressed', 'true');
+  fireEvent.click(buttons[1]);
+  expect(buttons[1]).toHaveAttribute('aria-pressed', 'true');
+  act(() => { vi.advanceTimersByTime(20000); });
+  expect(buttons[1]).toHaveAttribute('aria-pressed', 'true');
+});
