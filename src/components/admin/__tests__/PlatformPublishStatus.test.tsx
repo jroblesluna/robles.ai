@@ -42,6 +42,7 @@ function createTestQueryClient(options?: {
       queries: {
         retry: false,
         gcTime: Infinity,
+        staleTime: Infinity,
       },
     },
   });
@@ -151,7 +152,7 @@ describe('PlatformPublishStatus', () => {
   });
 
   describe('published state', () => {
-    it('renders "Published" badge and "Done" indicator with timestamp', () => {
+    it('renders "Published" badge and republish action with timestamp', () => {
       const publishedAt = '2025-01-15T10:30:00Z';
       const queryClient = createTestQueryClient({
         statuses: [
@@ -166,8 +167,8 @@ describe('PlatformPublishStatus', () => {
       // Should show "Published" badge
       expect(screen.getByText('Published')).toBeInTheDocument();
 
-      // Should show "Done" indicator
-      expect(screen.getByText('Done')).toBeInTheDocument();
+      // Published content can be explicitly reset for a later republish.
+      expect(screen.getByRole('button', { name: 'Republish' })).toBeInTheDocument();
 
       // Should show timestamp
       const formattedDate = new Date(publishedAt).toLocaleString();

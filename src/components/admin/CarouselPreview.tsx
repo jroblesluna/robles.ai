@@ -1,3 +1,4 @@
+import { useAdminDialog } from '@/hooks/useAdminDialog';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, RefreshCw, Sparkles, X, Download, Pencil, ChevronLeft, ChevronRight } from "lucide-react";
@@ -63,6 +64,7 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [enlargedSlide, setEnlargedSlide] = useState<CarouselSlide | null>(null);
+  const enlargedDialog = useAdminDialog(!!enlargedSlide, () => setEnlargedSlide(null));
   const [selectedPalette, setSelectedPalette] = useState<string>("tech-blue");
   const [selectedStyle, setSelectedStyle] = useState<string>("flat-vector");
   const [regenSlide, setRegenSlide] = useState<CarouselSlide | null>(null);
@@ -358,6 +360,8 @@ export default function CarouselPreview({ reportId, onEditSlide }: CarouselPrevi
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
           onClick={() => setEnlargedSlide(null)}
+          ref={enlargedDialog}
+          tabIndex={-1}
           role="dialog"
           aria-modal="true"
           aria-label="Enlarged slide view"

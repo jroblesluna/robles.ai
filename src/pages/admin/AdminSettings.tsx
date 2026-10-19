@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,6 +47,8 @@ const TIMEZONES: string[] = [
 export default function AdminSettings() {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [metaLoadFailed, setMetaLoadFailed] = useState(false);
   const [saving, setSaving] = useState(false);
 
   // Meta credentials state
@@ -88,6 +90,7 @@ export default function AdminSettings() {
         const data = await res.json();
         setSettings(data);
       } catch {
+        setLoadFailed(true);
         toast({
           title: "Error",
           description: "Failed to load settings.",
@@ -110,7 +113,7 @@ export default function AdminSettings() {
         const data = await res.json();
         setMetaStatus(data);
       } catch {
-        // Silently fail — status indicators just won't show
+        setMetaLoadFailed(true);
       }
     };
 
@@ -127,10 +130,12 @@ export default function AdminSettings() {
       const res = await fetch("/api/admin/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(settings),
+        body: JSON.stringify(Object.fromEntries(Object.entries(settings).filter(([, value]) => !value?.includes("••••")))),
       });
 
       if (!res.ok) throw new Error("Failed to save settings");
+      const refreshed = await fetch("/api/admin/settings");
+      if (refreshed.ok) setSettings(await refreshed.json());
 
       toast({
         title: "Settings saved",
@@ -182,6 +187,9 @@ export default function AdminSettings() {
         title: "Meta credentials saved",
         description: "Your Meta credentials have been updated successfully.",
       });
+
+      const refreshedSettings = await fetch("/api/admin/settings");
+      if (refreshedSettings.ok) setSettings(await refreshedSettings.json());
 
       // Refresh status
       const statusRes = await fetch("/api/admin/settings/meta");
@@ -267,6 +275,7 @@ export default function AdminSettings() {
         </p>
       </div>
 
+      {loadFailed && <p role="alert" className="rounded-md border border-red-200 p-4 text-sm text-red-700">Settings could not be loaded. Reload before editing; saving is disabled to protect existing values.</p>}
       {/* LinkedIn Integration */}
       <Card>
         <CardHeader>
@@ -302,10 +311,11 @@ export default function AdminSettings() {
                 updateSetting("linkedin_client_secret", e.target.value)
               }
             />
+            {settings.linkedin_client_secret && <p className="break-words text-xs text-muted-foreground">Saved: {credentialPreview(settings.linkedin_client_secret)}. Enter a new value only to replace it.</p>}
           </div>
 
           {linkedinConnected ? (
-            <div className="flex items-center justify-between gap-2 rounded-md bg-green-50 p-3 text-sm text-green-700 dark:bg-green-950 dark:text-green-300">
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-green-50 p-3 text-sm text-green-700 dark:bg-green-950 dark:text-green-300">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4" />
                 <span>
@@ -340,6 +350,7 @@ export default function AdminSettings() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          {metaLoadFailed && <p role="alert" className="text-sm text-red-700">Credential status could not be verified. Reload before replacing credentials.</p>}
           {/* Status indicators */}
           <div className="flex flex-wrap gap-3">
             {[
@@ -377,7 +388,7 @@ export default function AdminSettings() {
                 <Input
                   id="meta_app_id"
                   type="text"
-                  placeholder={metaStatus.meta_app_id ? "Currently configured — paste new value to replace" : "Enter Meta App ID"}
+                  placeholder={metaStatus.meta_app_id ? `${credentialPreview(settings.meta_app_id)} — saved; paste to replace` : "Enter Meta App ID"}
                   value={metaCredentials.meta_app_id}
                   onChange={(e) => updateMetaCredential("meta_app_id", e.target.value)}
                 />
@@ -389,8 +400,8 @@ export default function AdminSettings() {
                 <Label htmlFor="meta_app_secret">App Secret</Label>
                 <Input
                   id="meta_app_secret"
-                  type="text"
-                  placeholder={metaStatus.meta_app_secret ? "Currently configured — paste new value to replace" : "Enter App Secret"}
+                  type="password"
+                  placeholder={metaStatus.meta_app_secret ? `${credentialPreview(settings.meta_app_secret)} — saved; paste to replace` : "Enter App Secret"}
                   value={metaCredentials.meta_app_secret}
                   onChange={(e) => updateMetaCredential("meta_app_secret", e.target.value)}
                   className="font-mono text-xs"
@@ -411,7 +422,7 @@ export default function AdminSettings() {
                 <Input
                   id="instagram_business_account_id"
                   type="text"
-                  placeholder={metaStatus.instagram_business_account_id ? "Currently configured — paste new value to replace" : "Enter Business Account ID"}
+                  placeholder={metaStatus.instagram_business_account_id ? `${credentialPreview(settings.instagram_business_account_id)} — saved; paste to replace` : "Enter Business Account ID"}
                   value={metaCredentials.instagram_business_account_id}
                   onChange={(e) => updateMetaCredential("instagram_business_account_id", e.target.value)}
                 />
@@ -423,8 +434,8 @@ export default function AdminSettings() {
                 <Label htmlFor="instagram_access_token">Access Token</Label>
                 <Input
                   id="instagram_access_token"
-                  type="text"
-                  placeholder={metaStatus.instagram_access_token ? "Currently configured — paste new value to replace" : "Enter Access Token"}
+                  type="password"
+                  placeholder={metaStatus.instagram_access_token ? `${credentialPreview(settings.instagram_access_token)} — saved; paste to replace` : "Enter Access Token"}
                   value={metaCredentials.instagram_access_token}
                   onChange={(e) => updateMetaCredential("instagram_access_token", e.target.value)}
                   className="font-mono text-xs"
@@ -445,7 +456,7 @@ export default function AdminSettings() {
                 <Input
                   id="facebook_page_id"
                   type="text"
-                  placeholder={metaStatus.facebook_page_id ? "Currently configured — paste new value to replace" : "Enter Page ID"}
+                  placeholder={metaStatus.facebook_page_id ? `${credentialPreview(settings.facebook_page_id)} — saved; paste to replace` : "Enter Page ID"}
                   value={metaCredentials.facebook_page_id}
                   onChange={(e) => updateMetaCredential("facebook_page_id", e.target.value)}
                 />
@@ -457,8 +468,8 @@ export default function AdminSettings() {
                 <Label htmlFor="facebook_page_access_token">Page Access Token</Label>
                 <Input
                   id="facebook_page_access_token"
-                  type="text"
-                  placeholder={metaStatus.facebook_page_access_token ? "Currently configured — paste new value to replace" : "Enter Page Access Token"}
+                  type="password"
+                  placeholder={metaStatus.facebook_page_access_token ? `${credentialPreview(settings.facebook_page_access_token)} — saved; paste to replace` : "Enter Page Access Token"}
                   value={metaCredentials.facebook_page_access_token}
                   onChange={(e) => updateMetaCredential("facebook_page_access_token", e.target.value)}
                   className="font-mono text-xs"
@@ -497,8 +508,8 @@ export default function AdminSettings() {
           )}
 
           {/* Action Buttons */}
-          <div className="flex gap-3">
-            <Button onClick={handleSaveMetaCredentials} disabled={metaSaving} variant="default">
+          <div className="flex flex-wrap gap-3">
+            <Button onClick={handleSaveMetaCredentials} disabled={metaSaving || loadFailed || metaLoadFailed} variant="default">
               {metaSaving ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
@@ -616,6 +627,7 @@ export default function AdminSettings() {
               value={settings.openai_api_key || ""}
               onChange={(e) => updateSetting("openai_api_key", e.target.value)}
             />
+            {settings.openai_api_key && <p className="break-words text-xs text-muted-foreground">Saved: {credentialPreview(settings.openai_api_key)}. Enter a new value only to replace it.</p>}
           </div>
         </CardContent>
       </Card>
@@ -655,6 +667,7 @@ export default function AdminSettings() {
                   updateSetting("stability_api_key", e.target.value)
                 }
               />
+            {settings.stability_api_key && <p className="break-words text-xs text-muted-foreground">Saved: {credentialPreview(settings.stability_api_key)}. Enter a new value only to replace it.</p>}
             </div>
           )}
 
@@ -672,6 +685,7 @@ export default function AdminSettings() {
                   updateSetting("replicate_api_token", e.target.value)
                 }
               />
+            {settings.replicate_api_token && <p className="break-words text-xs text-muted-foreground">Saved: {credentialPreview(settings.replicate_api_token)}. Enter a new value only to replace it.</p>}
             </div>
           )}
         </CardContent>
@@ -776,7 +790,7 @@ export default function AdminSettings() {
 
       {/* Save Button */}
       <div className="flex justify-end">
-        <Button onClick={handleSave} disabled={saving} size="lg">
+        <Button onClick={handleSave} disabled={saving || loadFailed} size="lg">
           {saving ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
@@ -789,7 +803,13 @@ export default function AdminSettings() {
   );
 }
 
+function credentialPreview(value?: string) {
+  if (!value) return "••••••••";
+  return value.includes("••••") ? value : "••••••••" + (value.length > 4 ? value.slice(-4) : "");
+}
+
 function Ga4ServiceAccountUpload() {
+  const fileInput = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<"unknown" | "configured" | "not_configured">("unknown");
   const [uploading, setUploading] = useState(false);
 
@@ -825,16 +845,12 @@ function Ga4ServiceAccountUpload() {
   };
 
   return (
-    <div className="flex items-center gap-3">
-      <label className="cursor-pointer">
-        <input type="file" accept=".json" className="hidden" onChange={handleUpload} disabled={uploading} />
-        <Button variant="outline" size="sm" asChild disabled={uploading}>
-          <span>{uploading ? "Uploading..." : "Upload JSON"}</span>
-        </Button>
-      </label>
+    <div className="flex flex-wrap items-center gap-3">
+      <input ref={fileInput} aria-label="GA4 service account JSON" type="file" accept=".json" className="hidden" onChange={handleUpload} disabled={uploading} />
+      <Button variant="outline" size="sm" onClick={() => fileInput.current?.click()} disabled={uploading}>{uploading ? "Uploading..." : "Upload JSON"}</Button>
       {status === "configured" && (
         <span className="flex items-center gap-1 text-sm text-green-600">
-          <CheckCircle2 className="h-4 w-4" /> Configured
+          <CheckCircle2 className="h-4 w-4" /> •••••••• · Configured
         </span>
       )}
       {status === "not_configured" && (

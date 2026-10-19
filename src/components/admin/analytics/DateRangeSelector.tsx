@@ -65,17 +65,17 @@ export default function DateRangeSelector({ value, onChange }: DateRangeSelector
   };
 
   return (
-    <div className="relative">
+    <div className="relative min-w-0 max-w-full" onKeyDown={event => { if (event.key === "Escape") { setIsOpen(false); event.currentTarget.querySelector<HTMLButtonElement>("button")?.focus(); } }}>
       <Button
         variant="outline"
-        className="gap-2"
+        className="h-auto min-h-10 max-w-full flex-wrap justify-start gap-x-2 gap-y-1 py-2"
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
-        aria-haspopup="listbox"
+        aria-haspopup="dialog"
       >
         <Calendar className="h-4 w-4" />
         <span>{value.label}</span>
-        <span className="text-muted-foreground text-xs">
+        <span className="order-last basis-full text-left text-xs text-muted-foreground sm:order-none sm:basis-auto">
           {value.startDate} — {value.endDate}
         </span>
         <ChevronDown className={cn("h-4 w-4 transition-transform", isOpen && "rotate-180")} />
@@ -91,9 +91,9 @@ export default function DateRangeSelector({ value, onChange }: DateRangeSelector
           />
           {/* Dropdown */}
           <div
-            className="absolute left-0 top-full z-50 mt-2 w-72 rounded-lg border bg-card p-4 shadow-lg"
-            role="listbox"
-            aria-label="Date range presets"
+            className="absolute left-0 top-full z-50 mt-2 w-[min(18rem,calc(100vw-2rem))] rounded-lg border bg-card p-4 shadow-lg"
+            role="dialog"
+            aria-label="Date range"
           >
             <div className="space-y-1">
               {presets.map((preset) => (
@@ -104,8 +104,7 @@ export default function DateRangeSelector({ value, onChange }: DateRangeSelector
                     value.label === preset.label && "bg-muted font-medium"
                   )}
                   onClick={() => handlePreset(preset)}
-                  role="option"
-                  aria-selected={value.label === preset.label}
+                  aria-pressed={value.label === preset.label}
                 >
                   {preset.label}
                 </button>
@@ -114,12 +113,12 @@ export default function DateRangeSelector({ value, onChange }: DateRangeSelector
 
             <div className="mt-3 border-t pt-3">
               <p className="mb-2 text-xs font-medium text-muted-foreground">Custom Range</p>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
                 <input
                   type="date"
                   value={customStart}
                   onChange={(e) => setCustomStart(e.target.value)}
-                  className="flex-1 rounded-md border px-2 py-1 text-xs"
+                  className="min-w-0 flex-1 rounded-md border px-2 py-1 text-xs"
                   aria-label="Start date"
                 />
                 <span className="text-xs text-muted-foreground">to</span>
@@ -127,7 +126,7 @@ export default function DateRangeSelector({ value, onChange }: DateRangeSelector
                   type="date"
                   value={customEnd}
                   onChange={(e) => setCustomEnd(e.target.value)}
-                  className="flex-1 rounded-md border px-2 py-1 text-xs"
+                  className="min-w-0 flex-1 rounded-md border px-2 py-1 text-xs"
                   aria-label="End date"
                 />
               </div>

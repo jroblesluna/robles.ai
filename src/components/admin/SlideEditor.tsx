@@ -1,3 +1,4 @@
+import { useAdminDialog } from '@/hooks/useAdminDialog';
 import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { X, Loader2, RefreshCw } from "lucide-react";
@@ -31,6 +32,7 @@ export default function SlideEditor({
   onUpdated,
 }: SlideEditorProps) {
   const { toast } = useToast();
+  const dialog = useAdminDialog(isOpen, onClose);
   const [titleText, setTitleText] = useState(slide.titleText);
   const [engagementPhrase, setEngagementPhrase] = useState(
     slide.engagementPhrase || ""
@@ -81,10 +83,10 @@ export default function SlideEditor({
       />
 
       {/* Modal */}
-      <div className="relative z-10 w-full max-w-2xl mx-4 bg-white rounded-xl shadow-2xl overflow-hidden">
+      <div ref={dialog} role="dialog" aria-modal="true" aria-labelledby="slide-editor-title" tabIndex={-1} className="relative z-10 mx-4 flex max-h-[90dvh] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b">
-          <h2 className="text-lg font-semibold">
+          <h2 id="slide-editor-title" className="text-lg font-semibold">
             Edit Slide {slide.position + 1}{" "}
             <span className="text-sm font-normal text-muted-foreground capitalize">
               ({slide.slideType})
@@ -101,7 +103,7 @@ export default function SlideEditor({
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
+        <div className="min-h-0 space-y-6 overflow-y-auto p-4 sm:p-6">
           {/* Image preview */}
           <div className="relative rounded-lg overflow-hidden border">
             <img
@@ -149,7 +151,7 @@ export default function SlideEditor({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t bg-gray-50">
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-3 border-t bg-gray-50 px-4 py-4 sm:px-6">
           <Button variant="outline" size="sm" onClick={onClose}>
             Cancel
           </Button>

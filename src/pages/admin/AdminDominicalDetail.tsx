@@ -94,7 +94,7 @@ const statusConfig: Record<string, { label: string; className: string }> = {
 
 function formatDate(iso: string): string {
   // Add T00:00:00 to prevent timezone offset issues
-  const date = new Date(iso + "T00:00:00");
+  const date = new Date(/^\d{4}-\d{2}-\d{2}$/.test(iso) ? iso + "T00:00:00" : iso);
   return date.toLocaleDateString("es-PE", {
     day: "numeric",
     month: "short",
@@ -156,6 +156,7 @@ export default function AdminDominicalDetail() {
       setSelectedSlugs(
         new Set((data.selected_news || []).map((n: ScoredPost) => n.slug))
       );
+      setSelectionChanged(false);
       setImageUrl(data.image_url || "");
       setImageUrlInput(data.image_url || "");
     } catch (err) {
@@ -173,16 +174,13 @@ export default function AdminDominicalDetail() {
     if (!reportId) return;
     try {
       setSaving(true);
-      const selectedNews = report?.selected_news.filter((n) =>
-        selectedSlugs.has(n.slug)
-      );
       const res = await fetch(`/api/admin/dominical/${reportId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           post_text: postText,
           post_text_instagram: postTextInstagram,
-          selected_news: selectedNews,
+          selected_slugs: Array.from(selectedSlugs),
           image_url: imageUrl || null,
         }),
       });
@@ -330,7 +328,7 @@ export default function AdminDominicalDetail() {
 
   const getScoredPost = (slug: string): { scores?: ScoreBreakdown; weightedScore: number; reason: string } | undefined => {
     const selected = report?.selected_news.find((n) => n.slug === slug);
-    if (selected) return { scores: selected.scores, weightedScore: selected.weightedScore, reason: selected.reason };
+    if (selected && typeof selected.weightedScore === "number") return { scores: selected.scores, weightedScore: selected.weightedScore, reason: selected.reason };
     const allNews = report?.all_news.find((n) => n.slug === slug);
     if (allNews && allNews.weightedScore) return { scores: allNews.scores, weightedScore: allNews.weightedScore, reason: allNews.reason || '' };
     return undefined;
@@ -491,7 +489,7 @@ export default function AdminDominicalDetail() {
           Back to list
         </Button>
 
-        <div className="flex flex-col gap-4 rounded-lg border bg-card p-4 sm:flex-row sm:items-start sm:justify-between sm:p-6">
+        <div className="flex flex-col gap-4 rounded-lg border bg-card p-4 xl:flex-row xl:items-start xl:justify-between sm:p-6">
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
               <Newspaper className="h-5 w-5 text-primary" />
@@ -511,7 +509,7 @@ export default function AdminDominicalDetail() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               onClick={handleSave}
               disabled={saving || isReadOnly}
@@ -544,14 +542,14 @@ export default function AdminDominicalDetail() {
       </div>
 
       {/* Split layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid min-w-0 grid-cols-1 gap-6 xl:grid-cols-2">
         {/* Left panel: News List */}
         <div className="space-y-3">
           <Label className="flex items-center gap-2 text-base font-semibold">
             <Newspaper className="h-4 w-4 text-primary" />
-            News this week ({report.all_news.length})
+            News this week ({report.all_news.length}) · Selected: {selectedSlugs.size}
           </Label>
-          {selectionChanged && !isReadOnly && (
+          {!isReadOnly && (selectedSlugs.size > 0 || selectionChanged) && (
             <Button
               variant="default"
               size="sm"
@@ -567,6 +565,7 @@ export default function AdminDominicalDetail() {
               Regenerate Post with selection ({selectedSlugs.size})
             </Button>
           )}
+          {selectionChanged && <p role="status" className="text-sm text-amber-700">Unsaved news selection. Save to keep it; regenerating text and media is a separate action.</p>}
           <div className="max-h-[600px] overflow-y-auto space-y-2 rounded-lg border p-3">
             {report.all_news.length === 0 ? (
               <p className="text-sm text-muted-foreground py-4 text-center">
@@ -604,8 +603,8 @@ export default function AdminDominicalDetail() {
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => toggleNewsSelection(news.slug)}
-                          disabled={isReadOnly}
-                          className="mt-1 h-4 w-4 rounded border-gray-300"
+                          disabled={isReadOnly || saving}
+                          className="mt-0.5 h-6 w-6 shrink-0 rounded border-gray-300"
                           aria-label={`Select ${news.titleEs || news.titleEn}`}
                         />
                         <div className="flex-1 min-w-0">
@@ -807,7 +806,7 @@ export default function AdminDominicalDetail() {
             </div>
 
             {/* Action buttons */}
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <input
                 ref={fileInputRef}
                 type="file"
