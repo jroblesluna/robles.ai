@@ -1,10 +1,10 @@
 import { useReducedMotion } from '@/hooks/useReducedMotion';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Cpu, Eye, MessageSquare, BarChart3, Play, Pause, AlertTriangle, Sparkles } from "lucide-react";
 import { fadeIn, staggerContainer } from "@/utils/animations";
 import { useTranslation } from "react-i18next";
-import VideoModal from "@/components/VideoModal";
+
 
 type IconName = "Cpu" | "Eye" | "MessageSquare" | "BarChart3";
 
@@ -66,39 +66,11 @@ const MLVisual = ({ t }: { t: T }) => (
   </div>
 );
 
-const BOXES = [
-  { l: "12%", t: "30%", w: "26%", h: "58%", label: "person", score: "0.97" },
-  { l: "46%", t: "48%", w: "36%", h: "36%", label: "vehicle", score: "0.92" },
-  { l: "16%", t: "20%", w: "14%", h: "16%", label: "helmet", score: "0.88" },
-];
-
-const CVVisual = ({ t }: { t: T }) => (
-  <div className="relative h-full overflow-hidden rounded-xl bg-[radial-gradient(ellipse_at_30%_20%,#134e4a,transparent_60%),linear-gradient(160deg,#0f172a,#022c22)] ring-1 ring-white/10">
-    <div className="absolute inset-0 [background-image:linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:32px_32px]" />
-    <motion.div
-      className="absolute inset-x-0 h-16 bg-gradient-to-b from-transparent via-emerald-400/20 to-transparent"
-      animate={{ top: ["-15%", "100%"] }}
-      transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-    />
-    {BOXES.map((b, i) => (
-      <motion.div
-        key={b.label}
-        className="absolute rounded-md border-2 border-emerald-400"
-        style={{ left: b.l, top: b.t, width: b.w, height: b.h }}
-        initial={{ opacity: 0, scale: 1.08 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.3 + i * 0.35 }}
-      >
-        <span className="absolute -top-6 left-[-2px] whitespace-nowrap rounded bg-emerald-400 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-emerald-950">
-          {t(`solutions.ui.${b.label}`)} {b.score}
-        </span>
-      </motion.div>
-    ))}
-    <div className="absolute bottom-3 right-3 rounded-md bg-black/40 px-2 py-1 font-mono text-[10px] text-emerald-300 backdrop-blur">
-      30 FPS · 3 obj
-    </div>
-  </div>
-);
+const CVVisual = () => {
+  const { i18n } = useTranslation();
+  const lang = i18n.resolvedLanguage?.startsWith('es') || i18n.language?.startsWith('es') ? 'es' : 'en';
+  return <img src={`/demo-previews/objectdetection-${lang}.svg`} alt="" width={800} height={600} className="h-full w-full rounded-xl object-contain" />;
+};
 
 const NLPVisual = ({ t }: { t: T }) => (
   <div className="flex h-full flex-col gap-3">
@@ -179,6 +151,15 @@ const VISUALS: Record<IconName, (p: { t: T }) => React.ReactElement> = {
 
 // ── Showcase panel ────────────────────────────────────────────────────────────
 const Showcase = ({ solution, onPlay, t }: { solution: SolutionItem; onPlay: () => void; t: T }) => {
+  const [playing, setPlaying] = useState(false);
+  useEffect(() => {
+    // A responsive layout change must not leave a hidden player producing audio.
+    if (typeof window.matchMedia !== 'function') return;
+    const breakpoint = window.matchMedia('(min-width: 1024px)');
+    const reset = () => setPlaying(false);
+    breakpoint.addEventListener('change', reset);
+    return () => breakpoint.removeEventListener('change', reset);
+  }, []);
   const accent = ACCENTS[solution.icon] ?? ACCENTS.Cpu;
   const Visual = VISUALS[solution.icon] ?? MLVisual;
   return (
@@ -199,6 +180,13 @@ const Showcase = ({ solution, onPlay, t }: { solution: SolutionItem; onPlay: () 
         </div>
 
         <div className="h-[340px] p-5 sm:h-[380px]">
+          {playing ? <iframe
+            src={solution.videoSrc + "&playsinline=1"}
+            title={solution.title}
+            allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+            allowFullScreen referrerPolicy="strict-origin-when-cross-origin"
+            className="h-full w-full rounded-xl bg-black"
+          /> : (
           <AnimatePresence mode="wait">
             <motion.div
               key={solution.id}
@@ -211,9 +199,10 @@ const Showcase = ({ solution, onPlay, t }: { solution: SolutionItem; onPlay: () 
               <Visual t={t} />
             </motion.div>
           </AnimatePresence>
+          )}
         </div>
 
-        <div className="flex items-center justify-between border-t border-white/10 px-5 py-3.5">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 px-5 py-3.5">
           <div className="flex flex-wrap gap-1.5">
             {(solution.tags ?? []).map((tag) => (
               <span key={tag} className="rounded-full bg-white/5 px-2.5 py-1 text-[11px] text-slate-300 ring-1 ring-white/10">
@@ -223,11 +212,11 @@ const Showcase = ({ solution, onPlay, t }: { solution: SolutionItem; onPlay: () 
           </div>
           <button
             type="button"
-            onClick={onPlay}
+            onClick={() => { onPlay(); setPlaying(value => !value); }}
             className="ml-3 inline-flex shrink-0 items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
           >
             <Play className="h-3.5 w-3.5 fill-current" />
-            {solution.solutionCta}
+            {playing ? t("solutions.backToPreview") : solution.solutionCta}
           </button>
         </div>
       </div>
@@ -240,16 +229,19 @@ const Solutions = () => {
   const { t } = useTranslation();
   const reduceMotion = useReducedMotion();
   const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
   const [autoEnabled, setAutoEnabled] = useState(false);
-  const [videoSrc, setVideoSrc] = useState<string | null>(null);
 
   const solutions = t("solutions.items", { returnObjects: true }) as SolutionItem[];
   const current = solutions[active] ?? solutions[0];
   const autoplay = autoEnabled && !reduceMotion;
+  useEffect(() => {
+    if (!autoplay || !solutions.length) return;
+    const timer = window.setTimeout(() => setActive(index => (index + 1) % solutions.length), ROTATE_MS);
+    return () => window.clearTimeout(timer);
+  }, [autoplay, active, solutions.length]);
 
   return (
-    <section id="solutions" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}
+    <section id="solutions"
       onFocusCapture={event => { if (!(event.target as HTMLElement).closest('[data-rotation-control]')) setAutoEnabled(false); }} className="relative scroll-mt-10 bg-white py-24">
       <style>{`@keyframes sol-progress{from{transform:scaleX(0)}to{transform:scaleX(1)}}`}</style>
 
@@ -288,7 +280,7 @@ const Solutions = () => {
 
         <div className="mb-5 flex justify-center">
           <button type="button" data-rotation-control="solutions" aria-controls="solutions-options"
-            onClick={() => setAutoEnabled(value => !value)} disabled={reduceMotion}
+            aria-pressed={autoplay} onClick={() => setAutoEnabled(value => !value)} disabled={reduceMotion}
             className="tap-target gap-2 rounded-lg border border-gray-300 px-4 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-60">
             {autoEnabled ? <Pause aria-hidden="true" className="h-4 w-4" /> : <Play aria-hidden="true" className="h-4 w-4" />}
             {t(autoEnabled ? "solutions.stopPreview" : "solutions.startPreview")}
@@ -354,9 +346,7 @@ const Solutions = () => {
                           className={`block h-full origin-left ${accent.bar}`}
                           style={{
                             animation: `sol-progress ${ROTATE_MS}ms linear forwards`,
-                            animationPlayState: paused || videoSrc ? "paused" : "running",
                           }}
-                          onAnimationEnd={() => setActive((a) => (a + 1) % solutions.length)}
                         />
                       </span>
                     )}
@@ -365,7 +355,7 @@ const Solutions = () => {
                   {/* mobile: showcase inline under the active item */}
                   {isActive && (
                     <div className="mt-3 lg:hidden">
-                      <Showcase solution={s} t={t} onPlay={() => setVideoSrc(s.videoSrc)} />
+                      <Showcase solution={s} t={t} onPlay={() => setAutoEnabled(false)} />
                     </div>
                   )}
                 </div>
@@ -379,14 +369,11 @@ const Solutions = () => {
             custom={0.4}
             className="hidden lg:col-span-7 lg:block"
           >
-            {current && <Showcase solution={current} t={t} onPlay={() => setVideoSrc(current.videoSrc)} />}
+            {current && <Showcase key={current.id} solution={current} t={t} onPlay={() => setAutoEnabled(false)} />}
           </motion.div>
         </div>
       </motion.div>
 
-      {videoSrc && (
-        <VideoModal videoSrc={videoSrc} onClose={() => setVideoSrc(null)} />
-      )}
     </section>
   );
 };

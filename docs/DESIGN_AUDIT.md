@@ -54,3 +54,44 @@ Realizar sesiones formativas con 5–8 CTO, tech leads e ingenieros de ML. Alter
 - Evidencia visual local: `/tmp/robles-design-before-desktop.png`, `/tmp/robles-design-after-desktop.png`, `/tmp/robles-design-after-mobile.png`; son artefactos locales, no archivos del repositorio.
 
 No se incorporaron dependencias, fuentes, imágenes generadas, framework, proveedor analítico o configuración de despliegue. La retirada de efectos se limita al Hero; no se elimina framer-motion del resto del producto. Antes de dar la entrega por terminada se debe confirmar Actions correcto y verificar en producción el H1 nuevo, ausencia de mascota en Hero, conservación del chat y rutas EN/ES.
+
+## Revisión de home y medios — 19 de octubre de 2026
+
+### Hallazgos y decisiones
+
+- **HOME-01 — recorrido automático, corregido.** `Solutions.tsx` pausaba el progreso por `onMouseEnter` de toda la sección, incluido el botón que lo iniciaba. Además, el cambio dependía de `animationend`. Ahora un temporizador cancelable de 7 s controla la selección; el movimiento sigue siendo opt-in, se detiene con selección manual/foco interactivo o video y respeta reduced-motion. La barra sólo representa el progreso. El botón informa su estado mediante `aria-pressed`.
+- **HOME-02 — reproducción, corregido.** Watch Video monta el iframe dentro del mismo panel que contiene la ilustración, tanto en escritorio como en móvil. Cambiar de solución o volver a la ilustración desmonta el reproductor. Cambiar entre móvil y escritorio lo cierra para evitar audio de un iframe oculto. No se monta YouTube al cargar la página. Se mantienen los videos e idiomas existentes.
+- **HOME-03 — entidades visibles, corregido.** Los títulos H2/H3 y metadatos extraídos del HTML se convierten a texto con `DOMParser` una sola vez. `Results &amp; Impact` se muestra como `Results & Impact`; `&amp;amp;` conserva el literal `&amp;`. No se decodifica el cuerpo HTML antes de insertarlo, para no convertir texto escapado en etiquetas ejecutables.
+- **HOME-04 — scroll de Casos de Uso, corregido.** El diálogo bloquea raíz y body, conserva estilos y posición y contiene overscroll en su scroller. El índice desplaza exclusivamente ese contenedor, en lugar de `scrollIntoView` sobre ancestros. Escape, Tab/Shift+Tab y restauración de foco quedan contenidos en `usePublicDialog`; cierre localizado y área de 44 px. Este hook se comparte únicamente con el nuevo visor de clips; no altera autenticación ni overlays administrativos.
+- **HOME-05 — Hero, ajustado.** Se retiran 01/02/03: son capas conceptuales, no tres fases obligatorias del proyecto. Se conserva el orden datos → orquestación → aplicaciones con lista semántica y títulos. La línea final sí es pertinente como resumen; ahora se introduce con “Core capabilities / Capacidades principales”, para aclarar su relación con la propuesta comercial.
+- **HOME-06 — medios de demos, corregido.** Un único `DemoCard` sirve home y laboratorio. Las 13 demos disponen de portada SVG EN/ES: 26 archivos, con escenas de entrada/salida y datos identificados como ilustrativos. Se eliminan las variantes genéricas basadas sólo en iconos, las cajas de detección sin escena y la cara sonriente con porcentajes. La escena de visión también se utiliza en Soluciones. Los destinos, estados live/soon, filtros y beneficio existentes se conservan; filtros exponen estado pulsado y búsqueda tiene nombre accesible.
+
+### Imagen, overlays o Firefly
+
+**Elección implementada:** misma portada por demo en home y laboratorio, proporción 4:3; ilustración específica para cada función; clip bajo demanda sólo donde exista material acabado. Las imágenes se cargan con `loading="lazy"`, dimensiones y espacio reservado. No se añaden videos en bucle a todas las tarjetas. El botón de clip es hermano del enlace, nunca un botón anidado dentro de él, y se coloca debajo de su contenido para no tapar la portada.
+
+Para software, una captura autorizada de su interfaz o una composición SVG permite mantener correctos texto, datos y relaciones. Es un criterio de diseño de esta entrega, no una prueba comparativa de conversión. [Firefly admite generación de video a partir de imágenes](https://helpx.adobe.com/firefly/web/work-with-audio-and-video/work-with-video/generate-videos-using-images.html); lo reservaría para escenas de contexto, por ejemplo entorno industrial, incorporando después cajas y etiquetas controladas. No se ha utilizado una cuenta Adobe ni consumido créditos. Si se produjeran clips adicionales, conservar la misma portada y dirección artística por demo, con pausado, controles y accesibilidad; no prometer que un render conceptual sea evidencia de una API real.
+
+El piloto de Facturas está terminado en EN/ES: MP4 H.264, 960×720, 24 fps, 10 s, sin pista de audio, faststart; aproximadamente 100 KB por idioma. Sus portadas WebP pesan 35–37 KB. La interfaz y su copy explican que los datos son ficticios y la duración no representa tiempos de procesamiento. El video sólo se monta tras pulsar el botón; entonces puede comenzar silenciado y ofrece controles nativos. Al cerrar se desmonta. Esta estrategia evita descargar varios videos en la entrada; el uso de poster/preload sigue las recomendaciones de [web.dev](https://web.dev/articles/lazy-loading-video). Los controles y activación explícita siguen el objetivo de [Pause, Stop, Hide](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html), sin certificar todo el sitio.
+
+Reproducción de assets, usando dependencias ya instaladas:
+
+```sh
+node scripts/renderDemoPreviews.mjs
+node scripts/renderInvoicePreview.mjs es
+node scripts/renderInvoicePreview.mjs en
+```
+
+Los medios se versionan; no se regeneran durante el despliegue. El renderizador publica el MP4 mediante rename de un archivo temporal para impedir archivos parcialmente escritos. No hay APIs externas ni datos de clientes en estos scripts.
+
+### Validación y límites
+
+- Build completo cliente + SSR + servidor correcto. `git diff --check` correcto. TypeScript conserva las mismas **13 firmas de error preexistentes**, sin errores en los archivos modificados; no es un typecheck limpio.
+- **131 pruebas de 17 suites pasan**: hidratación EN/ES, SEO, política de URLs, enlaces localizados, rotación con cursor dentro de la sección, parada manual, reduced-motion, iframe inline, entidades decodificadas una vez, cuerpo escapado inerte, bloqueo/restauración de estilos y foco, portadas de todo el inventario y contenedor MP4 faststart.
+- Suite completa: **630 pasan / 7 fallan, 97 suites**. Seis fallos ajenos a la home se reproducen sobre una copia intacta de `origin/main` `8652035`: tres expectativas de imágenes públicas con mock de `fs.statSync` incompleto, dos propiedades del generador de carruseles y timeout de 5 s del compositor. Un fallo adicional de cookie por `ECONNRESET` fue transitorio: la suite correspondiente pasó al repetirla dentro del conjunto final. No se afirma que toda la suite esté verde ni que esos fallos impliquen necesariamente averías de producción.
+- Navegador: home y `/demos`, EN/ES, anchos 320/768/1440 px, después de esperar el H1 del catálogo; un H1, sin overflow horizontal de documento y cero reproductores iniciales. Home muestra ocho portadas; laboratorio las trece. No es un escaneo exhaustivo de cada píxel ni todos los dispositivos.
+- Reproducción real del clip: duración DOM 10 s, avance de `currentTime`, sin error multimedia; validación ffprobe y decodificación FFmpeg. En escritorio y móvil, YouTube se muestra inline con controles y contenido real. El avance automático cambió de solución sin retirar el cursor.
+- Casos de Uso: `Results & Impact` correcto en inglés; rueda repetida al final conserva scroll del diálogo en máximo 3009 px, `window.scrollY=0` mientras el body fijo conserva `top=-4631px`; al cerrar restaura `scrollY=4631`. En el extremo superior permanece en cero. Prueba móvil adicional a 390 px y cierre por Escape/restauración de foco; Tab inverso vuelve al último control del diálogo, no al fondo.
+- No se instalaron paquetes, cambiaron credenciales, modificaron selecciones editoriales ni añadieron tracking. No se atribuyen mejoras de conversión sin medición con usuarios.
+
+La comprobación posterior al despliegue se documenta en la entrega y sus evidencias de producción. Persisten las limitaciones de pruebas y deuda TypeScript descritas; no son promesas de corrección incluidas en esta entrega de home.

@@ -104,6 +104,7 @@
         "cta3": "Plan your AI project",
         "demosCta": "Explore technical demos",
         "diagnosisCta": "Assess your AI opportunities",
+        "capabilitiesLabel": "Core capabilities",
         "capabilities": "RAG & agents · Computer vision & document AI · Enterprise integration",
         "architecture": {
             "label": "Reference architecture",
@@ -124,6 +125,7 @@
         }
     },
     "caseStudies": {
+        "close": "Close case study",
         "title": "What AI can achieve in your industry",
         "subtitle": "Representative cases of how we apply AI to real problems: the challenge, the solution and the metrics it moves.",
         "items": [
@@ -234,6 +236,7 @@
         "ctaButton": "Take the free diagnostic"
     },
     "solutions": {
+        "backToPreview": "Back to illustration",
         "startPreview": "Start automatic preview",
         "stopPreview": "Stop automatic preview",
         "eyebrow": "What we do",
@@ -2410,6 +2413,8 @@
         "langchainShort": "LangChain"
     },
     "demosCatalog": {
+        "watchPreview": "Watch illustrative clip · 10 s",
+        "previewDescription": "Illustrative document extraction flow. Sample data; clip duration is not processing time.",
         "documentPreview": {
             "invoice": "Invoice",
             "total": "Total"
