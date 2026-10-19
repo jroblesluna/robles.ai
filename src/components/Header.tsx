@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Menu, X, ChevronDown, Sparkles, FlaskConical } from 'lucide-react';
+import { Menu, X, ChevronDown, FlaskConical } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { normalizeLanguage, staticPagePath } from '@shared/seoPolicy';
 
@@ -75,7 +75,7 @@ export default function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: Header
           else if (openMenu) { rootRef.current?.querySelector<HTMLButtonElement>(`#nav-toggle-${openMenu}`)?.focus(); setOpenMenu(null); }
         }
       }}>
-      <div className="container mx-auto px-6 py-4 flex justify-between items-center gap-4">
+      <div className="container mx-auto px-6 py-3 flex justify-between items-center gap-4">
         <a href={href('/')} onClick={close} className="shrink-0 flex items-center gap-3 rounded-md">
           <img src="/favicon.svg" alt="" className="w-10 h-10" width="40" height="40" />
           <span className="text-xl font-bold text-gray-900">Robles<span className="text-blue-500">.AI</span></span>
@@ -92,8 +92,8 @@ export default function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: Header
                 className="absolute top-full left-0 w-48 bg-white border rounded-md shadow-lg p-1">{links(group)}</div>
             </div>
           ))}
-          <a href={href('/demos')} onClick={close} className="tap-target gap-2 px-3 rounded-full bg-cyan-50 text-cyan-800 whitespace-nowrap"><FlaskConical aria-hidden="true" className="h-4 w-4" />{t('nav.demos')}</a>
-          <a href={href('/diagnostico-ia')} onClick={close} className="tap-target gap-2 w-60 px-3 rounded-full bg-violet-50 text-violet-800"><Sparkles aria-hidden="true" className="h-4 w-4 shrink-0" /><span>{t("nav.quiz_1")}</span></a>
+          <a href={href('/demos')} onClick={close} className="tap-target gap-2 px-3 rounded-md text-gray-700 hover:bg-gray-100 whitespace-nowrap"><FlaskConical aria-hidden="true" className="h-4 w-4" />{t('nav.demos')}</a>
+          <a href={href('/diagnostico-ia')} onClick={close} className="tap-target gap-2 px-3 rounded-md text-gray-700 hover:bg-gray-100"><span>{t("nav.quiz_1")}</span></a>
           <a href={href('/#contact')} onClick={close} className="tap-target px-4 rounded-md bg-blue-600 text-white whitespace-nowrap">{t('nav.contact')}</a>
         </nav>
         <button ref={mobileToggle} type="button" aria-label={t('nav.toggleMenu')} aria-expanded={isMobileMenuOpen}

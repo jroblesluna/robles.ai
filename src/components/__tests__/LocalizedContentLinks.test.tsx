@@ -40,17 +40,15 @@ vi.mock('framer-motion', async () => {
   };
 });
 afterEach(() => { cleanup(); locale.reduced = true; vi.useRealTimers(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
-it.each(['en', 'es'] as const)('preserves %s across every Hero slide and landing diagnosis CTA', language => {
+it.each(['en', 'es'] as const)('preserves %s across the enterprise Hero and landing diagnosis CTA', language => {
   locale.language = language;
   const suffix = language === 'es' ? '?lang=es' : '';
   const { unmount } = render(<Hero />);
   expect(screen.getByRole('link', { name: language === 'es' ? es.hero.cta2 : en.hero.cta2 })).toHaveAttribute('href', '/blog' + suffix);
   expect(screen.getByRole('link', { name: language === 'es' ? es.hero.cta3 : en.hero.cta3 })).toHaveAttribute('href', '/get-started' + suffix);
-  fireEvent.click(screen.getByRole('button', { name: language === 'es' ? 'Diapositiva 2' : 'Slide 2' }));
-  expect(screen.getByRole('link', { name: language === 'es' ? es.quizPromo.cta : en.quizPromo.cta })).toHaveAttribute('href', '/diagnostico-ia' + suffix);
-  fireEvent.click(screen.getByRole('button', { name: language === 'es' ? 'Diapositiva 3' : 'Slide 3' }));
-  const links = screen.getAllByRole('link').map(link => link.getAttribute('href'));
-  for (const path of ['/demos', '/try-identity', '/try-rag', '/try-transcription', '/try-langchain']) expect(links).toContain(path + suffix);
+  expect(screen.getByRole('link', { name: language === 'es' ? es.hero.diagnosisCta : en.hero.diagnosisCta })).toHaveAttribute('href', '/diagnostico-ia' + suffix);
+  expect(screen.getByRole('link', { name: language === 'es' ? es.hero.demosCta : en.hero.demosCta })).toHaveAttribute('href', '/demos' + suffix);
+  expect(document.querySelector('#hero img')).toBeNull();
   unmount();
   const landing = render(<Landing />);
   expect(landing.container.querySelector('a[href^="/diagnostico-ia"]')).toHaveAttribute('href', '/diagnostico-ia' + suffix);
@@ -134,22 +132,16 @@ it('exposes native pressed selector buttons and distinct public profile names', 
   expect(screen.getByRole('link', { name: 'GitHub: Jaren Ramos' })).toHaveAttribute('href', 'https://github.com/JarenML');
 });
 
-it('keeps the main pitch stable until rotation is requested and stops it for reading/focus', () => {
-  locale.language = 'en'; locale.reduced = false; vi.useFakeTimers();
-  render(<Hero />);
-  act(() => { vi.advanceTimersByTime(15000); });
-  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(en.hero.title);
-  fireEvent.click(screen.getByRole('button', { name: en.hero.startSlides }));
-  act(() => { vi.advanceTimersByTime(7000); });
-  expect(screen.getByRole('link', { name: en.quizPromo.cta })).toBeInTheDocument();
-  fireEvent.focus(screen.getByRole('button', { name: 'Slide 1' }));
-  expect(screen.getByRole('button', { name: en.hero.startSlides })).toBeInTheDocument();
-  act(() => { vi.advanceTimersByTime(15000); });
-  expect(screen.getByRole('link', { name: en.quizPromo.cta })).toBeInTheDocument();
-  fireEvent.click(screen.getByRole('button', { name: 'Slide 1' }));
-  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(en.hero.title);
+it('keeps the enterprise headline and actions stable during reading', () => {
+  locale.language = 'en'; vi.useFakeTimers();
+  const { container } = render(<Hero />);
+  const headline = screen.getByRole('heading', { level: 1 });
+  act(() => { vi.advanceTimersByTime(30000); });
+  expect(screen.getByRole('heading', { level: 1 })).toBe(headline);
+  expect(headline).toHaveTextContent(en.hero.title);
+  expect(container.querySelector('canvas, img')).toBeNull();
+  expect(screen.getByRole('link', { name: en.hero.cta3 })).toHaveAttribute('href', '/get-started');
 });
-
 
 it('keeps a case selected during reading and supports explicit industry selection', () => {
   locale.language = 'en'; vi.useFakeTimers();

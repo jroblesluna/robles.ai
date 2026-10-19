@@ -439,6 +439,7 @@ export default function DemosCatalog({
                   className="group flex h-full flex-col overflow-hidden rounded-3xl bg-white ring-1 ring-gray-200/80 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_60px_-24px_rgba(16,24,40,0.28)] focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
                 >
                   <div className={`relative flex h-56 items-center justify-center overflow-hidden bg-gradient-to-b ${TINTS[item.id] ?? "from-gray-100 to-white"}`}>
+                    <span className="absolute left-3 top-3 z-10 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700">{t("demosCatalog.previewNotice")}</span>
                     <div className="scale-90 transition-transform duration-500 ease-out group-hover:scale-95 sm:scale-100 sm:group-hover:scale-[1.04]">
                       {Preview ? <Preview t={t} /> : <Icon className="h-12 w-12 text-gray-400" />}
                     </div>

@@ -25,9 +25,9 @@ describe('public response content', () => {
     expect($('#case-studies').text()).toContain(en.caseStudies.footnote);
     expect($('#about').text()).toContain('Antonio Robles');
     expect($('#about').text()).not.toContain('Sophia Martinez');
-    expect($('main > img').attr('src')).toBe('/robly-avatar/robly-hero.webp');
-    expect($('main > img').attr('fetchpriority')).toBe('high');
-    expect($('main > img').attr('width')).toBe('224');
+    expect($('main > img')).toHaveLength(0);
+    expect($('main > h1').text()).toBe(en.hero.title);
+
   });
   it('preserves public text and safe sources while preventing HTML and JSON script injection', () => {
     const html = injectPublicContent('<html><head></head><body><div id="root"></div></body></html>', renderArticleContent(post, 'en', en), { ...post, privateToken: 'never serialize' } as BlogPostData);
