@@ -28,6 +28,7 @@ function createTestDb(): InstanceType<typeof Database> {
       position INTEGER,
       slide_type TEXT,
       title_text TEXT,
+      composite_image_path TEXT,
       status TEXT,
       created_at TEXT,
       UNIQUE(report_id, position)

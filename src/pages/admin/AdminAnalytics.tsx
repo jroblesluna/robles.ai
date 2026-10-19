@@ -54,7 +54,7 @@ export default function AdminAnalytics() {
             Website traffic and social media performance.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <DateRangeSelector value={dateRange} onChange={setDateRange} />
           <Button
             variant="outline"
@@ -69,7 +69,7 @@ export default function AdminAnalytics() {
       </div>
 
       {/* Tab navigation */}
-      <nav className="flex overflow-x-auto border-b" aria-label="Analytics sections">
+      <nav className="flex max-w-full overflow-x-auto border-b" aria-label="Analytics sections">
         {tabs.map(({ id, label, icon: Icon }) => (
           <button
             key={id}

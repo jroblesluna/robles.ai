@@ -113,6 +113,8 @@ export function createMetaInjector(config: MetaInjectorConfig): MetaInjectorResu
         meta.canonicalUrl = 'https://robles.ai' + path;
         meta.ogUrl = meta.canonicalUrl;
         meta.hreflangLinks = [];
+        meta.title = path === '/otp' ? 'Verification | Robles.AI' : 'Admin | Robles.AI';
+        meta.ogTitle = meta.twitterTitle = meta.title;
         meta.robots = 'noindex,nofollow';
         res.set('X-Robots-Tag', 'noindex, nofollow');
         await send(req.originalUrl, res, 200, meta);

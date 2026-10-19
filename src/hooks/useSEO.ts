@@ -19,7 +19,8 @@ export function useSEO() {
     });
     if (location === '/') meta.jsonLd = buildHomeJsonLd();
     if (!STATIC_PAGES[location]) {
-      meta.title = lang === 'es' ? 'Página no encontrada | Robles.AI' : 'Page not found | Robles.AI';
+      const utility = location === '/admin' || location.startsWith('/admin/') || location === '/otp';
+      meta.title = utility ? (location === '/otp' ? 'Verification | Robles.AI' : 'Admin | Robles.AI') : (lang === 'es' ? 'Página no encontrada | Robles.AI' : 'Page not found | Robles.AI');
       meta.ogTitle = meta.twitterTitle = meta.title;
       meta.canonicalUrl = meta.ogUrl = `https://robles.ai${location}`;
       meta.hreflangLinks = [];

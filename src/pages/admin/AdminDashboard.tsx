@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { BarChart3, ClipboardList, MessageSquare, Newspaper, Settings } from "lucide-react";
+import { BarChart3, ClipboardList, MessageSquare, Newspaper, Server, Settings } from "lucide-react";
 import {
   Card,
   CardDescription,
@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 
 const quickActions = [
+  { href: "/admin/backends", title: "Backends", description: "Demo service connections, DNS and Cloud Run status", icon: Server },
   {
     href: "/admin/analytics",
     title: "Analytics",
