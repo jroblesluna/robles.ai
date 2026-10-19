@@ -1,0 +1,21 @@
+import { afterEach, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import AdminLayout from '../AdminLayout';
+vi.mock('wouter', () => ({ useLocation: () => ['/admin', vi.fn()], Link: ({ children, href, ...props }: any) => <a href={href} {...props}>{children}</a> }));
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+it('keeps a closed mobile drawer inert and restores focus after Escape', async () => {
+  vi.stubGlobal('matchMedia', () => ({ matches: false, addEventListener() {}, removeEventListener() {} }));
+  vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ authenticated: true, setup_required: false }) })));
+  render(<AdminLayout><h1>Dashboard fixture</h1></AdminLayout>);
+  const open = await screen.findByRole('button', { name: 'Open menu' });
+  const sidebar = document.getElementById('admin-sidebar')!;
+  expect(sidebar).toHaveAttribute('inert');
+  fireEvent.click(open);
+  expect(sidebar).not.toHaveAttribute('inert');
+  expect(screen.getByRole('dialog', { name: 'Admin menu' })).toHaveAttribute('aria-modal', 'true');
+  expect(document.querySelector('main')).toHaveAttribute('inert');
+  fireEvent.keyDown(document, { key: 'Escape' });
+  expect(sidebar).toHaveAttribute('inert');
+  expect(document.querySelector('main')).not.toHaveAttribute('inert');
+  expect(open).toHaveFocus();
+});

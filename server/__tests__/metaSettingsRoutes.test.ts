@@ -303,3 +303,61 @@ describe('Meta Credential Settings Endpoints', () => {
     });
   });
 });
+
+describe('Admin persistence regressions', () => {
+  it('persists selection from zero to two, removal, and empty selection through PUT then GET', async () => {
+    const row = { id: 12, status: 'pending_review', week_start: '2026-10-11', week_end: '2026-10-17', selected_news: '[]', all_news: JSON.stringify([
+      { slug: 'first', titleEs: 'Primera noticia', weightedScore: 0, scores: { novelty: 0 }, reason: 'Existing evaluation' },
+      { slug: 'second', titleEn: 'Second article' },
+    ]) };
+    const { default: Database } = await import('better-sqlite3');
+    const fixtureDb = new Database(':memory:');
+    fixtureDb.exec(`CREATE TABLE dominical_reports (id INTEGER PRIMARY KEY, status TEXT, week_start TEXT, week_end TEXT, all_news TEXT, selected_news TEXT, post_text TEXT, post_text_instagram TEXT, image_url TEXT, created_at TEXT, last_edited_at TEXT, published_at TEXT, linkedin_post_id TEXT, error_log TEXT)`);
+    fixtureDb.prepare('INSERT INTO dominical_reports (id,status,week_start,week_end,all_news,selected_news) VALUES (?,?,?,?,?,?)').run(row.id,row.status,row.week_start,row.week_end,row.all_news,row.selected_news);
+    mockPrepare.mockImplementation((sql: string) => fixtureDb.prepare(sql) as any);
+    try {
+    for (const selected_slugs of [['first', 'second'], ['second'], []]) {
+      const put = await request(app).put('/api/admin/dominical/12').send({ selected_slugs });
+      expect(put.status).toBe(200);
+      const get = await request(app).get('/api/admin/dominical/12');
+      expect(get.body.selected_news.map((n: any) => n.slug)).toEqual(selected_slugs);
+      if (selected_slugs.length === 2) {
+        expect(get.body.selected_news[0].weightedScore).toBe(0);
+        expect(get.body.selected_news[1].title).toBe('Second article');
+        expect(get.body.selected_news[1]).not.toHaveProperty('weightedScore');
+      }
+    }
+    } finally {
+      mockPrepare.mockImplementation(() => ({ get: mockGet, all: mockAll, run: mockRun }));
+      fixtureDb.close();
+    }
+  });
+  it.each([['missing'], 'first', [null]])('rejects invalid or foreign selection without writing (%j)', async selected_slugs => {
+    mockGet.mockReturnValue({ id: 12, status: 'edited', all_news: '[{"slug":"first"}]', selected_news: '[]' });
+    const res = await request(app).put('/api/admin/dominical/12').send({ selected_slugs });
+    expect(res.status).toBe(400);
+    expect(mockRun).not.toHaveBeenCalled();
+  });
+  it('masks all credential families in general settings and never returns structured private keys', async () => {
+    mockAll.mockReturnValue([
+      { key: 'meta_app_secret', value: 'meta-secret-1234' },
+      { key: 'instagram_access_token', value: 'ig-secret-5678' },
+      { key: 'facebook_page_access_token', value: 'fb-secret-9012' },
+      { key: 'hostinger_api_key', value: 'host-secret-3456' },
+      { key: 'gcp_sa_key', value: '{"private_key":"DO-NOT-RETURN","client_email":"private@example.test"}' },
+      { key: 'linkedin_token_expires_at', value: '2026-12-01' },
+    ]);
+    const res = await request(app).get('/api/admin/settings');
+    expect(res.status).toBe(200);
+    expect(res.body.meta_app_secret).toBe('••••••••1234');
+    expect(res.body.hostinger_api_key).toBe('••••••••3456');
+    expect(res.body.gcp_sa_key).toBe('••••••••');
+    expect(res.text).not.toMatch(/DO-NOT-RETURN|private@example|meta-secret|ig-secret|fb-secret|host-secret/);
+    expect(res.body.linkedin_token_expires_at).toBe('2026-12-01');
+  });
+  it('does not persist masked placeholders through either credential save endpoint', async () => {
+    await request(app).put('/api/admin/settings').send({ openai_api_key: '••••••••1234', hostinger_api_key: '••••••••5678', gcp_sa_key: '••••••••' });
+    await request(app).post('/api/admin/settings/meta').send({ meta_app_secret: '••••••••1234', instagram_access_token: '••••••••5678' });
+    expect(mockRun).not.toHaveBeenCalled();
+  });
+});

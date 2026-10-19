@@ -1,0 +1,30 @@
+import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import express from 'express';
+import request from 'supertest';
+const fixture = vi.hoisted(() => ({ values: new Map<string, string>(), set: vi.fn() }));
+vi.mock('../auth.js', () => ({ requireAuth: (req: any, res: any, next: any) => req.headers.authorization === 'Bearer fixture' ? next() : res.status(401).json({ error: 'Unauthorized' }) }));
+vi.mock('../services/backends/settingsStore.js', () => ({ getSetting: (key: string) => fixture.values.get(key) ?? null, hasSetting: (key: string) => fixture.values.has(key), setSetting: (...args: any[]) => fixture.set(...args), getDnsDomain: () => 'example.test', getCnameTarget: () => 'ghs.googlehosted.com.' }));
+vi.mock('../services/dns/HostingerDnsProvider.js', () => ({ HostingerDnsProvider: class { async getRecords() { return []; } } }));
+vi.mock('../services/gcp/cloudRunClient.js', () => ({ getServiceStatus: async () => ({ available: false }) }));
+vi.mock('../services/gcp/monitoringClient.js', () => ({ getServiceActivity: async () => ({ available: false }) }));
+vi.mock('../services/backends/health.js', () => ({ pingHealth: vi.fn() }));
+import backendRouter from '../backendRoutes';
+const app = express(); app.use(express.json()); app.use('/backends', backendRouter);
+beforeEach(() => { fixture.values.clear(); fixture.set.mockClear(); });
+afterEach(() => vi.clearAllMocks());
+it('keeps credential status behind authentication', async () => { expect((await request(app).get('/backends')).status).toBe(401); });
+it('returns only masked fingerprints and never service-account contents', async () => {
+  fixture.values.set('hostinger_api_key', 'sample-private-token-1234');
+  fixture.values.set('gcp_sa_key', '{"private_key":"never-return","client_email":"private@example.test"}');
+  const res = await request(app).get('/backends').set('Authorization', 'Bearer fixture');
+  expect(res.status).toBe(200);
+  expect(res.headers['cache-control']).toBe('no-store');
+  expect(res.body.hostingerPreview).toBe('••••••••1234');
+  expect(res.body.gcpPreview).toBe('••••••••');
+  expect(res.text).not.toMatch(/never-return|private@example|sample-private-token/);
+});
+it('does not partially save a Hostinger token when the accompanying GCP JSON is invalid', async () => {
+  const res = await request(app).put('/backends/connections').set('Authorization', 'Bearer fixture').send({ hostinger_api_key: 'replacement-token', gcp_sa_key: 'invalid JSON' });
+  expect(res.status).toBe(400);
+  expect(fixture.set).not.toHaveBeenCalled();
+});

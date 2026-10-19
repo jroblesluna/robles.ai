@@ -1,3 +1,5 @@
+import { resolveDominicalSelection } from '../shared/dominicalSelection.js';
+import { isSecretSetting, maskSettingSecret, isMaskedSecret } from './services/settingsSecrets.js';
 import { Router } from 'express';
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
@@ -32,6 +34,7 @@ const COOKIE_OPTIONS = {
 };
 
 const adminRouter = Router();
+adminRouter.use((_req, res, next) => { res.set("Cache-Control", "no-store"); next(); });
 
 // Mount chat admin sub-router (conversations list, detail, analytics)
 adminRouter.use(chatAdminRouter);
@@ -194,26 +197,6 @@ adminRouter.get('/me', requireAuth, (req, res) => {
 
 // --- Settings Management ---
 
-/** Keys whose values contain secrets and should be masked in GET responses */
-const SECRET_KEYS = [
-  'openai_api_key',
-  'linkedin_client_secret',
-  'linkedin_access_token',
-  'linkedin_refresh_token',
-  'stability_api_key',
-  'replicate_api_token',
-];
-
-/**
- * Mask a secret value, showing only the last 4 characters.
- * Example: "sk-abc123xyz" → "••••••••xyz"
- */
-function maskSecret(value: string | null): string | null {
-  if (!value) return value;
-  if (value.length <= 4) return '••••';
-  return '••••••••' + value.slice(-4);
-}
-
 /**
  * GET /api/admin/settings
  * Returns all settings as { key: value } object. Secret values are masked.
@@ -224,8 +207,8 @@ adminRouter.get('/settings', requireAuth, (_req, res) => {
 
     const settings: Record<string, string | null> = {};
     for (const row of rows) {
-      if (SECRET_KEYS.includes(row.key)) {
-        settings[row.key] = maskSecret(row.value);
+      if (isSecretSetting(row.key)) {
+        settings[row.key] = maskSettingSecret(row.value, row.key);
       } else {
         settings[row.key] = row.value;
       }
@@ -261,7 +244,7 @@ adminRouter.put('/settings', requireAuth, (req, res) => {
     const updateMany = db.transaction((entries: Array<[string, string | null]>) => {
       for (const [key, value] of entries) {
         // Skip updating secret keys if the value is still masked
-        if (SECRET_KEYS.includes(key) && value && value.includes('••••')) {
+        if (isSecretSetting(key) && isMaskedSecret(value)) {
           continue;
         }
         upsert.run(key, value, now);
@@ -644,7 +627,7 @@ adminRouter.get('/dominical/:id', requireAuth, (req, res) => {
 adminRouter.put('/dominical/:id', requireAuth, (req, res) => {
   try {
     const { id } = req.params;
-    const { post_text, post_text_instagram, selected_news, image_url } = req.body;
+    const { post_text, post_text_instagram, selected_news, selected_slugs, image_url } = req.body;
 
     // Check report exists
     const existing = db.prepare('SELECT * FROM dominical_reports WHERE id = ?').get(Number(id)) as
@@ -656,6 +639,15 @@ adminRouter.put('/dominical/:id', requireAuth, (req, res) => {
       return;
     }
 
+    let resolvedSelection = selected_news;
+    if (selected_slugs !== undefined) {
+      try {
+        resolvedSelection = resolveDominicalSelection(selected_slugs, JSON.parse(existing.all_news || '[]'), JSON.parse(existing.selected_news || '[]'));
+      } catch (error) {
+        res.status(400).json({ error: error instanceof Error ? error.message : 'Invalid news selection' });
+        return;
+      }
+    }
     const now = new Date().toISOString();
     const newStatus = existing.status === 'pending_review' ? 'edited' : existing.status;
 
@@ -671,9 +663,9 @@ adminRouter.put('/dominical/:id', requireAuth, (req, res) => {
       updates.push('post_text_instagram = ?');
       values.push(post_text_instagram);
     }
-    if (selected_news !== undefined) {
+    if (resolvedSelection !== undefined) {
       updates.push('selected_news = ?');
-      values.push(JSON.stringify(selected_news));
+      values.push(JSON.stringify(resolvedSelection));
     }
     if (image_url !== undefined) {
       updates.push('image_url = ?');
@@ -2115,7 +2107,7 @@ adminRouter.post('/settings/meta', requireAuth, (req, res) => {
       for (const { key } of META_CREDENTIAL_KEYS) {
         const value = body[key];
         // Only update if provided and not empty
-        if (value && typeof value === 'string' && value.trim().length > 0) {
+        if (value && typeof value === 'string' && value.trim().length > 0 && !isMaskedSecret(value)) {
           upsert.run(key, value.trim(), now);
         }
       }

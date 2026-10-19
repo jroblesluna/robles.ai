@@ -41,7 +41,7 @@ interface BackendItem {
   currentTarget: string | null; activity: Activity; cloudRun: CloudRunStatus;
 }
 interface ListResponse {
-  hostingerConnected: boolean; gcpConnected: boolean; domain: string; items: BackendItem[];
+  hostingerConnected: boolean; gcpConnected: boolean; hostingerPreview?: string; gcpPreview?: string; domain: string; items: BackendItem[];
 }
 
 const DNS_BADGE: Record<string, { cls: string; label: string }> = {
@@ -85,7 +85,10 @@ export default function AdminBackends() {
     setLoading(true);
     try {
       const res = await fetch("/api/admin/backends");
-      if (res.ok) setData(await res.json());
+      if (!res.ok) throw new Error("No se pudo cargar el estado de los backends.");
+      setData(await res.json());
+    } catch {
+      setMsg({ kind: "err", text: "No se pudo cargar el estado. Usa Actualizar para reintentar." });
     } finally {
       setLoading(false);
     }
@@ -177,13 +180,13 @@ export default function AdminBackends() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-100 text-violet-700">
+    <div className="mx-auto w-full min-w-0 max-w-6xl py-2">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-violet-100 text-violet-700">
             <Server className="h-5 w-5" />
           </div>
-          <div>
+          <div className="min-w-0">
             <h1 className="text-xl font-bold text-gray-900">Backends</h1>
             <p className="text-sm text-gray-500">Conexión, DNS y estado de los servicios de demo.</p>
           </div>
@@ -209,8 +212,8 @@ export default function AdminBackends() {
       )}
 
       {/* Conexiones */}
-      <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border border-gray-200 bg-white p-5">
+      <section className="mb-8 grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-2">
+        <div className="min-w-0 rounded-xl border border-gray-200 bg-white p-5">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-900">
               <Globe className="h-4 w-4 text-violet-600" /> Hostinger (DNS)
@@ -220,10 +223,11 @@ export default function AdminBackends() {
             )}
           </div>
           <input
+            aria-label="Hostinger API key"
             type="password"
             value={hostKey}
             onChange={(e) => setHostKey(e.target.value)}
-            placeholder={data?.hostingerConnected ? "•••• (pegar para actualizar)" : "Pega tu API key de Hostinger"}
+            placeholder={data?.hostingerConnected ? `${data.hostingerPreview || "••••••••"} · guardada; pegar para actualizar` : "Pega tu API key de Hostinger"}
             className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
           />
           <p className="mt-2 text-xs text-gray-400">
@@ -231,7 +235,7 @@ export default function AdminBackends() {
           </p>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-5">
+        <div className="min-w-0 rounded-xl border border-gray-200 bg-white p-5">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-900">
               <Cloud className="h-4 w-4 text-violet-600" /> GCP (Cloud Run, solo lectura)
@@ -239,10 +243,11 @@ export default function AdminBackends() {
             {data && <ConnBadge connected={data.gcpConnected} />}
           </div>
           <textarea
+            aria-label="GCP service account JSON"
             value={gcpKey}
             onChange={(e) => setGcpKey(e.target.value)}
             rows={3}
-            placeholder={data?.gcpConnected ? "•••• (pegar JSON para actualizar)" : "Pega el JSON de la service account (run.viewer)"}
+            placeholder={data?.gcpConnected ? "•••••••• · JSON guardado; pegar para actualizar" : "Pega el JSON de la service account (run.viewer)"}
             className="w-full resize-none rounded-lg border border-gray-200 px-3 py-2 font-mono text-xs outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
           />
           <p className="mt-2 text-xs text-gray-400">SA <code>backend-viewer@robles-ai-admin</code>, solo lectura.</p>

@@ -1,3 +1,4 @@
+import { maskSettingSecret, isMaskedSecret } from './services/settingsSecrets.js';
 import { Router, type Request, type Response } from 'express';
 import { requireAuth } from './auth.js';
 import { BACKENDS, getBackend } from './services/backends/registry.js';
@@ -29,6 +30,7 @@ import { pingHealth } from './services/backends/health.js';
  */
 const backendRouter = Router();
 backendRouter.use(requireAuth);
+backendRouter.use((_req, res, next) => { res.set("Cache-Control", "no-store"); next(); });
 
 const dnsProvider = () => {
   const token = getSetting('hostinger_api_key');
@@ -48,9 +50,6 @@ backendRouter.get('/connections', (_req: Request, res: Response) => {
 backendRouter.put('/connections', async (req: Request, res: Response) => {
   const { hostinger_api_key, gcp_sa_key, hostinger_domain, dns_cname_target } = req.body ?? {};
 
-  if (typeof hostinger_api_key === 'string' && hostinger_api_key.trim()) {
-    setSetting('hostinger_api_key', hostinger_api_key.trim());
-  }
   if (typeof gcp_sa_key === 'string' && gcp_sa_key.trim()) {
     // Validate it parses as SA JSON before storing (fail fast, no value echoed).
     try {
@@ -61,6 +60,9 @@ backendRouter.put('/connections', async (req: Request, res: Response) => {
       return;
     }
     setSetting('gcp_sa_key', gcp_sa_key.trim());
+  }
+  if (typeof hostinger_api_key === 'string' && hostinger_api_key.trim() && !isMaskedSecret(hostinger_api_key)) {
+    setSetting('hostinger_api_key', hostinger_api_key.trim());
   }
   if (typeof hostinger_domain === 'string' && hostinger_domain.trim()) {
     setSetting('hostinger_domain', hostinger_domain.trim());
@@ -142,7 +144,7 @@ backendRouter.get('/', async (_req: Request, res: Response) => {
     }),
   );
 
-  res.json({ hostingerConnected: Boolean(provider), gcpConnected: Boolean(gcpKey), domain, items });
+  res.json({ hostingerConnected: Boolean(provider), gcpConnected: Boolean(gcpKey), hostingerPreview: maskSettingSecret(getSetting('hostinger_api_key')), gcpPreview: maskSettingSecret(gcpKey, 'gcp_sa_key'), domain, items });
 });
 
 /** POST /:id/dns — create/update the backend's CNAME (idempotent). */
