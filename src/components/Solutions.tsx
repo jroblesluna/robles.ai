@@ -190,14 +190,12 @@ const Showcase = ({ solution, onPlay, t }: { solution: SolutionItem; onPlay: () 
       />
       <div className="relative rounded-[20px] bg-slate-900/60 ring-1 ring-white/10">
         {/* window chrome */}
-        <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
+        <div className="flex flex-wrap items-center gap-2 border-b border-white/10 px-4 py-3">
           <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
           <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
           <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
           <span className="ml-3 font-mono text-xs text-slate-400">robles.ai / {accent.slug}</span>
-          <span className="ml-auto flex items-center gap-1.5 text-[11px] text-emerald-400">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" /> live
-          </span>
+          <span className="ml-auto text-xs text-slate-300">{t("solutions.ui.previewLabel")}</span>
         </div>
 
         <div className="h-[340px] p-5 sm:h-[380px]">

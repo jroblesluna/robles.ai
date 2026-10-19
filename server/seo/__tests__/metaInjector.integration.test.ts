@@ -165,7 +165,7 @@ it('enables hydration only for the public home when a renderer is provided', asy
   isolated.use(createMetaInjector({ mode: 'production', distPath: join(root, 'dist'), sourcePath: join(root, 'index.html'), renderHome }).handler);
   const home = await request(isolated).get('/?lang=es').expect(200);
   expect(load(home.text)('#root').attr('data-render-mode')).toBe('hydrate');
-  expect(load(home.text)('h1').text()).toContain('Inteligencia Artificial');
+  expect(load(home.text)('h1').text()).toBe(renderHome.mock.calls[0][1].hero.title);
   const careers = await request(isolated).get('/careers').expect(200);
   expect(load(careers.text)('#root').attr('data-render-mode')).toBeUndefined();
   await request(isolated).get('/admin').expect(200).expect('X-Robots-Tag', 'noindex, nofollow');

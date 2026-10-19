@@ -790,3 +790,7 @@ Diagnóstico HTTP final, **19 octubre 00:24:44 UTC / 18 octubre 17:24:44 PDT**: 
 - **OPS-01 — HIGH / P1:** autorizar diseño de releases aislados, health check, cambio de versión y rollback para no detener servicio durante build. No se modificó VPS, proxy, PM2 o CI/CD como parte de estas correcciones.
 
 El trabajo no permite afirmar que ya no existe ninguna observación. Se cierran los defectos de renderizado/discoverability/responsive/enlaces/controles que tienen evidencia y se dejan abiertos explícitamente los anteriores. Los 13 errores TS previos continúan como deuda separada, con firmas comparadas; no fueron introducidos ni resueltos por estos lotes.
+
+### Actualización de diseño — Hero empresarial (18 octubre 2026)
+
+La entrega de diseño sustituye el Hero animado con mascota por texto estable y arquitectura ilustrativa, conservando el SSR y los enlaces localizados. La optimización histórica de prioridad de la imagen de Robly en el Hero queda superada: el Hero ya no utiliza imagen ni canvas; Robly permanece en el chat. No se atribuye una mejora de LCP o rankings sin medición posterior. Validación y limitaciones en [DESIGN_AUDIT.md](./DESIGN_AUDIT.md).

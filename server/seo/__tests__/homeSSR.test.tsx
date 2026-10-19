@@ -18,7 +18,9 @@ describe('real React home renderer', () => {
       expect(a('#about').text()).not.toContain('Sophia Martinez');
       expect(b('a[href="/blog?lang=es"]')).not.toHaveLength(0);
       expect(b('a[href="/diagnostico-ia?lang=es"]')).not.toHaveLength(0);
-      expect(a('img[src="/robly-avatar/robly-hero.webp"]').attr('fetchPriority') ?? a('img[src="/robly-avatar/robly-hero.webp"]').attr('fetchpriority')).toBe('high');
+      expect(a('#hero img, #hero canvas')).toHaveLength(0);
+      expect(a('#hero a[href="/get-started"]')).toHaveLength(1);
+      expect(a('#hero').text()).toContain(en.hero.architecture.description);
       expect(a('#contact form')).toHaveLength(1);
       expect(a('#contact form').attr('method')).toBe('post');
       expect(a('#contact button[type="submit"]').attr('disabled')).toBeDefined();

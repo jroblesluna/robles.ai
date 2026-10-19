@@ -86,7 +86,7 @@
         "caseStudies": "Case Studies",
         "courses": "Courses",
         "blog": "AI News Center",
-        "language": "🌐 Language",
+        "language": "Language",
         "demos": "Demos Lab",
         "contact": "Contact Us",
         "quiz": "AI Test",
@@ -96,17 +96,32 @@
         "toggleMenu": "Toggle menu"
     },
     "hero": {
-        "carouselLabel": "Robles.AI highlights",
-        "slide": "Slide",
-        "previousSlide": "Previous slide",
-        "nextSlide": "Next slide",
-        "startSlides": "Start automatic slide show",
-        "stopSlides": "Stop automatic slide show",
-        "title": "Robust Artificial Intelligence Solutions",
-        "subtitle": "Transform your business with cutting-edge AI technology that delivers real-world results.",
-        "cta1": "Why Choose Us?",
-        "cta2": "AI News Center",
-        "cta3": "Get Started with AI in my Company"
+        "title": "Enterprise AI, from idea to production.",
+        "subtitle": "We design and integrate AI applications, RAG and agents with your data, processes and enterprise systems.",
+        "eyebrow": "AI engineering · Enterprise integration",
+        "cta1": "Our approach",
+        "cta2": "AI news and analysis",
+        "cta3": "Plan your AI project",
+        "demosCta": "Explore technical demos",
+        "diagnosisCta": "Assess your AI opportunities",
+        "capabilities": "RAG & agents · Computer vision & document AI · Enterprise integration",
+        "architecture": {
+            "label": "Reference architecture",
+            "title": "From your data to useful applications",
+            "description": "An illustrative flow, adapted to the requirements of each project.",
+            "data": {
+                "title": "Data & context",
+                "description": "Documents, APIs and internal systems."
+            },
+            "intelligence": {
+                "title": "Models & orchestration",
+                "description": "Retrieval, language models and tool integration."
+            },
+            "delivery": {
+                "title": "Applications & workflows",
+                "description": "Assistants, agents and business automation."
+            }
+        }
     },
     "caseStudies": {
         "title": "What AI can achieve in your industry",
@@ -299,6 +314,7 @@
             }
         ],
         "ui": {
+            "previewLabel": "Illustrative data",
             "accuracy": "Accuracy",
             "forecast": "Q3 forecast",
             "person": "person",
@@ -2394,6 +2410,7 @@
         "langchainShort": "LangChain"
     },
     "demosCatalog": {
+        "previewNotice": "Sample data",
         "eyebrow": "Interactive Playground",
         "title": "AI Demos Playground",
         "subtitle": "Try our models live in your browser with sample data — no signup, no setup. Explore what our AI can do across vision, language, and beyond.",

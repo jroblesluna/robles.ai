@@ -86,7 +86,7 @@
         "caseStudies": "Casos de Éxito",
         "courses": "Cursos",
         "blog": "Centro de Noticias AI",
-        "language": "🌐 Idioma",
+        "language": "Idioma",
         "demos": "Laboratorio de Demos",
         "contact": "Contáctanos",
         "quiz": "Test de IA",
@@ -96,17 +96,32 @@
         "toggleMenu": "Abrir o cerrar menú"
     },
     "hero": {
-        "carouselLabel": "Destacados de Robles.AI",
-        "slide": "Diapositiva",
-        "previousSlide": "Diapositiva anterior",
-        "nextSlide": "Diapositiva siguiente",
-        "startSlides": "Iniciar presentación automática",
-        "stopSlides": "Detener presentación automática",
-        "title": "Soluciones Robustas de Inteligencia Artificial",
-        "subtitle": "Transforma tu negocio con tecnología de IA de vanguardia que ofrece resultados reales.",
-        "cta1": "¿Porqué elegirnos?",
-        "cta2": "Centro de Noticias IA",
-        "cta3": "Empezar con IA en mi Empresa"
+        "title": "IA empresarial, de la idea a producción.",
+        "subtitle": "Diseñamos e integramos aplicaciones de IA, RAG y agentes con tus datos, procesos y sistemas empresariales.",
+        "eyebrow": "Ingeniería de IA · Integración empresarial",
+        "cta1": "Nuestro enfoque",
+        "cta2": "Noticias y análisis de IA",
+        "cta3": "Planificar mi proyecto de IA",
+        "demosCta": "Explorar demos técnicas",
+        "diagnosisCta": "Evaluar oportunidades de IA",
+        "capabilities": "RAG y agentes · Visión e IA documental · Integración empresarial",
+        "architecture": {
+            "label": "Arquitectura de referencia",
+            "title": "De tus datos a aplicaciones útiles",
+            "description": "Un flujo ilustrativo, adaptado a los requisitos de cada proyecto.",
+            "data": {
+                "title": "Datos y contexto",
+                "description": "Documentos, APIs y sistemas internos."
+            },
+            "intelligence": {
+                "title": "Modelos y orquestación",
+                "description": "Recuperación, modelos de lenguaje e integración de herramientas."
+            },
+            "delivery": {
+                "title": "Aplicaciones y procesos",
+                "description": "Asistentes, agentes y automatización de negocio."
+            }
+        }
     },
     "caseStudies": {
         "title": "Lo que la IA puede lograr en tu industria",
@@ -299,6 +314,7 @@
             }
         ],
         "ui": {
+            "previewLabel": "Datos ilustrativos",
             "accuracy": "Precisión",
             "forecast": "Pronóstico Q3",
             "person": "persona",
@@ -2394,6 +2410,7 @@
         "langchainShort": "LangChain"
     },
     "demosCatalog": {
+        "previewNotice": "Datos de ejemplo",
         "eyebrow": "Laboratorio Interactivo",
         "title": "Laboratorio de Demos de IA",
         "subtitle": "Prueba nuestros modelos en vivo desde tu navegador con datos de ejemplo — sin registro ni configuración. Explora lo que puede hacer nuestra IA en visión, lenguaje y más.",
