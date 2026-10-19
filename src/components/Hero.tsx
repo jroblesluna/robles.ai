@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "wouter";
 import { ChevronLeft, ChevronRight, Play, Pause, Sparkles, ArrowRight, Fingerprint, Database, AudioLines, Link2, FlaskConical } from "lucide-react";
-import { fadeIn, staggerContainer } from "@/utils/animations";
 import ParticleBackground from './ParticleBackground';
 import { useTranslation } from 'react-i18next';
 import { useReducedMotion } from "@/hooks/useReducedMotion";
@@ -185,11 +184,24 @@ const Hero = () => {
     },
   ];
 
+  const slideContent = (
+    <div className="w-full max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 px-4">
+      <div className={`shrink-0 order-1 md:order-2 ${slides[slide].mascotClass ?? ""}`}>
+        <img
+          src={slides[slide].mascot}
+          alt=""
+          width="224"
+          height="224"
+          fetchPriority={slide === 0 ? "high" : "auto"}
+          className={slides[slide].mascotSize}
+        />
+      </div>
+      <div className="text-center md:text-left order-2 md:order-1">{slides[slide].content}</div>
+    </div>
+  );
+
   return (
-    <motion.section
-      variants={staggerContainer}
-      initial={false}
-      animate="visible"
+    <section
       aria-label={t("hero.carouselLabel")}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -214,14 +226,13 @@ const Hero = () => {
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <motion.div
-          variants={fadeIn}
+        <div
           id="hero-slides"
           aria-live={autoEnabled ? "off" : "polite"}
           className="relative grid w-full min-h-[400px] sm:min-h-[360px] md:min-h-[300px] overflow-hidden"
         >
           <AnimatePresence mode="popLayout" custom={direction} initial={false}>
-            <motion.div
+            {slide === 0 ? <div key="main" className="relative col-start-1 row-start-1 flex items-center justify-center">{slideContent}</div> : <motion.div
               key={slide}
               custom={direction}
               variants={slideVariants}
@@ -235,22 +246,10 @@ const Hero = () => {
               }
               className="relative col-start-1 row-start-1 flex items-center justify-center"
             >
-              <div className="w-full max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 px-4">
-                <div className={`shrink-0 order-1 md:order-2 ${slides[slide].mascotClass ?? ""}`}>
-                  <img
-                    src={slides[slide].mascot}
-                    alt=""
-                    width="224"
-                    height="224"
-                    fetchPriority={slide === 0 ? "high" : "auto"}
-                    className={slides[slide].mascotSize}
-                  />
-                </div>
-                <div className="text-center md:text-left order-2 md:order-1">{slides[slide].content}</div>
-              </div>
-            </motion.div>
+              {slideContent}
+            </motion.div>}
           </AnimatePresence>
-        </motion.div>
+        </div>
 
         <div className="flex justify-center gap-2 mt-4">
           <button type="button" data-rotation-control="hero" aria-controls="hero-slides"
@@ -292,7 +291,7 @@ const Hero = () => {
       </button>
 
       <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-gray-50 to-transparent"></div>
-    </motion.section>
+    </section>
   );
 };
 
