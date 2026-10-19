@@ -330,7 +330,25 @@ const PreviewSpeech = ({ t }: { t: TFn }) => (
   </div>
 );
 
+/** Illustrative document-to-data output, not a measured extraction result. */
+const PreviewDocument = ({ t }: { t: TFn }) => (
+  <div className="flex w-[250px] items-center gap-3" aria-hidden="true">
+    <div className="w-28 shrink-0 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+      <div className="mb-3 flex items-center gap-2 text-slate-700"><FileText className="h-4 w-4" /><span className="text-xs font-semibold">{t("demosCatalog.documentPreview.invoice")}</span></div>
+      <p className="font-mono text-[10px] text-slate-500">INV-2048</p>
+      <div className="my-3 space-y-2"><div className="h-1.5 w-full rounded bg-slate-100" /><div className="h-1.5 w-3/4 rounded bg-slate-100" /></div>
+      <div className="rounded border border-blue-300 bg-blue-50 p-2"><p className="text-[10px] text-slate-600">{t("demosCatalog.documentPreview.total")}</p><p className="mt-1 font-mono text-xs font-semibold text-slate-900">USD 1,250</p></div>
+    </div>
+    <ArrowRight className="h-4 w-4 shrink-0 text-blue-600" />
+    <div className="min-w-0 flex-1 rounded-xl bg-slate-900 p-3 shadow-sm">
+      <p className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-blue-300">JSON</p>
+      <div className="space-y-2 font-mono text-[10px] leading-4 text-slate-200"><p>{'{'}<br />&nbsp;"id":<br /><span className="text-emerald-300">&nbsp;"2048",</span></p><p>&nbsp;"total":<br /><span className="text-emerald-300">&nbsp;1250</span><br />{'}'}</p></div>
+    </div>
+  </div>
+);
+
 const PREVIEWS: Record<string, (p: { t: TFn }) => React.ReactElement> = {
+  docextract: PreviewDocument,
   identity: PreviewIdentity,
   rag: PreviewRag,
   langchain: PreviewAgent,
@@ -341,6 +359,7 @@ const PREVIEWS: Record<string, (p: { t: TFn }) => React.ReactElement> = {
 
 /** Light tint behind each preview (static so Tailwind generates it). */
 const TINTS: Record<string, string> = {
+  docextract: "from-slate-100 via-blue-50 to-white",
   identity: "from-violet-100 via-purple-50 to-white",
   rag: "from-sky-100 via-blue-50 to-white",
   langchain: "from-amber-100 via-orange-50 to-white",
@@ -468,32 +487,37 @@ export default function DemosCatalog({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: Math.min(cards.length * 0.06, 0.3) }}
-              className="h-full"
+              className="h-full sm:col-span-2 lg:col-span-4"
             >
               <Link
                 href={staticPagePath("/demos", lang)}
-                className="group relative flex h-full min-h-[420px] flex-col justify-end overflow-hidden rounded-3xl bg-gray-950 p-7 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+                className="group relative grid h-full items-center gap-8 overflow-hidden rounded-3xl bg-gray-950 p-6 text-white sm:grid-cols-2 sm:p-8 lg:gap-12 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
               >
-                <span className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-violet-600/40 blur-3xl" />
-                <span className="pointer-events-none absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-blue-600/25 blur-3xl" />
-                <div className="relative mb-auto flex items-center gap-3">
-                  {[...liveAll, ...soonAll].slice(0, 6).map((item) => {
-                    const ItemIcon = ICONS[item.icon] || Sparkles;
-                    return <ItemIcon key={item.id} className="h-4 w-4 text-white/35" />;
-                  })}
-                  {liveAll.length + soonAll.length > 6 && (
-                    <span className="text-xs font-medium text-white/35">
-                      +{liveAll.length + soonAll.length - 6}
-                    </span>
-                  )}
+                <div className="relative rounded-2xl border border-slate-700 bg-slate-900 p-4">
+                  <div className="mb-4 flex items-center justify-between border-b border-slate-700 pb-3">
+                    <span className="text-xs font-medium text-slate-300">{t("demosCatalog.catalogPreview.label")}</span>
+                    <Search aria-hidden="true" className="h-4 w-4 text-slate-400" />
+                  </div>
+                  <div className="space-y-3">
+                    {[{ key: "documents", icon: FileText }, { key: "vision", icon: ScanEye }, { key: "voice", icon: AudioLines }].map(({ key, icon: Icon }) => (
+                      <div key={key} className="flex items-center gap-3 rounded-lg border border-slate-700 bg-slate-950 px-3 py-3">
+                        <Icon aria-hidden="true" className="h-5 w-5 shrink-0 text-blue-300" />
+                        <span className="flex-1 text-xs font-medium leading-5 text-slate-100">{t(`demosCatalog.catalogPreview.${key}`)}</span>
+                        <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <p className="relative text-2xl font-semibold tracking-tight">{t("demosCatalog.view_all")}</p>
-                <p className="relative mt-2 text-sm text-gray-400">
+                <div>
+                <h3 className="relative text-2xl font-semibold tracking-tight">{t("demosCatalog.view_all")}</h3>
+                <p className="relative mt-3 text-sm leading-6 text-slate-300">{t("demosCatalog.catalogPreview.description")}</p>
+                <p className="relative mt-2 text-sm text-slate-400">
                   {t("demosCatalog.view_all_meta", { live: liveAll.length, soon: soonAll.length })}
                 </p>
                 <span className="relative mt-6 flex h-11 w-11 items-center justify-center rounded-full bg-white text-gray-900 transition-transform duration-300 group-hover:translate-x-1">
                   <ArrowRight className="h-5 w-5" />
                 </span>
+                </div>
               </Link>
             </motion.div>
           )}
