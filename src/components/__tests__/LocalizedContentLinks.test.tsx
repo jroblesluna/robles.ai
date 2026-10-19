@@ -242,3 +242,19 @@ it.each(['en', 'es'] as const)('uses the same localized posters on home and lab 
   const labPosters = Array.from(lab.container.querySelectorAll('img')).map(img => img.getAttribute('src'));
   posters.forEach(poster => expect(labPosters).toContain(poster));
 });
+
+it.each(['en', 'es'] as const)('shows the generated photo with accessible %s playback controls outside its demo link', language => {
+  locale.language = language; locale.reduced = false; vi.useFakeTimers();
+  const copy = language === 'es' ? es : en;
+  const { container } = render(<DemosCatalog limit={8} />);
+  const image = container.querySelector('img[src*="emotion-portrait"]')!;
+  expect(image).toHaveAttribute('srcset', expect.stringContaining('960.webp 960w'));
+  const replay = screen.getByRole('button', { name: copy.demosCatalog.emotionPreview.replay });
+  expect(replay).toBeDisabled(); fireEvent.load(image); expect(replay).toBeEnabled();
+  expect(replay.closest('a')).toBeNull();
+  fireEvent.click(replay);
+  expect(container.querySelector('.emotion-preview')).toHaveAttribute('data-playing', 'true');
+  act(() => { vi.advanceTimersByTime(4000); });
+  expect(container.querySelector('.emotion-preview')).toHaveAttribute('data-playing', 'false');
+  expect(container.querySelector('a[href^="/try-emotion"]')).toHaveAttribute('href', '/try-emotion' + (language === 'es' ? '?lang=es' : ''));
+});

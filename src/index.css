@@ -218,3 +218,22 @@ body {
     animation: none;
   }
 }
+
+/* Photographic demo preview: fixed portrait, brief technical overlays only. */
+.emotion-preview .emotion-frame { opacity: .8; }
+.emotion-preview .emotion-mesh { opacity: .45; }
+.emotion-preview[data-playing="true"] .emotion-frame,
+.emotion-preview[data-playing="true"] .emotion-point { animation: emotion-reveal 4s ease-out both; }
+.emotion-preview[data-playing="true"] .emotion-mesh { animation: emotion-mesh 4s ease-out both; }
+.emotion-preview[data-playing="true"] .emotion-scan { animation: emotion-scan 4s linear both; }
+.emotion-preview[data-playing="true"] .emotion-result { animation: emotion-result 4s ease-out both; }
+.emotion-preview[data-playing="true"] .emotion-bar { animation: emotion-bar 4s ease-out both; }
+@keyframes emotion-reveal { 0%, 8% { opacity: 0; } 25%, 100% { opacity: .9; } }
+@keyframes emotion-mesh { 0%, 20% { opacity: 0; } 45%, 100% { opacity: .45; } }
+@keyframes emotion-scan { 0% { opacity: 0; transform: translateY(0); } 12% { opacity: .9; } 65% { opacity: .9; transform: translateY(286px); } 75%, 100% { opacity: 0; transform: translateY(286px); } }
+@keyframes emotion-result { 0%, 25% { opacity: 0; transform: translateY(6px); } 50%, 100% { opacity: 1; transform: translateY(0); } }
+@keyframes emotion-bar { 0%, 40% { transform: scaleX(0); } 80%, 100% { transform: scaleX(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .emotion-preview * { animation: none !important; }
+  .emotion-preview .emotion-scan { display: none; }
+}

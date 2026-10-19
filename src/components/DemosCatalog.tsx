@@ -1,11 +1,15 @@
 import { normalizeLanguage, staticPagePath } from '@shared/seoPolicy';
 import { createPortal } from "react-dom";
 import { usePublicDialog } from "@/hooks/usePublicDialog";
-import { useMemo, useState } from "react";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useDemoPreviewMotion } from "@/hooks/useDemoPreviewMotion";
+import { EmotionPreview } from "@/components/demo/EmotionPreview";
+import { useCallback, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
 import {
   Play,
+  Pause,
   X,
   Fingerprint,
   Database,
@@ -95,23 +99,26 @@ function BenefitLine({ text }: { text: string }) {
 }
 
 // A single card anatomy and poster are shared by home and the lab.
-function DemoCard({ item, index }: { item: DemoItem; index: number }) {
+function DemoCard({ item, index, reducedMotion }: { item: DemoItem; index: number; reducedMotion: boolean }) {
   const { t, i18n } = useTranslation();
   const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
   const [preview, setPreview] = useState(false);
+  const [photoReady, setPhotoReady] = useState(false);
+  const onPhotoLoad = useCallback(() => setPhotoReady(true), []);
+  const motionPreview = useDemoPreviewMotion(item.id === "emotion" && photoReady, reducedMotion);
   const Icon = ICONS[item.icon] || Sparkles;
   const isLive = item.status === "live";
   const [family] = item.modelType.split("·").map(value => value.trim());
   const poster = `/demo-previews/${item.id}-${lang}.svg`;
   return (
-    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+    <motion.div ref={motionPreview.target} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }} transition={{ duration: 0.3, delay: Math.min(index * 0.04, 0.3) }}
       className="relative flex h-full flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-gray-200">
       <Link href={isLive && item.href ? staticPagePath(item.href, lang) : staticPagePath("/", lang) + "#contact"}
         className="group flex flex-1 flex-col overflow-hidden bg-white transition-shadow hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-600">
         <div className="relative aspect-[4/3] overflow-hidden bg-slate-950">
-          <img src={poster} alt="" width={800} height={600} loading="lazy" decoding="async"
-            className="h-full w-full object-contain" />
+          {item.id === "emotion" ? <EmotionPreview playing={motionPreview.playing} run={motionPreview.run} onLoad={onPhotoLoad} /> : <img src={poster} alt="" width={800} height={600} loading="lazy" decoding="async"
+            className="h-full w-full object-contain" />}
           <span className="absolute right-3 top-3 rounded-full bg-white px-2 py-1 text-[11px] font-semibold text-slate-700">
             {t(isLive ? "demosCatalog.badge_live" : "demosCatalog.badge_soon")}
           </span>
@@ -126,6 +133,14 @@ function DemoCard({ item, index }: { item: DemoItem; index: number }) {
           </span>
         </div>
       </Link>
+      {item.id === "emotion" && !reducedMotion && <button type="button"
+        aria-label={t(motionPreview.playing ? "demosCatalog.emotionPreview.stop" : "demosCatalog.emotionPreview.replay")}
+        title={t(motionPreview.playing ? "demosCatalog.emotionPreview.stop" : "demosCatalog.emotionPreview.replay")}
+        aria-pressed={motionPreview.playing} disabled={!photoReady}
+        onClick={motionPreview.playing ? motionPreview.stop : motionPreview.replay}
+        className="tap-target absolute left-3 top-3 rounded-full border border-white/30 bg-slate-950/80 text-white shadow-lg disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300">
+        {motionPreview.playing ? <Pause aria-hidden="true" className="h-4 w-4" /> : <Play aria-hidden="true" className="h-4 w-4" />}
+      </button>}
       {item.id === "docextract" && <button type="button" onClick={() => setPreview(true)}
         className="mx-5 mb-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-900 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-400">
         <Play aria-hidden="true" className="h-4 w-4" />{t("demosCatalog.watchPreview")}
@@ -168,6 +183,7 @@ export default function DemosCatalog({
   showViewAll?: boolean;
 }) {
   const { t, i18n } = useTranslation();
+  const reducedMotion = useReducedMotion();
   const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
   const allItems = (t("demosCatalog.items", { returnObjects: true }) as DemoItem[]) || [];
   const compact = !!limit;
@@ -225,7 +241,7 @@ export default function DemosCatalog({
           </div>
 
           <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {cards.map((item, i) => <DemoCard key={item.id} item={item} index={i} />)}
+          {cards.map((item, i) => <DemoCard key={item.id} item={item} index={i} reducedMotion={reducedMotion} />)}
 
           {showViewAll && (
             <motion.div
@@ -370,7 +386,7 @@ export default function DemosCatalog({
             </div>
             <motion.div layout className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               <AnimatePresence mode="popLayout">
-                {live.map((item, i) => <DemoCard key={item.id} item={item} index={i} />)}
+                {live.map((item, i) => <DemoCard key={item.id} item={item} index={i} reducedMotion={reducedMotion} />)}
               </AnimatePresence>
             </motion.div>
           </div>
@@ -388,7 +404,7 @@ export default function DemosCatalog({
             </div>
             <motion.div layout className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               <AnimatePresence mode="popLayout">
-                {soon.map((item, i) => <DemoCard key={item.id} item={item} index={i} />)}
+                {soon.map((item, i) => <DemoCard key={item.id} item={item} index={i} reducedMotion={reducedMotion} />)}
               </AnimatePresence>
             </motion.div>
           </div>

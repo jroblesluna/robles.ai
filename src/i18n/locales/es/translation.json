@@ -2413,6 +2413,7 @@
         "langchainShort": "LangChain"
     },
     "demosCatalog": {
+        "emotionPreview": {"output": "Modelo · Ejemplo", "notice": "Retrato generado con IA · Simulación", "stop": "Detener animación de análisis facial", "replay": "Repetir animación de análisis facial"},
         "watchPreview": "Ver clip ilustrativo · 10 s",
         "previewDescription": "Flujo ilustrativo de extracción documental. Datos de ejemplo; la duración del clip no indica el tiempo de procesamiento.",
         "documentPreview": {

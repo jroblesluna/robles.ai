@@ -18,3 +18,12 @@ it.each([['en', en], ['es', es]] as const)('ships a valid, self-contained %s pos
   expect(mp4.indexOf(Buffer.from('moov'))).toBeLessThan(mp4.indexOf(Buffer.from('mdat')));
   expect(mp4.length).toBeLessThan(150000);
 });
+
+it('ships responsive generated-portrait WebP files with a bounded transfer size', () => {
+  for (const width of [480, 960]) {
+    const image = readFileSync(resolve('public/demo-previews', `emotion-portrait-v1-${width}.webp`));
+    expect(image.subarray(0, 4).toString()).toBe('RIFF');
+    expect(image.subarray(8, 12).toString()).toBe('WEBP');
+    expect(image.length).toBeLessThan(width === 480 ? 50000 : 150000);
+  }
+});
