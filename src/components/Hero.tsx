@@ -218,7 +218,7 @@ const Hero = () => {
           variants={fadeIn}
           id="hero-slides"
           aria-live={autoEnabled ? "off" : "polite"}
-          className="relative w-full h-[400px] sm:h-[360px] md:h-[300px] overflow-hidden"
+          className="relative grid w-full min-h-[400px] sm:min-h-[360px] md:min-h-[300px] overflow-hidden"
         >
           <AnimatePresence mode="popLayout" custom={direction} initial={false}>
             <motion.div
@@ -233,7 +233,7 @@ const Hero = () => {
                   ? { opacity: { duration: 0.15 } }
                   : { x: { type: "spring", stiffness: 300, damping: 30 }, opacity: { duration: 0.25 } }
               }
-              className="absolute inset-0 flex items-center justify-center"
+              className="relative col-start-1 row-start-1 flex items-center justify-center"
             >
               <div className="w-full max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 px-4">
                 <div className={`shrink-0 order-1 md:order-2 ${slides[slide].mascotClass ?? ""}`}>
@@ -243,7 +243,7 @@ const Hero = () => {
                     width="224"
                     height="224"
                     fetchPriority={slide === 0 ? "high" : "auto"}
-                    className={`${slides[slide].mascotSize} drop-shadow-[0_8px_16px_rgba(0,0,0,0.35)]`}
+                    className={slides[slide].mascotSize}
                   />
                 </div>
                 <div className="text-center md:text-left order-2 md:order-1">{slides[slide].content}</div>

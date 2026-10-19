@@ -537,3 +537,14 @@ La revisión de GA4 existente no ofrece valores CWV convencionales para el perí
 - **Dependencias/riesgos:** evitar doble GA4 cuando GTM está configurado; verificar despacho antes de ocultar/cerrar la página; no confundir cambios SPA con navegaciones físicas. No asumir que un push a dataLayer se mide si falta un trigger aprobado. No cambiar tracking de producción para lograr una puntuación.
 - **Validación:** tests con envíos simulados, exclusión de rutas privadas y query strings, sin duplicación; DebugView/preview autorizado; comprobar unidades y muestras. Reportar percentil 75 por dispositivo/página, fechas y cantidad de muestras; los datos empiezan tras activación, no reconstruyen el histórico faltante.
 - **Resultado esperado:** poder medir usuarios reales sin depender de elegibilidad pública CrUX. No garantiza rankings ni una calificación CWV favorable. Hasta aprobar/obtener datos, el estado de campo sigue siendo desconocido.
+
+
+## Lote POST-09 — ajuste responsive y estabilidad de lectura
+
+| Issue / prioridad | Archivos exactos | Implementación / dependencias | Riesgos y validación / resultado esperado |
+| --- | --- | --- | --- |
+| POST-09-RESP / P1 | `src/components/Hero.tsx` | Grid con altura intrínseca y mínimo responsive, slide en flujo; sin cambio de routing o SSR. Depende de POST-07. | Puede cambiar altura entre diapositivas; validar 320/390/1280, EN/ES, las tres diapositivas, no-JS, hidratación y CTA completos. Resultado: no cortar texto/imagen/CTA en pantallas estrechas. |
+| POST-09-CASE / P1 | `src/components/CaseStudies.tsx`, `src/components/__tests__/LocalizedContentLinks.test.tsx` | Selección manual estable y primer panel visible, eliminar temporizador e indicador de cuenta regresiva. | Cambia rotación decorativa, mantiene todos los casos/modal. Prueba de 20 s antes/después de selección y recorrido de modal; repetir contraste en PSI sin afirmar causa única. |
+| POST-09-IMAGE / P1 | `public/robly-avatar/robly-hero.webp`, `shared/publicContent.ts`, `src/components/Hero.tsx`, `server/seo/__tests__/homeSSR.test.tsx`, `server/seo/__tests__/publicContent.test.ts` | Raster del SVG existente mediante sharp instalado, doble resolución del tamaño máximo visible (224 CSS px), transparencia, prioridad alta y una única URL SSR/React. | Más bytes que SVG; optimiza coste de pintura como hipótesis medida. Build, tests, visual, cache/200/MIME y PSI antes/después. Ningún paquete o tercero nuevo. |
+
+Esfuerzo: medio día incluyendo navegador y despliegue. Flujo autorizado: rama, pruebas/build, PR/main, Actions, HTTP/DOM y nueva medición. Reversión mediante revert del lote; no modificar bases de datos, autenticación, DNS ni métricas privadas. Los datos reales de indexación/rankings y CWV de campo siguen las dependencias MEASURE-01/02; no se cierran por cambiar código.
