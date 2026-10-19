@@ -95,3 +95,9 @@ Los medios se versionan; no se regeneran durante el despliegue. El renderizador 
 - No se instalaron paquetes, cambiaron credenciales, modificaron selecciones editoriales ni añadieron tracking. No se atribuyen mejoras de conversión sin medición con usuarios.
 
 La comprobación posterior al despliegue se documenta en la entrega y sus evidencias de producción. Persisten las limitaciones de pruebas y deuda TypeScript descritas; no son promesas de corrección incluidas en esta entrega de home.
+
+### Iteración de estabilidad del visor
+
+La revisión final identificó una transición de proyección de layout en `DemoCard`: el cambio de scroll producido por bloquear/restaurar el body podía hacer que framer-motion desplazase brevemente la tarjeta de Facturas al cerrar el visor. Se retira `layout` de la tarjeta; se conservan entrada, salida y filtrado. La posición de una tarjeta no necesita animarse por abrir un video. Validación específica: abrir/cerrar el clip desde su tarjeta y comprobar geometría y visibilidad inmediatamente tras el cierre, en escritorio y móvil.
+
+Resultado: 23 regresiones de 3 suites y build completo correctos. En navegador, a 1440 px el cierre conserva `scrollY=1334` y top de tarjeta `-79.75`; a 390 px conserva `scrollY=4721.5` y top `-116.125`. No hay transform en la tarjeta inmediatamente después del cierre. La revisión HTTP de la primera publicación confirmó los 30 medios con hashes idénticos a los locales, tipos MIME correctos, respuestas 200 y soporte 206/Range de ambos clips; home EN/ES conserva un H1 y canonical correcto.
