@@ -2413,6 +2413,7 @@
         "langchainShort": "LangChain"
     },
     "demosCatalog": {
+        "emotionPreview": {"output": "Model · Example", "notice": "AI-generated portrait · Illustrative overlay", "stop": "Stop facial analysis animation", "replay": "Replay facial analysis animation"},
         "watchPreview": "Watch illustrative clip · 10 s",
         "previewDescription": "Illustrative document extraction flow. Sample data; clip duration is not processing time.",
         "documentPreview": {
