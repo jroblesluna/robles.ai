@@ -237,3 +237,19 @@ body {
   .emotion-preview * { animation: none !important; }
   .emotion-preview .emotion-scan { display: none; }
 }
+
+/* Brief illustrative photo overlays. No infinite animation or layout shifts. */
+.demo-photo-preview[data-playing="true"] .demo-reveal { animation: demo-reveal 4s both; }
+.demo-photo-preview[data-playing="true"] .demo-delay { animation-delay: .25s; }
+.demo-photo-preview[data-playing="true"] .demo-draw { stroke-dasharray: 650; stroke-dashoffset: 0; animation: demo-draw 4s both; }
+.demo-photo-preview[data-playing="true"] .demo-scan { animation: emotion-scan 4s both; }
+.demo-photo-preview[data-playing="true"] .demo-output { animation: emotion-result 4s both; }
+.demo-photo-preview[data-playing="true"] .demo-output-row { animation: demo-reveal 3s both; }
+.demo-photo-preview[data-playing="true"] .demo-wave-bar { transform-box: fill-box; transform-origin: center; animation: demo-wave 3s both; }
+@keyframes demo-reveal { 0%, 10% { opacity: 0; } 35%, 100% { opacity: 1; } }
+@keyframes demo-draw { 0%, 10% { stroke-dashoffset: 650; opacity: 0; } 20% { opacity: 1; } 75%, 100% { stroke-dashoffset: 0; opacity: 1; } }
+@keyframes demo-wave { 0%, 100% { transform: scaleY(1); } 15%, 45%, 75% { transform: scaleY(.3); } 30%, 60%, 90% { transform: scaleY(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .demo-photo-preview * { animation: none !important; }
+  .demo-photo-preview .demo-scan { display: none; }
+}

@@ -4,6 +4,7 @@ import { XMLValidator } from 'fast-xml-parser';
 import { expect, it } from 'vitest';
 import en from '@/i18n/locales/en/translation.json';
 import es from '@/i18n/locales/es/translation.json';
+import { DEMO_PHOTOS } from '@/components/demo/DemoVisualPreview';
 
 it.each([['en', en], ['es', es]] as const)('ships a valid, self-contained %s poster for every live and roadmap card', (lang, copy) => {
   for (const item of copy.demosCatalog.items) {
@@ -19,11 +20,15 @@ it.each([['en', en], ['es', es]] as const)('ships a valid, self-contained %s pos
   expect(mp4.length).toBeLessThan(150000);
 });
 
-it('ships responsive generated-portrait WebP files with a bounded transfer size', () => {
-  for (const width of [480, 960]) {
-    const image = readFileSync(resolve('public/demo-previews', `emotion-portrait-v1-${width}.webp`));
-    expect(image.subarray(0, 4).toString()).toBe('RIFF');
-    expect(image.subarray(8, 12).toString()).toBe('WEBP');
-    expect(image.length).toBeLessThan(width === 480 ? 50000 : 150000);
+it('ships a distinct responsive generated photo for every live and roadmap card', () => {
+  expect(Object.keys(DEMO_PHOTOS).sort()).toEqual(en.demosCatalog.items.map(item => item.id).sort());
+  expect(new Set(Object.values(DEMO_PHOTOS)).size).toBe(13);
+  for (const name of Object.values(DEMO_PHOTOS)) {
+    for (const width of [480, 960]) {
+      const image = readFileSync(resolve('public/demo-previews', `${name}-${width}.webp`));
+      expect(image.subarray(0, 4).toString()).toBe('RIFF');
+      expect(image.subarray(8, 12).toString()).toBe('WEBP');
+      expect(image.length, `${name}-${width}`).toBeLessThan(width === 480 ? 50000 : 150000);
+    }
   }
 });

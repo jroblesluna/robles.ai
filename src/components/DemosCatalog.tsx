@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { usePublicDialog } from "@/hooks/usePublicDialog";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useDemoPreviewMotion } from "@/hooks/useDemoPreviewMotion";
+import { DemoVisualPreview } from "@/components/demo/DemoVisualPreview";
 import { EmotionPreview } from "@/components/demo/EmotionPreview";
 import { useCallback, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -105,20 +106,21 @@ function DemoCard({ item, index, reducedMotion }: { item: DemoItem; index: numbe
   const [preview, setPreview] = useState(false);
   const [photoReady, setPhotoReady] = useState(false);
   const onPhotoLoad = useCallback(() => setPhotoReady(true), []);
-  const motionPreview = useDemoPreviewMotion(item.id === "emotion" && photoReady, reducedMotion);
+  const motionPreview = useDemoPreviewMotion(photoReady, reducedMotion);
   const Icon = ICONS[item.icon] || Sparkles;
   const isLive = item.status === "live";
   const [family] = item.modelType.split("·").map(value => value.trim());
-  const poster = `/demo-previews/${item.id}-${lang}.svg`;
+  const playbackLabel = item.id === "emotion"
+    ? t(motionPreview.playing ? "demosCatalog.emotionPreview.stop" : "demosCatalog.emotionPreview.replay")
+    : `${t(motionPreview.playing ? "demosCatalog.photoPreview.stop" : "demosCatalog.photoPreview.replay")}: ${item.title}`;
   return (
-    <motion.div ref={motionPreview.target} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+    <motion.div data-preview-id={item.id} ref={motionPreview.target} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }} transition={{ duration: 0.3, delay: Math.min(index * 0.04, 0.3) }}
       className="relative flex h-full flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-gray-200">
       <Link href={isLive && item.href ? staticPagePath(item.href, lang) : staticPagePath("/", lang) + "#contact"}
         className="group flex flex-1 flex-col overflow-hidden bg-white transition-shadow hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-600">
         <div className="relative aspect-[4/3] overflow-hidden bg-slate-950">
-          {item.id === "emotion" ? <EmotionPreview playing={motionPreview.playing} run={motionPreview.run} onLoad={onPhotoLoad} /> : <img src={poster} alt="" width={800} height={600} loading="lazy" decoding="async"
-            className="h-full w-full object-contain" />}
+          {item.id === "emotion" ? <EmotionPreview playing={motionPreview.playing} run={motionPreview.run} onLoad={onPhotoLoad} /> : <DemoVisualPreview id={item.id} playing={motionPreview.playing} run={motionPreview.run} onLoad={onPhotoLoad} />}
           <span className="absolute right-3 top-3 rounded-full bg-white px-2 py-1 text-[11px] font-semibold text-slate-700">
             {t(isLive ? "demosCatalog.badge_live" : "demosCatalog.badge_soon")}
           </span>
@@ -133,9 +135,9 @@ function DemoCard({ item, index, reducedMotion }: { item: DemoItem; index: numbe
           </span>
         </div>
       </Link>
-      {item.id === "emotion" && !reducedMotion && <button type="button"
-        aria-label={t(motionPreview.playing ? "demosCatalog.emotionPreview.stop" : "demosCatalog.emotionPreview.replay")}
-        title={t(motionPreview.playing ? "demosCatalog.emotionPreview.stop" : "demosCatalog.emotionPreview.replay")}
+      {!reducedMotion && <button type="button"
+        aria-label={playbackLabel}
+        title={playbackLabel}
         aria-pressed={motionPreview.playing} disabled={!photoReady}
         onClick={motionPreview.playing ? motionPreview.stop : motionPreview.replay}
         className="tap-target absolute left-3 top-3 rounded-full border border-white/30 bg-slate-950/80 text-white shadow-lg disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300">

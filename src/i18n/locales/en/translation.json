@@ -2413,7 +2413,12 @@
         "langchainShort": "LangChain"
     },
     "demosCatalog": {
-        "emotionPreview": {"output": "Model · Example", "notice": "AI-generated portrait · Illustrative overlay", "stop": "Stop facial analysis animation", "replay": "Replay facial analysis animation"},
+        "emotionPreview": {
+            "output": "Model · Example",
+            "notice": "AI-generated portrait · Illustrative overlay",
+            "stop": "Stop facial analysis animation",
+            "replay": "Replay facial analysis animation"
+        },
         "watchPreview": "Watch illustrative clip · 10 s",
         "previewDescription": "Illustrative document extraction flow. Sample data; clip duration is not processing time.",
         "documentPreview": {
@@ -2622,7 +2627,110 @@
                 "description": "Turn a phone snapshot into catalog photos with your brand's backgrounds, no studio or photographer needed.",
                 "benefit": "Catalog photos without a photo shoot"
             }
-        ]
+        ],
+        "photoPreview": {
+            "notice": "AI-generated image · Illustrative overlay",
+            "stop": "Stop animation",
+            "replay": "Replay animation",
+            "scenes": {
+                "sitechatbot": {
+                    "title": "Website assistant",
+                    "rows": [
+                        "Question",
+                        "Site knowledge",
+                        "Grounded answer"
+                    ]
+                },
+                "identity": {
+                    "title": "Identity check",
+                    "rows": [
+                        "Face landmarks",
+                        "Image comparison",
+                        "Review result"
+                    ]
+                },
+                "rag": {
+                    "title": "Retrieval",
+                    "rows": [
+                        "Find passages",
+                        "Check sources",
+                        "Cited answer"
+                    ]
+                },
+                "speech": {
+                    "title": "Transcription",
+                    "rows": [
+                        "Audio stream",
+                        "Speaker turns",
+                        "Transcript"
+                    ]
+                },
+                "langchain": {
+                    "title": "Orchestration",
+                    "rows": [
+                        "Receive request",
+                        "Select a tool",
+                        "Structured output"
+                    ]
+                },
+                "objectdetection": {
+                    "title": "Object detection",
+                    "rows": [
+                        "Locate objects",
+                        "Draw regions",
+                        "Classify objects"
+                    ]
+                },
+                "docextract": {
+                    "title": "Document AI",
+                    "rows": [
+                        "Read document",
+                        "Extract fields",
+                        "Structured data"
+                    ]
+                },
+                "tts": {
+                    "title": "Voice synthesis",
+                    "rows": [
+                        "Input text",
+                        "Voice settings",
+                        "Generated audio"
+                    ]
+                },
+                "forecast": {
+                    "title": "Demand forecast",
+                    "rows": [
+                        "Historical data",
+                        "Trend model",
+                        "Forecast range"
+                    ]
+                },
+                "voiceagent": {
+                    "title": "Voice agent",
+                    "rows": [
+                        "Incoming call",
+                        "Intent & tools",
+                        "Voice response"
+                    ]
+                },
+                "anomaly": {
+                    "title": "Risk signals",
+                    "rows": [
+                        "Transaction data",
+                        "Pattern analysis",
+                        "Review alert"
+                    ]
+                },
+                "imagegen": {
+                    "title": "Creative studio",
+                    "rows": [
+                        "Describe a scene",
+                        "Generate variants",
+                        "Review image"
+                    ]
+                }
+            }
+        }
     },
     "try-transcription": {
         "title": "Speech-to-Text & Diarization",

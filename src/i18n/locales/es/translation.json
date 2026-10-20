@@ -2413,7 +2413,12 @@
         "langchainShort": "LangChain"
     },
     "demosCatalog": {
-        "emotionPreview": {"output": "Modelo · Ejemplo", "notice": "Retrato generado con IA · Simulación", "stop": "Detener animación de análisis facial", "replay": "Repetir animación de análisis facial"},
+        "emotionPreview": {
+            "output": "Modelo · Ejemplo",
+            "notice": "Retrato generado con IA · Simulación",
+            "stop": "Detener animación de análisis facial",
+            "replay": "Repetir animación de análisis facial"
+        },
         "watchPreview": "Ver clip ilustrativo · 10 s",
         "previewDescription": "Flujo ilustrativo de extracción documental. Datos de ejemplo; la duración del clip no indica el tiempo de procesamiento.",
         "documentPreview": {
@@ -2622,7 +2627,110 @@
                 "description": "Convierte una foto de celular en fotos de catálogo con los fondos de tu marca, sin estudio ni fotógrafo.",
                 "benefit": "Fotos de catálogo sin sesión fotográfica"
             }
-        ]
+        ],
+        "photoPreview": {
+            "notice": "Imagen generada con IA · Simulación",
+            "stop": "Detener animación",
+            "replay": "Repetir animación",
+            "scenes": {
+                "sitechatbot": {
+                    "title": "Asistente web",
+                    "rows": [
+                        "Pregunta",
+                        "Fuentes del sitio",
+                        "Respuesta con contexto"
+                    ]
+                },
+                "identity": {
+                    "title": "Verificación",
+                    "rows": [
+                        "Puntos faciales",
+                        "Comparar imágenes",
+                        "Revisar resultado"
+                    ]
+                },
+                "rag": {
+                    "title": "Consulta RAG",
+                    "rows": [
+                        "Buscar pasajes",
+                        "Consultar fuentes",
+                        "Respuesta citada"
+                    ]
+                },
+                "speech": {
+                    "title": "Transcripción",
+                    "rows": [
+                        "Flujo de audio",
+                        "Turnos de voz",
+                        "Texto transcrito"
+                    ]
+                },
+                "langchain": {
+                    "title": "Orquestación",
+                    "rows": [
+                        "Recibir solicitud",
+                        "Elegir herramienta",
+                        "Salida estructurada"
+                    ]
+                },
+                "objectdetection": {
+                    "title": "Detectar objetos",
+                    "rows": [
+                        "Localizar objetos",
+                        "Marcar regiones",
+                        "Clasificar objetos"
+                    ]
+                },
+                "docextract": {
+                    "title": "Documentos IA",
+                    "rows": [
+                        "Leer documento",
+                        "Extraer campos",
+                        "Datos estructurados"
+                    ]
+                },
+                "tts": {
+                    "title": "Síntesis de voz",
+                    "rows": [
+                        "Texto de entrada",
+                        "Ajustes de voz",
+                        "Audio generado"
+                    ]
+                },
+                "forecast": {
+                    "title": "Pronóstico",
+                    "rows": [
+                        "Datos históricos",
+                        "Modelo de tendencia",
+                        "Rango previsto"
+                    ]
+                },
+                "voiceagent": {
+                    "title": "Agente de voz",
+                    "rows": [
+                        "Llamada entrante",
+                        "Intención y acciones",
+                        "Respuesta de voz"
+                    ]
+                },
+                "anomaly": {
+                    "title": "Señales de riesgo",
+                    "rows": [
+                        "Datos de operación",
+                        "Analizar patrones",
+                        "Alerta de revisión"
+                    ]
+                },
+                "imagegen": {
+                    "title": "Estudio creativo",
+                    "rows": [
+                        "Describir escena",
+                        "Generar variantes",
+                        "Revisar imagen"
+                    ]
+                }
+            }
+        }
     },
     "try-transcription": {
         "title": "Voz a Texto y Diarización",
