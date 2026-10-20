@@ -110,3 +110,7 @@ Use case: photorealistic-natural. Asset: Robles.AI enterprise software demo card
 
 
 Build de cliente, SSR y servidor correcto. TypeScript conserva exactamente las mismas 13 firmas de error previas, comparadas con el registro del piloto, sin errores nuevos. En navegador se comprobaron las 13 tarjetas del laboratorio ES a 320/390/768/1440 px, sin overflow horizontal ni paneles fuera de la foto o sobre el aviso inferior. Se revisó también el home EN móvil y la reproducción por teclado, con animación CSS activa y control fuera del enlace. Se corrigieron etiquetas RAG y margen vertical al encontrar solapamientos en 320 px. Movimiento reducido sigue validado por pruebas y CSS; el navegador no ofrece emulación de esa preferencia.
+
+## Hover en desktop y control táctil
+
+Las 13 tarjetas compartidas por home y laboratorio repiten su animación al entrar el mouse y la detienen al salir. Se comprueba `(hover: hover) and (pointer: fine)` para que los eventos de mouse sintetizados por touch no disparen ni interrumpan la reproducción móvil. El botón mantiene touch, teclado y pausa/repetición; el enlace de la tarjeta conserva su navegación. Se mantiene la breve presentación inicial de viewport, el fin a cuatro segundos y el respeto por movimiento reducido. No hay bucle mientras el puntero permanece quieto sobre la tarjeta.

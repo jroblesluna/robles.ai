@@ -114,7 +114,8 @@ function DemoCard({ item, index, reducedMotion }: { item: DemoItem; index: numbe
     ? t(motionPreview.playing ? "demosCatalog.emotionPreview.stop" : "demosCatalog.emotionPreview.replay")
     : `${t(motionPreview.playing ? "demosCatalog.photoPreview.stop" : "demosCatalog.photoPreview.replay")}: ${item.title}`;
   return (
-    <motion.div data-preview-id={item.id} ref={motionPreview.target} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+    <motion.div data-preview-id={item.id} ref={motionPreview.target}
+      onMouseEnter={motionPreview.onMouseEnter} onMouseLeave={motionPreview.onMouseLeave} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }} transition={{ duration: 0.3, delay: Math.min(index * 0.04, 0.3) }}
       className="relative flex h-full flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-gray-200">
       <Link href={isLive && item.href ? staticPagePath(item.href, lang) : staticPagePath("/", lang) + "#contact"}
