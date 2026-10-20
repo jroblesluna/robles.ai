@@ -32,6 +32,7 @@ it.each(['en', 'es'] as const)('hydrates %s without replacing content and keeps 
   expect(errors).not.toHaveBeenCalled();
   expect(root.querySelector('h1')).toBe(originalHeading);
   expect(originalHeading?.textContent).toBe(copy.hero.title);
+  expect(Array.from(root.querySelectorAll('[data-preview-id]')).map(card => card.getAttribute('data-preview-id'))).toEqual(copy.demosCatalog.items.filter(item => item.status === 'live').map(item => item.id));
   expect(within(root).getByRole('button', { name: copy.contact.send })).toBeEnabled();
   const group = within(root).getByRole('group', { name: copy.solutions.title });
   const option = within(group).getByRole('button', { name: new RegExp(copy.solutions.items[1].title) });

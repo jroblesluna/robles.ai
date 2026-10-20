@@ -148,22 +148,22 @@ function DemoCard({ item, index, reducedMotion }: { item: DemoItem; index: numbe
 /**
  * AI Demos catalog.
  * - Full page (/demos): hero, search + category filters, live grid, roadmap.
- * - Compact (home, when `limit` is set): grid of preview cards + "view all" card.
- * @param limit  Optional cap on how many items to show (used on the home page).
+ * - Home: all available demos + "view all" card; the lab also shows the roadmap.
+ * @param variant Layout only; available demo membership is identical on both surfaces.
  * @param showViewAll  Whether to show the "view all demos" link (home page).
  */
 export default function DemosCatalog({
-  limit,
+  variant = "lab",
   showViewAll = false,
 }: {
-  limit?: number;
+  variant?: "home" | "lab";
   showViewAll?: boolean;
 }) {
   const { t, i18n } = useTranslation();
   const reducedMotion = useReducedMotion();
   const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
   const allItems = (t("demosCatalog.items", { returnObjects: true }) as DemoItem[]) || [];
-  const compact = !!limit;
+  const compact = variant === "home";
 
   const [category, setCategory] = useState<Category>("all");
   const [query, setQuery] = useState("");
@@ -190,7 +190,7 @@ export default function DemosCatalog({
   // ── Compact variant (home page) ─────────────────────────────────────────────
   // Shared, illustrative media — not a screenshot or measured result.
   if (compact) {
-    const cards = liveAll.slice(0, limit);
+    const cards = liveAll;
     return (
       <section id="demos" className="scroll-mt-20 bg-gradient-to-b from-white to-gray-50/70 py-24">
         <motion.div
