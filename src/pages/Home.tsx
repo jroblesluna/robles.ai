@@ -42,7 +42,7 @@ const Home = () => {
       <Hero />
       <Features />
       <Solutions />
-      <DemosCatalog limit={8} showViewAll />
+      <DemosCatalog variant="home" showViewAll />
       <CaseStudies />
       <Courses />
       {/* <Testimonials /> */}

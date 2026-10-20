@@ -223,15 +223,17 @@ it('decodes case headings and metadata once, keeps escaped markup inert and rest
 it.each(['en', 'es'] as const)('shares %s photos and consistent inline previews across home and lab', language => {
   locale.language = language; locale.reduced = false;
   const copy = language === 'es' ? es : en;
-  const home = render(<DemosCatalog limit={8} />);
+  const home = render(<DemosCatalog variant="home" />);
   const posters = Array.from(home.container.querySelectorAll('img')).map(img => img.getAttribute('src'));
-  expect(posters).toHaveLength(8);
-  expect(screen.getAllByText(copy.demosCatalog.photoPreview.playLabel)).toHaveLength(8);
+  expect(posters).toHaveLength(copy.demosCatalog.items.filter(item => item.status === 'live').length);
+  expect(screen.getAllByText(copy.demosCatalog.photoPreview.playLabel)).toHaveLength(copy.demosCatalog.items.filter(item => item.status === 'live').length);
   expect(document.querySelector('video, source, [role="dialog"]')).toBeNull();
   home.unmount();
   const lab = render(<DemosCatalog />);
   const labPosters = Array.from(lab.container.querySelectorAll('img')).map(img => img.getAttribute('src'));
   posters.forEach(poster => expect(labPosters).toContain(poster));
+  const liveLabPhotos = Array.from(lab.container.querySelectorAll('[data-preview-id]')).filter(card => !card.querySelector('[data-demo-status="soon"]')).map(card => card.querySelector('img')!.getAttribute('src'));
+  expect(posters).toEqual(liveLabPhotos);
   expect(screen.getAllByText(copy.demosCatalog.photoPreview.playLabel)).toHaveLength(13);
   expect(lab.container.querySelectorAll('[data-demo-status="soon"]')).toHaveLength(3);
   expect(Array.from(lab.container.querySelectorAll('[data-demo-status]')).map(badge => badge.textContent)).not.toContain(copy.demosCatalog.badge_live);
@@ -241,7 +243,7 @@ it.each(['en', 'es'] as const)('shares %s photos and consistent inline previews 
 it.each(['en', 'es'] as const)('shows the generated photo with accessible %s playback controls outside its demo link', language => {
   locale.language = language; locale.reduced = false; vi.useFakeTimers();
   const copy = language === 'es' ? es : en;
-  const { container } = render(<DemosCatalog limit={8} />);
+  const { container } = render(<DemosCatalog variant="home" />);
   const image = container.querySelector('img[src*="emotion-portrait"]')!;
   expect(image).toHaveAttribute('srcset', expect.stringContaining('960.webp 960w'));
   const replay = screen.getByRole('button', { name: copy.demosCatalog.emotionPreview.replay });

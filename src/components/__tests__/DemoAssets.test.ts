@@ -32,3 +32,22 @@ it('ships a distinct responsive generated photo for every live and roadmap card'
     }
   }
 });
+
+it('provides one bounded Firefly reference frame and individual prompt per catalog card', async () => {
+  const sharp = (await import('sharp')).default;
+  const base = resolve('creative/firefly-demo-clips');
+  const manifest = JSON.parse(readFileSync(resolve(base, 'manifest.json'), 'utf8'));
+  expect(manifest.demos.map((demo: { id: string }) => demo.id).sort()).toEqual(en.demosCatalog.items.map(item => item.id).sort());
+  expect(new Set(manifest.demos.map((demo: { prompt: string }) => demo.prompt)).size).toBe(13);
+  for (const demo of manifest.demos) {
+    const frame = readFileSync(resolve(base, demo.firstFrame));
+    const metadata = await sharp(frame).metadata();
+    expect(metadata.width).toBe(1280); expect(metadata.height).toBe(720);
+    expect(metadata.format).toBe('jpeg'); expect(frame.length).toBeLessThan(100000);
+    expect(readFileSync(resolve(base, demo.promptFile), 'utf8').trim()).toBe(demo.prompt);
+    expect(demo.prompt).toContain('five-second');
+    expect(demo.prompt).toContain('central 960x720 safe area');
+    expect(demo.videoStatus).toBe('awaiting_firefly_generation');
+  }
+  expect(manifest.delivery.maxBytes).toBe(750000);
+});
