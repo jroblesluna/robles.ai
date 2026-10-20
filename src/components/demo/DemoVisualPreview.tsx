@@ -88,6 +88,6 @@ export function DemoVisualPreview({ id, playing, run, onLoad }: {
         </div>)}
       </div>
     </div>
-    <p className="pointer-events-none absolute bottom-3 left-3 right-3 text-[10px] font-medium leading-4 text-slate-200">{t('demosCatalog.photoPreview.notice')}</p>
+    <p className="pointer-events-none absolute bottom-3 left-3 right-3 text-[10px] font-medium leading-4 text-slate-200">{t(`demosCatalog.photoPreview.scenes.${id}.caption`)}</p>
   </div>;
 }

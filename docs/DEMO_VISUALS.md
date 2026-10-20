@@ -114,3 +114,11 @@ Build de cliente, SSR y servidor correcto. TypeScript conserva exactamente las m
 ## Hover en desktop y control táctil
 
 Las 13 tarjetas compartidas por home y laboratorio repiten su animación al entrar el mouse y la detienen al salir. Se comprueba `(hover: hover) and (pointer: fine)` para que los eventos de mouse sintetizados por touch no disparen ni interrumpan la reproducción móvil. El botón mantiene touch, teclado y pausa/repetición; el enlace de la tarjeta conserva su navegación. Se mantiene la breve presentación inicial de viewport, el fin a cuatro segundos y el respeto por movimiento reducido. No hay bucle mientras el puntero permanece quieto sobre la tarjeta.
+
+## Textos y vista previa uniforme
+
+Se sustituye el aviso técnico de generación/overlay por una frase de contexto propia de cada una de las 13 tarjetas, localizada en EN/ES. Se elimina el badge En vivo/Live de las diez disponibles; las tres de roadmap conservan Próximamente/Coming soon. El estado real de disponibilidad, los filtros y los enlaces no cambian.
+
+Todas las tarjetas presentan el mismo control visible Ver animación/Play preview, junto a la imagen, con pausa y nombre accesible específico. Mantiene hover en desktop y touch/teclado, sin abrir un modal ni añadir descargas de video. Se retira del catálogo el CTA exclusivo del clip de Facturas para que no parezca que sólo una tarjeta tiene vista previa; sus MP4 y posters se conservan sin borrar archivos. Las otras doce no tienen videos generados: sus vistas previas siguen siendo fotos con overlays animados. No se inventan resultados o mediciones al cambiar los textos. Los avisos de los apartados anteriores describen versiones históricas.
+
+Validación: 141 pruebas en 17 suites, build cliente/SSR/servidor correcto y sin nuevas firmas TypeScript frente a los 13 errores previos. Navegador: 13 controles, sólo tres badges de roadmap, sin avisos anteriores ni solapamientos a 320/390/768/1440 px en ES y a 320 px en EN. Se mantiene el mismo componente en home y laboratorio.
