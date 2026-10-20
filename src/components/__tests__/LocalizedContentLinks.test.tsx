@@ -304,3 +304,20 @@ it('keeps all 13 photos and final overlays static without playback buttons for r
   expect(container.querySelector('[data-preview-id] button[aria-pressed]')).toBeNull();
   expect(container.querySelector('.demo-scan, .emotion-scan')).toBeNull();
 });
+
+it.each(['en', 'es'] as const)('replays ALL 13 %s card previews on desktop hover without navigating', language => {
+  locale.language = language; locale.reduced = false;
+  vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: true } as MediaQueryList);
+  const { container } = render(<DemosCatalog />);
+  for (const card of Array.from(container.querySelectorAll<HTMLElement>('[data-preview-id]'))) {
+    fireEvent.load(card.querySelector('img')!);
+    const href = card.querySelector('a')!.getAttribute('href');
+    fireEvent.mouseEnter(card);
+    expect(card.querySelector('[data-playing]')).toHaveAttribute('data-playing', 'true');
+    fireEvent.mouseLeave(card);
+    expect(card.querySelector('[data-playing]')).toHaveAttribute('data-playing', 'false');
+    fireEvent.mouseEnter(card);
+    expect(card.querySelector('[data-playing]')).toHaveAttribute('data-playing', 'true');
+    expect(card.querySelector('a')).toHaveAttribute('href', href!);
+  }
+});
