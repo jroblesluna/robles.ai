@@ -258,3 +258,49 @@ it.each(['en', 'es'] as const)('shows the generated photo with accessible %s pla
   expect(container.querySelector('.emotion-preview')).toHaveAttribute('data-playing', 'false');
   expect(container.querySelector('a[href^="/try-emotion"]')).toHaveAttribute('href', '/try-emotion' + (language === 'es' ? '?lang=es' : ''));
 });
+
+it.each(['en', 'es'] as const)('provides a photo, finite animation and distinct localized controls for ALL 13 %s cards', language => {
+  locale.language = language; locale.reduced = false; vi.useFakeTimers();
+  const copy = language === 'es' ? es : en;
+  const { container } = render(<DemosCatalog />);
+  const cards = Array.from(container.querySelectorAll<HTMLElement>('[data-preview-id]'));
+  expect(cards).toHaveLength(13);
+  const sources = new Set<string>();
+  for (const card of cards) {
+    const id = card.dataset.previewId!;
+    const item = copy.demosCatalog.items.find(item => item.id === id)!;
+    const image = card.querySelector('img')!;
+    sources.add(image.getAttribute('src')!);
+    expect(image.getAttribute('src')).toMatch(/-480.webp$/);
+    expect(image).toHaveAttribute('loading', 'lazy');
+    expect(image).toHaveAttribute('width', '960');
+    const name = id === 'emotion' ? copy.demosCatalog.emotionPreview.replay : `${copy.demosCatalog.photoPreview.replay}: ${item.title}`;
+    const button = within(card).getByRole('button', { name });
+    expect(button).toBeDisabled();
+    fireEvent.load(image);
+    expect(button).toBeEnabled();
+    expect(button.closest('a')).toBeNull();
+    const visual = card.querySelector('[data-playing]')!;
+    fireEvent.click(button);
+    expect(visual).toHaveAttribute('data-playing', 'true');
+    expect(button).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(button);
+    expect(visual).toHaveAttribute('data-playing', 'false');
+    fireEvent.click(button);
+    act(() => { vi.advanceTimersByTime(4000); });
+    expect(visual).toHaveAttribute('data-playing', 'false');
+    expect(card.querySelector('a')!.getAttribute('href')).toContain(language === 'es' ? '?lang=es' : '/');
+    expect(card.textContent).not.toContain('demosCatalog.photoPreview.');
+    expect(card.textContent).toContain(item.status === 'live' ? copy.demosCatalog.badge_live : copy.demosCatalog.badge_soon);
+  }
+  expect(sources.size).toBe(13);
+});
+
+it('keeps all 13 photos and final overlays static without playback buttons for reduced motion', () => {
+  locale.language = 'es'; locale.reduced = true;
+  const { container } = render(<DemosCatalog />);
+  expect(container.querySelectorAll('[data-preview-id] img')).toHaveLength(13);
+  expect(container.querySelectorAll('[data-playing="false"]')).toHaveLength(13);
+  expect(container.querySelector('[data-preview-id] button[aria-pressed]')).toBeNull();
+  expect(container.querySelector('.demo-scan, .emotion-scan')).toBeNull();
+});
