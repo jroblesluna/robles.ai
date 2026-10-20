@@ -37,7 +37,7 @@ export function EmotionPreview({ playing, run, onLoad }: {
           ))}
         </div>
       </div>
-      <p className="pointer-events-none absolute bottom-3 left-3 right-3 text-[10px] font-medium leading-4 text-slate-200">{t('demosCatalog.emotionPreview.notice')}</p>
+      <p className="pointer-events-none absolute bottom-3 left-3 right-3 text-[10px] font-medium leading-4 text-slate-200">{t('demosCatalog.photoPreview.scenes.emotion.caption')}</p>
     </div>
   );
 }

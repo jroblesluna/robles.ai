@@ -2415,7 +2415,6 @@
     "demosCatalog": {
         "emotionPreview": {
             "output": "Modelo · Ejemplo",
-            "notice": "Retrato generado con IA · Simulación",
             "stop": "Detener animación de análisis facial",
             "replay": "Repetir animación de análisis facial"
         },
@@ -2629,7 +2628,6 @@
             }
         ],
         "photoPreview": {
-            "notice": "Imagen generada con IA · Simulación",
             "stop": "Detener animación",
             "replay": "Repetir animación",
             "scenes": {
@@ -2639,7 +2637,8 @@
                         "Pregunta",
                         "Fuentes del sitio",
                         "Respuesta con contexto"
-                    ]
+                    ],
+                    "caption": "Tu web, lista para cada pregunta"
                 },
                 "identity": {
                     "title": "Verificación",
@@ -2647,7 +2646,8 @@
                         "Puntos faciales",
                         "Comparar imágenes",
                         "Revisar resultado"
-                    ]
+                    ],
+                    "caption": "Un inicio más ágil para cada cliente"
                 },
                 "rag": {
                     "title": "Consulta RAG",
@@ -2655,7 +2655,8 @@
                         "Buscar pasajes",
                         "Consultar fuentes",
                         "Respuesta citada"
-                    ]
+                    ],
+                    "caption": "Respuestas conectadas a tu conocimiento"
                 },
                 "speech": {
                     "title": "Transcripción",
@@ -2663,7 +2664,8 @@
                         "Flujo de audio",
                         "Turnos de voz",
                         "Texto transcrito"
-                    ]
+                    ],
+                    "caption": "De conversaciones a próximos pasos"
                 },
                 "langchain": {
                     "title": "Orquestación",
@@ -2671,7 +2673,8 @@
                         "Recibir solicitud",
                         "Elegir herramienta",
                         "Salida estructurada"
-                    ]
+                    ],
+                    "caption": "De una solicitud a acciones coordinadas"
                 },
                 "objectdetection": {
                     "title": "Detectar objetos",
@@ -2679,7 +2682,8 @@
                         "Localizar objetos",
                         "Marcar regiones",
                         "Clasificar objetos"
-                    ]
+                    ],
+                    "caption": "Ver, localizar y contar"
                 },
                 "docextract": {
                     "title": "Documentos IA",
@@ -2687,7 +2691,8 @@
                         "Leer documento",
                         "Extraer campos",
                         "Datos estructurados"
-                    ]
+                    ],
+                    "caption": "De documentos a datos que puedes usar"
                 },
                 "tts": {
                     "title": "Síntesis de voz",
@@ -2695,7 +2700,8 @@
                         "Texto de entrada",
                         "Ajustes de voz",
                         "Audio generado"
-                    ]
+                    ],
+                    "caption": "Dale voz a tus palabras"
                 },
                 "forecast": {
                     "title": "Pronóstico",
@@ -2703,7 +2709,8 @@
                         "Datos históricos",
                         "Modelo de tendencia",
                         "Rango previsto"
-                    ]
+                    ],
+                    "caption": "Anticípate con tus datos históricos"
                 },
                 "voiceagent": {
                     "title": "Agente de voz",
@@ -2711,7 +2718,8 @@
                         "Llamada entrante",
                         "Intención y acciones",
                         "Respuesta de voz"
-                    ]
+                    ],
+                    "caption": "Una conversación que hace avanzar tareas"
                 },
                 "anomaly": {
                     "title": "Señales de riesgo",
@@ -2719,7 +2727,8 @@
                         "Datos de operación",
                         "Analizar patrones",
                         "Alerta de revisión"
-                    ]
+                    ],
+                    "caption": "Encuentra patrones fuera de lo habitual"
                 },
                 "imagegen": {
                     "title": "Estudio creativo",
@@ -2727,9 +2736,15 @@
                         "Describir escena",
                         "Generar variantes",
                         "Revisar imagen"
-                    ]
+                    ],
+                    "caption": "Imagina otro escenario para tu producto"
+                },
+                "emotion": {
+                    "caption": "Explora expresiones, cuadro a cuadro"
                 }
-            }
+            },
+            "playLabel": "Ver animación",
+            "pauseLabel": "Pausar"
         }
     },
     "try-transcription": {

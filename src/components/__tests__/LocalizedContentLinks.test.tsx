@@ -220,27 +220,22 @@ it('decodes case headings and metadata once, keeps escaped markup inert and rest
   document.documentElement.style.overflow = ''; document.body.style.overflow = '';
 });
 
-it.each(['en', 'es'] as const)('uses the same localized posters on home and lab and loads a %s clip only on request', async language => {
-  locale.language = language;
-  vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+it.each(['en', 'es'] as const)('shares %s photos and consistent inline previews across home and lab', language => {
+  locale.language = language; locale.reduced = false;
   const copy = language === 'es' ? es : en;
   const home = render(<DemosCatalog limit={8} />);
   const posters = Array.from(home.container.querySelectorAll('img')).map(img => img.getAttribute('src'));
   expect(posters).toHaveLength(8);
-  expect(document.querySelector('video, source')).toBeNull();
-  const trigger = screen.getByRole('button', { name: copy.demosCatalog.watchPreview });
-  trigger.focus(); fireEvent.click(trigger);
-  const dialog = screen.getByRole('dialog');
-  expect(dialog.querySelector('video')).toHaveAttribute('preload', 'none');
-  expect(dialog.querySelector('source')).toHaveAttribute('src', `/demo-previews/invoice-preview-${language}.mp4`);
-  expect(dialog.querySelector('a button')).toBeNull();
-  fireEvent.click(within(dialog).getByRole('button', { name: copy.videoModal.close }));
-  expect(trigger).toHaveFocus();
-  expect(document.querySelector('video')).toBeNull();
+  expect(screen.getAllByText(copy.demosCatalog.photoPreview.playLabel)).toHaveLength(8);
+  expect(document.querySelector('video, source, [role="dialog"]')).toBeNull();
   home.unmount();
   const lab = render(<DemosCatalog />);
   const labPosters = Array.from(lab.container.querySelectorAll('img')).map(img => img.getAttribute('src'));
   posters.forEach(poster => expect(labPosters).toContain(poster));
+  expect(screen.getAllByText(copy.demosCatalog.photoPreview.playLabel)).toHaveLength(13);
+  expect(lab.container.querySelectorAll('[data-demo-status="soon"]')).toHaveLength(3);
+  expect(Array.from(lab.container.querySelectorAll('[data-demo-status]')).map(badge => badge.textContent)).not.toContain(copy.demosCatalog.badge_live);
+  expect(lab.container.textContent).not.toMatch(/AI-generated|generad[oa] con IA|Illustrative overlay|clip ilustrativo|illustrative clip/i);
 });
 
 it.each(['en', 'es'] as const)('shows the generated photo with accessible %s playback controls outside its demo link', language => {
@@ -291,7 +286,11 @@ it.each(['en', 'es'] as const)('provides a photo, finite animation and distinct 
     expect(visual).toHaveAttribute('data-playing', 'false');
     expect(card.querySelector('a')!.getAttribute('href')).toContain(language === 'es' ? '?lang=es' : '/');
     expect(card.textContent).not.toContain('demosCatalog.photoPreview.');
-    expect(card.textContent).toContain(item.status === 'live' ? copy.demosCatalog.badge_live : copy.demosCatalog.badge_soon);
+    if (item.status === 'soon') expect(card.textContent).toContain(copy.demosCatalog.badge_soon);
+    else expect(card.querySelector('[data-demo-status]')).toBeNull();
+    const caption = copy.demosCatalog.photoPreview.scenes[id as keyof typeof copy.demosCatalog.photoPreview.scenes].caption;
+    expect(card.textContent).toContain(caption);
+    expect(button).toHaveTextContent(copy.demosCatalog.photoPreview.playLabel);
   }
   expect(sources.size).toBe(13);
 });

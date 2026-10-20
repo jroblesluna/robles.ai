@@ -2415,7 +2415,6 @@
     "demosCatalog": {
         "emotionPreview": {
             "output": "Model · Example",
-            "notice": "AI-generated portrait · Illustrative overlay",
             "stop": "Stop facial analysis animation",
             "replay": "Replay facial analysis animation"
         },
@@ -2629,7 +2628,6 @@
             }
         ],
         "photoPreview": {
-            "notice": "AI-generated image · Illustrative overlay",
             "stop": "Stop animation",
             "replay": "Replay animation",
             "scenes": {
@@ -2639,7 +2637,8 @@
                         "Question",
                         "Site knowledge",
                         "Grounded answer"
-                    ]
+                    ],
+                    "caption": "Your website, ready for every question"
                 },
                 "identity": {
                     "title": "Identity check",
@@ -2647,7 +2646,8 @@
                         "Face landmarks",
                         "Image comparison",
                         "Review result"
-                    ]
+                    ],
+                    "caption": "A smoother start for every customer"
                 },
                 "rag": {
                     "title": "Retrieval",
@@ -2655,7 +2655,8 @@
                         "Find passages",
                         "Check sources",
                         "Cited answer"
-                    ]
+                    ],
+                    "caption": "Answers grounded in your knowledge"
                 },
                 "speech": {
                     "title": "Transcription",
@@ -2663,7 +2664,8 @@
                         "Audio stream",
                         "Speaker turns",
                         "Transcript"
-                    ]
+                    ],
+                    "caption": "Turn conversations into clear next steps"
                 },
                 "langchain": {
                     "title": "Orchestration",
@@ -2671,7 +2673,8 @@
                         "Receive request",
                         "Select a tool",
                         "Structured output"
-                    ]
+                    ],
+                    "caption": "From a request to coordinated actions"
                 },
                 "objectdetection": {
                     "title": "Object detection",
@@ -2679,7 +2682,8 @@
                         "Locate objects",
                         "Draw regions",
                         "Classify objects"
-                    ]
+                    ],
+                    "caption": "See, locate and count"
                 },
                 "docextract": {
                     "title": "Document AI",
@@ -2687,7 +2691,8 @@
                         "Read document",
                         "Extract fields",
                         "Structured data"
-                    ]
+                    ],
+                    "caption": "From documents to actionable data"
                 },
                 "tts": {
                     "title": "Voice synthesis",
@@ -2695,7 +2700,8 @@
                         "Input text",
                         "Voice settings",
                         "Generated audio"
-                    ]
+                    ],
+                    "caption": "Give your words a voice"
                 },
                 "forecast": {
                     "title": "Demand forecast",
@@ -2703,7 +2709,8 @@
                         "Historical data",
                         "Trend model",
                         "Forecast range"
-                    ]
+                    ],
+                    "caption": "Plan ahead with your historical data"
                 },
                 "voiceagent": {
                     "title": "Voice agent",
@@ -2711,7 +2718,8 @@
                         "Incoming call",
                         "Intent & tools",
                         "Voice response"
-                    ]
+                    ],
+                    "caption": "A conversation that moves work forward"
                 },
                 "anomaly": {
                     "title": "Risk signals",
@@ -2719,7 +2727,8 @@
                         "Transaction data",
                         "Pattern analysis",
                         "Review alert"
-                    ]
+                    ],
+                    "caption": "Spot unusual patterns in your data"
                 },
                 "imagegen": {
                     "title": "Creative studio",
@@ -2727,9 +2736,15 @@
                         "Describe a scene",
                         "Generate variants",
                         "Review image"
-                    ]
+                    ],
+                    "caption": "Imagine a new setting for your product"
+                },
+                "emotion": {
+                    "caption": "Explore expressions, frame by frame"
                 }
-            }
+            },
+            "playLabel": "Play preview",
+            "pauseLabel": "Pause"
         }
     },
     "try-transcription": {
