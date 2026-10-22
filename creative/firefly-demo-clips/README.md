@@ -1,3 +1,5 @@
+> **Sustituido por [parejas v3](../firefly-demo-pairs-v3/README.md):** usa start.jpg en First, end.jpg en Last y el prompt v3 de cada caso. Las instrucciones de una sola imagen de esta carpeta son históricas.
+
 # Firefly concept-video kit — v2
 
 **Prompt revision 2.1:** the chatbot now uses fixed artwork and timed local highlights; the ambiguous travelling pulse is removed. Its first image is unchanged. Use the latest prompt in this package.
