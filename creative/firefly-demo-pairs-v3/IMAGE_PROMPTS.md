@@ -1,6 +1,6 @@
 # Procedencia y prompts de imagen
 
-Herramienta: image_gen integrada, en modo edición con referencia. Se generaron 13 estados iniciales y dos finales nuevos: sonrisa e identidad con landmarks internos; los otros 11 finales reutilizan los visuales v2 existentes. Los archivos se exportan a 1280×720 sin recorte. No son capturas reales del producto ni evidencia de resultados comerciales.
+Herramienta: image_gen integrada, en modo edición con referencia. Se generaron 13 estados iniciales y tres finales nuevos: sonrisa, identidad con landmarks internos y transcripción completada; los otros 10 finales reutilizan los visuales v2 existentes. Los archivos se exportan a 1280×720 sin recorte. No son capturas reales del producto ni evidencia de resultados comerciales.
 
 
 ## sitechatbot — START
@@ -39,7 +39,7 @@ Use case: precise-object-edit. Edit target: the supplied existing final frame of
 END: reutiliza el final v2 sin regenerarlo; su procedencia original figura en manifest.json.
 
 
-## speech — START
+## speech — START histórico v3 (sustituido por revisión 3.2)
 
 Referencia: `speech/first-frame-v2.jpg` del kit anterior.
 
@@ -48,7 +48,7 @@ Use case: precise-object-edit. Edit target: the supplied existing final frame of
 ```
 
 
-END: reutiliza el final v2 sin regenerarlo; su procedencia original figura en manifest.json.
+START y END vigentes: ediciones 3.2 descritas al final de este documento.
 
 
 ## langchain — START
@@ -168,4 +168,16 @@ Sustituye el final v2 reutilizado por esta edición nueva con landmarks internos
 
 ```text
 Use case: precise-object-edit, identity-preserve. Edit target: supplied FACE COMPARISON final-frame image. Replace the inadequate contour-only facial annotations with anatomically placed INTERNAL facial landmarks and restrained geometric distance guides on BOTH faces. Preserve the exact same fictional adult man's identity, facial expression, skin texture, hair, eyes, clothing, portrait sizes/positions, card borders, navy background, full 16:9 composition, heading FACE COMPARISON, center check/MATCH, bottom SELFIE and REFERENCE labels and all other interface artwork. Overlay only fine cyan points and thin connecting segments attached accurately to: inner/outer eye corners, eyelid curves, eyebrows, nose bridge, nose tip and nostril edges, lip outline/mouth corners, cheek anchors and jaw/chin. Include a small coherent triangular landmark network across the INSIDE of each face; do not merely outline the face or draw random triangles on the hair/background. Make the eyes, nose and mouth clearly readable beneath the delicate graphics. Add three thin warm-amber measurement guides with tiny endpoint ticks on each face: between eye-center anchor points, nose tip down to the upper-lip center, and across the mouth corners. These guides must sit directly on the correct anatomy and correspond across both portraits. No numerical distances, millimeters, percentages, confidence values, extra letters or labels. Keep a very faint facial boundary if needed but INTERNAL features and their relative geometry are the visual focus. Professional, precise and restrained: no laser light, heavy glow, scan band, obscuring thick lines, moving subjects or extra panels. The photo and UI must remain unchanged; only the facial overlay is replaced. One single full-frame END image, no diptych.
+```
+
+## speech — START revisión 3.2
+
+```text
+Use case: precise-object-edit. Edit target: supplied AUDIO TO TRANSCRIPT START-frame interface. Preserve exact 16:9 full composition, navy background, title/subtitle, microphone, panels, SPEAKER A/B labels, empty transcript card bodies and bottom controls. Correct it to a TRUE ZERO state. Bottom elapsed/total text must read EXACTLY '00:00 / 00:20', same font and location. Bottom seek bar from its left origin to its right endpoint is completely unfilled/subdued; white knob at the LEFTMOST start. Add a fine white vertical playback cursor aligned EXACTLY with the chart's existing 00:00 tick, spanning both waveform lanes. It must NOT be at 00:10. Replace the two source waveform PEAKS with thin subdued horizontal cyan and purple centerlines extending only from the 00:00 tick to the 00:20 tick; no sampled peaks have been processed yet. Keep speaker labels, axes, timeline tick labels 00:00 00:05 00:10 00:15 00:20, all panel geometry, microphone and typography unchanged. No selected-segment rectangles, transcript phrases, result connectors or utterance timestamps yet. Do not move or stretch any panel or change the volume control. One single full frame, no diptych. This begins an illustrative audio-processing progress sequence.
+```
+
+## speech — END revisión 3.2
+
+```text
+Use case: precise-object-edit. Edit target: supplied AUDIO TO TRANSCRIPT END-frame interface. Correct the playback/completion state while preserving the exact title/subtitle, all panels, microphone, speaker labels, transcript words 'Let us begin.' and 'Ready.', their valid UTTERANCE timestamps 00:10 and 00:15, all card positions, static selected segments and their connectors, and full 16:9 composition. Bottom elapsed/total timer MUST read EXACTLY '00:20 / 00:20', same location and font. Fill the ENTIRE existing bottom seek bar cyan from its original left origin to its original right endpoint, and move its white circular knob to that RIGHTMOST endpoint (not the volume slider). Move the fine WHITE vertical playback cursor and its small white top dot from the chart's 00:10 position to align EXACTLY above the existing 00:20 chart tick, spanning BOTH waveform lanes. Completely remove the old middle cursor at 00:10; there must be exactly one playback cursor. Keep axes/tick labels at the same coordinates. Make both cyan and purple waveform tracks fully processed: preserve the existing waveform structure/peaks before 00:20, with all completed bars clearly visible in each speaker's color, and no future/dim waveforms to the right of the 00:20 cursor. Cleanly remove any waveform dots or bars beyond that 00:20 chart tick, restoring navy background there. Do not slide the waveform or utterance selection boxes along with the cursor: those segments stay attached to the original 10s/15s source ranges. The final state must unmistakably show finished audio and completed attributed transcript. Bottom play icon may remain the same for replay. Do not add numbers, badges or new transcript words. One single full-frame END image, not a diptych.
 ```

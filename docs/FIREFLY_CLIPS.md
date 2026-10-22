@@ -1,6 +1,6 @@
 # Firefly clips — parejas de inicio y fin v3
 
-**Guía vigente:** [13 parejas v3](../creative/firefly-demo-pairs-v3/README.md) y [13 prompts de transición](../creative/firefly-demo-pairs-v3/PROMPTS.md). Cada caso tiene start.jpg para First y end.jpg para Last, 1280×720, más un prompt con acciones hasta el resultado y dos segundos de pausa final. Revisión 3.1: se generaron 13 inicios y dos finales nuevos (sonrisa y landmarks internos de identidad); los otros 11 finales reutilizan v2. Las 26 imágenes fueron revisadas como parejas. No son 26 generaciones nuevas.
+**Guía vigente:** [13 parejas v3](../creative/firefly-demo-pairs-v3/README.md) y [13 prompts de transición](../creative/firefly-demo-pairs-v3/PROMPTS.md). Cada caso tiene start.jpg para First y end.jpg para Last, 1280×720, más un prompt con acciones hasta el resultado y dos segundos de pausa final. Revisión 3.2: 13 inicios y tres finales nuevos (sonrisa, landmarks internos de identidad y transcripción terminada); los otros 10 finales reutilizan v2. Transcripción comienza en 00:00 y termina en 00:20 con ondas, cursor y barra sincronizados. Las 26 imágenes fueron revisadas como parejas. No son 26 generaciones nuevas.
 
 El flujo anterior de dejar Last vacío y empezar mostrando todos los resultados queda sustituido. El chatbot ahora tiene puntos de escritura, entrada de respuesta y aparición de citas; los demás casos también cambian de estado, en vez de limitarse a resaltes. Mantener 16:9, ocho segundos y Audio off. Video Firefly, revisión temporal e integración en la web siguen pendientes.
 

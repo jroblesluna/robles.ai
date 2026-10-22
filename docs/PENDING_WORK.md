@@ -14,7 +14,7 @@
 
 - Estado: **13 parejas completas (26 JPG) y 13 prompts** en `creative/firefly-demo-pairs-v3/`; sustituyen las instrucciones de una sola imagen v2/v2.1.
 - Cada carpeta contiene `start.jpg`, `end.jpg` y `firefly-prompt.txt`: subir a Frames → First/Last, 16:9, 720p, ocho segundos, 24 FPS y Audio off.
-- Revisión 3.1: 13 inicios nuevos y dos finales nuevos (sonrisa e identidad con landmarks internos); 11 finales reutilizan los visuales existentes. Imágenes revisadas; interpolación/video todavía sin verificar.
+- Revisión 3.2: 13 inicios y tres finales nuevos (sonrisa, identidad con landmarks internos y transcripción completada); 10 finales reutilizan los visuales existentes. Transcripción usa 00:00 → 00:20 con ondas/cursor/barra sincronizados. Imágenes revisadas; interpolación/video todavía sin verificar.
 - Generar primero un piloto; revisar texto, identidad, objetos, cajas/malla, campos, conteos, citas y composición durante todo el clip. No aceptar una simple disolución ni solo resaltes. Explicación completa dentro del MP4.
 - Codificar sin recorte con el encoder existente: 640×360, ocho segundos, sin audio, faststart, máximo 750 KB. El pase técnico no certifica calidad visual.
 - Integrar solo archivos aprobados: sin src/source inicial, hover/touch solicitado, un clip activo, pausa fuera de pantalla, reduced motion/data saver y poster de respaldo. Usar contain y desactivar overlays explicativos CSS en modo video.
