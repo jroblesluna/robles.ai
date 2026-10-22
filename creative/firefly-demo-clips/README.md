@@ -1,5 +1,7 @@
 # Firefly concept-video kit — v2
 
+**Prompt revision 2.1:** the chatbot now uses fixed artwork and timed local highlights; the ambiguous travelling pulse is removed. Its first image is unchanged. Use the latest prompt in this package.
+
 **This replaces the background-only v1 kit.** All 13 first frames are NEW generated conceptual visuals. Each finished video must explain its demo without labels, meshes, boxes or outputs added by the website.
 
 ![All 13 new first frames](overview-v2.webp)
