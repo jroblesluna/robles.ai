@@ -1,14 +1,10 @@
 import { normalizeLanguage, staticPagePath } from '@shared/seoPolicy';
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { useDemoPreviewMotion } from "@/hooks/useDemoPreviewMotion";
-import { DemoVisualPreview } from "@/components/demo/DemoVisualPreview";
-import { EmotionPreview } from "@/components/demo/EmotionPreview";
-import { useCallback, useMemo, useState } from "react";
+import { DemoVideoPreview } from "@/components/demo/DemoVideoPreview";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
 import {
-  Play,
-  Pause,
   Fingerprint,
   Database,
   Link2,
@@ -100,30 +96,23 @@ function BenefitLine({ text }: { text: string }) {
 function DemoCard({ item, index, reducedMotion }: { item: DemoItem; index: number; reducedMotion: boolean }) {
   const { t, i18n } = useTranslation();
   const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
-  const [photoReady, setPhotoReady] = useState(false);
-  const onPhotoLoad = useCallback(() => setPhotoReady(true), []);
-  const motionPreview = useDemoPreviewMotion(photoReady, reducedMotion);
+  const [hovered, setHovered] = useState(false);
   const Icon = ICONS[item.icon] || Sparkles;
   const isLive = item.status === "live";
   const [family] = item.modelType.split("·").map(value => value.trim());
-  const playbackLabel = item.id === "emotion"
-    ? t(motionPreview.playing ? "demosCatalog.emotionPreview.stop" : "demosCatalog.emotionPreview.replay")
-    : `${t(motionPreview.playing ? "demosCatalog.photoPreview.stop" : "demosCatalog.photoPreview.replay")}: ${item.title}`;
   return (
-    <motion.div data-preview-id={item.id} ref={motionPreview.target}
-      onMouseEnter={motionPreview.onMouseEnter} onMouseLeave={motionPreview.onMouseLeave} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+    <motion.div data-preview-id={item.id}
+      onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }} transition={{ duration: 0.3, delay: Math.min(index * 0.04, 0.3) }}
       className="relative flex h-full flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-gray-200">
+      <DemoVideoPreview id={item.id} title={item.title} hovered={hovered} reducedMotion={reducedMotion} />
       <Link href={isLive && item.href ? staticPagePath(item.href, lang) : staticPagePath("/", lang) + "#contact"}
         className="group flex flex-1 flex-col overflow-hidden bg-white transition-shadow hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-600">
-        <div className="relative aspect-[4/3] overflow-hidden bg-slate-950">
-          {item.id === "emotion" ? <EmotionPreview playing={motionPreview.playing} run={motionPreview.run} onLoad={onPhotoLoad} /> : <DemoVisualPreview id={item.id} playing={motionPreview.playing} run={motionPreview.run} onLoad={onPhotoLoad} />}
-          {!isLive && <span data-demo-status="soon" className="absolute right-3 top-3 rounded-full bg-white px-2 py-1 text-[11px] font-semibold text-slate-700">
-            {t("demosCatalog.badge_soon")}
-          </span>}
-        </div>
         <div className="flex flex-1 flex-col p-5">
-          <p className="flex items-center gap-2 text-xs font-medium text-slate-600"><Icon aria-hidden="true" className="h-4 w-4" />{family}</p>
+          <div className="flex items-center justify-between gap-2">
+            <p className="flex items-center gap-2 text-xs font-medium text-slate-600"><Icon aria-hidden="true" className="h-4 w-4" />{family}</p>
+            {!isLive && <span data-demo-status="soon" className="rounded-full bg-violet-50 px-2 py-1 text-[11px] font-semibold text-violet-800">{t("demosCatalog.badge_soon")}</span>}
+          </div>
           <h3 className="mt-2 text-lg font-semibold tracking-tight text-slate-900">{item.title}</h3>
           <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-600">{item.description}</p>
           {item.benefit && <BenefitLine text={item.benefit} />}
@@ -132,15 +121,6 @@ function DemoCard({ item, index, reducedMotion }: { item: DemoItem; index: numbe
           </span>
         </div>
       </Link>
-      {!reducedMotion && <button type="button"
-        aria-label={playbackLabel}
-        title={playbackLabel}
-        aria-pressed={motionPreview.playing} disabled={!photoReady}
-        onClick={motionPreview.playing ? motionPreview.stop : motionPreview.replay}
-        className="tap-target absolute left-3 top-3 inline-flex items-center justify-center gap-1.5 rounded-full border border-white/30 bg-slate-950/90 px-2.5 text-[11px] font-semibold text-white shadow-lg disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300">
-        {motionPreview.playing ? <Pause aria-hidden="true" className="h-3.5 w-3.5" /> : <Play aria-hidden="true" className="h-3.5 w-3.5" />}
-        {t(motionPreview.playing ? "demosCatalog.photoPreview.pauseLabel" : "demosCatalog.photoPreview.playLabel")}
-      </button>}
     </motion.div>
   );
 }

@@ -1,0 +1,119 @@
+{
+  "sitechatbot": {
+    "src": "/assets/demo-previews/sitechatbot-33ef1eca8762.mp4",
+    "poster": "/assets/demo-previews/sitechatbot-480-19af9c8e0287.webp",
+    "posterLarge": "/assets/demo-previews/sitechatbot-960-93095513c566.webp",
+    "width": 960,
+    "height": 540,
+    "duration": 8.042,
+    "bytes": 117636
+  },
+  "identity": {
+    "src": "/assets/demo-previews/identity-70d68ce6a25b.mp4",
+    "poster": "/assets/demo-previews/identity-480-f91735725c65.webp",
+    "posterLarge": "/assets/demo-previews/identity-960-88529c3459bc.webp",
+    "width": 960,
+    "height": 540,
+    "duration": 8.042,
+    "bytes": 190796
+  },
+  "rag": {
+    "src": "/assets/demo-previews/rag-528620cb407b.mp4",
+    "poster": "/assets/demo-previews/rag-480-5ed422c22afc.webp",
+    "posterLarge": "/assets/demo-previews/rag-960-2f4d0c0f45d6.webp",
+    "width": 960,
+    "height": 540,
+    "duration": 8.042,
+    "bytes": 126314
+  },
+  "speech": {
+    "src": "/assets/demo-previews/speech-6d9217c5f350.mp4",
+    "poster": "/assets/demo-previews/speech-480-5b752e797388.webp",
+    "posterLarge": "/assets/demo-previews/speech-960-1ae4ab4bcc33.webp",
+    "width": 960,
+    "height": 540,
+    "duration": 8.042,
+    "bytes": 138876
+  },
+  "langchain": {
+    "src": "/assets/demo-previews/langchain-d981134bf9b2.mp4",
+    "poster": "/assets/demo-previews/langchain-480-fbe0c1e22384.webp",
+    "posterLarge": "/assets/demo-previews/langchain-960-a040af0aea31.webp",
+    "width": 960,
+    "height": 540,
+    "duration": 8.042,
+    "bytes": 77817
+  },
+  "objectdetection": {
+    "src": "/assets/demo-previews/objectdetection-ef1844f562ad.mp4",
+    "poster": "/assets/demo-previews/objectdetection-480-be4af74fd7a7.webp",
+    "posterLarge": "/assets/demo-previews/objectdetection-960-3fe0d6f033f5.webp",
+    "width": 960,
+    "height": 540,
+    "duration": 8.042,
+    "bytes": 232218
+  },
+  "emotion": {
+    "src": "/assets/demo-previews/emotion-bc51eb8312f3.mp4",
+    "poster": "/assets/demo-previews/emotion-480-811b4e01e466.webp",
+    "posterLarge": "/assets/demo-previews/emotion-960-d4aa92abf2ec.webp",
+    "width": 960,
+    "height": 540,
+    "duration": 8.042,
+    "bytes": 184482
+  },
+  "docextract": {
+    "src": "/assets/demo-previews/docextract-0cb8f77d008e.mp4",
+    "poster": "/assets/demo-previews/docextract-480-f4b8eb4daf14.webp",
+    "posterLarge": "/assets/demo-previews/docextract-960-c6b70402ee6c.webp",
+    "width": 960,
+    "height": 540,
+    "duration": 8.042,
+    "bytes": 326248
+  },
+  "tts": {
+    "src": "/assets/demo-previews/tts-7a1c30bc79b2.mp4",
+    "poster": "/assets/demo-previews/tts-480-71b1f0c7c835.webp",
+    "posterLarge": "/assets/demo-previews/tts-960-a0336ef13e14.webp",
+    "width": 960,
+    "height": 540,
+    "duration": 8.042,
+    "bytes": 109637
+  },
+  "voiceagent": {
+    "src": "/assets/demo-previews/voiceagent-e87e810ba466.mp4",
+    "poster": "/assets/demo-previews/voiceagent-480-6b05c1f0d104.webp",
+    "posterLarge": "/assets/demo-previews/voiceagent-960-f90514aa2d93.webp",
+    "width": 960,
+    "height": 540,
+    "duration": 8.042,
+    "bytes": 187898
+  },
+  "anomaly": {
+    "src": "/assets/demo-previews/anomaly-623782a4b7cd.mp4",
+    "poster": "/assets/demo-previews/anomaly-480-6b1ce78ee5ac.webp",
+    "posterLarge": "/assets/demo-previews/anomaly-960-c06c22814af1.webp",
+    "width": 960,
+    "height": 540,
+    "duration": 8,
+    "bytes": 72413
+  },
+  "forecast": {
+    "src": "/assets/demo-previews/forecast-f11f0be10fe6.mp4",
+    "poster": "/assets/demo-previews/forecast-480-1d5b81fd15f6.webp",
+    "posterLarge": "/assets/demo-previews/forecast-960-411be6d7d3a0.webp",
+    "width": 960,
+    "height": 540,
+    "duration": 8,
+    "bytes": 57403
+  },
+  "imagegen": {
+    "src": "/assets/demo-previews/imagegen-0dc7c922b149.mp4",
+    "poster": "/assets/demo-previews/imagegen-480-787afa6b4e4c.webp",
+    "posterLarge": "/assets/demo-previews/imagegen-960-6c6caa982b32.webp",
+    "width": 960,
+    "height": 540,
+    "duration": 8,
+    "bytes": 128333
+  }
+}
