@@ -1,6 +1,8 @@
-# Firefly — 13 parejas de frames v3.2
+# Firefly — 13 parejas de frames v3.3
 
 Este paquete sustituye el flujo de una sola imagen inicial por **13 parejas completas: 26 JPG y 13 prompts de transición**. Se generaron 13 inicios nuevos a partir de los visuales existentes y tres finales nuevos: sonrisa, landmarks internos de identidad y transcripción completada. Los otros 10 finales reutilizan los visuales v2: no se afirma que los 26 sean generaciones nuevas.
+
+**Límite:** cada prompt de video tiene como máximo 2.500 caracteres, incluido el salto de línea final. Los 13 archivos se verifican con `node scripts/verifyFireflyPrompts.mjs`.
 
 Cada carpeta contiene **start.jpg**, **end.jpg**, **firefly-prompt.txt** y README.md. Los nombres y la estructura son iguales para todos los casos.
 
