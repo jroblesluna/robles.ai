@@ -1,0 +1,397 @@
+{
+  "version": 3,
+  "createdDate": "2026-10-21",
+  "purpose": "13 matched START/END pairs and state-transition prompts; authoring kit only",
+  "imageTool": "built-in image_gen",
+  "frames": {
+    "width": 1280,
+    "height": 720,
+    "format": "jpeg",
+    "maxBytes": 300000,
+    "crop": "none"
+  },
+  "generation": {
+    "model": "Veo 3.1 in current Firefly workflow",
+    "durationSeconds": 8,
+    "aspectRatio": "16:9",
+    "fps": 24,
+    "audio": false,
+    "references": "Frames > First = start.jpg; Last = end.jpg"
+  },
+  "videoStatus": "not_generated",
+  "demos": [
+    {
+      "id": "sitechatbot",
+      "titleEn": "Your chatbot in 60 seconds",
+      "titleEs": "Tu chatbot en 60 segundos",
+      "demoStatus": "live",
+      "startFrame": "sitechatbot/start.jpg",
+      "endFrame": "sitechatbot/end.jpg",
+      "promptFile": "sitechatbot/firefly-prompt.txt",
+      "startState": "Pregunta recibida y chatbot escribiendo",
+      "endState": "Respuesta con fuentes",
+      "prompt": "Create an eight-second, silent, single-shot conceptual demo using BOTH supplied reference frames: START is the exact initial state and END is the target completed state. Use the same locked 16:9 composition throughout. All explanation, UI graphics, tracking, labels and results belong inside the MP4; no external webpage overlay will be added. Animate the specific state changes below. Do not simply crossfade the whole first picture into the last picture. Keep the unchanged background, panel borders, typography, icons, source data and subjects stable; only the specified UI outputs or expression may change. No camera pan, zoom, crop, cut, new text, extra objects, invented results or ambient effects. Where words appear, reveal complete prewritten stable blocks from END rather than inventing or morphing letters. Reach the completed state by six seconds and hold it still through eight seconds.\n\n0-1s: establish the START frame with the sent question and exactly three typing dots. 1-3s: animate those three dots with a gentle alternating vertical bounce, no more than their own radius; keep the chatbot avatar and knowledge-base brain perfectly unchanged. Emphasize the existing SERVICES source card only with a slight tint; all connectors remain their exact shape. 3-4s: retire the typing bubble. 4-5.5s: introduce the answer bubble at its END-frame position with a short upward entrance of at most 12 pixels and a fade; reveal the COMPLETE prewritten text \"AI solutions for business.\" as one stable text block, never scrambled letter-by-letter. 5.5-6s: reveal the SERVICES chip inside the answer and the Sources used panel with its matching SERVICES chip. 6-8s: hold the END frame. No moving packets, growing/trailing lines, morphing brains or new replies.",
+      "videoStatus": "not_generated",
+      "imageProvenance": {
+        "start": {
+          "id": "sitechatbot",
+          "path": "/Users/antoniorobles/.codex/generated_images/01a14d57-17c2-70d1-ba0c-8219eafc3e8c/exec-39880b8a-ed10-413a-a0a0-e453feffd4c2.png",
+          "prompt": "Use case: precise-object-edit. Edit target: the supplied existing final frame of a professional conceptual AI demo. Create its START frame, not another completed result. Preserve the exact full 16:9 canvas, camera, composition, palette, font sizes, background, panel rectangles and positions of every unchanged element. Do not redesign, zoom, crop, move panels, change faces or invent text. Fill removed-result regions with their original panel background, cleanly. Output one single full frame, not a diptych or contact sheet. Keep the title, sidebar, SERVICES and SUPPORT cards and connectors, the intact blue brain KNOWLEDGE BASE node, and the outgoing arrow EXACTLY unchanged. In the chat panel keep the user question What do you offer? and input field unchanged. Replace the entire assistant answer bubble and Sources used panel with clean empty chat-panel background. Keep the small round chatbot avatar at its original position and put a compact pale-blue typing bubble with exactly three blue dots next to it, instead of the completed reply. No answer text, no SERVICES citation chips, no Sources used caption yet. This is a question received / assistant composing state."
+        },
+        "end": {
+          "source": "/Users/antoniorobles/Dev/robles.ai/creative/firefly-demo-clips/sitechatbot/first-frame-v2.jpg",
+          "reusedExistingGeneratedFinal": true,
+          "originalGeneration": {
+            "tool": "built-in image_gen",
+            "sourceFilename": "exec-fdb7b931-3934-41d7-b16f-c5b900966eac.png",
+            "prompt": "undefinedA clean website-assistant product workspace. Left two compact source cards with document icons and exact labels SERVICES and SUPPORT, joined by thin lines to a central knowledge node. Right a large chat conversation: user bubble 'What do you offer?' and assistant bubble 'AI solutions for business.' A small source chip SERVICES is visibly attached to the answer. Top heading 'WEBSITE ASSISTANT'. The sources-to-answer relationship must be obvious without any external overlay. Integrated software interface, no laptop photograph."
+          }
+        }
+      }
+    },
+    {
+      "id": "identity",
+      "titleEn": "Customer onboarding in seconds",
+      "titleEs": "Onboarding de clientes en segundos",
+      "demoStatus": "live",
+      "startFrame": "identity/start.jpg",
+      "endFrame": "identity/end.jpg",
+      "promptFile": "identity/firefly-prompt.txt",
+      "startState": "Retratos sin comparar",
+      "endState": "Comparación completada",
+      "prompt": "Create an eight-second, silent, single-shot conceptual demo using BOTH supplied reference frames: START is the exact initial state and END is the target completed state. Use the same locked 16:9 composition throughout. All explanation, UI graphics, tracking, labels and results belong inside the MP4; no external webpage overlay will be added. Animate the specific state changes below. Do not simply crossfade the whole first picture into the last picture. Keep the unchanged background, panel borders, typography, icons, source data and subjects stable; only the specified UI outputs or expression may change. No camera pan, zoom, crop, cut, new text, extra objects, invented results or ambient effects. Where words appear, reveal complete prewritten stable blocks from END rather than inventing or morphing letters. Reach the completed state by six seconds and hold it still through eight seconds.\n\n0-1s: establish both unannotated portraits. 1-3s: reveal the END frame's thin cyan contour and landmark points on SELFIE, beginning at the forehead and proceeding down the face boundary. 3-4.5s: reveal the corresponding contour on REFERENCE. Both photographs remain completely still; do not blink, turn the head, change identity or morph one face into another. 4.5-6s: resolve the central comparison circle into the green checkmark and the word MATCH from the END frame. 6-8s: hold the END frame. Do not add numerical confidence, liveness certification or security guarantees.",
+      "videoStatus": "not_generated",
+      "imageProvenance": {
+        "start": {
+          "id": "identity",
+          "path": "/Users/antoniorobles/.codex/generated_images/01a14d57-17c2-70d1-ba0c-8219eafc3e8c/exec-b8492ce8-ba08-4117-9f23-29ad8ed17cf0.png",
+          "prompt": "Use case: precise-object-edit. Edit target: the supplied existing final frame of a professional conceptual AI demo. Create its START frame, not another completed result. Preserve the exact full 16:9 canvas, camera, composition, palette, font sizes, background, panel rectangles and positions of every unchanged element. Do not redesign, zoom, crop, move panels, change faces or invent text. Fill removed-result regions with their original panel background, cleanly. Output one single full frame, not a diptych or contact sheet. Keep both photographs of the exact same adult man, unchanged identity, facial expression, hair, clothes and positions. Keep FACE COMPARISON, SELFIE, REFERENCE, both portrait card borders and backgrounds. Remove all cyan face contour lines and landmark dots from BOTH portraits, restoring underlying skin accurately. Remove only the center green checkmark and the word MATCH, leaving the central circle and existing horizontal connectors as subdued neutral outlines. No comparison decision yet. Do not add PENDING text or new symbols."
+        },
+        "end": {
+          "source": "/Users/antoniorobles/Dev/robles.ai/creative/firefly-demo-clips/identity/first-frame-v2.jpg",
+          "reusedExistingGeneratedFinal": true,
+          "originalGeneration": {
+            "tool": "built-in image_gen",
+            "sourceFilename": "exec-1e1776bf-0cb4-4c48-b748-9ef10d964ab2.png",
+            "prompt": "Use case: ui-mockup. Create ONE polished raster keyframe for a self-contained enterprise AI explainer video, landscape 16:9, 1536x864. Premium restrained navy/slate product design with cyan and violet accents, crisp large readable typography, clear visual hierarchy. This is a completed CONCEPTUAL demo screen, not a decorative photograph. Fill the frame with the explanation; no empty half waiting for future overlays. All graphics, labels and outputs must already be visible IN THIS IMAGE. Generous 6% outer safety margins. Very few words, exact short labels as specified, no long paragraphs, no invented performance/confidence percentages, no logos, watermark or generic robot. Professional and visually convincing, suitable for technology buyers. A clean two-image identity-comparison workspace headed 'FACE COMPARISON'. Left a frontal portrait of one fictional adult man labeled SELFIE; right a generic portrait card of THE SAME fictional man labeled REFERENCE. The reference card has no personal data or government ID markings. Fine cyan face-contour guides accurately sit on each face. A central connector and a large checkmark with exact short label MATCH visually explain comparing both portraits. Preserve believable anatomy and identical facial identity across the two panels. No percentages, biometric confidence scores, claims of liveness or security guarantees."
+          }
+        }
+      }
+    },
+    {
+      "id": "rag",
+      "titleEn": "Ask your documents",
+      "titleEs": "Pregúntale a tus documentos",
+      "demoStatus": "live",
+      "startFrame": "rag/start.jpg",
+      "endFrame": "rag/end.jpg",
+      "promptFile": "rag/firefly-prompt.txt",
+      "startState": "Pregunta y documentos sin respuesta",
+      "endState": "Respuesta con citas y documentos fuente",
+      "prompt": "Create an eight-second, silent, single-shot conceptual demo using BOTH supplied reference frames: START is the exact initial state and END is the target completed state. Use the same locked 16:9 composition throughout. All explanation, UI graphics, tracking, labels and results belong inside the MP4; no external webpage overlay will be added. Animate the specific state changes below. Do not simply crossfade the whole first picture into the last picture. Keep the unchanged background, panel borders, typography, icons, source data and subjects stable; only the specified UI outputs or expression may change. No camera pan, zoom, crop, cut, new text, extra objects, invented results or ambient effects. Where words appear, reveal complete prewritten stable blocks from END rather than inventing or morphing letters. Reach the completed state by six seconds and hold it still through eight seconds.\n\n0-1s: establish the START frame: source documents, question, empty ANSWER and SOURCES panels. 1-2.5s: select the exact source passage and marker [1] from Product Requirements.pdf as shown in the END frame; keep its gray passage lines stationary. 2.5-3.5s: activate the existing Search & Retrieval node without changing the magnifier/database icons or connector shapes. 3.5-5s: reveal the END frame's answer as intact, readable sentence blocks, one block at a time, not text morphing or a dissolve of the entire image. Reveal [1] beside the first corresponding answer sentence and [2] beside the security sentence. 5-6s: bring in the two exact matching source cards into the existing SOURCES region, with short upward entrances and their existing fixed dashed links. 6-8s: hold the END frame. Preserve filenames and citation IDs, do not invent answers or reinterpret the gray placeholder lines as actual source evidence.",
+      "videoStatus": "not_generated",
+      "imageProvenance": {
+        "start": {
+          "id": "rag",
+          "path": "/Users/antoniorobles/.codex/generated_images/01a14d57-17c2-70d1-ba0c-8219eafc3e8c/exec-94ed9efa-0315-4758-b4d5-67cecd5829a7.png",
+          "prompt": "Use case: precise-object-edit. Edit target: the supplied existing final frame of a professional conceptual AI demo. Create its START frame, not another completed result. Preserve the exact full 16:9 canvas, camera, composition, palette, font sizes, background, panel rectangles and positions of every unchanged element. Do not redesign, zoom, crop, move panels, change faces or invent text. Fill removed-result regions with their original panel background, cleanly. Output one single full frame, not a diptych or contact sheet. Keep title ASK YOUR DOCUMENTS, question What are the key requirements?, all three document cards with exact filenames, gray passage lines, central Search & Retrieval block, all panel geometry and the original dark top/bottom margins unchanged. Remove the selected cyan document passage highlight and source reference number chips from document cards. In the right ANSWER panel keep only its heading and empty white panel: remove all answer sentences and citation chips. Keep the SOURCES heading and outer region but remove the two result source cards, their content and the dashed result arrows. All empty output regions remain clean white. Source documents and existing neutral input connector geometry stay still, not flowing or moving."
+        },
+        "end": {
+          "source": "/Users/antoniorobles/Dev/robles.ai/creative/firefly-demo-clips/rag/first-frame-v2.jpg",
+          "reusedExistingGeneratedFinal": true,
+          "originalGeneration": {
+            "tool": "built-in image_gen",
+            "sourceFilename": "exec-011ed77f-f7e0-4ba7-9bdd-f558c1a8842f.png",
+            "prompt": "undefinedAn enterprise document retrieval workspace headed 'ASK YOUR DOCUMENTS'. Left three PDF document cards; one selected passage is highlighted in cyan. Center a search/retrieval connector visibly routes that passage to the answer. Right a large answer card labeled ANSWER with three clean short text lines and two clearly readable citation chips '[1]' and '[2]' connected back to two source cards. Lower small label 'SOURCES'. Use abstract horizontal strokes instead of unreadable paragraphs, but render headings and citation markers exactly. Explain document retrieval and cited answer in a single integrated UI scene."
+          }
+        }
+      }
+    },
+    {
+      "id": "speech",
+      "titleEn": "Automatic meeting and call notes",
+      "titleEs": "Actas de reuniones y llamadas automáticas",
+      "demoStatus": "live",
+      "startFrame": "speech/start.jpg",
+      "endFrame": "speech/end.jpg",
+      "promptFile": "speech/firefly-prompt.txt",
+      "startState": "Audio disponible, transcripción vacía",
+      "endState": "Texto atribuido a cada hablante",
+      "prompt": "Create an eight-second, silent, single-shot conceptual demo using BOTH supplied reference frames: START is the exact initial state and END is the target completed state. Use the same locked 16:9 composition throughout. All explanation, UI graphics, tracking, labels and results belong inside the MP4; no external webpage overlay will be added. Animate the specific state changes below. Do not simply crossfade the whole first picture into the last picture. Keep the unchanged background, panel borders, typography, icons, source data and subjects stable; only the specified UI outputs or expression may change. No camera pan, zoom, crop, cut, new text, extra objects, invented results or ambient effects. Where words appear, reveal complete prewritten stable blocks from END rather than inventing or morphing letters. Reach the completed state by six seconds and hold it still through eight seconds.\n\n0-1s: establish the START frame with two waveforms and empty speaker cards. 1-3s: draw a transparent selection rectangle over the existing cyan speaker-A segment, without changing waveform geometry; introduce \"Let us begin.\" into the SPEAKER A card as one complete stable phrase, along with the END-frame sample timestamp. 3-5s: similarly reveal the existing purple selected segment, its connector, and \"Ready.\" in SPEAKER B with its corresponding timestamp. 5-6s: settle the remaining playhead and controls at the exact END-frame state. 6-8s: hold the END frame. These are sample-recording timeline labels, not elapsed time of this eight-second clip; do not animate or rewrite the timestamp digits. The MP4 is silent and conceptually illustrates transcription, not audible speech.",
+      "videoStatus": "not_generated",
+      "imageProvenance": {
+        "start": {
+          "id": "speech",
+          "path": "/Users/antoniorobles/.codex/generated_images/01a14d57-17c2-70d1-ba0c-8219eafc3e8c/exec-3a861c40-7fae-42a2-b1db-ec7eaa4563c1.png",
+          "prompt": "Use case: precise-object-edit. Edit target: the supplied existing final frame of a professional conceptual AI demo. Create its START frame, not another completed result. Preserve the exact full 16:9 canvas, camera, composition, palette, font sizes, background, panel rectangles and positions of every unchanged element. Do not redesign, zoom, crop, move panels, change faces or invent text. Fill removed-result regions with their original panel background, cleanly. Output one single full frame, not a diptych or contact sheet. Keep title, subtitle, microphone, both waveforms, axes, speaker labels and bottom player exactly unchanged. In the right transcript area preserve the two existing outlined speaker cards and SPEAKER A / SPEAKER B headings and A/B icons, but remove the spoken words Let us begin. and Ready. and their tiny timestamp labels, leaving blank transcript body areas. Remove only the two highlighted time-segment rectangles, their result connector lines, and the white vertical playhead. Keep waveform samples and timeline numbers unchanged. Do not add loading text."
+        },
+        "end": {
+          "source": "/Users/antoniorobles/Dev/robles.ai/creative/firefly-demo-clips/speech/first-frame-v2.jpg",
+          "reusedExistingGeneratedFinal": true,
+          "originalGeneration": {
+            "tool": "built-in image_gen",
+            "sourceFilename": "exec-8a8be262-82e4-4241-9f01-574333e9ba3b.png",
+            "prompt": "Use case: ui-mockup. Create ONE polished raster keyframe for a self-contained enterprise AI explainer video, landscape 16:9, 1536x864. Premium restrained navy/slate product design with cyan and violet accents, crisp large readable typography, clear visual hierarchy. This is a completed CONCEPTUAL demo screen, not a decorative photograph. Fill the frame with the explanation; no empty half waiting for future overlays. All graphics, labels and outputs must already be visible IN THIS IMAGE. Generous 6% outer safety margins. Very few words, exact short labels as specified, no long paragraphs, no invented performance/confidence percentages, no logos, watermark or generic robot. Professional and visually convincing, suitable for technology buyers. A sophisticated live-transcription workspace headed 'AUDIO TO TRANSCRIPT'. Left a large cyan audio waveform with a microphone icon and two clearly differentiated speaker-color tracks. Right two readable transcript bubbles: label SPEAKER A with text 'Let us begin.' and label SPEAKER B with text 'Ready.' A small playhead links the highlighted waveform segment to the corresponding transcript bubble. All labels and transcript are part of the image. No microphone studio photograph, people or long paragraph."
+          }
+        }
+      }
+    },
+    {
+      "id": "langchain",
+      "titleEn": "An assistant that does tasks, not just chat",
+      "titleEs": "Un asistente que hace tareas, no solo responde",
+      "demoStatus": "live",
+      "startFrame": "langchain/start.jpg",
+      "endFrame": "langchain/end.jpg",
+      "promptFile": "langchain/firefly-prompt.txt",
+      "startState": "Solicitud pendiente y reporte vacío",
+      "endState": "Herramientas completadas y reporte listo",
+      "prompt": "Create an eight-second, silent, single-shot conceptual demo using BOTH supplied reference frames: START is the exact initial state and END is the target completed state. Use the same locked 16:9 composition throughout. All explanation, UI graphics, tracking, labels and results belong inside the MP4; no external webpage overlay will be added. Animate the specific state changes below. Do not simply crossfade the whole first picture into the last picture. Keep the unchanged background, panel borders, typography, icons, source data and subjects stable; only the specified UI outputs or expression may change. No camera pan, zoom, crop, cut, new text, extra objects, invented results or ambient effects. Where words appear, reveal complete prewritten stable blocks from END rather than inventing or morphing letters. Reach the completed state by six seconds and hold it still through eight seconds.\n\n0-1s: establish the START frame with gray tool-status dots and blank REPORT body. 1-2s: signal the REQUEST card with a brief local background tint. 2-3.5s: execute the DATABASE step: its existing status dot becomes green and its existing input connector switches gray to blue without growing or changing shape. 3.5-5s: execute CALCULATOR similarly; keep all calculator symbols and database geometry intact. 5-6s: activate the existing outgoing connector paths together and draw in the REPORT's three horizontal result bars; reveal its green check only after both tool states are green. 6-8s: hold the END frame. The new result bars and changed tool states must visibly appear; a brightness-only animation is insufficient.",
+      "videoStatus": "not_generated",
+      "imageProvenance": {
+        "start": {
+          "id": "langchain",
+          "path": "/Users/antoniorobles/.codex/generated_images/01a14d57-17c2-70d1-ba0c-8219eafc3e8c/exec-e7760350-5458-40eb-b728-5925aeb7d76e.png",
+          "prompt": "Use case: precise-object-edit. Edit target: the supplied existing final frame of a professional conceptual AI demo. Create its START frame, not another completed result. Preserve the exact full 16:9 canvas, camera, composition, palette, font sizes, background, panel rectangles and positions of every unchanged element. Do not redesign, zoom, crop, move panels, change faces or invent text. Fill removed-result regions with their original panel background, cleanly. Output one single full frame, not a diptych or contact sheet. Keep AGENT + TOOLS title, request card with text bars, DATABASE and CALCULATOR icons and labels, all card positions and original dark top/bottom margins unchanged. Change the two small green completed status dots to subdued gray circles, with identical size/position. Keep the REPORT card and REPORT heading but remove its green checkmark and its three gray result text bars: the report body is blank. Existing blue connector arrows become subdued gray in exactly the same paths and widths. No extra animation graphics or status wording."
+        },
+        "end": {
+          "source": "/Users/antoniorobles/Dev/robles.ai/creative/firefly-demo-clips/langchain/first-frame-v2.jpg",
+          "reusedExistingGeneratedFinal": true,
+          "originalGeneration": {
+            "tool": "built-in image_gen",
+            "sourceFilename": "exec-d57258e6-be61-4119-99ca-959db6c412b8.png",
+            "prompt": "undefinedA precise agent-orchestration interface, not server hardware. A request card labeled REQUEST at left branches into two large tool nodes labeled DATABASE and CALCULATOR, then converges into a final document card labeled REPORT at right. Large crisp tool icons and clear directional connector arrows form a sensible workflow. Tool nodes have distinct ready/status rings; the report has three clean horizontal content strokes and a small checkmark. Top heading 'AGENT + TOOLS'. No invented business numbers, no humanoid robot."
+          }
+        }
+      }
+    },
+    {
+      "id": "objectdetection",
+      "titleEn": "Camera-based counting and inspection",
+      "titleEs": "Conteo e inspección con cámara",
+      "demoStatus": "live",
+      "startFrame": "objectdetection/start.jpg",
+      "endFrame": "objectdetection/end.jpg",
+      "promptFile": "objectdetection/firefly-prompt.txt",
+      "startState": "Escena sin detecciones",
+      "endState": "Tres objetos identificados y contados",
+      "prompt": "Create an eight-second, silent, single-shot conceptual demo using BOTH supplied reference frames: START is the exact initial state and END is the target completed state. Use the same locked 16:9 composition throughout. All explanation, UI graphics, tracking, labels and results belong inside the MP4; no external webpage overlay will be added. Animate the specific state changes below. Do not simply crossfade the whole first picture into the last picture. Keep the unchanged background, panel borders, typography, icons, source data and subjects stable; only the specified UI outputs or expression may change. No camera pan, zoom, crop, cut, new text, extra objects, invented results or ambient effects. Where words appear, reveal complete prewritten stable blocks from END rather than inventing or morphing letters. Reach the completed state by six seconds and hold it still through eight seconds.\n\n0-1s: establish the START frame with exactly the same stationary laptop, bottle and cup, without any annotations. 1-2.5s: draw the END-frame rectangular LAPTOP detection box along its four straight edges, then reveal its LAPTOP label. 2.5-4s: draw the BOTTLE box precisely around the existing bottle and reveal BOTTLE. 4-5.5s: draw the CUP box and reveal CUP. Keep the real objects completely still; annotations arrive, subjects do not move. 5.5-6s: reveal the final badge \"3 OBJECTS\" only after all three boxes exist. 6-8s: hold the END frame. Never count the boxes as objects, never add a fourth object, and do not replace boxes with loose trails, stepped outlines or floating corners.",
+      "videoStatus": "not_generated",
+      "imageProvenance": {
+        "start": {
+          "id": "objectdetection",
+          "path": "/Users/antoniorobles/.codex/generated_images/01a14d57-17c2-70d1-ba0c-8219eafc3e8c/exec-91113751-fe06-4fb8-aa34-0074bfc24f7d.png",
+          "prompt": "Use case: precise-object-edit. Edit target: the supplied existing final frame of a professional conceptual AI demo. Create its START frame, not another completed result. Preserve the exact full 16:9 canvas, camera, composition, palette, font sizes, background, panel rectangles and positions of every unchanged element. Do not redesign, zoom, crop, move panels, change faces or invent text. Fill removed-result regions with their original panel background, cleanly. Output one single full frame, not a diptych or contact sheet. Keep the exact laptop, clear water bottle and white cup on the same desk, with exactly the same geometry, reflections, laptop screen, lighting and framing. Remove ALL cyan bounding rectangles and the labels LAPTOP, BOTTLE and CUP completely, restoring the dark background around the objects. Remove the entire upper-right 3 OBJECTS count badge and its outline, restoring plain navy background. No detection graphics or count yet. No extra objects. The three real objects must not move or change at all."
+        },
+        "end": {
+          "source": "/Users/antoniorobles/Dev/robles.ai/creative/firefly-demo-clips/objectdetection/first-frame-v2.jpg",
+          "reusedExistingGeneratedFinal": true,
+          "originalGeneration": {
+            "tool": "built-in image_gen",
+            "sourceFilename": "exec-9f816eb7-6d6c-4ad8-a4fe-86aafdee75b5.png",
+            "prompt": "Use case: ui-mockup. Create ONE polished raster keyframe for a self-contained enterprise AI explainer video, landscape 16:9, 1536x864. Premium restrained navy/slate product design with cyan and violet accents, crisp large readable typography, clear visual hierarchy. This is a completed CONCEPTUAL demo screen, not a decorative photograph. Fill the frame with the explanation; no empty half waiting for future overlays. All graphics, labels and outputs must already be visible IN THIS IMAGE. Generous 6% outer safety margins. Very few words, exact short labels as specified, no long paragraphs, no invented performance/confidence percentages, no logos, watermark or generic robot. Professional and visually convincing, suitable for technology buyers. A precise computer-vision demonstration. On an otherwise COMPLETELY EMPTY plain dark desk against a plain navy wall, show ONLY three real objects: one small open laptop fully on the left, one bottle in the center, one cup on the right. No plants, books, pens, lamps, decorations or other objects anywhere. Draw exactly THREE simple AXIS-ALIGNED closed cyan rectangles: one tightly contains the ENTIRE laptop including keyboard and screen, one contains the entire bottle, one the entire cup including handle. Each rectangle has exactly four straight sides and four square corners, no steps, gaps, extra segments or perspective skew. Attach large labels LAPTOP, BOTTLE, CUP correctly. Top right prominent counter reads '3 OBJECTS'. Leave visible gaps between all three objects and all three rectangles; keep everything within 6% safe margins. These detection graphics are already composited into the scene, large and readable."
+          }
+        }
+      }
+    },
+    {
+      "id": "emotion",
+      "titleEn": "Customer experience without surveys",
+      "titleEs": "Experiencia del cliente sin encuestas",
+      "demoStatus": "live",
+      "startFrame": "emotion/start.jpg",
+      "endFrame": "emotion/end.jpg",
+      "promptFile": "emotion/firefly-prompt.txt",
+      "startState": "Rostro neutro sin analizar",
+      "endState": "Sonrisa con seguimiento y resultado",
+      "prompt": "Create an eight-second, silent, single-shot conceptual demo using BOTH supplied reference frames: START is the exact initial state and END is the target completed state. Use the same locked 16:9 composition throughout. All explanation, UI graphics, tracking, labels and results belong inside the MP4; no external webpage overlay will be added. Animate the specific state changes below. Do not simply crossfade the whole first picture into the last picture. Keep the unchanged background, panel borders, typography, icons, source data and subjects stable; only the specified UI outputs or expression may change. No camera pan, zoom, crop, cut, new text, extra objects, invented results or ambient effects. Where words appear, reveal complete prewritten stable blocks from END rather than inventing or morphing letters. Reach the completed state by six seconds and hold it still through eight seconds.\n\n0-1s: establish the START frame with the neutral portrait, no facial mesh, and empty analysis bars. 1-2.5s: acquire the actual face: reveal the face mesh along the facial anatomy, never over the background; begin filling the NEUTRAL result. 2.5-5.5s: the same adult woman gradually forms the END frame's gentle closed-mouth smile while keeping her head and identity stable. Every visible landmark and mesh edge must deform with the skin, lips and cheeks in the same frames. The NEUTRAL bar decreases and SMILE bar grows continuously to the END-frame lengths, with the selected thumbnail moving to SMILE. 5.5-6s: settle precisely into the END-frame expression and UI. 6-8s: hold the END frame. No teeth, exaggerated facial motion, floating mesh or emotional/mental-state claims: this depicts a visible facial expression only.",
+      "videoStatus": "not_generated",
+      "imageProvenance": {
+        "start": {
+          "id": "emotion",
+          "path": "/Users/antoniorobles/.codex/generated_images/01a14d57-17c2-70d1-ba0c-8219eafc3e8c/exec-748d4225-4ffd-4277-8687-1e761f0490e6.png",
+          "prompt": "Use case: precise-object-edit. Edit target: the supplied existing final frame of a professional conceptual AI demo. Create its START frame, not another completed result. Preserve the exact full 16:9 canvas, camera, composition, palette, font sizes, background, panel rectangles and positions of every unchanged element. Do not redesign, zoom, crop, move panels, change faces or invent text. Fill removed-result regions with their original panel background, cleanly. Output one single full frame, not a diptych or contact sheet. Keep exact same adult woman's identity, hair, neutral expression, clothing, portrait framing, FACE TRACKING title and all existing UI geometry. Remove the cyan facial mesh and all landmark dots from the large portrait, restoring skin. Keep the corner framing guides. Keep NEUTRAL and SMILE labels and their bar tracks, but remove both colored bar fills so the tracks are empty. Keep the four small expression thumbnails and their text labels unchanged; remove the bright cyan selection outline and underline from the NEUTRAL thumbnail, making that thumbnail border subdued like the other thumbnails. No analysis result yet."
+        },
+        "end": {
+          "id": "emotionEnd",
+          "path": "/Users/antoniorobles/.codex/generated_images/01a14d57-17c2-70d1-ba0c-8219eafc3e8c/exec-0bafd939-0d5f-4556-9eee-23d6dcd3f738.png",
+          "prompt": "Use case: identity-preserve / precise-object-edit. Edit target: supplied FACE TRACKING final frame. Produce a new END frame for an eight-second facial-expression demo. Preserve exact same fictional adult woman's identity, hair, clothes, head position and size, camera, background, all panels, title, NEUTRAL and SMILE labels and thumbnails. Change only the large woman's expression from neutral to a gentle natural closed-mouth smile, with the SAME facial mesh correctly attached to the new cheek and lip anatomy. No head turn, teeth, or identity change. In the right bar panel make the NEUTRAL cyan fill short (about one quarter) and the SMILE purple fill long (about three quarters), with bar tracks and labels unchanged. Move the bright thumbnail selection outline/underline from NEUTRAL to the second SMILE thumbnail, without changing the four thumbnail pictures or labels. Keep original full 16:9 composition exactly, no crop, no extra UI. One single full frame, no diptych. Only a visible expression change and its synchronized result."
+        }
+      }
+    },
+    {
+      "id": "docextract",
+      "titleEn": "Invoices and documents → data in seconds",
+      "titleEs": "Facturas y documentos → datos en segundos",
+      "demoStatus": "live",
+      "startFrame": "docextract/start.jpg",
+      "endFrame": "docextract/end.jpg",
+      "promptFile": "docextract/firefly-prompt.txt",
+      "startState": "Factura visible, campos de salida vacíos",
+      "endState": "ID e importe extraídos",
+      "prompt": "Create an eight-second, silent, single-shot conceptual demo using BOTH supplied reference frames: START is the exact initial state and END is the target completed state. Use the same locked 16:9 composition throughout. All explanation, UI graphics, tracking, labels and results belong inside the MP4; no external webpage overlay will be added. Animate the specific state changes below. Do not simply crossfade the whole first picture into the last picture. Keep the unchanged background, panel borders, typography, icons, source data and subjects stable; only the specified UI outputs or expression may change. No camera pan, zoom, crop, cut, new text, extra objects, invented results or ambient effects. Where words appear, reveal complete prewritten stable blocks from END rather than inventing or morphing letters. Reach the completed state by six seconds and hold it still through eight seconds.\n\n0-1s: establish the START frame: invoice ID A104 and TOTAL 125.00 are already printed on the source; the corresponding result boxes are empty. 1-2.5s: move a single thin translucent scan band from the top of the invoice down to the ID field, constrained strictly inside the paper, then remove the band. Reveal the END-frame cyan ID outline and the complete value A104 inside the right ID box. 2.5-4.5s: scan further down inside the invoice to TOTAL, remove the scan band, reveal its fixed outline and the complete matching value 125.00 in the right TOTAL box. 4.5-6s: activate the existing Export CSV button and settle the existing center arrow to the END frame. 6-8s: hold the END frame. Source numbers must never change; do not animate digits counting up, export new files, or invent fields.",
+      "videoStatus": "not_generated",
+      "imageProvenance": {
+        "start": {
+          "id": "docextract",
+          "path": "/Users/antoniorobles/.codex/generated_images/01a14d57-17c2-70d1-ba0c-8219eafc3e8c/exec-3fbd6816-03cc-4b02-8c58-df7322592138.png",
+          "prompt": "Use case: precise-object-edit. Edit target: the supplied existing final frame of a professional conceptual AI demo. Create its START frame, not another completed result. Preserve the exact full 16:9 canvas, camera, composition, palette, font sizes, background, panel rectangles and positions of every unchanged element. Do not redesign, zoom, crop, move panels, change faces or invent text. Fill removed-result regions with their original panel background, cleanly. Output one single full frame, not a diptych or contact sheet. Keep the invoice document completely unchanged, including exact visible ID A104 and TOTAL 125.00, title, gray document lines, tabletop/background and sheet geometry. Remove only the cyan highlight outlines around those two invoice fields, preserving their printed words and numbers. Keep the right EXTRACTED DATA panel and its ID and TOTAL row labels, but clear ONLY the values A104 and 125.00 from the right row value boxes, leaving clean empty navy value boxes. Keep Export CSV button and its wording, but dim it to an inactive desaturated purple. Keep center arrow shape and position but subdued. No new field values or loading text."
+        },
+        "end": {
+          "source": "/Users/antoniorobles/Dev/robles.ai/creative/firefly-demo-clips/docextract/first-frame-v2.jpg",
+          "reusedExistingGeneratedFinal": true,
+          "originalGeneration": {
+            "tool": "built-in image_gen",
+            "sourceFilename": "exec-30a89987-92cf-4a8c-99be-ac9659f3f797.png",
+            "prompt": "Use case: ui-mockup. Create ONE polished raster keyframe for a self-contained enterprise AI explainer video, landscape 16:9, 1536x864. Premium restrained navy/slate product design with cyan and violet accents, crisp large readable typography, clear visual hierarchy. This is a completed CONCEPTUAL demo screen, not a decorative photograph. Fill the frame with the explanation; no empty half waiting for future overlays. All graphics, labels and outputs must already be visible IN THIS IMAGE. Generous 6% outer safety margins. Very few words, exact short labels as specified, no long paragraphs, no invented performance/confidence percentages, no logos, watermark or generic robot. Professional and visually convincing, suitable for technology buyers. A beautifully organized document-to-data workspace. Left: a fictional invoice on a white paper panel headed INVOICE, only two clearly readable fields 'ID: A104' and 'TOTAL: 125.00', each enclosed in its own subtle cyan extraction highlight. Center: a clear right-pointing processing arrow. Right: structured result panel headed EXTRACTED DATA, with two large rows 'ID  A104' and 'TOTAL  125.00' matching the paper exactly, plus a small CSV export button. Every necessary label and value is readable and inside the image, no people or empty laptop photo."
+          }
+        }
+      }
+    },
+    {
+      "id": "tts",
+      "titleEn": "Give your content a voice",
+      "titleEs": "Dale voz a tu contenido",
+      "demoStatus": "live",
+      "startFrame": "tts/start.jpg",
+      "endFrame": "tts/end.jpg",
+      "promptFile": "tts/firefly-prompt.txt",
+      "startState": "Texto listo, audio aún no generado",
+      "endState": "Forma de onda generada y reproducción disponible",
+      "prompt": "Create an eight-second, silent, single-shot conceptual demo using BOTH supplied reference frames: START is the exact initial state and END is the target completed state. Use the same locked 16:9 composition throughout. All explanation, UI graphics, tracking, labels and results belong inside the MP4; no external webpage overlay will be added. Animate the specific state changes below. Do not simply crossfade the whole first picture into the last picture. Keep the unchanged background, panel borders, typography, icons, source data and subjects stable; only the specified UI outputs or expression may change. No camera pan, zoom, crop, cut, new text, extra objects, invented results or ambient effects. Where words appear, reveal complete prewritten stable blocks from END rather than inventing or morphing letters. Reach the completed state by six seconds and hold it still through eight seconds.\n\n0-1s: establish the START frame with Welcome. already present and the output waveform area empty. 1-2s: blink only the existing text caret twice; preserve the word and the title. 2-4.5s: grow the END frame's cyan-purple waveform smoothly from left to right, revealing its individual vertical bars from the centerline, without moving the source text box or introducing new text. 4.5-6s: enable the existing play and speaker icons and move the player knob along its existing horizontal track only to the exact END-frame position. 6-8s: hold the END frame. The clip remains silent; it illustrates creation of playable speech. Do not turn the existing play symbol into an unrelated icon or rewrite the fixed sample duration labels.",
+      "videoStatus": "not_generated",
+      "imageProvenance": {
+        "start": {
+          "id": "tts",
+          "path": "/Users/antoniorobles/.codex/generated_images/01a14d57-17c2-70d1-ba0c-8219eafc3e8c/exec-7202b1a8-4077-43f9-baab-b9c6a0865f1a.png",
+          "prompt": "Use case: precise-object-edit. Edit target: the supplied existing final frame of a professional conceptual AI demo. Create its START frame, not another completed result. Preserve the exact full 16:9 canvas, camera, composition, palette, font sizes, background, panel rectangles and positions of every unchanged element. Do not redesign, zoom, crop, move panels, change faces or invent text. Fill removed-result regions with their original panel background, cleanly. Output one single full frame, not a diptych or contact sheet. Keep TEXT TO VOICE title, top icon, source box with exact word Welcome., blue caret, arrow, play button, speaker icon and overall composition unchanged. Remove the large cyan-purple generated waveform between the arrow and playback control, leaving the original clean navy background there. Keep the player progress track, but remove its cyan progress fill and place its existing white playhead at the far-left beginning. Preserve 0:00 and 0:02 labels unchanged. Dim the play button and speaker icon slightly to indicate output not ready. No extra text."
+        },
+        "end": {
+          "source": "/Users/antoniorobles/Dev/robles.ai/creative/firefly-demo-clips/tts/first-frame-v2.jpg",
+          "reusedExistingGeneratedFinal": true,
+          "originalGeneration": {
+            "tool": "built-in image_gen",
+            "sourceFilename": "exec-3e1da74e-77d5-4702-b295-249491af4071.png",
+            "prompt": "Use case: ui-mockup. Create ONE polished raster keyframe for a self-contained enterprise AI explainer video, landscape 16:9, 1536x864. Premium restrained navy/slate product design with cyan and violet accents, crisp large readable typography, clear visual hierarchy. This is a completed CONCEPTUAL demo screen, not a decorative photograph. Fill the frame with the explanation; no empty half waiting for future overlays. All graphics, labels and outputs must already be visible IN THIS IMAGE. Generous 6% outer safety margins. Very few words, exact short labels as specified, no long paragraphs, no invented performance/confidence percentages, no logos, watermark or generic robot. Professional and visually convincing, suitable for technology buyers. A complete text-to-speech concept headed 'TEXT TO VOICE'. Left a white-on-navy text input card containing the exact large text 'Welcome.' with a text cursor. A clear right-pointing arrow leads to a large violet/cyan audio waveform and speaker icon on the right, with a simple circular play control. Beneath the waveform a progress rail with playhead. Clean premium software visualization, visibly converts the word into audio; no microphone photograph, no people."
+          }
+        }
+      }
+    },
+    {
+      "id": "voiceagent",
+      "titleEn": "AI voice receptionist",
+      "titleEs": "Recepcionista por voz con IA",
+      "demoStatus": "soon",
+      "startFrame": "voiceagent/start.jpg",
+      "endFrame": "voiceagent/end.jpg",
+      "promptFile": "voiceagent/firefly-prompt.txt",
+      "startState": "Solicitud de reunión sin reserva",
+      "endState": "Calendario actualizado y reserva confirmada",
+      "prompt": "Create an eight-second, silent, single-shot conceptual demo using BOTH supplied reference frames: START is the exact initial state and END is the target completed state. Use the same locked 16:9 composition throughout. All explanation, UI graphics, tracking, labels and results belong inside the MP4; no external webpage overlay will be added. Animate the specific state changes below. Do not simply crossfade the whole first picture into the last picture. Keep the unchanged background, panel borders, typography, icons, source data and subjects stable; only the specified UI outputs or expression may change. No camera pan, zoom, crop, cut, new text, extra objects, invented results or ambient effects. Where words appear, reveal complete prewritten stable blocks from END rather than inventing or morphing letters. Reach the completed state by six seconds and hold it still through eight seconds.\n\n0-1s: establish the START frame with the spoken request Book a meeting., an unselected calendar and empty confirmation card. 1-2.5s: animate the existing smartphone waveform bars subtly around their own baselines; microphone, phone shape and request wording remain unchanged. 2.5-4.5s: fill exactly the calendar cell selected in the END frame with cyan; reveal the END-frame input arrow in place without moving a packet or creating a trail. 4.5-6s: reveal the fixed output arrow and introduce the completed status card's checkmark and BOOKED label with a short upward entrance inside the existing panel. 6-8s: hold the END frame. Do not add dates, times, contacts, extra calendar cells or false appointments.",
+      "videoStatus": "not_generated",
+      "imageProvenance": {
+        "start": {
+          "id": "voiceagent",
+          "path": "/Users/antoniorobles/.codex/generated_images/01a14d57-17c2-70d1-ba0c-8219eafc3e8c/exec-176a0a5f-aa08-4a39-9ab7-30af83b03e3d.png",
+          "prompt": "Use case: precise-object-edit. Edit target: the supplied existing final frame of a professional conceptual AI demo. Create its START frame, not another completed result. Preserve the exact full 16:9 canvas, camera, composition, palette, font sizes, background, panel rectangles and positions of every unchanged element. Do not redesign, zoom, crop, move panels, change faces or invent text. Fill removed-result regions with their original panel background, cleanly. Output one single full frame, not a diptych or contact sheet. Keep VOICE TO ACTION title, exact smartphone, microphone, waveform, Book a meeting. request bubble, calendar grid and CALENDAR heading, navy background and all panel geometry unchanged. Clear the bright cyan selected calendar cell to the same unselected navy as the other cells. Remove the two bright workflow arrows entirely, restoring background. Keep the right rounded status-card outline but remove its checkmark circle, green check and BOOKED text, leaving an empty status panel. No calendar dates, no confirmation yet, no new wording."
+        },
+        "end": {
+          "source": "/Users/antoniorobles/Dev/robles.ai/creative/firefly-demo-clips/voiceagent/first-frame-v2.jpg",
+          "reusedExistingGeneratedFinal": true,
+          "originalGeneration": {
+            "tool": "built-in image_gen",
+            "sourceFilename": "exec-83c297bc-cd1b-4378-ae16-095dfca74a0c.png",
+            "prompt": "Use case: ui-mockup. Create ONE polished raster keyframe for a self-contained enterprise AI explainer video, landscape 16:9, 1536x864. Premium restrained navy/slate product design with cyan and violet accents, crisp large readable typography, clear visual hierarchy. This is a completed CONCEPTUAL demo screen, not a decorative photograph. Fill the frame with the explanation; no empty half waiting for future overlays. All graphics, labels and outputs must already be visible IN THIS IMAGE. Generous 6% outer safety margins. Very few words, exact short labels as specified, no long paragraphs, no invented performance/confidence percentages, no logos, watermark or generic robot. Professional and visually convincing, suitable for technology buyers. A clear enterprise VOICE TO ACTION workflow on a dark navy background with only FOUR exact text strings: 'VOICE TO ACTION', 'Book a meeting.', 'CALENDAR', 'BOOKED'. No other letters, dates, day names, times, tiny text or numbers. Left: phone icon with moving-waveform visual and request bubble 'Book a meeting.'. Center: large calendar-grid icon headed CALENDAR, six by five blank cells with just ONE cyan appointment block and a clean arrow arriving from the request. Right: large confirmation card with a checkmark and BOOKED, linked directly from the highlighted slot. All three steps are aligned and fill the frame. High-end product UI, crisp graphics, no photographic phone or receptionist, no invented meeting details. The entire concept is visible in this image."
+          }
+        }
+      }
+    },
+    {
+      "id": "anomaly",
+      "titleEn": "Live fraud simulator",
+      "titleEs": "Simulador de fraude en vivo",
+      "demoStatus": "soon",
+      "startFrame": "anomaly/start.jpg",
+      "endFrame": "anomaly/end.jpg",
+      "promptFile": "anomaly/firefly-prompt.txt",
+      "startState": "Transacciones sin clasificar",
+      "endState": "Patrón inusual señalado para revisión",
+      "prompt": "Create an eight-second, silent, single-shot conceptual demo using BOTH supplied reference frames: START is the exact initial state and END is the target completed state. Use the same locked 16:9 composition throughout. All explanation, UI graphics, tracking, labels and results belong inside the MP4; no external webpage overlay will be added. Animate the specific state changes below. Do not simply crossfade the whole first picture into the last picture. Keep the unchanged background, panel borders, typography, icons, source data and subjects stable; only the specified UI outputs or expression may change. No camera pan, zoom, crop, cut, new text, extra objects, invented results or ambient effects. Where words appear, reveal complete prewritten stable blocks from END rather than inventing or morphing letters. Reach the completed state by six seconds and hold it still through eight seconds.\n\n0-1s: establish the START frame with the three original transaction histograms and empty results panel. 1-3s: evaluate TX-01 and TX-02 in order, revealing their END-frame TYPICAL result badges; the source histogram bar heights do not change. 3-4.5s: color the existing TX-03 bars amber without altering their data shape, reveal its UNUSUAL badge and amber row outline. 4.5-6s: reveal the END-frame fixed connector, REVIEW heading and detailed result chart/bars inside the right panel, then the FLAGGED FOR REVIEW row. Introduce actual result elements, not a whole-image dissolve. 6-8s: hold the END frame. Preserve transaction IDs and source patterns. This is a review flag, not proof of fraud or an invented saved-money result.",
+      "videoStatus": "not_generated",
+      "imageProvenance": {
+        "start": {
+          "id": "anomaly",
+          "path": "/Users/antoniorobles/.codex/generated_images/01a14d57-17c2-70d1-ba0c-8219eafc3e8c/exec-3986ecad-bd30-4906-ace8-06f822055467.png",
+          "prompt": "Use case: precise-object-edit. Edit target: the supplied existing final frame of a professional conceptual AI demo. Create its START frame, not another completed result. Preserve the exact full 16:9 canvas, camera, composition, palette, font sizes, background, panel rectangles and positions of every unchanged element. Do not redesign, zoom, crop, move panels, change faces or invent text. Fill removed-result regions with their original panel background, cleanly. Output one single full frame, not a diptych or contact sheet. Keep PATTERN REVIEW title/subtitle, the three transaction rows TX-01 TX-02 TX-03 and the exact bar heights and shapes of each transaction, without changing the source data. Remove classification icon/word badges TYPICAL and UNUSUAL from the right edge of all three rows, keeping their small result areas blank. Remove amber outline/glow from TX-03 and render its existing histogram bars subdued blue like the other unclassified input rows. Remove the amber connector to the right. Keep right outer panel outline but remove ALL its contents including REVIEW title, warning icon, chart, bars, mini labels and FLAGGED FOR REVIEW button: it is a clean empty navy results panel. No new text or fraud claims."
+        },
+        "end": {
+          "source": "/Users/antoniorobles/Dev/robles.ai/creative/firefly-demo-clips/anomaly/first-frame-v2.jpg",
+          "reusedExistingGeneratedFinal": true,
+          "originalGeneration": {
+            "tool": "built-in image_gen",
+            "sourceFilename": "exec-cf0aea65-5623-41e9-988d-59fb80ff321d.png",
+            "prompt": "Use case: ui-mockup. Create ONE polished raster keyframe for a self-contained enterprise AI explainer video, landscape 16:9, 1536x864. Premium restrained navy/slate product design with cyan and violet accents, crisp large readable typography, clear visual hierarchy. This is a completed CONCEPTUAL demo screen, not a decorative photograph. Fill the frame with the explanation; no empty half waiting for future overlays. All graphics, labels and outputs must already be visible IN THIS IMAGE. Generous 6% outer safety margins. Very few words, exact short labels as specified, no long paragraphs, no invented performance/confidence percentages, no logos, watermark or generic robot. Professional and visually convincing, suitable for technology buyers. A transaction-anomaly analysis interface headed 'PATTERN REVIEW'. Left three large simple transaction rows labeled TX-01, TX-02, TX-03. First two show similar short neutral activity bars; TX-03 shows an unusually long amber bar, visibly different. A clear connector links that exact outlier row to a right review card with warning icon and large word REVIEW. No real names, account numbers, payment details, fraud-certainty verdict, money-saved claims or invented accuracy metrics. Emphasize identifying an unusual pattern for review."
+          }
+        }
+      }
+    },
+    {
+      "id": "forecast",
+      "titleEn": "Demand forecast from your data",
+      "titleEs": "Pronóstico de demanda con tus datos",
+      "demoStatus": "live",
+      "startFrame": "forecast/start.jpg",
+      "endFrame": "forecast/end.jpg",
+      "promptFile": "forecast/firefly-prompt.txt",
+      "startState": "Histórico y horizonte futuro vacío",
+      "endState": "Proyección con incertidumbre",
+      "prompt": "Create an eight-second, silent, single-shot conceptual demo using BOTH supplied reference frames: START is the exact initial state and END is the target completed state. Use the same locked 16:9 composition throughout. All explanation, UI graphics, tracking, labels and results belong inside the MP4; no external webpage overlay will be added. Animate the specific state changes below. Do not simply crossfade the whole first picture into the last picture. Keep the unchanged background, panel borders, typography, icons, source data and subjects stable; only the specified UI outputs or expression may change. No camera pan, zoom, crop, cut, new text, extra objects, invented results or ambient effects. Where words appear, reveal complete prewritten stable blocks from END rather than inventing or morphing letters. Reach the completed state by six seconds and hold it still through eight seconds.\n\n0-1s: establish the START frame with the historical white curve, empty future region and unchanged inventory cards. 1-2s: briefly emphasize the last historical point without moving it. 2-5s: DRAW the cyan forecast line left-to-right from the exact history/future junction, adding the future nodes in chronological order at their END-frame coordinates. The line must be continuous with the historical endpoint. 3-6s: expand the END frame's translucent purple uncertainty band progressively behind the newly drawn future curve, restricted to the future side of the dashed divider. Keep all chart labels, historical values and inventory cards unchanged. 6-8s: hold the END frame. No morphing the historical data, fake accuracy claims, arbitrary chart jumps, or whole-image crossfade.",
+      "videoStatus": "not_generated",
+      "imageProvenance": {
+        "start": {
+          "id": "forecast",
+          "path": "/Users/antoniorobles/.codex/generated_images/01a14d57-17c2-70d1-ba0c-8219eafc3e8c/exec-610364a4-5d17-4ef0-94eb-cb5ad5c8d4ba.png",
+          "prompt": "Use case: precise-object-edit. Image 1 is the START frame edit target; Image 2 is the matching END frame for reference only. Keep ALL of image 1 exactly unchanged except restore the tiny missing WHITE historical line segment and small WHITE endpoint that exists at the vertical dashed history/future divider in image 2. In image 1 the June white point is around x=790,y=310 on the 1672x941 canvas. Extend that historical WHITE line gently down/right to approximately x=860,y=314 at the dashed vertical divider, adding a white circular endpoint there. Match the white curve/point appearance of the equivalent last history segment in Image 2. Do NOT add any cyan future line, future dots, purple band or tint; the entire future region to the right of the divider remains empty grid. Preserve every other history point, chart label, panel border, lower inventory cards, background, camera, full 16:9 framing. One single full frame."
+        },
+        "end": {
+          "source": "/Users/antoniorobles/Dev/robles.ai/creative/firefly-demo-clips/forecast/first-frame-v2.jpg",
+          "reusedExistingGeneratedFinal": true,
+          "originalGeneration": {
+            "tool": "built-in image_gen",
+            "sourceFilename": "exec-002d2000-2d66-4391-9691-a6d80f4b6f58.png",
+            "prompt": "Use case: ui-mockup. Create ONE polished raster keyframe for a self-contained enterprise AI explainer video, landscape 16:9, 1536x864. Premium restrained navy/slate product design with cyan and violet accents, crisp large readable typography, clear visual hierarchy. This is a completed CONCEPTUAL demo screen, not a decorative photograph. Fill the frame with the explanation; no empty half waiting for future overlays. All graphics, labels and outputs must already be visible IN THIS IMAGE. Generous 6% outer safety margins. Very few words, exact short labels as specified, no long paragraphs, no invented performance/confidence percentages, no logos, watermark or generic robot. Professional and visually convincing, suitable for technology buyers. A polished demand-forecast visualization filling most of the image. One large clean chart has a white historical line on the left and a cyan projected line continuing naturally to the right, with a translucent violet forecast uncertainty band around ONLY the projected portion. A clear vertical split separates the two portions, exact large labels HISTORY and FORECAST above them. Three small stock-box icons below suggest inventory planning. No invented accuracy numbers, percentages, currency, customer results or decorative server hardware. The concept of history leading to a forecast must be immediately clear."
+          }
+        }
+      }
+    },
+    {
+      "id": "imagegen",
+      "titleEn": "Product photo studio",
+      "titleEs": "Estudio de foto de producto",
+      "demoStatus": "soon",
+      "startFrame": "imagegen/start.jpg",
+      "endFrame": "imagegen/end.jpg",
+      "promptFile": "imagegen/firefly-prompt.txt",
+      "startState": "Producto original y variantes vacías",
+      "endState": "Dos variantes del mismo producto",
+      "prompt": "Create an eight-second, silent, single-shot conceptual demo using BOTH supplied reference frames: START is the exact initial state and END is the target completed state. Use the same locked 16:9 composition throughout. All explanation, UI graphics, tracking, labels and results belong inside the MP4; no external webpage overlay will be added. Animate the specific state changes below. Do not simply crossfade the whole first picture into the last picture. Keep the unchanged background, panel borders, typography, icons, source data and subjects stable; only the specified UI outputs or expression may change. No camera pan, zoom, crop, cut, new text, extra objects, invented results or ambient effects. Where words appear, reveal complete prewritten stable blocks from END rather than inventing or morphing letters. Reach the completed state by six seconds and hold it still through eight seconds.\n\n0-1s: establish the START frame with the unchanged INPUT bottle and two empty output tiles. 1-3.5s: create the first output image inside its existing tile with a controlled left-to-right reveal, showing the SAME cyan bottle shape, cap and proportions in the END-frame warm stone setting. 3.5-6s: create the second output tile with a bottom-to-top reveal of the END-frame botanical scene and the SAME consistent bottle. Reveals remain clipped inside their respective rounded tile borders; do not carry leaves, textures or bottle fragments across the interface. Keep the INPUT photograph and all typography completely still. 6-8s: hold the END frame. No new brand labels, bottle deformation, camera cuts or whole-image dissolve.",
+      "videoStatus": "not_generated",
+      "imageProvenance": {
+        "start": {
+          "id": "imagegen",
+          "path": "/Users/antoniorobles/.codex/generated_images/01a14d57-17c2-70d1-ba0c-8219eafc3e8c/exec-6d6da1b8-48f1-4672-acc6-19984d8cb067.png",
+          "prompt": "Use case: precise-object-edit. Edit target: the supplied existing final frame of a professional conceptual AI demo. Create its START frame, not another completed result. Preserve the exact full 16:9 canvas, camera, composition, palette, font sizes, background, panel rectangles and positions of every unchanged element. Do not redesign, zoom, crop, move panels, change faces or invent text. Fill removed-result regions with their original panel background, cleanly. Output one single full frame, not a diptych or contact sheet. Keep PRODUCT IMAGE STUDIO title, entire INPUT panel with its exact cyan bottle photograph, center arrow, VARIANTS outer panel and both output tile outlines in their original positions. Remove BOTH complete output variant photographs from inside the two right-hand tiles, leaving plain dark navy empty placeholders with existing thin rounded borders. No bottles, backgrounds, leaves or textures in those output placeholders yet. The sole visible bottle remains the original INPUT photo, entirely unchanged. No new text."
+        },
+        "end": {
+          "source": "/Users/antoniorobles/Dev/robles.ai/creative/firefly-demo-clips/imagegen/first-frame-v2.jpg",
+          "reusedExistingGeneratedFinal": true,
+          "originalGeneration": {
+            "tool": "built-in image_gen",
+            "sourceFilename": "exec-f3462fc0-743a-4f9b-812d-b960c289cceb.png",
+            "prompt": "Use case: ui-mockup. Create ONE polished raster keyframe for a self-contained enterprise AI explainer video, landscape 16:9, 1536x864. Premium restrained navy/slate product design with cyan and violet accents, crisp large readable typography, clear visual hierarchy. This is a completed CONCEPTUAL demo screen, not a decorative photograph. Fill the frame with the explanation; no empty half waiting for future overlays. All graphics, labels and outputs must already be visible IN THIS IMAGE. Generous 6% outer safety margins. Very few words, exact short labels as specified, no long paragraphs, no invented performance/confidence percentages, no logos, watermark or generic robot. Professional and visually convincing, suitable for technology buyers. A premium generative-product-imagery workspace. Left an INPUT card shows a simple phone-style photograph of one unbranded frosted cyan cosmetic bottle. Clear arrow leads to two large output cards under label VARIANTS: THE EXACT SAME bottle, unchanged shape and cap, one on a refined stone studio plinth with warm lighting and one with a cool botanical background. Large short header 'PRODUCT IMAGE STUDIO'. Product photography and software framing combined, elegant and realistic. No text on bottles, logos, watermark or invented commercial results."
+          }
+        }
+      }
+    }
+  ]
+}

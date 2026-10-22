@@ -132,3 +132,7 @@ Kit de Firefly: [guía de imágenes, prompts, compresión y carga a demanda](FIR
 ## Self-contained Firefly kit v2 supersedes the background-only kit
 
 The 13 first frames are newly generated conceptual scenes with their explanatory graphics already included. Rewritten eight-second video prompts require synchronized in-video tracking, labels and results; no external explanatory overlay is planned for those clips. The new full-frame 16:9 export must not use v1's central crop or five-second truncation. See FIREFLY_CLIPS.md and the per-demo acceptance criteria. Existing website CSS previews remain unchanged until actual videos have been generated, reviewed and integrated.
+
+## Parejas de frames v3 — 21 de octubre de 2026
+
+Kit vigente: `creative/firefly-demo-pairs-v3/`. Contiene 13 parejas (26 JPG 1280×720) y 13 prompts con cambios de estado, revisión visual de extremos y fuentes de las imágenes. Se generaron 13 inicios y un final de sonrisa; los otros 12 finales reutilizan v2. Sustituye la instrucción anterior de dejar Last vacío. No modifica los componentes ni activa videos Firefly en producción; los MP4 y su validación temporal siguen pendientes.
