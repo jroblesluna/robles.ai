@@ -1,6 +1,6 @@
-# Firefly — 13 parejas de frames v3
+# Firefly — 13 parejas de frames v3.1
 
-Este paquete sustituye el flujo de una sola imagen inicial por **13 parejas completas: 26 JPG y 13 prompts de transición**. Se generaron 13 inicios nuevos a partir de los visuales existentes y un final nuevo para la sonrisa. Los otros 12 finales reutilizan los visuales v2: no se afirma que los 26 sean generaciones nuevas.
+Este paquete sustituye el flujo de una sola imagen inicial por **13 parejas completas: 26 JPG y 13 prompts de transición**. Se generaron 13 inicios nuevos a partir de los visuales existentes y dos finales nuevos: sonrisa y landmarks internos de identidad. Los otros 11 finales reutilizan los visuales v2: no se afirma que los 26 sean generaciones nuevas.
 
 Cada carpeta contiene **start.jpg**, **end.jpg**, **firefly-prompt.txt** y README.md. Los nombres y la estructura son iguales para todos los casos.
 
@@ -17,7 +17,7 @@ Adobe documenta First/Last para Veo 3.1 y especifica 16:9 y ocho segundos para r
 
 ## Qué debe animarse
 
-El chatbot pasa de escribir a mostrar respuesta/citas; identidad adquiere contornos y muestra la comparación; RAG recupera fuentes y construye una respuesta citada; transcripción revela frases por hablante; herramientas producen un reporte; detección dibuja tres cajas y cuenta; el rostro pasa de neutro a sonrisa con seguimiento; factura completa campos; TTS genera una onda; voz crea una reserva; anomalías generan una revisión; pronóstico dibuja el futuro; imágenes completan variantes.
+El chatbot pasa de escribir a mostrar respuesta/citas; identidad adquiere landmarks internos, malla y guías geométricas y muestra la comparación; RAG recupera fuentes y construye una respuesta citada; transcripción revela frases por hablante; herramientas producen un reporte; detección dibuja tres cajas y cuenta; el rostro pasa de neutro a sonrisa con seguimiento; factura completa campos; TTS genera una onda; voz crea una reserva; anomalías generan una revisión; pronóstico dibuja el futuro; imágenes completan variantes.
 
 Las transiciones deben mostrar esas acciones, sin disolver la imagen completa. El fondo, textos ya visibles, geometría de paneles y datos fuente permanecen estables. Los conectores del chatbot no persiguen objetos y el cerebro no se transforma.
 
