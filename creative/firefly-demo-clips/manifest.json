@@ -1,36 +1,36 @@
 {
-  "version": 1,
-  "provenance": "Existing AI-generated demo photos; technical resize and overscan padding only. No new image or video generation in this kit.",
+  "version": 2,
+  "provenance": "Thirteen new conceptual first frames generated with built-in image_gen. All explanatory graphics are in the image/video; no external explanatory overlays.",
   "firstFrame": {
     "width": 1280,
     "height": 720,
     "format": "jpeg",
-    "safeCrop": {
-      "x": 160,
-      "y": 0,
-      "width": 960,
-      "height": 720
-    }
+    "layout": "full-frame-16:9",
+    "crop": "none",
+    "maxBytes": 250000
   },
   "generation": {
-    "suggestedModel": "Adobe Firefly Video",
+    "suggestedModel": "Veo 3.1 in Firefly (matching the current user workflow)",
     "aspectRatio": "16:9",
     "width": 1280,
     "height": 720,
-    "durationSeconds": 5,
+    "durationSeconds": 8,
     "fps": 24,
     "audio": false
   },
   "delivery": {
     "width": 640,
-    "height": 480,
-    "durationSeconds": 5,
+    "height": 360,
+    "durationSeconds": 8,
     "fps": 24,
     "audio": false,
     "codec": "H.264",
     "container": "MP4",
     "preferredBytes": 500000,
-    "maxBytes": 750000
+    "maxBytes": 750000,
+    "crop": "none",
+    "fitInCard": "contain",
+    "externalExplanatoryOverlays": false
   },
   "demos": [
     {
@@ -38,169 +38,325 @@
       "demoStatus": "live",
       "titleEn": "Your chatbot in 60 seconds",
       "titleEs": "Tu chatbot en 60 segundos",
-      "sourceImage": "public/demo-previews/sitechatbot-photo-v1-960.webp",
-      "firstFrame": "sitechatbot/first-frame.jpg",
-      "promptFile": "sitechatbot/firefly-prompt.txt",
-      "prompt": "Create a five-second silent premium enterprise technology clip from the supplied first-frame image. Locked-off camera: no pan, tilt, zoom, shake or cuts. Preserve the image composition, subject identity, object geometry, restrained navy palette and dark negative space. The source has 160-pixel side margins on each edge of its 1280x720 canvas; keep all meaningful content inside the central 960x720 safe area. The website will crop away those margins to a 4:3 card. The laptop and all objects remain fixed. A soft cyan reflection gently travels across the blank laptop screen, suggesting an assistant becoming ready. The plant is still. Do not render chat bubbles or website content; those will be added as real localized overlays in the website. Start close to the reference state, perform only the subtle motion described, and settle during the final second. Keep the right side of the central safe area dark and uncluttered for overlays added separately in code. No baked-in text, letters, numbers, logos, watermark, UI, charts, captions or sound. This is a conceptual scene, not a screen recording or evidence of measured model performance.",
-      "rawVideoName": "sitechatbot-firefly-master.mp4",
-      "webVideoName": "sitechatbot-clip-v1.mp4",
-      "videoStatus": "awaiting_firefly_generation"
+      "sourceImage": "creative/firefly-demo-clips/sitechatbot/first-frame-v2.jpg",
+      "firstFrame": "sitechatbot/first-frame-v2.jpg",
+      "promptFile": "sitechatbot/firefly-prompt-v2.txt",
+      "prompt": "Create an eight-second silent, self-contained conceptual demonstration using the supplied first frame. The ENTIRE explanation must be rendered inside the video: graphics, connectors, labels, tracking and outputs. No external website overlay will be added. Preserve the full 16:9 composition and existing readable text from the reference; no cropping, camera cuts, panning or zooming. At 0-1 seconds, establish the supplied complete concept. At 1-6 seconds, perform the demonstration described below. At 6-8 seconds, hold a clear final state so the viewer can read the result. Emphasize the existing question What do you offer?. A visible pulse travels from the SERVICES source card through the knowledge node into the assistant answer AI solutions for business. The SERVICES source chip attached to the answer highlights at the same time, making the source-to-answer connection obvious. SUPPORT remains a secondary available source, without being falsely shown as the cited source for this answer. Keep the supplied chat wording stable and legible; animate the workflow rather than generating new chat text. Preserve the exact reference labels and values; animate emphasis, connectors and highlights rather than inventing or rewriting text. Do not introduce extra objects, malformed letters, fluctuating counts, unsupported claims, confidence percentages, unrelated effects or audio. Every explanatory graphic must remain geometrically and temporally consistent with what it describes. Deliver one complete understandable MP4 scene, not background footage waiting for later graphics.",
+      "rawVideoName": "sitechatbot-firefly-v2-master.mp4",
+      "webVideoName": "sitechatbot-clip-v2.mp4",
+      "videoStatus": "awaiting_firefly_generation",
+      "selfContained": true,
+      "concept": "Show a website-based assistant answering from its source content.",
+      "acceptanceChecks": [
+        "Question, source and answer are all visible in the final video.",
+        "The cited SERVICES chip corresponds to the SERVICES source being activated.",
+        "No random changing text, unrelated reply, opaque background-only motion or outside overlay needed."
+      ],
+      "imageGeneration": {
+        "tool": "built-in image_gen",
+        "sourceFilename": "exec-fdb7b931-3934-41d7-b16f-c5b900966eac.png",
+        "prompt": "undefinedA clean website-assistant product workspace. Left two compact source cards with document icons and exact labels SERVICES and SUPPORT, joined by thin lines to a central knowledge node. Right a large chat conversation: user bubble 'What do you offer?' and assistant bubble 'AI solutions for business.' A small source chip SERVICES is visibly attached to the answer. Top heading 'WEBSITE ASSISTANT'. The sources-to-answer relationship must be obvious without any external overlay. Integrated software interface, no laptop photograph."
+      }
     },
     {
       "id": "identity",
       "demoStatus": "live",
       "titleEn": "Customer onboarding in seconds",
       "titleEs": "Onboarding de clientes en segundos",
-      "sourceImage": "public/demo-previews/identity-photo-v1-960.webp",
-      "firstFrame": "identity/first-frame.jpg",
-      "promptFile": "identity/firefly-prompt.txt",
-      "prompt": "Create a five-second silent premium enterprise technology clip from the supplied first-frame image. Locked-off camera: no pan, tilt, zoom, shake or cuts. Preserve the image composition, subject identity, object geometry, restrained navy palette and dark negative space. The source has 160-pixel side margins on each edge of its 1280x720 canvas; keep all meaningful content inside the central 960x720 safe area. The website will crop away those margins to a 4:3 card. The fictional adult man makes one natural blink and breathes subtly. Keep his head perfectly frontal and nearly motionless, with the same facial identity, proportions and calm expression. Do not add a verification badge, document, face mesh or biometric score. Start close to the reference state, perform only the subtle motion described, and settle during the final second. Keep the right side of the central safe area dark and uncluttered for overlays added separately in code. No baked-in text, letters, numbers, logos, watermark, UI, charts, captions or sound. This is a conceptual scene, not a screen recording or evidence of measured model performance.",
-      "rawVideoName": "identity-firefly-master.mp4",
-      "webVideoName": "identity-clip-v1.mp4",
-      "videoStatus": "awaiting_firefly_generation"
+      "sourceImage": "creative/firefly-demo-clips/identity/first-frame-v2.jpg",
+      "firstFrame": "identity/first-frame-v2.jpg",
+      "promptFile": "identity/firefly-prompt-v2.txt",
+      "prompt": "Create an eight-second silent, self-contained conceptual demonstration using the supplied first frame. The ENTIRE explanation must be rendered inside the video: graphics, connectors, labels, tracking and outputs. No external website overlay will be added. Preserve the full 16:9 composition and existing readable text from the reference; no cropping, camera cuts, panning or zooming. At 0-1 seconds, establish the supplied complete concept. At 1-6 seconds, perform the demonstration described below. At 6-8 seconds, hold a clear final state so the viewer can read the result. Trace the existing face-contour guide around SELFIE, then around REFERENCE, using a moving scan highlight that follows each actual face contour. The selfie may blink naturally while the reference remains a still portrait. Any contour on the moving face MUST remain attached to its anatomy. A short comparison pulse travels from both portraits into the center, then the existing MATCH checkmark becomes clearly emphasized. Preserve the same person in both panels and keep the comparison explanation visible throughout. Do not add liveness tests, personal data, confidence scores or security guarantees. Preserve the exact reference labels and values; animate emphasis, connectors and highlights rather than inventing or rewriting text. Do not introduce extra objects, malformed letters, fluctuating counts, unsupported claims, confidence percentages, unrelated effects or audio. Every explanatory graphic must remain geometrically and temporally consistent with what it describes. Deliver one complete understandable MP4 scene, not background footage waiting for later graphics.",
+      "rawVideoName": "identity-firefly-v2-master.mp4",
+      "webVideoName": "identity-clip-v2.mp4",
+      "videoStatus": "awaiting_firefly_generation",
+      "selfContained": true,
+      "concept": "Compare a selfie with a reference portrait of the same fictional person.",
+      "acceptanceChecks": [
+        "Both portraits remain the same fictional adult identity.",
+        "Contour follows anatomy without floating or sliding; reference remains still.",
+        "Comparison visibly leads to the MATCH check, without fabricated numerical confidence."
+      ],
+      "imageGeneration": {
+        "tool": "built-in image_gen",
+        "sourceFilename": "exec-1e1776bf-0cb4-4c48-b748-9ef10d964ab2.png",
+        "prompt": "Use case: ui-mockup. Create ONE polished raster keyframe for a self-contained enterprise AI explainer video, landscape 16:9, 1536x864. Premium restrained navy/slate product design with cyan and violet accents, crisp large readable typography, clear visual hierarchy. This is a completed CONCEPTUAL demo screen, not a decorative photograph. Fill the frame with the explanation; no empty half waiting for future overlays. All graphics, labels and outputs must already be visible IN THIS IMAGE. Generous 6% outer safety margins. Very few words, exact short labels as specified, no long paragraphs, no invented performance/confidence percentages, no logos, watermark or generic robot. Professional and visually convincing, suitable for technology buyers. A clean two-image identity-comparison workspace headed 'FACE COMPARISON'. Left a frontal portrait of one fictional adult man labeled SELFIE; right a generic portrait card of THE SAME fictional man labeled REFERENCE. The reference card has no personal data or government ID markings. Fine cyan face-contour guides accurately sit on each face. A central connector and a large checkmark with exact short label MATCH visually explain comparing both portraits. Preserve believable anatomy and identical facial identity across the two panels. No percentages, biometric confidence scores, claims of liveness or security guarantees."
+      }
     },
     {
       "id": "rag",
       "demoStatus": "live",
       "titleEn": "Ask your documents",
       "titleEs": "Pregúntale a tus documentos",
-      "sourceImage": "public/demo-previews/rag-photo-v1-960.webp",
-      "firstFrame": "rag/first-frame.jpg",
-      "promptFile": "rag/firefly-prompt.txt",
-      "prompt": "Create a five-second silent premium enterprise technology clip from the supplied first-frame image. Locked-off camera: no pan, tilt, zoom, shake or cuts. Preserve the image composition, subject identity, object geometry, restrained navy palette and dark negative space. The source has 160-pixel side margins on each edge of its 1280x720 canvas; keep all meaningful content inside the central 960x720 safe area. The website will crop away those margins to a 4:3 card. The reference books, binder and laptop remain exactly in place. A soft pool of reading light gently moves across one area of the open papers, then settles, suggesting finding the relevant passage. Pages do not turn. Do not invent answers, citations or legible document text. Start close to the reference state, perform only the subtle motion described, and settle during the final second. Keep the right side of the central safe area dark and uncluttered for overlays added separately in code. No baked-in text, letters, numbers, logos, watermark, UI, charts, captions or sound. This is a conceptual scene, not a screen recording or evidence of measured model performance.",
-      "rawVideoName": "rag-firefly-master.mp4",
-      "webVideoName": "rag-clip-v1.mp4",
-      "videoStatus": "awaiting_firefly_generation"
+      "sourceImage": "creative/firefly-demo-clips/rag/first-frame-v2.jpg",
+      "firstFrame": "rag/first-frame-v2.jpg",
+      "promptFile": "rag/firefly-prompt-v2.txt",
+      "prompt": "Create an eight-second silent, self-contained conceptual demonstration using the supplied first frame. The ENTIRE explanation must be rendered inside the video: graphics, connectors, labels, tracking and outputs. No external website overlay will be added. Preserve the full 16:9 composition and existing readable text from the reference; no cropping, camera cuts, panning or zooming. At 0-1 seconds, establish the supplied complete concept. At 1-6 seconds, perform the demonstration described below. At 6-8 seconds, hold a clear final state so the viewer can read the result. Move a retrieval highlight over source passage [1], then source passage [2]. Animate their existing connector paths into Search & Retrieval and then into the corresponding portions of the ANSWER panel. The existing citation chips [1] and [2] pulse exactly when their respective source routes complete. Keep the third document secondary. Finish with the answer and both source cards clearly visible. Preserve all reference text and filenames exactly; do not invent new answer paragraphs, document facts, citations or source IDs. All retrieval paths, answer and source markers are rendered inside the clip. Preserve the exact reference labels and values; animate emphasis, connectors and highlights rather than inventing or rewriting text. Do not introduce extra objects, malformed letters, fluctuating counts, unsupported claims, confidence percentages, unrelated effects or audio. Every explanatory graphic must remain geometrically and temporally consistent with what it describes. Deliver one complete understandable MP4 scene, not background footage waiting for later graphics.",
+      "rawVideoName": "rag-firefly-v2-master.mp4",
+      "webVideoName": "rag-clip-v2.mp4",
+      "videoStatus": "awaiting_firefly_generation",
+      "selfContained": true,
+      "concept": "Retrieve document passages and produce a cited answer.",
+      "acceptanceChecks": [
+        "Selected passages visibly feed retrieval and the answer.",
+        "Citation [1] points to source [1] and [2] to source [2]; no orphan citations.",
+        "Answer and cited sources remain readable and stable in the final hold."
+      ],
+      "imageGeneration": {
+        "tool": "built-in image_gen",
+        "sourceFilename": "exec-011ed77f-f7e0-4ba7-9bdd-f558c1a8842f.png",
+        "prompt": "undefinedAn enterprise document retrieval workspace headed 'ASK YOUR DOCUMENTS'. Left three PDF document cards; one selected passage is highlighted in cyan. Center a search/retrieval connector visibly routes that passage to the answer. Right a large answer card labeled ANSWER with three clean short text lines and two clearly readable citation chips '[1]' and '[2]' connected back to two source cards. Lower small label 'SOURCES'. Use abstract horizontal strokes instead of unreadable paragraphs, but render headings and citation markers exactly. Explain document retrieval and cited answer in a single integrated UI scene."
+      }
     },
     {
       "id": "speech",
       "demoStatus": "live",
       "titleEn": "Automatic meeting and call notes",
       "titleEs": "Actas de reuniones y llamadas automáticas",
-      "sourceImage": "public/demo-previews/speech-photo-v1-960.webp",
-      "firstFrame": "speech/first-frame.jpg",
-      "promptFile": "speech/firefly-prompt.txt",
-      "prompt": "Create a five-second silent premium enterprise technology clip from the supplied first-frame image. Locked-off camera: no pan, tilt, zoom, shake or cuts. Preserve the image composition, subject identity, object geometry, restrained navy palette and dark negative space. The source has 160-pixel side margins on each edge of its 1280x720 canvas; keep all meaningful content inside the central 960x720 safe area. The website will crop away those margins to a 4:3 card. The conference microphone and chairs stay fixed. The microphone indicator gently brightens and dims once as if capturing a turn in a conversation. Very subtle natural light changes across the meeting table. Do not add people, mouths, captions, sound waves or transcript text. Start close to the reference state, perform only the subtle motion described, and settle during the final second. Keep the right side of the central safe area dark and uncluttered for overlays added separately in code. No baked-in text, letters, numbers, logos, watermark, UI, charts, captions or sound. This is a conceptual scene, not a screen recording or evidence of measured model performance.",
-      "rawVideoName": "speech-firefly-master.mp4",
-      "webVideoName": "speech-clip-v1.mp4",
-      "videoStatus": "awaiting_firefly_generation"
+      "sourceImage": "creative/firefly-demo-clips/speech/first-frame-v2.jpg",
+      "firstFrame": "speech/first-frame-v2.jpg",
+      "promptFile": "speech/firefly-prompt-v2.txt",
+      "prompt": "Create an eight-second silent, self-contained conceptual demonstration using the supplied first frame. The ENTIRE explanation must be rendered inside the video: graphics, connectors, labels, tracking and outputs. No external website overlay will be added. Preserve the full 16:9 composition and existing readable text from the reference; no cropping, camera cuts, panning or zooming. At 0-1 seconds, establish the supplied complete concept. At 1-6 seconds, perform the demonstration described below. At 6-8 seconds, hold a clear final state so the viewer can read the result. Animate the waveform playhead through the cyan speaker-A segment while the SPEAKER A bubble Let us begin. is emphasized. Then activate the purple speaker-B segment and its SPEAKER B bubble Ready. The active segment, color and speaker attribution must match in the same frames. Keep the supplied words unchanged; reveal or highlight them rather than inventing new phrases. Finish with both transcript bubbles visible. The reference timeline is a sample recording UI, not a claim that the eight-second clip depicts measured processing speed. Preserve the exact reference labels and values; animate emphasis, connectors and highlights rather than inventing or rewriting text. Do not introduce extra objects, malformed letters, fluctuating counts, unsupported claims, confidence percentages, unrelated effects or audio. Every explanatory graphic must remain geometrically and temporally consistent with what it describes. Deliver one complete understandable MP4 scene, not background footage waiting for later graphics.",
+      "rawVideoName": "speech-firefly-v2-master.mp4",
+      "webVideoName": "speech-clip-v2.mp4",
+      "videoStatus": "awaiting_firefly_generation",
+      "selfContained": true,
+      "concept": "Turn two speakers audio into an attributed transcript.",
+      "acceptanceChecks": [
+        "Speaker colors, active waveform segment and transcript attribution agree.",
+        "Both exact short transcript phrases remain readable.",
+        "The video explains transcription and diarization visually even when muted."
+      ],
+      "imageGeneration": {
+        "tool": "built-in image_gen",
+        "sourceFilename": "exec-8a8be262-82e4-4241-9f01-574333e9ba3b.png",
+        "prompt": "Use case: ui-mockup. Create ONE polished raster keyframe for a self-contained enterprise AI explainer video, landscape 16:9, 1536x864. Premium restrained navy/slate product design with cyan and violet accents, crisp large readable typography, clear visual hierarchy. This is a completed CONCEPTUAL demo screen, not a decorative photograph. Fill the frame with the explanation; no empty half waiting for future overlays. All graphics, labels and outputs must already be visible IN THIS IMAGE. Generous 6% outer safety margins. Very few words, exact short labels as specified, no long paragraphs, no invented performance/confidence percentages, no logos, watermark or generic robot. Professional and visually convincing, suitable for technology buyers. A sophisticated live-transcription workspace headed 'AUDIO TO TRANSCRIPT'. Left a large cyan audio waveform with a microphone icon and two clearly differentiated speaker-color tracks. Right two readable transcript bubbles: label SPEAKER A with text 'Let us begin.' and label SPEAKER B with text 'Ready.' A small playhead links the highlighted waveform segment to the corresponding transcript bubble. All labels and transcript are part of the image. No microphone studio photograph, people or long paragraph."
+      }
     },
     {
       "id": "langchain",
       "demoStatus": "live",
       "titleEn": "An assistant that does tasks, not just chat",
       "titleEs": "Un asistente que hace tareas, no solo responde",
-      "sourceImage": "public/demo-previews/langchain-photo-v1-960.webp",
-      "firstFrame": "langchain/first-frame.jpg",
-      "promptFile": "langchain/firefly-prompt.txt",
-      "prompt": "Create a five-second silent premium enterprise technology clip from the supplied first-frame image. Locked-off camera: no pan, tilt, zoom, shake or cuts. Preserve the image composition, subject identity, object geometry, restrained navy palette and dark negative space. The source has 160-pixel side margins on each edge of its 1280x720 canvas; keep all meaningful content inside the central 960x720 safe area. The website will crop away those margins to a 4:3 card. Keep the compact server and cables fixed. Its existing cyan and amber indicator lights illuminate in a short, ordered sequence, then return to their starting state, suggesting coordinated tool execution. No floating graphics, robots, added screens or new hardware. Start close to the reference state, perform only the subtle motion described, and settle during the final second. Keep the right side of the central safe area dark and uncluttered for overlays added separately in code. No baked-in text, letters, numbers, logos, watermark, UI, charts, captions or sound. This is a conceptual scene, not a screen recording or evidence of measured model performance.",
-      "rawVideoName": "langchain-firefly-master.mp4",
-      "webVideoName": "langchain-clip-v1.mp4",
-      "videoStatus": "awaiting_firefly_generation"
+      "sourceImage": "creative/firefly-demo-clips/langchain/first-frame-v2.jpg",
+      "firstFrame": "langchain/first-frame-v2.jpg",
+      "promptFile": "langchain/firefly-prompt-v2.txt",
+      "prompt": "Create an eight-second silent, self-contained conceptual demonstration using the supplied first frame. The ENTIRE explanation must be rendered inside the video: graphics, connectors, labels, tracking and outputs. No external website overlay will be added. Preserve the full 16:9 composition and existing readable text from the reference; no cropping, camera cuts, panning or zooming. At 0-1 seconds, establish the supplied complete concept. At 1-6 seconds, perform the demonstration described below. At 6-8 seconds, hold a clear final state so the viewer can read the result. A pulse leaves REQUEST and activates DATABASE, then CALCULATOR along the supplied connector branches. Each tool shows its existing status ring becoming active and then complete, with no changing labels. The flow converges into REPORT; its content strokes appear progressively and its checkmark becomes emphasized only after both tool paths complete. Keep all nodes and arrows fixed in sensible positions. The motion must explain tool invocation and report completion, not merely make the screen glow. Preserve the exact reference labels and values; animate emphasis, connectors and highlights rather than inventing or rewriting text. Do not introduce extra objects, malformed letters, fluctuating counts, unsupported claims, confidence percentages, unrelated effects or audio. Every explanatory graphic must remain geometrically and temporally consistent with what it describes. Deliver one complete understandable MP4 scene, not background footage waiting for later graphics.",
+      "rawVideoName": "langchain-firefly-v2-master.mp4",
+      "webVideoName": "langchain-clip-v2.mp4",
+      "videoStatus": "awaiting_firefly_generation",
+      "selfContained": true,
+      "concept": "Turn a request into coordinated tool use and a report.",
+      "acceptanceChecks": [
+        "Flow visibly progresses from request through both tools into the report.",
+        "Report completion follows both tool activations; no disconnected arrows or skipped inputs.",
+        "Labels remain REQUEST, DATABASE, CALCULATOR and REPORT without morphing."
+      ],
+      "imageGeneration": {
+        "tool": "built-in image_gen",
+        "sourceFilename": "exec-d57258e6-be61-4119-99ca-959db6c412b8.png",
+        "prompt": "undefinedA precise agent-orchestration interface, not server hardware. A request card labeled REQUEST at left branches into two large tool nodes labeled DATABASE and CALCULATOR, then converges into a final document card labeled REPORT at right. Large crisp tool icons and clear directional connector arrows form a sensible workflow. Tool nodes have distinct ready/status rings; the report has three clean horizontal content strokes and a small checkmark. Top heading 'AGENT + TOOLS'. No invented business numbers, no humanoid robot."
+      }
     },
     {
       "id": "objectdetection",
       "demoStatus": "live",
       "titleEn": "Camera-based counting and inspection",
       "titleEs": "Conteo e inspección con cámara",
-      "sourceImage": "public/demo-previews/objectdetection-photo-v1-960.webp",
-      "firstFrame": "objectdetection/first-frame.jpg",
-      "promptFile": "objectdetection/firefly-prompt.txt",
-      "prompt": "Create a five-second silent premium enterprise technology clip from the supplied first-frame image. Locked-off camera: no pan, tilt, zoom, shake or cuts. Preserve the image composition, subject identity, object geometry, restrained navy palette and dark negative space. The source has 160-pixel side margins on each edge of its 1280x720 canvas; keep all meaningful content inside the central 960x720 safe area. The website will crop away those margins to a 4:3 card. Keep all three plain cardboard parcels in exactly their original positions and preserve their rectangular geometry. A soft inspection light moves slowly over the parcels from left to right and settles. The camera and conveyor remain still. Do not add boxes, labels, barcodes, detection rectangles or object counts. Start close to the reference state, perform only the subtle motion described, and settle during the final second. Keep the right side of the central safe area dark and uncluttered for overlays added separately in code. No baked-in text, letters, numbers, logos, watermark, UI, charts, captions or sound. This is a conceptual scene, not a screen recording or evidence of measured model performance.",
-      "rawVideoName": "objectdetection-firefly-master.mp4",
-      "webVideoName": "objectdetection-clip-v1.mp4",
-      "videoStatus": "awaiting_firefly_generation"
+      "sourceImage": "creative/firefly-demo-clips/objectdetection/first-frame-v2.jpg",
+      "firstFrame": "objectdetection/first-frame-v2.jpg",
+      "promptFile": "objectdetection/firefly-prompt-v2.txt",
+      "prompt": "Create an eight-second silent, self-contained conceptual demonstration using the supplied first frame. The ENTIRE explanation must be rendered inside the video: graphics, connectors, labels, tracking and outputs. No external website overlay will be added. Preserve the full 16:9 composition and existing readable text from the reference; no cropping, camera cuts, panning or zooming. At 0-1 seconds, establish the supplied complete concept. At 1-6 seconds, perform the demonstration described below. At 6-8 seconds, hold a clear final state so the viewer can read the result. A scanning emphasis passes across the laptop, bottle and cup in sequence. Each existing bounding rectangle and its correct LAPTOP, BOTTLE or CUP label briefly activates as the scan reaches that object. The count stays exactly 3 OBJECTS because exactly three objects remain present. Let the cup shift sideways by no more than 2% of frame width once; its rectangle and attached label MUST move with it in the same frames and continue to enclose the whole cup including handle. Keep laptop and bottle boxes fitted to their complete objects. No extra detections or new objects. Reduce scene motion rather than allow a detached detection box. Preserve the exact reference labels and values; animate emphasis, connectors and highlights rather than inventing or rewriting text. Do not introduce extra objects, malformed letters, fluctuating counts, unsupported claims, confidence percentages, unrelated effects or audio. Every explanatory graphic must remain geometrically and temporally consistent with what it describes. Deliver one complete understandable MP4 scene, not background footage waiting for later graphics.",
+      "rawVideoName": "objectdetection-firefly-v2-master.mp4",
+      "webVideoName": "objectdetection-clip-v2.mp4",
+      "videoStatus": "awaiting_firefly_generation",
+      "selfContained": true,
+      "concept": "Detect, label and count three supported object classes.",
+      "acceptanceChecks": [
+        "Exactly three objects, three correct labels and three closed rectangles throughout.",
+        "Cup box and label follow the cup in every frame; no drift, trails, extra detections or count mismatch.",
+        "Count is always 3; laptop, bottle and cup are supported COCO classes."
+      ],
+      "imageGeneration": {
+        "tool": "built-in image_gen",
+        "sourceFilename": "exec-9f816eb7-6d6c-4ad8-a4fe-86aafdee75b5.png",
+        "prompt": "Use case: ui-mockup. Create ONE polished raster keyframe for a self-contained enterprise AI explainer video, landscape 16:9, 1536x864. Premium restrained navy/slate product design with cyan and violet accents, crisp large readable typography, clear visual hierarchy. This is a completed CONCEPTUAL demo screen, not a decorative photograph. Fill the frame with the explanation; no empty half waiting for future overlays. All graphics, labels and outputs must already be visible IN THIS IMAGE. Generous 6% outer safety margins. Very few words, exact short labels as specified, no long paragraphs, no invented performance/confidence percentages, no logos, watermark or generic robot. Professional and visually convincing, suitable for technology buyers. A precise computer-vision demonstration. On an otherwise COMPLETELY EMPTY plain dark desk against a plain navy wall, show ONLY three real objects: one small open laptop fully on the left, one bottle in the center, one cup on the right. No plants, books, pens, lamps, decorations or other objects anywhere. Draw exactly THREE simple AXIS-ALIGNED closed cyan rectangles: one tightly contains the ENTIRE laptop including keyboard and screen, one contains the entire bottle, one the entire cup including handle. Each rectangle has exactly four straight sides and four square corners, no steps, gaps, extra segments or perspective skew. Attach large labels LAPTOP, BOTTLE, CUP correctly. Top right prominent counter reads '3 OBJECTS'. Leave visible gaps between all three objects and all three rectangles; keep everything within 6% safe margins. These detection graphics are already composited into the scene, large and readable."
+      }
     },
     {
       "id": "emotion",
       "demoStatus": "live",
       "titleEn": "Customer experience without surveys",
       "titleEs": "Experiencia del cliente sin encuestas",
-      "sourceImage": "public/demo-previews/emotion-portrait-v1-960.webp",
-      "firstFrame": "emotion/first-frame.jpg",
-      "promptFile": "emotion/firefly-prompt.txt",
-      "prompt": "Create a five-second silent premium enterprise technology clip from the supplied first-frame image. Locked-off camera: no pan, tilt, zoom, shake or cuts. Preserve the image composition, subject identity, object geometry, restrained navy palette and dark negative space. The source has 160-pixel side margins on each edge of its 1280x720 canvas; keep all meaningful content inside the central 960x720 safe area. The website will crop away those margins to a 4:3 card. The fictional adult woman makes one natural blink and a very slight relaxed smile, then returns toward the initial composed expression. Preserve the same face and skin texture; keep both eyes visible and the head upright, frontal and nearly motionless. No exaggerated emotion, face morphing, dots, meshes or model scores. Start close to the reference state, perform only the subtle motion described, and settle during the final second. Keep the right side of the central safe area dark and uncluttered for overlays added separately in code. No baked-in text, letters, numbers, logos, watermark, UI, charts, captions or sound. This is a conceptual scene, not a screen recording or evidence of measured model performance.",
-      "rawVideoName": "emotion-firefly-master.mp4",
-      "webVideoName": "emotion-clip-v1.mp4",
-      "videoStatus": "awaiting_firefly_generation"
+      "sourceImage": "creative/firefly-demo-clips/emotion/first-frame-v2.jpg",
+      "firstFrame": "emotion/first-frame-v2.jpg",
+      "promptFile": "emotion/firefly-prompt-v2.txt",
+      "prompt": "Create an eight-second silent, self-contained conceptual demonstration using the supplied first frame. The ENTIRE explanation must be rendered inside the video: graphics, connectors, labels, tracking and outputs. No external website overlay will be added. Preserve the full 16:9 composition and existing readable text from the reference; no cropping, camera cuts, panning or zooming. At 0-1 seconds, establish the supplied complete concept. At 1-6 seconds, perform the demonstration described below. At 6-8 seconds, hold a clear final state so the viewer can read the result. The woman blinks once and makes a small relaxed smile, with at most a three-degree head movement. The landmark mesh MUST deform with the eyelids, eyebrows, lips and jaw in every frame, as if tracked from that same face. No face-fixed points may remain in their previous screen positions when the anatomy moves. The NEUTRAL bar gently decreases and the SMILE bar grows with the visible smile, without numerical scores. Preserve facial identity and keep the small reference thumbnails unchanged. If tracking cannot stay aligned, reduce head movement; never leave a static mesh over a moving face. Preserve the exact reference labels and values; animate emphasis, connectors and highlights rather than inventing or rewriting text. Do not introduce extra objects, malformed letters, fluctuating counts, unsupported claims, confidence percentages, unrelated effects or audio. Every explanatory graphic must remain geometrically and temporally consistent with what it describes. Deliver one complete understandable MP4 scene, not background footage waiting for later graphics.",
+      "rawVideoName": "emotion-firefly-v2-master.mp4",
+      "webVideoName": "emotion-clip-v2.mp4",
+      "videoStatus": "awaiting_firefly_generation",
+      "selfContained": true,
+      "concept": "Track facial landmarks and illustrate a change of visible expression.",
+      "acceptanceChecks": [
+        "Same fictional identity throughout; no face morphing.",
+        "Eye and mouth landmarks remain attached during blink and smile; jaw mesh follows the head.",
+        "Expression bars change with the visible expression, not before; no claims about internal mental state."
+      ],
+      "imageGeneration": {
+        "tool": "built-in image_gen",
+        "sourceFilename": "exec-f2da8324-8a9d-444e-9c49-97515fd4195a.png",
+        "prompt": "Use case: ui-mockup. Create ONE polished raster keyframe for a self-contained enterprise AI explainer video, landscape 16:9, 1536x864. Premium restrained navy/slate product design with cyan and violet accents, crisp large readable typography, clear visual hierarchy. This is a completed CONCEPTUAL demo screen, not a decorative photograph. Fill the frame with the explanation; no empty half waiting for future overlays. All graphics, labels and outputs must already be visible IN THIS IMAGE. Generous 6% outer safety margins. Very few words, exact short labels as specified, no long paragraphs, no invented performance/confidence percentages, no logos, watermark or generic robot. Professional and visually convincing, suitable for technology buyers. A fictional adult woman facing front, natural skin and a gentle neutral expression, head and shoulders in a left panel. Fine cyan facial landmarks and connected contour lines accurately follow the eyebrows, eyelids, nose bridge, lips and jaw; no dots floating outside the face. Right panel shows a large simple expression visualization with two bars labeled NEUTRAL and SMILE, neutral bar longer. Large short top label 'FACE TRACKING'. No numerical scores or claims about internal feelings. The mesh and classification interface are visibly part of this same image."
+      }
     },
     {
       "id": "docextract",
       "demoStatus": "live",
       "titleEn": "Invoices and documents → data in seconds",
       "titleEs": "Facturas y documentos → datos en segundos",
-      "sourceImage": "public/demo-previews/docextract-photo-v1-960.webp",
-      "firstFrame": "docextract/first-frame.jpg",
-      "promptFile": "docextract/firefly-prompt.txt",
-      "prompt": "Create a five-second silent premium enterprise technology clip from the supplied first-frame image. Locked-off camera: no pan, tilt, zoom, shake or cuts. Preserve the image composition, subject identity, object geometry, restrained navy palette and dark negative space. The source has 160-pixel side margins on each edge of its 1280x720 canvas; keep all meaningful content inside the central 960x720 safe area. The website will crop away those margins to a 4:3 card. The clipboard, blank document and pen remain fixed. A narrow but soft band of reflected light passes once from the top toward the bottom of the page, suggesting a document being read, then fades. Preserve the paper rules without making text appear. Do not generate numbers, extracted fields, stamps, signatures or JSON. Start close to the reference state, perform only the subtle motion described, and settle during the final second. Keep the right side of the central safe area dark and uncluttered for overlays added separately in code. No baked-in text, letters, numbers, logos, watermark, UI, charts, captions or sound. This is a conceptual scene, not a screen recording or evidence of measured model performance.",
-      "rawVideoName": "docextract-firefly-master.mp4",
-      "webVideoName": "docextract-clip-v1.mp4",
-      "videoStatus": "awaiting_firefly_generation"
+      "sourceImage": "creative/firefly-demo-clips/docextract/first-frame-v2.jpg",
+      "firstFrame": "docextract/first-frame-v2.jpg",
+      "promptFile": "docextract/firefly-prompt-v2.txt",
+      "prompt": "Create an eight-second silent, self-contained conceptual demonstration using the supplied first frame. The ENTIRE explanation must be rendered inside the video: graphics, connectors, labels, tracking and outputs. No external website overlay will be added. Preserve the full 16:9 composition and existing readable text from the reference; no cropping, camera cuts, panning or zooming. At 0-1 seconds, establish the supplied complete concept. At 1-6 seconds, perform the demonstration described below. At 6-8 seconds, hold a clear final state so the viewer can read the result. A scanning highlight moves down the invoice. Emphasize the ID field A104, then animate a connector from that exact paper field to the right ID result A104. Next emphasize TOTAL 125.00 and route it to the matching TOTAL result 125.00. The output rows light up only with the corresponding source field. Finish by emphasizing Export CSV and holding both matched values clearly visible. Preserve A104 and 125.00 exactly on both sides; do not alter the invoice, duplicate rows, scramble digits or add invented fields. Preserve the exact reference labels and values; animate emphasis, connectors and highlights rather than inventing or rewriting text. Do not introduce extra objects, malformed letters, fluctuating counts, unsupported claims, confidence percentages, unrelated effects or audio. Every explanatory graphic must remain geometrically and temporally consistent with what it describes. Deliver one complete understandable MP4 scene, not background footage waiting for later graphics.",
+      "rawVideoName": "docextract-firefly-v2-master.mp4",
+      "webVideoName": "docextract-clip-v2.mp4",
+      "videoStatus": "awaiting_firefly_generation",
+      "selfContained": true,
+      "concept": "Extract matching fields from an invoice into structured data.",
+      "acceptanceChecks": [
+        "ID A104 and TOTAL 125.00 are identical in source and output in every visible frame.",
+        "Field highlights, connector destination and output emphasis correspond to the same field.",
+        "CSV export state is visually understandable without a separate webpage layer."
+      ],
+      "imageGeneration": {
+        "tool": "built-in image_gen",
+        "sourceFilename": "exec-30a89987-92cf-4a8c-99be-ac9659f3f797.png",
+        "prompt": "Use case: ui-mockup. Create ONE polished raster keyframe for a self-contained enterprise AI explainer video, landscape 16:9, 1536x864. Premium restrained navy/slate product design with cyan and violet accents, crisp large readable typography, clear visual hierarchy. This is a completed CONCEPTUAL demo screen, not a decorative photograph. Fill the frame with the explanation; no empty half waiting for future overlays. All graphics, labels and outputs must already be visible IN THIS IMAGE. Generous 6% outer safety margins. Very few words, exact short labels as specified, no long paragraphs, no invented performance/confidence percentages, no logos, watermark or generic robot. Professional and visually convincing, suitable for technology buyers. A beautifully organized document-to-data workspace. Left: a fictional invoice on a white paper panel headed INVOICE, only two clearly readable fields 'ID: A104' and 'TOTAL: 125.00', each enclosed in its own subtle cyan extraction highlight. Center: a clear right-pointing processing arrow. Right: structured result panel headed EXTRACTED DATA, with two large rows 'ID  A104' and 'TOTAL  125.00' matching the paper exactly, plus a small CSV export button. Every necessary label and value is readable and inside the image, no people or empty laptop photo."
+      }
     },
     {
       "id": "tts",
       "demoStatus": "live",
       "titleEn": "Give your content a voice",
       "titleEs": "Dale voz a tu contenido",
-      "sourceImage": "public/demo-previews/tts-photo-v1-960.webp",
-      "firstFrame": "tts/first-frame.jpg",
-      "promptFile": "tts/firefly-prompt.txt",
-      "prompt": "Create a five-second silent premium enterprise technology clip from the supplied first-frame image. Locked-off camera: no pan, tilt, zoom, shake or cuts. Preserve the image composition, subject identity, object geometry, restrained navy palette and dark negative space. The source has 160-pixel side margins on each edge of its 1280x720 canvas; keep all meaningful content inside the central 960x720 safe area. The website will crop away those margins to a 4:3 card. The studio microphone, pop filter and mount remain still. A restrained cyan studio rim light gently grows brighter, glides across the grille and returns to its original level, suggesting a voice taking shape. No talking faces, moving microphone parts, captions, audio waveforms or text. Start close to the reference state, perform only the subtle motion described, and settle during the final second. Keep the right side of the central safe area dark and uncluttered for overlays added separately in code. No baked-in text, letters, numbers, logos, watermark, UI, charts, captions or sound. This is a conceptual scene, not a screen recording or evidence of measured model performance.",
-      "rawVideoName": "tts-firefly-master.mp4",
-      "webVideoName": "tts-clip-v1.mp4",
-      "videoStatus": "awaiting_firefly_generation"
+      "sourceImage": "creative/firefly-demo-clips/tts/first-frame-v2.jpg",
+      "firstFrame": "tts/first-frame-v2.jpg",
+      "promptFile": "tts/firefly-prompt-v2.txt",
+      "prompt": "Create an eight-second silent, self-contained conceptual demonstration using the supplied first frame. The ENTIRE explanation must be rendered inside the video: graphics, connectors, labels, tracking and outputs. No external website overlay will be added. Preserve the full 16:9 composition and existing readable text from the reference; no cropping, camera cuts, panning or zooming. At 0-1 seconds, establish the supplied complete concept. At 1-6 seconds, perform the demonstration described below. At 6-8 seconds, hold a clear final state so the viewer can read the result. A reading highlight moves across the existing input word Welcome. A pulse follows the arrow into the audio output, then the waveform visibly animates and its playhead advances. Emphasize the speaker/play icon as the waveform plays visually. Keep the text input stable and maintain a clear left-to-right text-to-audio relationship. The clip itself remains silent for web preview; it must still explain voice synthesis with the integrated text, arrow, waveform and playback state. Preserve the exact reference labels and values; animate emphasis, connectors and highlights rather than inventing or rewriting text. Do not introduce extra objects, malformed letters, fluctuating counts, unsupported claims, confidence percentages, unrelated effects or audio. Every explanatory graphic must remain geometrically and temporally consistent with what it describes. Deliver one complete understandable MP4 scene, not background footage waiting for later graphics.",
+      "rawVideoName": "tts-firefly-v2-master.mp4",
+      "webVideoName": "tts-clip-v2.mp4",
+      "videoStatus": "awaiting_firefly_generation",
+      "selfContained": true,
+      "concept": "Turn written text into a playable voice waveform.",
+      "acceptanceChecks": [
+        "Text input, conversion direction and audio output are all visible.",
+        "Waveform and playback progress visibly follow the text-reading phase.",
+        "Welcome. remains stable; no microphone-only footage or external diagram needed."
+      ],
+      "imageGeneration": {
+        "tool": "built-in image_gen",
+        "sourceFilename": "exec-3e1da74e-77d5-4702-b295-249491af4071.png",
+        "prompt": "Use case: ui-mockup. Create ONE polished raster keyframe for a self-contained enterprise AI explainer video, landscape 16:9, 1536x864. Premium restrained navy/slate product design with cyan and violet accents, crisp large readable typography, clear visual hierarchy. This is a completed CONCEPTUAL demo screen, not a decorative photograph. Fill the frame with the explanation; no empty half waiting for future overlays. All graphics, labels and outputs must already be visible IN THIS IMAGE. Generous 6% outer safety margins. Very few words, exact short labels as specified, no long paragraphs, no invented performance/confidence percentages, no logos, watermark or generic robot. Professional and visually convincing, suitable for technology buyers. A complete text-to-speech concept headed 'TEXT TO VOICE'. Left a white-on-navy text input card containing the exact large text 'Welcome.' with a text cursor. A clear right-pointing arrow leads to a large violet/cyan audio waveform and speaker icon on the right, with a simple circular play control. Beneath the waveform a progress rail with playhead. Clean premium software visualization, visibly converts the word into audio; no microphone photograph, no people."
+      }
     },
     {
       "id": "voiceagent",
       "demoStatus": "soon",
       "titleEn": "AI voice receptionist",
       "titleEs": "Recepcionista por voz con IA",
-      "sourceImage": "public/demo-previews/voiceagent-photo-v1-960.webp",
-      "firstFrame": "voiceagent/first-frame.jpg",
-      "promptFile": "voiceagent/firefly-prompt.txt",
-      "prompt": "Create a five-second silent premium enterprise technology clip from the supplied first-frame image. Locked-off camera: no pan, tilt, zoom, shake or cuts. Preserve the image composition, subject identity, object geometry, restrained navy palette and dark negative space. The source has 160-pixel side margins on each edge of its 1280x720 canvas; keep all meaningful content inside the central 960x720 safe area. The website will crop away those margins to a 4:3 card. The telephone and headset stay fixed. The existing telephone display gently wakes with a plain muted cyan glow and fades back, suggesting a call being received. No screen writing, numbers, caller identities, people, floating UI or new objects. Start close to the reference state, perform only the subtle motion described, and settle during the final second. Keep the right side of the central safe area dark and uncluttered for overlays added separately in code. No baked-in text, letters, numbers, logos, watermark, UI, charts, captions or sound. This is a conceptual scene, not a screen recording or evidence of measured model performance.",
-      "rawVideoName": "voiceagent-firefly-master.mp4",
-      "webVideoName": "voiceagent-clip-v1.mp4",
-      "videoStatus": "awaiting_firefly_generation"
+      "sourceImage": "creative/firefly-demo-clips/voiceagent/first-frame-v2.jpg",
+      "firstFrame": "voiceagent/first-frame-v2.jpg",
+      "promptFile": "voiceagent/firefly-prompt-v2.txt",
+      "prompt": "Create an eight-second silent, self-contained conceptual demonstration using the supplied first frame. The ENTIRE explanation must be rendered inside the video: graphics, connectors, labels, tracking and outputs. No external website overlay will be added. Preserve the full 16:9 composition and existing readable text from the reference; no cropping, camera cuts, panning or zooming. At 0-1 seconds, establish the supplied complete concept. At 1-6 seconds, perform the demonstration described below. At 6-8 seconds, hold a clear final state so the viewer can read the result. Animate the phone waveform while the request Book a meeting. is emphasized. A pulse follows its arrow into the highlighted CALENDAR slot, which becomes selected. Then a pulse travels along the outgoing connector to the BOOKED confirmation, whose checkmark becomes emphasized. Preserve the blank calendar grid and the same single selected slot. Do not invent dates, appointment times, people, additional bookings or changing text. Hold the complete request-to-calendar-to-confirmation result in the last two seconds. Preserve the exact reference labels and values; animate emphasis, connectors and highlights rather than inventing or rewriting text. Do not introduce extra objects, malformed letters, fluctuating counts, unsupported claims, confidence percentages, unrelated effects or audio. Every explanatory graphic must remain geometrically and temporally consistent with what it describes. Deliver one complete understandable MP4 scene, not background footage waiting for later graphics.",
+      "rawVideoName": "voiceagent-firefly-v2-master.mp4",
+      "webVideoName": "voiceagent-clip-v2.mp4",
+      "videoStatus": "awaiting_firefly_generation",
+      "selfContained": true,
+      "concept": "Convert a spoken appointment request into a calendar action.",
+      "acceptanceChecks": [
+        "Spoken request visibly leads to one calendar slot and one booking confirmation.",
+        "The selected slot remains the same throughout the workflow.",
+        "No invented dated appointment details; the full concept is inside the video."
+      ],
+      "imageGeneration": {
+        "tool": "built-in image_gen",
+        "sourceFilename": "exec-83c297bc-cd1b-4378-ae16-095dfca74a0c.png",
+        "prompt": "Use case: ui-mockup. Create ONE polished raster keyframe for a self-contained enterprise AI explainer video, landscape 16:9, 1536x864. Premium restrained navy/slate product design with cyan and violet accents, crisp large readable typography, clear visual hierarchy. This is a completed CONCEPTUAL demo screen, not a decorative photograph. Fill the frame with the explanation; no empty half waiting for future overlays. All graphics, labels and outputs must already be visible IN THIS IMAGE. Generous 6% outer safety margins. Very few words, exact short labels as specified, no long paragraphs, no invented performance/confidence percentages, no logos, watermark or generic robot. Professional and visually convincing, suitable for technology buyers. A clear enterprise VOICE TO ACTION workflow on a dark navy background with only FOUR exact text strings: 'VOICE TO ACTION', 'Book a meeting.', 'CALENDAR', 'BOOKED'. No other letters, dates, day names, times, tiny text or numbers. Left: phone icon with moving-waveform visual and request bubble 'Book a meeting.'. Center: large calendar-grid icon headed CALENDAR, six by five blank cells with just ONE cyan appointment block and a clean arrow arriving from the request. Right: large confirmation card with a checkmark and BOOKED, linked directly from the highlighted slot. All three steps are aligned and fill the frame. High-end product UI, crisp graphics, no photographic phone or receptionist, no invented meeting details. The entire concept is visible in this image."
+      }
     },
     {
       "id": "anomaly",
       "demoStatus": "soon",
       "titleEn": "Live fraud simulator",
       "titleEs": "Simulador de fraude en vivo",
-      "sourceImage": "public/demo-previews/anomaly-photo-v1-960.webp",
-      "firstFrame": "anomaly/first-frame.jpg",
-      "promptFile": "anomaly/firefly-prompt.txt",
-      "prompt": "Create a five-second silent premium enterprise technology clip from the supplied first-frame image. Locked-off camera: no pan, tilt, zoom, shake or cuts. Preserve the image composition, subject identity, object geometry, restrained navy palette and dark negative space. The source has 160-pixel side margins on each edge of its 1280x720 canvas; keep all meaningful content inside the central 960x720 safe area. The website will crop away those margins to a 4:3 card. The blank metal card, laptop edge and security key remain fixed. A narrow cyan reflection moves once across the metal card and pauses near the security key, then returns to the original lighting. No card numbers, account details, risk scores, warning text or flashing red alarms. Start close to the reference state, perform only the subtle motion described, and settle during the final second. Keep the right side of the central safe area dark and uncluttered for overlays added separately in code. No baked-in text, letters, numbers, logos, watermark, UI, charts, captions or sound. This is a conceptual scene, not a screen recording or evidence of measured model performance.",
-      "rawVideoName": "anomaly-firefly-master.mp4",
-      "webVideoName": "anomaly-clip-v1.mp4",
-      "videoStatus": "awaiting_firefly_generation"
+      "sourceImage": "creative/firefly-demo-clips/anomaly/first-frame-v2.jpg",
+      "firstFrame": "anomaly/first-frame-v2.jpg",
+      "promptFile": "anomaly/firefly-prompt-v2.txt",
+      "prompt": "Create an eight-second silent, self-contained conceptual demonstration using the supplied first frame. The ENTIRE explanation must be rendered inside the video: graphics, connectors, labels, tracking and outputs. No external website overlay will be added. Preserve the full 16:9 composition and existing readable text from the reference; no cropping, camera cuts, panning or zooming. At 0-1 seconds, establish the supplied complete concept. At 1-6 seconds, perform the demonstration described below. At 6-8 seconds, hold a clear final state so the viewer can read the result. A scanning emphasis inspects TX-01 and TX-02 as similar typical patterns, then reaches TX-03 with its visibly different amber pattern. Highlight only the existing TX-03 outlier row, animate its connector into the right REVIEW card, and emphasize the review icon. Preserve all row IDs and pattern shapes; do not reorder rows, add transactions or turn the review into a confirmed-fraud verdict. Final state must clearly connect the unusual pattern to the review action. Preserve the exact reference labels and values; animate emphasis, connectors and highlights rather than inventing or rewriting text. Do not introduce extra objects, malformed letters, fluctuating counts, unsupported claims, confidence percentages, unrelated effects or audio. Every explanatory graphic must remain geometrically and temporally consistent with what it describes. Deliver one complete understandable MP4 scene, not background footage waiting for later graphics.",
+      "rawVideoName": "anomaly-firefly-v2-master.mp4",
+      "webVideoName": "anomaly-clip-v2.mp4",
+      "videoStatus": "awaiting_firefly_generation",
+      "selfContained": true,
+      "concept": "Identify an unusual transaction pattern and flag it for review.",
+      "acceptanceChecks": [
+        "The amber outlier is TX-03, not a typical row.",
+        "Connector and REVIEW card correspond to that exact row.",
+        "The outcome is review of an anomaly, not a claim of certain fraud or saved money."
+      ],
+      "imageGeneration": {
+        "tool": "built-in image_gen",
+        "sourceFilename": "exec-cf0aea65-5623-41e9-988d-59fb80ff321d.png",
+        "prompt": "Use case: ui-mockup. Create ONE polished raster keyframe for a self-contained enterprise AI explainer video, landscape 16:9, 1536x864. Premium restrained navy/slate product design with cyan and violet accents, crisp large readable typography, clear visual hierarchy. This is a completed CONCEPTUAL demo screen, not a decorative photograph. Fill the frame with the explanation; no empty half waiting for future overlays. All graphics, labels and outputs must already be visible IN THIS IMAGE. Generous 6% outer safety margins. Very few words, exact short labels as specified, no long paragraphs, no invented performance/confidence percentages, no logos, watermark or generic robot. Professional and visually convincing, suitable for technology buyers. A transaction-anomaly analysis interface headed 'PATTERN REVIEW'. Left three large simple transaction rows labeled TX-01, TX-02, TX-03. First two show similar short neutral activity bars; TX-03 shows an unusually long amber bar, visibly different. A clear connector links that exact outlier row to a right review card with warning icon and large word REVIEW. No real names, account numbers, payment details, fraud-certainty verdict, money-saved claims or invented accuracy metrics. Emphasize identifying an unusual pattern for review."
+      }
     },
     {
       "id": "forecast",
       "demoStatus": "live",
       "titleEn": "Demand forecast from your data",
       "titleEs": "Pronóstico de demanda con tus datos",
-      "sourceImage": "public/demo-previews/forecast-photo-v1-960.webp",
-      "firstFrame": "forecast/first-frame.jpg",
-      "promptFile": "forecast/firefly-prompt.txt",
-      "prompt": "Create a five-second silent premium enterprise technology clip from the supplied first-frame image. Locked-off camera: no pan, tilt, zoom, shake or cuts. Preserve the image composition, subject identity, object geometry, restrained navy palette and dark negative space. The source has 160-pixel side margins on each edge of its 1280x720 canvas; keep all meaningful content inside the central 960x720 safe area. The website will crop away those margins to a 4:3 card. The inventory shelves, boxes and bottles remain exactly in place. A slow, subtle sweep of cool light reveals depth along the stock, then settles. Preserve all packaging and shelf geometry. No growing products, changing stock counts, floating charts, numbers or forecast claims. Start close to the reference state, perform only the subtle motion described, and settle during the final second. Keep the right side of the central safe area dark and uncluttered for overlays added separately in code. No baked-in text, letters, numbers, logos, watermark, UI, charts, captions or sound. This is a conceptual scene, not a screen recording or evidence of measured model performance.",
-      "rawVideoName": "forecast-firefly-master.mp4",
-      "webVideoName": "forecast-clip-v1.mp4",
-      "videoStatus": "awaiting_firefly_generation"
+      "sourceImage": "creative/firefly-demo-clips/forecast/first-frame-v2.jpg",
+      "firstFrame": "forecast/first-frame-v2.jpg",
+      "promptFile": "forecast/firefly-prompt-v2.txt",
+      "prompt": "Create an eight-second silent, self-contained conceptual demonstration using the supplied first frame. The ENTIRE explanation must be rendered inside the video: graphics, connectors, labels, tracking and outputs. No external website overlay will be added. Preserve the full 16:9 composition and existing readable text from the reference; no cropping, camera cuts, panning or zooming. At 0-1 seconds, establish the supplied complete concept. At 1-6 seconds, perform the demonstration described below. At 6-8 seconds, hold a clear final state so the viewer can read the result. A highlight traces the existing white HISTORY line toward the vertical boundary. The cyan FORECAST segment then draws outward from the same last historical point, and its violet uncertainty band unfolds only on the forecast side. Emphasize the three inventory-planning cards after the forecast appears. Preserve chart axes, dates and existing illustrative values from the first frame; do not introduce accuracy scores, money-saved claims or new numbers. The history/forecast boundary stays fixed and the final forecast plus band remain visible. Preserve the exact reference labels and values; animate emphasis, connectors and highlights rather than inventing or rewriting text. Do not introduce extra objects, malformed letters, fluctuating counts, unsupported claims, confidence percentages, unrelated effects or audio. Every explanatory graphic must remain geometrically and temporally consistent with what it describes. Deliver one complete understandable MP4 scene, not background footage waiting for later graphics.",
+      "rawVideoName": "forecast-firefly-v2-master.mp4",
+      "webVideoName": "forecast-clip-v2.mp4",
+      "videoStatus": "awaiting_firefly_generation",
+      "selfContained": true,
+      "concept": "Extend historical observations into a future demand forecast.",
+      "acceptanceChecks": [
+        "Forecast connects continuously to the final historical point.",
+        "Uncertainty band appears only on the forecast portion and follows its line.",
+        "Historical data stays unchanged; no fabricated accuracy or claimed business result."
+      ],
+      "imageGeneration": {
+        "tool": "built-in image_gen",
+        "sourceFilename": "exec-002d2000-2d66-4391-9691-a6d80f4b6f58.png",
+        "prompt": "Use case: ui-mockup. Create ONE polished raster keyframe for a self-contained enterprise AI explainer video, landscape 16:9, 1536x864. Premium restrained navy/slate product design with cyan and violet accents, crisp large readable typography, clear visual hierarchy. This is a completed CONCEPTUAL demo screen, not a decorative photograph. Fill the frame with the explanation; no empty half waiting for future overlays. All graphics, labels and outputs must already be visible IN THIS IMAGE. Generous 6% outer safety margins. Very few words, exact short labels as specified, no long paragraphs, no invented performance/confidence percentages, no logos, watermark or generic robot. Professional and visually convincing, suitable for technology buyers. A polished demand-forecast visualization filling most of the image. One large clean chart has a white historical line on the left and a cyan projected line continuing naturally to the right, with a translucent violet forecast uncertainty band around ONLY the projected portion. A clear vertical split separates the two portions, exact large labels HISTORY and FORECAST above them. Three small stock-box icons below suggest inventory planning. No invented accuracy numbers, percentages, currency, customer results or decorative server hardware. The concept of history leading to a forecast must be immediately clear."
+      }
     },
     {
       "id": "imagegen",
       "demoStatus": "soon",
       "titleEn": "Product photo studio",
       "titleEs": "Estudio de foto de producto",
-      "sourceImage": "public/demo-previews/imagegen-photo-v1-960.webp",
-      "firstFrame": "imagegen/first-frame.jpg",
-      "promptFile": "imagegen/firefly-prompt.txt",
-      "prompt": "Create a five-second silent premium enterprise technology clip from the supplied first-frame image. Locked-off camera: no pan, tilt, zoom, shake or cuts. Preserve the image composition, subject identity, object geometry, restrained navy palette and dark negative space. The source has 160-pixel side margins on each edge of its 1280x720 canvas; keep all meaningful content inside the central 960x720 safe area. The website will crop away those margins to a 4:3 card. Preserve the exact bottle, plinth, label-free glass and surrounding leaves. A soft studio highlight travels very slowly around the bottle surface, showing material and depth, then returns toward the opening lighting. No camera orbit, shape changes, brand, label, floating graphics or extra products. Start close to the reference state, perform only the subtle motion described, and settle during the final second. Keep the right side of the central safe area dark and uncluttered for overlays added separately in code. No baked-in text, letters, numbers, logos, watermark, UI, charts, captions or sound. This is a conceptual scene, not a screen recording or evidence of measured model performance.",
-      "rawVideoName": "imagegen-firefly-master.mp4",
-      "webVideoName": "imagegen-clip-v1.mp4",
-      "videoStatus": "awaiting_firefly_generation"
+      "sourceImage": "creative/firefly-demo-clips/imagegen/first-frame-v2.jpg",
+      "firstFrame": "imagegen/first-frame-v2.jpg",
+      "promptFile": "imagegen/firefly-prompt-v2.txt",
+      "prompt": "Create an eight-second silent, self-contained conceptual demonstration using the supplied first frame. The ENTIRE explanation must be rendered inside the video: graphics, connectors, labels, tracking and outputs. No external website overlay will be added. Preserve the full 16:9 composition and existing readable text from the reference; no cropping, camera cuts, panning or zooming. At 0-1 seconds, establish the supplied complete concept. At 1-6 seconds, perform the demonstration described below. At 6-8 seconds, hold a clear final state so the viewer can read the result. Emphasize the INPUT bottle, then animate its arrow toward VARIANTS. Reveal the warm-studio output with a controlled lighting/background wipe, followed by the botanical output. Preserve the exact same bottle shape, cap, color and proportions across input and both variants at every stage. Only the surrounding environment and lighting differ. End with all three product images fully visible for comparison. No object morphing, extra products, label text, brands or unsupported commercial claims. Preserve the exact reference labels and values; animate emphasis, connectors and highlights rather than inventing or rewriting text. Do not introduce extra objects, malformed letters, fluctuating counts, unsupported claims, confidence percentages, unrelated effects or audio. Every explanatory graphic must remain geometrically and temporally consistent with what it describes. Deliver one complete understandable MP4 scene, not background footage waiting for later graphics.",
+      "rawVideoName": "imagegen-firefly-v2-master.mp4",
+      "webVideoName": "imagegen-clip-v2.mp4",
+      "videoStatus": "awaiting_firefly_generation",
+      "selfContained": true,
+      "concept": "Transform one product input into consistent styled image variants.",
+      "acceptanceChecks": [
+        "The same bottle identity and geometry are preserved in all three panels.",
+        "Output environments are visibly different and originate from the input.",
+        "Both variants are fully visible in the final hold; no browser overlay is required."
+      ],
+      "imageGeneration": {
+        "tool": "built-in image_gen",
+        "sourceFilename": "exec-f3462fc0-743a-4f9b-812d-b960c289cceb.png",
+        "prompt": "Use case: ui-mockup. Create ONE polished raster keyframe for a self-contained enterprise AI explainer video, landscape 16:9, 1536x864. Premium restrained navy/slate product design with cyan and violet accents, crisp large readable typography, clear visual hierarchy. This is a completed CONCEPTUAL demo screen, not a decorative photograph. Fill the frame with the explanation; no empty half waiting for future overlays. All graphics, labels and outputs must already be visible IN THIS IMAGE. Generous 6% outer safety margins. Very few words, exact short labels as specified, no long paragraphs, no invented performance/confidence percentages, no logos, watermark or generic robot. Professional and visually convincing, suitable for technology buyers. A premium generative-product-imagery workspace. Left an INPUT card shows a simple phone-style photograph of one unbranded frosted cyan cosmetic bottle. Clear arrow leads to two large output cards under label VARIANTS: THE EXACT SAME bottle, unchanged shape and cap, one on a refined stone studio plinth with warm lighting and one with a cool botanical background. Large short header 'PRODUCT IMAGE STUDIO'. Product photography and software framing combined, elegant and realistic. No text on bottles, logos, watermark or invented commercial results."
+      }
     }
   ]
 }

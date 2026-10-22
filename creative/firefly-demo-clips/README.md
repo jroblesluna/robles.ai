@@ -1,70 +1,65 @@
-# Kit de clips de Robles.AI para Firefly
+# Firefly concept-video kit — v2
 
-![Vista general de los 13 fotogramas](overview.webp)
+**This replaces the background-only v1 kit.** All 13 first frames are NEW generated conceptual visuals. Each finished video must explain its demo without labels, meshes, boxes or outputs added by the website.
 
-La vista general es sólo para elegir el ID; carga en Firefly el JPG individual de cada carpeta.
+![All 13 new first frames](overview-v2.webp)
 
-Incluye una imagen inicial y un prompt independiente por cada una de las 13 tarjetas: diez demos disponibles y tres del roadmap. Se reutilizan las fotos generadas anteriormente con `image_gen`, documentadas en `docs/DEMO_VISUALS.md`. No se han generado nuevos videos ni consumido créditos de Adobe. Los textos de interfaz, resultados y gráficos se añadirán en la web, en EN/ES; no se pide al modelo que los dibuje.
+[All video prompts](PROMPTS.md) · [Image-generation prompts and provenance](IMAGE_PROMPTS.md). The overview is for browsing only; upload each individual JPG.
 
-## Cómo generar
+## Firefly settings
 
-1. En Firefly, abre **Video → Generate video → Image to video** y selecciona **Adobe Firefly Video**. Carga la imagen `first-frame.jpg` del ID correspondiente en First frame.
-2. Elige **16:9, 720p, cinco segundos, 24 fps**, sin audio. Son los ajustes objetivo; la disponibilidad concreta de controles depende del modelo y de la interfaz. No usar 4K para estas tarjetas.
-3. Pega todo el archivo `firefly-prompt.txt` de esa misma carpeta. Cámara fija y movimiento sutil. Opcionalmente usa la misma imagen como último fotograma, si el modelo lo permite; no garantiza un bucle perfecto.
-4. Conserva el archivo original descargado con el nombre `<id>-firefly-master.mp4`. No incrustes etiquetas, textos, números, cajas de detección ni gráficos.
-5. Revisa el resultado. Para software, el movimiento de fondo sólo acompaña: la explicación de pregunta/respuesta, transcripción, datos y herramientas se compone mediante overlays precisos. Un clip conceptual no sustituye una grabación real del software.
+Use the current workflow **Veo 3.1 → 720p → Widescreen 16:9 → 24 FPS → 8 seconds → Audio off**. Under **References → Frames → First**, upload that ID's **first-frame-v2.jpg**. Leave Last empty. Paste the complete **firefly-prompt-v2.txt**. Do not mix v1 images/prompts with v2. The files without v2 are legacy materials retained in the repository, excluded from the v2 ZIP.
 
-## Tamaño y encuadre
+Each prompt establishes the reference at 0–1s, demonstrates the workflow at 1–6s and holds the completed explanation at 6–8s. Do not truncate to five seconds or crop to 4:3: that would lose the explanation or cut off graphics. These settings match the user's current Firefly screen; model availability may change.
 
-Cada imagen mide **1280×720, 16:9**. Contiene el encuadre original **960×720, 4:3** en el centro, con **160 px de margen lateral** a cada lado. No estirar la imagen ni recortar esos márgenes al cargarla en Firefly. Son overscan para generar en un formato compatible y luego retirar los laterales en la exportación web; no forman parte del diseño final de la tarjeta. Se preserva así la foto completa, su proporción y el espacio destinado a los overlays.
+## What changed
 
-Salida web objetivo: **640×480, 4:3, cinco segundos, 24 fps, MP4/H.264, yuv420p, sin pista de audio, faststart**. Un archivo sirve para EN/ES porque los textos quedan fuera del video. Presupuesto deseado **≤500 KB**, límite de aceptación **750 KB por clip**; es un objetivo que debe medirse tras codificar, no un tamaño garantizado por Firefly. El poster WebP actual permanece como vista inicial.
+- Object detection contains exactly three supported classes (laptop, bottle, cup), three labelled bounding boxes and a count of three.
+- Facial-expression and identity scenes include face guides inside the actual image/video. Any moving mesh/box MUST stay attached to the anatomy/object frame by frame.
+- RAG, chatbot and tools show sources/request → processing → answer/report, with citations or tool states visible.
+- Documents show matching extracted fields; transcription shows speaker-attributed words; TTS shows text becoming a waveform.
+- Forecast, voice-agent, anomaly and image-generation scenes include their visual outputs and causal relationship to the input.
 
-Después de descargar un original 16:9, desde la raíz del repo:
+All example documents, faces, transactions, chart values and outputs are synthetic concept material, not customer evidence or model-performance measurements. Embedded text is English in this kit. One clip can be reused with localized surrounding page copy; a fully Spanish in-video version would require a separately checked localized master. It must not be simulated by covering moving English graphics with static browser labels.
+
+## Validate the video before accepting it
+
+A prompt cannot guarantee accurate temporal tracking or stable text. The supplied images were visually reviewed, but **the Firefly videos have not been generated or validated yet**. Review the entire eight seconds, including blink/head/object movement, citation/source correspondence, invoice values, correct counts, stable labels and final hold.
+
+Reject a video if landmarks float off the face, boxes lag behind objects, counts disagree, fields change, text morphs, or the scene needs an external overlay to make sense. Regenerate with reduced motion. If the generator cannot maintain tracking, perform real tracking/compositing into the **finished MP4** using an editor/tracker and validate it; do not substitute a static webpage overlay.
+
+## Web export and size
+
+First frames: **1280×720 JPG**, full 16:9, no artificial side overscan. Web delivery: **640×360, full eight seconds, 24 FPS, MP4/H.264/yuv420p, no audio, faststart**. Target <=500 KB, acceptance cap **750 KB**, to be measured on each real clip. More complex moving graphics may need a quality/size iteration; a technically small file can still fail visual review.
 
 ```sh
-node scripts/encodeFireflyClip.mjs rag /ruta/a/rag-firefly-master.mp4 /ruta/de/salida
+node scripts/encodeFireflyClip.mjs objectdetection /path/objectdetection-firefly-v2-master.mp4 /path/output
 ```
 
-El helper usa FFmpeg/FFprobe ya instalados, valida el formato del original, recorta el área central y escribe sólo en el directorio indicado. No despliega ni activa el clip. No reduce la calidad en silencio para eludir el presupuesto: rechaza un archivo que lo supere para que se revise.
+The updated encoder preserves the full duration and composition, refuses old-format short masters and overwrites, and checks the resulting technical format and size. It never publishes. A technical-format pass does not certify tracking accuracy or text readability.
 
-## Entrega a la web: carga realmente a demanda
+When integrated into the current 4:3 card media area, use `object-fit: contain` with a matching background, or explicitly redesign the media area after review. Never use cover/crop that discards in-video labels. Do not render the current illustrative CSS face mesh/result panel on top of these self-contained videos. Page caption and playback controls may remain separate.
 
-Los originales y este kit están fuera de `public/`: no se descargan al visitar la web. Los MP4 todavía no están integrados porque falta generarlos y validarlos. Cuando se reciban:
+## Demand loading remains required
 
-- Mantener imagen responsive con `loading="lazy"` y proporción 4:3 reservada.
-- **No crear un `<source>` ni asignar `video.src` al cargar o al hacer scroll.** `preload="none"` solo no garantiza toda la política de demanda.
-- Al primer hover de mouse en desktop o toque explícito en móvil, montar/asignar **sólo el clip solicitado**, con `muted`, `playsInline` y `preload="none"`, y solicitar reproducción. Una sola tarjeta reproduce a la vez.
-- Pausar al salir, al quedar fuera del viewport y al ocultarse la pestaña. Sin bucle ni descarga anticipada de las otras nueve demos.
-- Con movimiento reducido o ahorro de datos, conservar el poster y requerir acción explícita. Manejar rechazo de `play()`, error o falta de clip manteniendo la imagen y el enlace de la demo.
-- Añadir a la lista de videos disponibles únicamente IDs con archivo revisado y presente. Mantener animaciones actuales como fallback mientras falten videos. No publicar URLs que den 404.
-- Verificar en Network: cero peticiones MP4 al cargar/scroll; una petición sólo para el ID solicitado; respuesta Range 206; MP4 bajo presupuesto, cinco segundos, 640×480 y sin audio; sin cambios de layout ni pérdida de idioma.
+These authoring assets live outside public. Real video integration is pending receipt and review of the masters. Initially show a lazy responsive poster with reserved geometry. Do not mount a source or assign a video src at page load or on scroll. Load only the requested clip on desktop hover or mobile touch, muted/playsInline, one at a time. Pause offscreen/hidden; require explicit action for reduced motion/data saver; handle play rejection/error by retaining the poster. Test Network for zero unsolicited MP4 requests, one requested ID, Range 206, correct bytes/duration/dimensions and no layout shift. Website overlays must not supply missing explanatory content.
 
-Estas reglas son el contrato para la siguiente integración, no una afirmación de que ya se hayan activado clips Firefly en producción. La animación CSS actual sigue su comportamiento existente hasta que se integre el video.
+## Per-demo files
 
-[Ver todos los prompts en un documento](PROMPTS.md).
-
-## Archivos por demo
-
-| ID | Demo | Estado | Fotograma inicial | Prompt |
+| ID | Complete concept | Status | First frame | Video prompt |
 |---|---|---|---|---|
-| `sitechatbot` | Tu chatbot en 60 segundos | Disponible | [Imagen](sitechatbot/first-frame.jpg) | [Prompt](sitechatbot/firefly-prompt.txt) |
-| `identity` | Onboarding de clientes en segundos | Disponible | [Imagen](identity/first-frame.jpg) | [Prompt](identity/firefly-prompt.txt) |
-| `rag` | Pregúntale a tus documentos | Disponible | [Imagen](rag/first-frame.jpg) | [Prompt](rag/firefly-prompt.txt) |
-| `speech` | Actas de reuniones y llamadas automáticas | Disponible | [Imagen](speech/first-frame.jpg) | [Prompt](speech/firefly-prompt.txt) |
-| `langchain` | Un asistente que hace tareas, no solo responde | Disponible | [Imagen](langchain/first-frame.jpg) | [Prompt](langchain/firefly-prompt.txt) |
-| `objectdetection` | Conteo e inspección con cámara | Disponible | [Imagen](objectdetection/first-frame.jpg) | [Prompt](objectdetection/firefly-prompt.txt) |
-| `emotion` | Experiencia del cliente sin encuestas | Disponible | [Imagen](emotion/first-frame.jpg) | [Prompt](emotion/firefly-prompt.txt) |
-| `docextract` | Facturas y documentos → datos en segundos | Disponible | [Imagen](docextract/first-frame.jpg) | [Prompt](docextract/firefly-prompt.txt) |
-| `tts` | Dale voz a tu contenido | Disponible | [Imagen](tts/first-frame.jpg) | [Prompt](tts/firefly-prompt.txt) |
-| `voiceagent` | Recepcionista por voz con IA | Roadmap | [Imagen](voiceagent/first-frame.jpg) | [Prompt](voiceagent/firefly-prompt.txt) |
-| `anomaly` | Simulador de fraude en vivo | Roadmap | [Imagen](anomaly/first-frame.jpg) | [Prompt](anomaly/firefly-prompt.txt) |
-| `forecast` | Pronóstico de demanda con tus datos | Disponible | [Imagen](forecast/first-frame.jpg) | [Prompt](forecast/firefly-prompt.txt) |
-| `imagegen` | Estudio de foto de producto | Roadmap | [Imagen](imagegen/first-frame.jpg) | [Prompt](imagegen/firefly-prompt.txt) |
+| `sitechatbot` | Show a website-based assistant answering from its source content. | Available | [Image](sitechatbot/first-frame-v2.jpg) | [Prompt](sitechatbot/firefly-prompt-v2.txt) |
+| `identity` | Compare a selfie with a reference portrait of the same fictional person. | Available | [Image](identity/first-frame-v2.jpg) | [Prompt](identity/firefly-prompt-v2.txt) |
+| `rag` | Retrieve document passages and produce a cited answer. | Available | [Image](rag/first-frame-v2.jpg) | [Prompt](rag/firefly-prompt-v2.txt) |
+| `speech` | Turn two speakers audio into an attributed transcript. | Available | [Image](speech/first-frame-v2.jpg) | [Prompt](speech/firefly-prompt-v2.txt) |
+| `langchain` | Turn a request into coordinated tool use and a report. | Available | [Image](langchain/first-frame-v2.jpg) | [Prompt](langchain/firefly-prompt-v2.txt) |
+| `objectdetection` | Detect, label and count three supported object classes. | Available | [Image](objectdetection/first-frame-v2.jpg) | [Prompt](objectdetection/firefly-prompt-v2.txt) |
+| `emotion` | Track facial landmarks and illustrate a change of visible expression. | Available | [Image](emotion/first-frame-v2.jpg) | [Prompt](emotion/firefly-prompt-v2.txt) |
+| `docextract` | Extract matching fields from an invoice into structured data. | Available | [Image](docextract/first-frame-v2.jpg) | [Prompt](docextract/firefly-prompt-v2.txt) |
+| `tts` | Turn written text into a playable voice waveform. | Available | [Image](tts/first-frame-v2.jpg) | [Prompt](tts/firefly-prompt-v2.txt) |
+| `voiceagent` | Convert a spoken appointment request into a calendar action. | Roadmap | [Image](voiceagent/first-frame-v2.jpg) | [Prompt](voiceagent/firefly-prompt-v2.txt) |
+| `anomaly` | Identify an unusual transaction pattern and flag it for review. | Roadmap | [Image](anomaly/first-frame-v2.jpg) | [Prompt](anomaly/firefly-prompt-v2.txt) |
+| `forecast` | Extend historical observations into a future demand forecast. | Available | [Image](forecast/first-frame-v2.jpg) | [Prompt](forecast/firefly-prompt-v2.txt) |
+| `imagegen` | Transform one product input into consistent styled image variants. | Roadmap | [Image](imagegen/first-frame-v2.jpg) | [Prompt](imagegen/firefly-prompt-v2.txt) |
 
-## Referencias oficiales
-
-- [Generar video a partir de imágenes](https://helpx.adobe.com/firefly/web/work-with-audio-and-video/work-with-video/generate-videos-using-images.html).
-- [Formatos y resoluciones de Generate Video](https://developer.adobe.com/firefly-services/docs/firefly-api/getting-started/usage-notes/): incluye 1280×720, 16:9. Las opciones de otros modelos pueden variar.
-
-Los fotogramas son material generado, no imágenes de clientes. Las personas son ficticias. No se han usado credenciales del proyecto ni subido archivos a Adobe.
+No Adobe video generation, account access, upload or credit spend has occurred in this revision. Image generation used the built-in image_gen tool with the imagegen skill. Full prompts are included above.

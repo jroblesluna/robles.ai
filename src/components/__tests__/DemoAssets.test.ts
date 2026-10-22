@@ -43,11 +43,19 @@ it('provides one bounded Firefly reference frame and individual prompt per catal
     const frame = readFileSync(resolve(base, demo.firstFrame));
     const metadata = await sharp(frame).metadata();
     expect(metadata.width).toBe(1280); expect(metadata.height).toBe(720);
-    expect(metadata.format).toBe('jpeg'); expect(frame.length).toBeLessThan(100000);
+    expect(metadata.format).toBe('jpeg'); expect(frame.length).toBeLessThan(250000);
     expect(readFileSync(resolve(base, demo.promptFile), 'utf8').trim()).toBe(demo.prompt);
-    expect(demo.prompt).toContain('five-second');
-    expect(demo.prompt).toContain('central 960x720 safe area');
+    expect(demo.prompt).toContain('eight-second');
+    expect(demo.prompt).toContain('No external website overlay will be added.');
+    expect(demo.firstFrame).toMatch(/first-frame-v2\.jpg$/);
+    expect(demo.selfContained).toBe(true);
+    expect(demo.acceptanceChecks.length).toBeGreaterThanOrEqual(3);
+    expect(demo.imageGeneration.tool).toBe('built-in image_gen');
     expect(demo.videoStatus).toBe('awaiting_firefly_generation');
   }
+  expect(manifest.version).toBe(2);
   expect(manifest.delivery.maxBytes).toBe(750000);
+  expect(manifest.delivery.durationSeconds).toBe(8);
+  expect(manifest.delivery.crop).toBe('none');
+  expect(manifest.delivery.externalExplanatoryOverlays).toBe(false);
 });
