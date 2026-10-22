@@ -5,6 +5,27 @@ import { expect, it } from 'vitest';
 import en from '@/i18n/locales/en/translation.json';
 import es from '@/i18n/locales/es/translation.json';
 import { DEMO_PHOTOS } from '@/components/demo/DemoVisualPreview';
+import clips from '@/data/demoClips.json';
+
+it('ships bounded faststart clips and matching posters for all catalog cards', () => {
+  expect(Object.keys(clips).sort()).toEqual(en.demosCatalog.items.map(item => item.id).sort());
+  for (const clip of Object.values(clips)) {
+    expect(clip.src).toMatch(/^\/assets\/demo-previews\/[a-z]+-[a-f0-9]{12}\.mp4$/);
+    const video = readFileSync(resolve('public', clip.src.slice(1)));
+    expect(video.subarray(4, 8).toString()).toBe('ftyp');
+    expect(video.indexOf(Buffer.from('moov'))).toBeLessThan(video.indexOf(Buffer.from('mdat')));
+    expect(video.length).toBe(clip.bytes);
+    expect(video.length).toBeLessThan(750000);
+    expect(clip.width).toBeLessThanOrEqual(960);
+    expect(clip.height).toBeLessThanOrEqual(540);
+    expect(clip.duration).toBeGreaterThanOrEqual(7.9);
+    for (const url of [clip.poster, clip.posterLarge]) {
+      const image = readFileSync(resolve('public', url.slice(1)));
+      expect(image.subarray(8, 12).toString()).toBe('WEBP');
+      expect(image.length).toBeLessThan(100000);
+    }
+  }
+});
 
 it.each([['en', en], ['es', es]] as const)('ships a valid, self-contained %s poster for every live and roadmap card', (lang, copy) => {
   for (const item of copy.demosCatalog.items) {

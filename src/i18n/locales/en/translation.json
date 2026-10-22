@@ -2627,6 +2627,12 @@
                 "benefit": "Catalog photos without a photo shoot"
             }
         ],
+        "videoPreview": {
+            "play": "Play preview",
+            "pause": "Pause",
+            "illustrative": "Illustrative preview",
+            "error": "Playback failed. Tap to retry or open the demo."
+        },
         "photoPreview": {
             "stop": "Stop animation",
             "replay": "Replay animation",

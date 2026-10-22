@@ -2627,6 +2627,12 @@
                 "benefit": "Fotos de catálogo sin sesión fotográfica"
             }
         ],
+        "videoPreview": {
+            "play": "Ver animación",
+            "pause": "Pausar",
+            "illustrative": "Vista ilustrativa",
+            "error": "No se pudo reproducir. Toca para reintentar o abre la demo."
+        },
         "photoPreview": {
             "stop": "Detener animación",
             "replay": "Repetir animación",

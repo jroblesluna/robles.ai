@@ -7,6 +7,7 @@ import Hero from '../Hero';
 import Solutions from '../Solutions';
 import Landing from '@/pages/Landing';
 import DemosCatalog from '../DemosCatalog';
+import clips from '@/data/demoClips.json';
 import { DemoNav } from '../demo/DemoNav';
 import CaseStudies from '../CaseStudies';
 import { SavingsCalculator } from '../demo/SavingsCalculator';
@@ -42,6 +43,13 @@ vi.mock('framer-motion', async () => {
 beforeEach(() => {
   vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
   vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+  vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined);
+  vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
+  vi.stubGlobal('IntersectionObserver', class {
+    constructor(private callback: any) {}
+    observe() { this.callback([{ isIntersecting: true, intersectionRatio: 1 }]); }
+    disconnect() {}
+  });
 });
 afterEach(() => { cleanup(); locale.reduced = true; vi.useRealTimers(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 it.each(['en', 'es'] as const)('preserves %s across the enterprise Hero and landing diagnosis CTA', language => {
@@ -220,44 +228,44 @@ it('decodes case headings and metadata once, keeps escaped markup inert and rest
   document.documentElement.style.overflow = ''; document.body.style.overflow = '';
 });
 
-it.each(['en', 'es'] as const)('shares %s photos and consistent inline previews across home and lab', language => {
+it.each(['en', 'es'] as const)('shares %s posters and on-demand videos across home and lab', language => {
   locale.language = language; locale.reduced = false;
   const copy = language === 'es' ? es : en;
   const home = render(<DemosCatalog variant="home" />);
   const posters = Array.from(home.container.querySelectorAll('img')).map(img => img.getAttribute('src'));
   expect(posters).toHaveLength(copy.demosCatalog.items.filter(item => item.status === 'live').length);
-  expect(screen.getAllByText(copy.demosCatalog.photoPreview.playLabel)).toHaveLength(copy.demosCatalog.items.filter(item => item.status === 'live').length);
-  expect(document.querySelector('video, source, [role="dialog"]')).toBeNull();
+  expect(screen.getAllByText(copy.demosCatalog.videoPreview.play)).toHaveLength(posters.length);
+  expect(document.querySelector('video[src], source, [role="dialog"]')).toBeNull();
   home.unmount();
   const lab = render(<DemosCatalog />);
-  const labPosters = Array.from(lab.container.querySelectorAll('img')).map(img => img.getAttribute('src'));
-  posters.forEach(poster => expect(labPosters).toContain(poster));
-  const liveLabPhotos = Array.from(lab.container.querySelectorAll('[data-preview-id]')).filter(card => !card.querySelector('[data-demo-status="soon"]')).map(card => card.querySelector('img')!.getAttribute('src'));
-  expect(posters).toEqual(liveLabPhotos);
-  expect(screen.getAllByText(copy.demosCatalog.photoPreview.playLabel)).toHaveLength(13);
+  const liveLabPosters = Array.from(lab.container.querySelectorAll('[data-preview-id]')).filter(card => !card.querySelector('[data-demo-status="soon"]')).map(card => card.querySelector('img')!.getAttribute('src'));
+  expect(posters).toEqual(liveLabPosters);
+  expect(screen.getAllByText(copy.demosCatalog.videoPreview.play)).toHaveLength(13);
   expect(lab.container.querySelectorAll('[data-demo-status="soon"]')).toHaveLength(3);
   expect(Array.from(lab.container.querySelectorAll('[data-demo-status]')).map(badge => badge.textContent)).not.toContain(copy.demosCatalog.badge_live);
   expect(lab.container.textContent).not.toMatch(/AI-generated|generad[oa] con IA|Illustrative overlay|clip ilustrativo|illustrative clip/i);
 });
 
-it.each(['en', 'es'] as const)('shows the generated photo with accessible %s playback controls outside its demo link', language => {
-  locale.language = language; locale.reduced = false; vi.useFakeTimers();
+it.each(['en', 'es'] as const)('shows responsive posters and accessible %s playback outside the demo link', language => {
+  locale.language = language; locale.reduced = false;
   const copy = language === 'es' ? es : en;
   const { container } = render(<DemosCatalog variant="home" />);
-  const image = container.querySelector('img[src*="emotion-portrait"]')!;
-  expect(image).toHaveAttribute('srcset', expect.stringContaining('960.webp 960w'));
-  const replay = screen.getByRole('button', { name: copy.demosCatalog.emotionPreview.replay });
-  expect(replay).toBeDisabled(); fireEvent.load(image); expect(replay).toBeEnabled();
-  expect(replay.closest('a')).toBeNull();
-  fireEvent.click(replay);
-  expect(container.querySelector('.emotion-preview')).toHaveAttribute('data-playing', 'true');
-  act(() => { vi.advanceTimersByTime(4000); });
-  expect(container.querySelector('.emotion-preview')).toHaveAttribute('data-playing', 'false');
-  expect(container.querySelector('a[href^="/try-emotion"]')).toHaveAttribute('href', '/try-emotion' + (language === 'es' ? '?lang=es' : ''));
+  const card = container.querySelector('[data-preview-id="emotion"]')!;
+  const image = card.querySelector('img')!;
+  expect(image).toHaveAttribute('srcset', expect.stringContaining('960w'));
+  const item = copy.demosCatalog.items.find(item => item.id === 'emotion')!;
+  const button = within(card as HTMLElement).getByRole('button', { name: `${copy.demosCatalog.videoPreview.play}: ${item.title}` });
+  expect(button).toBeEnabled();expect(button.closest('a')).toBeNull();
+  fireEvent.click(button);
+  expect(card.querySelector('video')).toHaveAttribute('src', clips.emotion.src);
+  expect(button).toHaveAttribute('aria-pressed', 'true');
+  fireEvent.ended(card.querySelector('video')!);
+  expect(button).toHaveAttribute('aria-pressed', 'false');
+  expect(card.querySelector('a')).toHaveAttribute('href', '/try-emotion' + (language === 'es' ? '?lang=es' : ''));
 });
 
-it.each(['en', 'es'] as const)('provides a photo, finite animation and distinct localized controls for ALL 13 %s cards', language => {
-  locale.language = language; locale.reduced = false; vi.useFakeTimers();
+it.each(['en', 'es'] as const)('provides on-demand finite video and distinct localized controls for ALL 13 %s cards', language => {
+  locale.language = language; locale.reduced = false;
   const copy = language === 'es' ? es : en;
   const { container } = render(<DemosCatalog />);
   const cards = Array.from(container.querySelectorAll<HTMLElement>('[data-preview-id]'));
@@ -266,59 +274,54 @@ it.each(['en', 'es'] as const)('provides a photo, finite animation and distinct 
   for (const card of cards) {
     const id = card.dataset.previewId!;
     const item = copy.demosCatalog.items.find(item => item.id === id)!;
-    const image = card.querySelector('img')!;
+    const media = clips[id as keyof typeof clips];
+    const image = card.querySelector('img')!, video = card.querySelector('video')!;
     sources.add(image.getAttribute('src')!);
-    expect(image.getAttribute('src')).toMatch(/-480.webp$/);
+    expect(image).toHaveAttribute('src', media.poster);
     expect(image).toHaveAttribute('loading', 'lazy');
     expect(image).toHaveAttribute('width', '960');
-    const name = id === 'emotion' ? copy.demosCatalog.emotionPreview.replay : `${copy.demosCatalog.photoPreview.replay}: ${item.title}`;
-    const button = within(card).getByRole('button', { name });
-    expect(button).toBeDisabled();
-    fireEvent.load(image);
-    expect(button).toBeEnabled();
+    expect(video).not.toHaveAttribute('src');
+    const button = within(card).getByRole('button', { name: `${copy.demosCatalog.videoPreview.play}: ${item.title}` });
     expect(button.closest('a')).toBeNull();
-    const visual = card.querySelector('[data-playing]')!;
     fireEvent.click(button);
-    expect(visual).toHaveAttribute('data-playing', 'true');
+    expect(video).toHaveAttribute('src', media.src);
     expect(button).toHaveAttribute('aria-pressed', 'true');
-    fireEvent.click(button);
-    expect(visual).toHaveAttribute('data-playing', 'false');
-    fireEvent.click(button);
-    act(() => { vi.advanceTimersByTime(4000); });
-    expect(visual).toHaveAttribute('data-playing', 'false');
+    fireEvent.click(button);expect(button).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(button);fireEvent.ended(video);
+    expect(button).toHaveAttribute('aria-pressed', 'false');
+    expect(video).not.toHaveAttribute('loop');
     expect(card.querySelector('a')!.getAttribute('href')).toContain(language === 'es' ? '?lang=es' : '/');
-    expect(card.textContent).not.toContain('demosCatalog.photoPreview.');
+    expect(card.textContent).not.toContain('demosCatalog.videoPreview.');
     if (item.status === 'soon') expect(card.textContent).toContain(copy.demosCatalog.badge_soon);
     else expect(card.querySelector('[data-demo-status]')).toBeNull();
-    const caption = copy.demosCatalog.photoPreview.scenes[id as keyof typeof copy.demosCatalog.photoPreview.scenes].caption;
-    expect(card.textContent).toContain(caption);
-    expect(button).toHaveTextContent(copy.demosCatalog.photoPreview.playLabel);
   }
   expect(sources.size).toBe(13);
 });
 
-it('keeps all 13 photos and final overlays static without playback buttons for reduced motion', () => {
+it('keeps all 13 posters static with explicit opt-in controls for reduced motion', () => {
   locale.language = 'es'; locale.reduced = true;
+  vi.mocked(window.matchMedia).mockReturnValue({ matches: true } as MediaQueryList);
   const { container } = render(<DemosCatalog />);
   expect(container.querySelectorAll('[data-preview-id] img')).toHaveLength(13);
-  expect(container.querySelectorAll('[data-playing="false"]')).toHaveLength(13);
-  expect(container.querySelector('[data-preview-id] button[aria-pressed]')).toBeNull();
+  for (const card of container.querySelectorAll('[data-preview-id]')) fireEvent.mouseEnter(card);
+  expect(container.querySelector('video[src]')).toBeNull();
+  expect(container.querySelectorAll('[data-preview-id] button[aria-pressed="false"]')).toHaveLength(13);
   expect(container.querySelector('.demo-scan, .emotion-scan')).toBeNull();
 });
 
-it.each(['en', 'es'] as const)('replays ALL 13 %s card previews on desktop hover without navigating', language => {
+it.each(['en', 'es'] as const)('requests ALL 13 %s card videos on desktop hover without navigating', language => {
   locale.language = language; locale.reduced = false;
-  vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: true } as MediaQueryList);
+  vi.mocked(window.matchMedia).mockReturnValue({ matches: true } as MediaQueryList);
   const { container } = render(<DemosCatalog />);
   for (const card of Array.from(container.querySelectorAll<HTMLElement>('[data-preview-id]'))) {
-    fireEvent.load(card.querySelector('img')!);
     const href = card.querySelector('a')!.getAttribute('href');
     fireEvent.mouseEnter(card);
-    expect(card.querySelector('[data-playing]')).toHaveAttribute('data-playing', 'true');
+    expect(card.querySelector('button')).toHaveAttribute('aria-pressed', 'true');
+    expect(card.querySelector('video')).toHaveAttribute('src');
     fireEvent.mouseLeave(card);
-    expect(card.querySelector('[data-playing]')).toHaveAttribute('data-playing', 'false');
+    expect(card.querySelector('button')).toHaveAttribute('aria-pressed', 'false');
     fireEvent.mouseEnter(card);
-    expect(card.querySelector('[data-playing]')).toHaveAttribute('data-playing', 'true');
+    expect(card.querySelector('button')).toHaveAttribute('aria-pressed', 'true');
     expect(card.querySelector('a')).toHaveAttribute('href', href!);
   }
 });
