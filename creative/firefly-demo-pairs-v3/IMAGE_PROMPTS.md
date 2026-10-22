@@ -1,6 +1,6 @@
 # Procedencia y prompts de imagen
 
-Herramienta: image_gen integrada, en modo edición con referencia. Se generaron 13 estados iniciales y un final nuevo para expresiones faciales; los otros 12 finales reutilizan los visuales v2 existentes. Los archivos se exportan a 1280×720 sin recorte. No son capturas reales del producto ni evidencia de resultados comerciales.
+Herramienta: image_gen integrada, en modo edición con referencia. Se generaron 13 estados iniciales y dos finales nuevos: sonrisa e identidad con landmarks internos; los otros 11 finales reutilizan los visuales v2 existentes. Los archivos se exportan a 1280×720 sin recorte. No son capturas reales del producto ni evidencia de resultados comerciales.
 
 
 ## sitechatbot — START
@@ -24,7 +24,7 @@ Use case: precise-object-edit. Edit target: the supplied existing final frame of
 ```
 
 
-END: reutiliza el final v2 sin regenerarlo; su procedencia original figura en manifest.json.
+END: sustituido por la edición 3.1 con landmarks internos, descrita al final de este documento.
 
 
 ## rag — START
@@ -161,3 +161,11 @@ Use case: precise-object-edit. Edit target: the supplied existing final frame of
 
 
 END: reutiliza el final v2 sin regenerarlo; su procedencia original figura en manifest.json.
+
+## identity — END corregido, revisión 3.1
+
+Sustituye el final v2 reutilizado por esta edición nueva con landmarks internos.
+
+```text
+Use case: precise-object-edit, identity-preserve. Edit target: supplied FACE COMPARISON final-frame image. Replace the inadequate contour-only facial annotations with anatomically placed INTERNAL facial landmarks and restrained geometric distance guides on BOTH faces. Preserve the exact same fictional adult man's identity, facial expression, skin texture, hair, eyes, clothing, portrait sizes/positions, card borders, navy background, full 16:9 composition, heading FACE COMPARISON, center check/MATCH, bottom SELFIE and REFERENCE labels and all other interface artwork. Overlay only fine cyan points and thin connecting segments attached accurately to: inner/outer eye corners, eyelid curves, eyebrows, nose bridge, nose tip and nostril edges, lip outline/mouth corners, cheek anchors and jaw/chin. Include a small coherent triangular landmark network across the INSIDE of each face; do not merely outline the face or draw random triangles on the hair/background. Make the eyes, nose and mouth clearly readable beneath the delicate graphics. Add three thin warm-amber measurement guides with tiny endpoint ticks on each face: between eye-center anchor points, nose tip down to the upper-lip center, and across the mouth corners. These guides must sit directly on the correct anatomy and correspond across both portraits. No numerical distances, millimeters, percentages, confidence values, extra letters or labels. Keep a very faint facial boundary if needed but INTERNAL features and their relative geometry are the visual focus. Professional, precise and restrained: no laser light, heavy glow, scan band, obscuring thick lines, moving subjects or extra panels. The photo and UI must remain unchanged; only the facial overlay is replaced. One single full-frame END image, no diptych.
+```
