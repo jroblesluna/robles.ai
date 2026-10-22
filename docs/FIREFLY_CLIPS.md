@@ -1,16 +1,17 @@
-# Clips de las demos: kit y entrega web
+# Firefly clips — self-contained v2
 
-Kit listo: [imágenes, prompts individuales e instrucciones](../creative/firefly-demo-clips/README.md). [Todos los prompts](../creative/firefly-demo-clips/PROMPTS.md).
+The v1 background-motion kit is superseded. Use [the v2 kit](../creative/firefly-demo-clips/README.md), [video prompts](../creative/firefly-demo-clips/PROMPTS.md), and [new image prompts/provenance](../creative/firefly-demo-clips/IMAGE_PROMPTS.md).
 
-- Alcance: diez demos disponibles y tres del roadmap. Una referencia JPG 1280×720 y un prompt independiente por tarjeta. Se reutilizan las fotos generadas anteriormente; no se han producido nuevos clips ni subido material a Adobe.
-- Referencias medidas: 45–75 KB por imagen, fuera de public; no añaden peso a las páginas.
-- Generación propuesta: Firefly Video, imagen inicial, 16:9, 720p, cinco segundos, 24 fps, cámara fija y sin audio. Se reservan márgenes laterales de 160 px para recortar a 4:3 sin perder contenido.
-- Entrega: 640×480, MP4/H.264, sin audio, faststart; objetivo ≤500 KB, aceptación máxima 750 KB. Son presupuestos por verificar en los clips reales.
-- Compresión: `node scripts/encodeFireflyClip.mjs <id> <master.mp4> <directorio-salida>`. No sobrescribe ni publica. Se verificó en una muestra técnica temporal: cinco segundos, 640×480, 24 fps y sin audio; rechaza un máster 4:3 y una sobrescritura. Esa muestra no se presenta como un video Firefly.
-- Integración pendiente de recibir videos: poster lazy, sin `src`/`source` MP4 inicial, sólo asignarlo por hover desktop o toque móvil, una reproducción a la vez, pausa fuera de pantalla/pestaña, fallback ante error y acción explícita con movimiento reducido/ahorro de datos. Ver contrato y pruebas de Network en el README del kit. No se ha activado esta integración ni se simula que ya haya 13 clips.
+All 13 first frames have been newly generated with built-in image_gen and contain the concept: labelled detections/count, tracked face guides, source-to-answer retrieval/citations, request-to-tools-to-report, matching extracted fields, diarized transcript, text-to-audio, forecast, calendar action, anomaly review and product variants. These are synthetic illustrative scenes, not production screenshots or customer/model-performance evidence.
 
-El home y el laboratorio comparten toda la lista de demos disponibles mediante el mismo componente. Se eliminó el límite `limit={8}` y se separó el layout con `variant="home"`; actualmente se muestran diez disponibles en ambos y sólo el laboratorio añade las tres de roadmap.
+The complete explanation must be inside the finished MP4. Face meshes, detection boxes, labels, values and state transitions must remain synchronized with their subjects. A static webpage overlay is not an acceptable fallback. If generative video fails temporal accuracy, regenerate or perform genuine tracked compositing into the video, then review the resulting MP4.
 
-Pendiente externo: generar y descargar los másteres en Firefly con sus IDs, entregarlos para revisión/compresión y entonces integrar/verificar la reproducción a demanda en producción. No se han solicitado credenciales ni consumido créditos de Adobe.
+Use the user's current Veo 3.1 workflow: 720p, 16:9, eight seconds, 24 FPS, Audio off, Frames → First → first-frame-v2.jpg, Last empty, and the matching firefly-prompt-v2.txt. The clip establishes the concept, demonstrates it, then holds the final result for two seconds. Embedded words in this kit are English; fully localized in-video editions need separate checked masters.
 
-Referencias: [Adobe: generación desde imágenes](https://helpx.adobe.com/firefly/web/work-with-audio-and-video/work-with-video/generate-videos-using-images.html), [Adobe: resoluciones de Generate Video](https://developer.adobe.com/firefly-services/docs/firefly-api/getting-started/usage-notes/).
+First frames are 1280×720 without v1 side overscan. Delivery is 640×360, eight seconds, 24 FPS, silent H.264 MP4, faststart, full 16:9. Target <=500KB, acceptance maximum 750KB; actual video quality/size must be measured. The encoder no longer crops to 4:3 or truncates to five seconds. Preserve the full frame with contain inside existing card geometry if needed. Do not show old CSS explanatory overlays over the self-contained video.
+
+`node scripts/prepareFireflyDemoKit.mjs` validates the generated v2 frames/prompts and rebuilds overview-v2.webp; it never substitutes old photos. `node scripts/encodeFireflyClip.mjs <id> <v2-master.mp4> <output-dir>` performs technical validation/export only, without overwriting or publishing.
+
+Actual Firefly generation and temporal validation are still pending. Before accepting each clip, check its per-demo acceptance list, text, counts, source/answer/value correspondence, object/face tracking, final hold, crop and size. Technical-format approval is not a tracking/readability certificate.
+
+Runtime integration remains pending receipt of approved masters: lazy poster, no initial video src/source, only requested video on hover desktop or explicit mobile touch, one at a time, pause offscreen/hidden, reduced-motion/data-saver opt-in and error fallback. No new Firefly videos have been enabled on the production website by this kit-only revision.
