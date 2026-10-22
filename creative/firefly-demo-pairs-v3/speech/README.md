@@ -20,3 +20,7 @@ Se corrigieron ambos frames. El cursor vertical, el timer inferior, la barra y e
 El audio de ejemplo dura 20 segundos, representados de forma acelerada en ocho segundos de video conceptual. No se afirma una velocidad real de procesamiento. Las marcas 00:10 y 00:15 de las frases son tiempos de intervención de cada hablante y permanecen intactas; solo el timer de reproducción termina en 00:20 / 00:20.
 
 Rechazar el video si aparece un cursor extra en 00:10, si la barra queda a mitad, si hay audio visual después de 00:20, si se deforman los dígitos o si ondas/barra/cursor muestran avances diferentes. El video nuevo todavía debe generarse y revisarse.
+
+## Revisión 3.3 — límite de prompt
+
+Prompt condensado a menos de 2.500 caracteres conservando el avance único sincronizado, timer 00:00 → 00:20, marcas de intervención fijas y pausa final. Los frames no cambian.
