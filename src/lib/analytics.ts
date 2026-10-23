@@ -5,6 +5,29 @@ let ReactPixel: typeof import('react-facebook-pixel');
 let gaInitialized = false;
 let fbInitialized = false;
 let gtmInitialized = false;
+let analyticsReady = false;
+let pendingContactLeads = 0;
+
+const contactLeadParams = { form_id: 'contact', method: 'contact_form' } as const;
+
+function sendDirectContactLead(): void {
+  // Tracking failures must never turn an accepted inquiry into a form error.
+  try { if (gaInitialized) ReactGA.event('generate_lead', contactLeadParams); } catch { /* non-critical */ }
+  try { if (fbInitialized) ReactPixel.track('Lead', contactLeadParams); } catch { /* non-critical */ }
+}
+
+/** Call once after the contact API confirms success. Never include form values. */
+export function trackContactLead(): void {
+  if (typeof window === 'undefined' || !import.meta.env.PROD || window.location.pathname.startsWith('/admin')) return;
+  try {
+    // Queue before GTM loads too; GTM consumes the existing dataLayer on startup.
+    const w = window as unknown as { dataLayer?: Record<string, unknown>[] };
+    w.dataLayer = w.dataLayer || [];
+    w.dataLayer.push({ event: 'generate_lead', ...contactLeadParams });
+  } catch { /* non-critical */ }
+  if (!analyticsReady) pendingContactLeads++;
+  else if (!gtmInitialized) sendDirectContactLead();
+}
 
 /**
  * Initialize Google Analytics and Facebook Pixel.
@@ -13,7 +36,7 @@ let gtmInitialized = false;
  * Only activates in production environment.
  */
 export const initAnalytics = async () => {
-  if (!import.meta.env.PROD) {
+  if (typeof window === 'undefined' || !import.meta.env.PROD) {
     console.log('Analytics disabled in development');
     return;
   }
@@ -72,6 +95,12 @@ export const initAnalytics = async () => {
     }
   } catch {
     // Silently fail — analytics are non-critical
+  } finally {
+    analyticsReady = true;
+    if (!gtmInitialized) {
+      for (let i = 0; i < pendingContactLeads; i++) sendDirectContactLead();
+    }
+    pendingContactLeads = 0;
   }
 };
 
