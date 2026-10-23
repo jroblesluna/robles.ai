@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 const sdk = vi.hoisted(() => ({ ga: { initialize: vi.fn(), send: vi.fn(), event: vi.fn() }, pixel: { init: vi.fn(), pageView: vi.fn(), track: vi.fn() } }));
 vi.mock('react-ga4', () => ({ default: sdk.ga }));
 vi.mock('react-facebook-pixel', () => ({ default: sdk.pixel }));
-beforeEach(() => { vi.resetModules(); vi.clearAllMocks(); vi.stubEnv('PROD', true); window.history.replaceState(null, '', '/'); });
+beforeEach(() => { vi.resetModules(); vi.clearAllMocks(); vi.stubEnv('PROD', true); window.history.replaceState(null, '', '/'); (window as any).dataLayer = []; });
 afterEach(() => { vi.unstubAllGlobals(); vi.unstubAllEnvs(); document.querySelectorAll('script').forEach(node => node.remove()); document.querySelectorAll('noscript').forEach(node => node.remove()); });
 it('preserves GTM as the sole tracker when configured, without duplicate SDK initialization', async () => {
   vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ gtm: 'GTM-TEST123', ga4: 'G-TEST', metaPixel: '123' }) })));
@@ -28,4 +28,30 @@ it('never requests tracking configuration on an admin page', async () => {
   const fetcher = vi.fn(); vi.stubGlobal('fetch', fetcher);
   await (await import('../analytics')).initAnalytics();
   expect(fetcher).not.toHaveBeenCalled();
+});
+
+it('queues a non-personal contact lead before GTM loads without duplicate direct tracking', async () => {
+  vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ gtm: 'GTM-TEST123', ga4: 'G-TEST', metaPixel: '123' }) })));
+  const analytics = await import('../analytics');
+  analytics.trackContactLead();
+  await analytics.initAnalytics();
+  expect((window as any).dataLayer).toEqual([{ event: 'generate_lead', form_id: 'contact', method: 'contact_form' }]);
+  expect(sdk.ga.event).not.toHaveBeenCalled();
+  expect(sdk.pixel.track).not.toHaveBeenCalled();
+});
+it('flushes a contact once when direct trackers initialize after submission', async () => {
+  vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ ga4: 'G-TEST', metaPixel: '123' }) })));
+  const analytics = await import('../analytics');
+  analytics.trackContactLead();
+  await analytics.initAnalytics();
+  expect(sdk.ga.event).toHaveBeenCalledExactlyOnceWith('generate_lead', { form_id: 'contact', method: 'contact_form' });
+  expect(sdk.pixel.track).toHaveBeenCalledExactlyOnceWith('Lead', { form_id: 'contact', method: 'contact_form' });
+});
+it('never lets tracker failures break an accepted contact', async () => {
+  vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ ga4: 'G-TEST', metaPixel: '123' }) })));
+  const analytics = await import('../analytics');
+  await analytics.initAnalytics();
+  sdk.ga.event.mockImplementationOnce(() => { throw new Error('Blocked'); });
+  expect(() => analytics.trackContactLead()).not.toThrow();
+  expect(sdk.pixel.track).toHaveBeenCalledWith('Lead', expect.any(Object));
 });

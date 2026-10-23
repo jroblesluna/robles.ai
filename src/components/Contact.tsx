@@ -20,6 +20,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { toast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { insertContactSchema } from "@shared/schema";
+import { trackContactLead } from "@/lib/analytics";
 import { useTranslation } from "react-i18next";
 
 const contactFormSchema = insertContactSchema.extend({
@@ -71,7 +72,10 @@ const Contact = () => {
 
   const onSubmit = async (data: ContactFormValues) => {
     try {
-      await apiRequest("POST", "/api/contact", data);
+      const response = await apiRequest("POST", "/api/contact", data);
+      const result = await response.json();
+      if (result.success !== true) throw new Error('Contact was not accepted');
+      trackContactLead();
       toast({
         title: t("contact.successTitle"),
         description: t("contact.successMessage"),
