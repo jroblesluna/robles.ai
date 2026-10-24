@@ -2184,38 +2184,96 @@
         "v2": {
             "hero": {
                 "eyebrow": "Consultoría e implementación de IA · EE. UU. y Latinoamérica",
-                "title": "Encuentra los proyectos de IA que se pagan primero —",
-                "titleHighlight": "y llévalos a producción.",
-                "subtitle": "En 2 semanas mapeamos tus procesos y datos, priorizamos las oportunidades de IA por impacto y esfuerzo, y te entregamos una hoja de ruta por etapas. Luego la construimos: chatbots, automatización de documentos, agentes de IA y asistentes de conocimiento conectados a los sistemas que ya usas.",
+                "title": "Encuentra dónde la IA rinde más —",
+                "titleHighlight": "y ponla a trabajar.",
+                "subtitle": "Empieza con un diagnóstico de 2 semanas, o ve directo a un proyecto si ya sabes lo que necesitas. Construimos chatbots, automatización de documentos, agentes de IA y asistentes conectados a los sistemas que ya usas.",
                 "ctaPrimary": "Agenda tu Diagnóstico IA",
                 "ctaDemo": "Prueba una demo en vivo",
                 "quizLink": "¿No sabes por dónde empezar? Haz el test de 2 minutos",
                 "trust": [
                     "Software empresarial desde 2011",
-                    "Experiencia en banca y grandes empresas",
-                    "Español e inglés · equipo senior"
-                ]
+                    "Proyectos en banca, industria y servicios",
+                    "Español e inglés · trato directo con el fundador"
+                ],
+                "ctaWhatsapp": "Escríbenos por WhatsApp",
+                "proposalLink": "¿Ya sabes lo que necesitas? Solicita una propuesta"
             },
             "variants": {
                 "chatbots": {
                     "eyebrow": "Chatbots y asistentes de IA para empresas",
                     "title": "Un chatbot que conoce tu negocio —",
-                    "titleHighlight": "atendiendo a tus clientes 24/7 con tu propio contenido."
+                    "titleHighlight": "atendiendo a tus clientes 24/7 con tu propio contenido.",
+                    "subtitle": "Un asistente entrenado con tu web, tus políticas y tus preguntas frecuentes, en tu sitio o en WhatsApp, que deriva a una persona cuando corresponde. Pruébalo primero con tu propia web.",
+                    "cta": "Cotiza tu chatbot",
+                    "card": {
+                        "title": "Cómo empieza un proyecto de chatbot",
+                        "items": [
+                            "Prueba la demo con tu web (60 segundos)",
+                            "Cuéntanos tus canales y tu volumen mensual",
+                            "Recibe una propuesta con alcance, plazo y precio",
+                            "Piloto con conversaciones reales antes de salir en vivo"
+                        ]
+                    },
+                    "contactTitle": "Cotiza tu chatbot",
+                    "submit": "Quiero mi propuesta",
+                    "whatsapp": "Hola, quiero un chatbot para mi negocio. ¿Me envían una propuesta?"
                 },
                 "rag": {
                     "eyebrow": "Asistentes de conocimiento (RAG)",
                     "title": "Pregúntale a tus documentos en lenguaje natural —",
-                    "titleHighlight": "respuestas desde tus propias políticas, manuales y datos."
+                    "titleHighlight": "respuestas desde tus propias políticas, manuales y datos.",
+                    "subtitle": "Un asistente que responde desde tus manuales, políticas y procedimientos, cita el documento de origen y funciona en tu propia cuenta de nube.",
+                    "cta": "Cotiza tu asistente",
+                    "card": {
+                        "title": "Cómo empieza un proyecto de asistente",
+                        "items": [
+                            "Empezamos con un conjunto de documentos",
+                            "Cada respuesta cita su fuente",
+                            "Acceso por rol",
+                            "Desplegado en tu propia cuenta de nube"
+                        ]
+                    },
+                    "contactTitle": "Cotiza tu asistente",
+                    "submit": "Quiero mi propuesta",
+                    "whatsapp": "Hola, quiero un asistente sobre nuestros documentos. ¿Me envían una propuesta?"
                 },
                 "agents": {
                     "eyebrow": "Agentes de IA y automatización",
                     "title": "Agentes de IA que hacen el trabajo, no solo conversan —",
-                    "titleHighlight": "automatizando tareas repetitivas en tus sistemas."
+                    "titleHighlight": "automatizando tareas repetitivas en tus sistemas.",
+                    "subtitle": "Asistentes que ejecutan tareas — calificar leads, actualizar registros, preparar cotizaciones — en tu CRM, correo y WhatsApp, con una persona aprobando lo importante.",
+                    "cta": "Cotiza tu agente",
+                    "card": {
+                        "title": "Cómo empieza un proyecto de agente",
+                        "items": [
+                            "Elegimos una tarea repetitiva para automatizar",
+                            "Conectamos los sistemas que necesita",
+                            "Una persona aprueba lo importante",
+                            "Medimos horas ahorradas antes de escalar"
+                        ]
+                    },
+                    "contactTitle": "Cotiza tu agente",
+                    "submit": "Quiero mi propuesta",
+                    "whatsapp": "Hola, quiero un agente de IA para automatizar una tarea. ¿Me envían una propuesta?"
                 },
                 "docs": {
                     "eyebrow": "IA documental y extracción de datos",
                     "title": "Facturas, contratos y formularios convertidos en datos —",
-                    "titleHighlight": "en segundos y directo a tus sistemas."
+                    "titleHighlight": "en segundos y directo a tus sistemas.",
+                    "subtitle": "Con revisión humana de los campos dudosos y registro de cada cambio, listos para tu ERP. Empieza con un piloto sobre una muestra de tus propios documentos.",
+                    "cta": "Cotiza tu piloto de documentos",
+                    "card": {
+                        "title": "Cómo empieza un piloto de documentos",
+                        "items": [
+                            "Una muestra de tus propios documentos",
+                            "Precisión medida campo por campo",
+                            "Revisión humana donde el modelo duda",
+                            "Costo por volumen vs. digitación manual"
+                        ]
+                    },
+                    "contactTitle": "Cotiza tu piloto de documentos",
+                    "submit": "Quiero mi propuesta",
+                    "whatsapp": "Hola, quiero un piloto para extraer datos de nuestras facturas/documentos. ¿Me envían una propuesta?"
                 }
             },
             "offerCard": {
@@ -2227,7 +2285,7 @@
                     "Una sesión de revisión en vivo con próximos pasos claros"
                 ],
                 "price": "USD 1,500 – 3,000",
-                "priceNote": "Tarifa fija según alcance · misma tarifa en cualquier país"
+                "priceNote": "Tarifa fija · el rango depende de cuántos procesos revisamos"
             },
             "build": {
                 "title": "Lo que construimos — pruébalo tú mismo",
@@ -2238,7 +2296,7 @@
                         "desc": "Atiende a clientes y colaboradores 24/7 con tu propio contenido."
                     },
                     "rag": {
-                        "title": "Asistentes de conocimiento (RAG)",
+                        "title": "Asistente sobre tus documentos",
                         "desc": "Tus manuales, políticas y documentos, consultables en lenguaje natural."
                     },
                     "agents": {
@@ -2370,7 +2428,109 @@
             "sticky": {
                 "book": "Agendar diagnóstico",
                 "whatsapp": "WhatsApp"
-            }
+            },
+            "paths": {
+                "title": "Dos formas de empezar",
+                "diagnosis": {
+                    "eyebrow": "¿No sabes por dónde empezar?",
+                    "title": "Diagnóstico IA · 2 semanas",
+                    "desc": "Mapeamos tus procesos y datos, priorizamos oportunidades por impacto y esfuerzo, y te entregamos una hoja de ruta por etapas con el costo estimado de cada una.",
+                    "price": "USD 1,500 – 3,000",
+                    "priceDetail": "Tarifa fija. El rango depende de cuántos procesos y áreas revisamos.",
+                    "cta": "Agenda tu Diagnóstico IA"
+                },
+                "project": {
+                    "eyebrow": "¿Ya sabes lo que necesitas?",
+                    "title": "Proyecto directo",
+                    "desc": "Un chatbot, extracción de documentos, un agente o un asistente: cuéntanos el caso y te respondemos con una propuesta — alcance, plazo y precio — antes de que te comprometas a nada.",
+                    "price": "Cotizado por proyecto",
+                    "priceDetail": "Cada etapa tiene un precio fijo acordado de antemano.",
+                    "cta": "Solicitar propuesta"
+                }
+            },
+            "commitments": {
+                "title": "Con qué puedes contar",
+                "items": [
+                    {
+                        "title": "La hoja de ruta es tuya",
+                        "desc": "Ejecútala con nosotros, con tu equipo o con otro proveedor."
+                    },
+                    {
+                        "title": "Tu código, tus datos",
+                        "desc": "Lo que construimos para ti es tuyo, desplegado en tus cuentas si lo prefieres."
+                    },
+                    {
+                        "title": "Sin entrenar con tus datos",
+                        "desc": "Usamos proveedores y configuraciones que no entrenan modelos con tu información."
+                    },
+                    {
+                        "title": "Revisión humana desde el diseño",
+                        "desc": "Donde un error importa, una persona aprueba antes de que llegue a tus sistemas."
+                    }
+                ]
+            },
+            "industries": {
+                "title": "Dónde encaja en tu negocio",
+                "subtitle": "Puntos de partida típicos por industria — ejemplos de lo que construimos, no resultados de clientes.",
+                "items": [
+                    {
+                        "title": "Comercio y e-commerce",
+                        "desc": "Atención en tu web y WhatsApp: estado de pedidos, devoluciones, consultas de productos."
+                    },
+                    {
+                        "title": "Distribución y logística",
+                        "desc": "Pedidos, guías y facturas de proveedores ingresados directo a tu ERP."
+                    },
+                    {
+                        "title": "Salud",
+                        "desc": "Facturas y documentos con revisión humana y trazabilidad; asistente para procedimientos internos."
+                    },
+                    {
+                        "title": "Restaurantes y servicios",
+                        "desc": "Reservas, cotizaciones de catering y preguntas frecuentes por WhatsApp."
+                    },
+                    {
+                        "title": "Banca y finanzas",
+                        "desc": "Asistente interno sobre normativa y manuales, en un entorno aislado."
+                    },
+                    {
+                        "title": "Manufactura",
+                        "desc": "Asistentes y agentes conectados a SAP y a tus sistemas de planta."
+                    }
+                ]
+            },
+            "security": {
+                "title": "Seguridad e integración",
+                "subtitle": "Pensado para pasar la revisión de tu área de TI y de cumplimiento.",
+                "items": [
+                    {
+                        "title": "Tus sistemas",
+                        "desc": "SAP y otros ERPs mediante interfaces estándar (OData/REST, RFC/BAPI), además de CRMs, bases de datos, correo y WhatsApp."
+                    },
+                    {
+                        "title": "Modelos en tu nube",
+                        "desc": "Azure OpenAI, AWS Bedrock o Google Vertex AI en tu propia cuenta cuando los datos deben quedarse en tu entorno."
+                    },
+                    {
+                        "title": "Confidencialidad",
+                        "desc": "Acuerdo de confidencialidad, el mínimo de datos necesario y acceso por rol."
+                    },
+                    {
+                        "title": "Homologación",
+                        "desc": "Respondemos tu cuestionario de seguridad como parte del alta de proveedor."
+                    }
+                ]
+            },
+            "faqExtra": [
+                {
+                    "q": "¿Cuánto cuesta implementar?",
+                    "a": "Depende del alcance. Cada etapa se cotiza con precio fijo antes de que te comprometas: tras un diagnóstico está en el informe, y para un proyecto directo te enviamos una propuesta."
+                },
+                {
+                    "q": "¿Por qué no lo construimos nosotros con ChatGPT o una API?",
+                    "a": "Puedes — para un prototipo suele ser lo correcto. Lo que toma tiempo es producción: conectar sistemas reales, medir precisión, manejar errores y casos borde, accesos y seguridad, y mantenerlo funcionando cuando cambian los datos. Esa es la parte que asumimos, y también podemos guiar a tu equipo para construirlo."
+                }
+            ]
         }
     },
     "chatbotWidget": {

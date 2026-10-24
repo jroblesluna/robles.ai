@@ -2184,38 +2184,96 @@
         "v2": {
             "hero": {
                 "eyebrow": "AI consulting & implementation · USA & Latin America",
-                "title": "Find the AI projects that pay back first —",
-                "titleHighlight": "and get them into production.",
-                "subtitle": "In 2 weeks we map your processes and data, rank AI opportunities by impact and effort, and hand you a phased roadmap. Then we build it: chatbots, document automation, AI agents and knowledge assistants connected to the systems you already use.",
+                "title": "Find where AI pays off most —",
+                "titleHighlight": "and put it to work.",
+                "subtitle": "Start with a 2-week diagnosis, or go straight to a project if you already know what you need. We build chatbots, document automation, AI agents and assistants connected to the systems you already use.",
                 "ctaPrimary": "Book your AI Diagnosis",
                 "ctaDemo": "Try a live demo",
                 "quizLink": "Not sure where to start? Take the 2-minute test",
                 "trust": [
                     "Enterprise software since 2011",
-                    "Banking & enterprise track record",
-                    "English & Spanish · senior team"
-                ]
+                    "Projects in banking, industry and services",
+                    "English & Spanish · direct with the founder"
+                ],
+                "ctaWhatsapp": "WhatsApp us",
+                "proposalLink": "Already know what you need? Request a proposal"
             },
             "variants": {
                 "chatbots": {
                     "eyebrow": "AI chatbots & assistants for business",
                     "title": "A chatbot that knows your business —",
-                    "titleHighlight": "answering customers 24/7 with your own content."
+                    "titleHighlight": "answering customers 24/7 with your own content.",
+                    "subtitle": "An assistant trained on your website, policies and FAQs, on your site or WhatsApp, that hands off to a person when it should. Try it with your own website first.",
+                    "cta": "Get a chatbot proposal",
+                    "card": {
+                        "title": "How a chatbot project starts",
+                        "items": [
+                            "Try the demo with your website (60 seconds)",
+                            "Tell us your channels and monthly volume",
+                            "Get a proposal with scope, timeline and price",
+                            "Pilot on real conversations before going live"
+                        ]
+                    },
+                    "contactTitle": "Get your chatbot proposal",
+                    "submit": "Get my proposal",
+                    "whatsapp": "Hi, I'd like a chatbot for my business. Can you send me a proposal?"
                 },
                 "rag": {
                     "eyebrow": "Knowledge assistants (RAG)",
                     "title": "Ask your documents in plain language —",
-                    "titleHighlight": "answers from your own policies, manuals and data."
+                    "titleHighlight": "answers from your own policies, manuals and data.",
+                    "subtitle": "An assistant that answers from your manuals, policies and procedures, cites the source document, and runs in your own cloud account.",
+                    "cta": "Get an assistant proposal",
+                    "card": {
+                        "title": "How an assistant project starts",
+                        "items": [
+                            "Start with one set of documents",
+                            "Every answer cites its source",
+                            "Access by role",
+                            "Deployed in your own cloud account"
+                        ]
+                    },
+                    "contactTitle": "Get your assistant proposal",
+                    "submit": "Get my proposal",
+                    "whatsapp": "Hi, I'd like an assistant over our documents. Can you send me a proposal?"
                 },
                 "agents": {
                     "eyebrow": "AI agents & workflow automation",
                     "title": "AI agents that do the work, not just chat —",
-                    "titleHighlight": "automating repetitive tasks across your systems."
+                    "titleHighlight": "automating repetitive tasks across your systems.",
+                    "subtitle": "Assistants that carry out tasks — qualify leads, update records, prepare quotes — across your CRM, email and WhatsApp, with a person approving what matters.",
+                    "cta": "Get an agent proposal",
+                    "card": {
+                        "title": "How an agent project starts",
+                        "items": [
+                            "Pick one repetitive task to automate",
+                            "Connect the systems it needs",
+                            "A person approves what matters",
+                            "Measure hours saved before scaling"
+                        ]
+                    },
+                    "contactTitle": "Get your agent proposal",
+                    "submit": "Get my proposal",
+                    "whatsapp": "Hi, I'd like an AI agent to automate a task. Can you send me a proposal?"
                 },
                 "docs": {
                     "eyebrow": "Document AI & data extraction",
                     "title": "Invoices, contracts and forms into data —",
-                    "titleHighlight": "in seconds, straight into your systems."
+                    "titleHighlight": "in seconds, straight into your systems.",
+                    "subtitle": "With human review of uncertain fields and a log of every change, ready for your ERP. Start with a pilot on a sample of your own documents.",
+                    "cta": "Get a document-pilot proposal",
+                    "card": {
+                        "title": "How a document pilot starts",
+                        "items": [
+                            "A sample of your own documents",
+                            "Accuracy measured field by field",
+                            "Human review where the model isn't sure",
+                            "Cost per volume vs. manual entry"
+                        ]
+                    },
+                    "contactTitle": "Get your document-pilot proposal",
+                    "submit": "Get my proposal",
+                    "whatsapp": "Hi, I'd like a pilot to extract data from our invoices/documents. Can you send me a proposal?"
                 }
             },
             "offerCard": {
@@ -2227,7 +2285,7 @@
                     "A live review session with clear next steps"
                 ],
                 "price": "USD 1,500 – 3,000",
-                "priceNote": "Fixed fee by scope · same rate in any country"
+                "priceNote": "Fixed fee · the range depends on how many processes we review"
             },
             "build": {
                 "title": "What we build — try it yourself",
@@ -2238,7 +2296,7 @@
                         "desc": "Answer customers and staff 24/7 with your own content."
                     },
                     "rag": {
-                        "title": "Knowledge assistants (RAG)",
+                        "title": "Assistant over your documents",
                         "desc": "Your manuals, policies and documents, queryable in plain language."
                     },
                     "agents": {
@@ -2370,7 +2428,109 @@
             "sticky": {
                 "book": "Book diagnosis",
                 "whatsapp": "WhatsApp"
-            }
+            },
+            "paths": {
+                "title": "Two ways to start",
+                "diagnosis": {
+                    "eyebrow": "Not sure where to start?",
+                    "title": "AI Diagnosis · 2 weeks",
+                    "desc": "We map your processes and data, rank opportunities by impact and effort, and hand you a phased roadmap with the estimated cost of each stage.",
+                    "price": "USD 1,500 – 3,000",
+                    "priceDetail": "Fixed fee. The range depends on how many processes and areas we review.",
+                    "cta": "Book your AI Diagnosis"
+                },
+                "project": {
+                    "eyebrow": "Already know what you need?",
+                    "title": "Direct project",
+                    "desc": "A chatbot, document extraction, an agent or an assistant: tell us the case and we reply with a proposal — scope, timeline and price — before you commit to anything.",
+                    "price": "Quoted per project",
+                    "priceDetail": "Each stage has a fixed price agreed up front.",
+                    "cta": "Request a proposal"
+                }
+            },
+            "commitments": {
+                "title": "What you can count on",
+                "items": [
+                    {
+                        "title": "The roadmap is yours",
+                        "desc": "Execute it with us, with your team or with another provider."
+                    },
+                    {
+                        "title": "Your code, your data",
+                        "desc": "What we build for you is yours, deployed in your accounts when you prefer."
+                    },
+                    {
+                        "title": "No training on your data",
+                        "desc": "We use providers and settings that don't train models on your information."
+                    },
+                    {
+                        "title": "Human review by design",
+                        "desc": "Where an error matters, a person approves before it reaches your systems."
+                    }
+                ]
+            },
+            "industries": {
+                "title": "Where it fits in your business",
+                "subtitle": "Typical starting points by industry — examples of what we build, not client results.",
+                "items": [
+                    {
+                        "title": "Retail & e-commerce",
+                        "desc": "Customer service on your site and WhatsApp: order status, returns, product questions."
+                    },
+                    {
+                        "title": "Distribution & logistics",
+                        "desc": "Orders, delivery notes and supplier invoices captured straight into your ERP."
+                    },
+                    {
+                        "title": "Healthcare",
+                        "desc": "Invoices and records with human review and an audit trail; an assistant for internal procedures."
+                    },
+                    {
+                        "title": "Restaurants & services",
+                        "desc": "Bookings, catering quotes and FAQs answered over WhatsApp."
+                    },
+                    {
+                        "title": "Banking & finance",
+                        "desc": "An internal assistant over regulations and manuals, in an isolated environment."
+                    },
+                    {
+                        "title": "Manufacturing",
+                        "desc": "Assistants and agents connected to SAP and your plant systems."
+                    }
+                ]
+            },
+            "security": {
+                "title": "Security and integration",
+                "subtitle": "Designed to pass your IT and compliance review.",
+                "items": [
+                    {
+                        "title": "Your systems",
+                        "desc": "SAP and other ERPs through standard interfaces (OData/REST, RFC/BAPI), plus CRMs, databases, email and WhatsApp."
+                    },
+                    {
+                        "title": "Models in your cloud",
+                        "desc": "Azure OpenAI, AWS Bedrock or Google Vertex AI in your own account when data must stay in your tenant."
+                    },
+                    {
+                        "title": "Confidentiality",
+                        "desc": "NDA, the minimum data needed, and access by role."
+                    },
+                    {
+                        "title": "Vendor review",
+                        "desc": "We answer your security questionnaire as part of vendor onboarding."
+                    }
+                ]
+            },
+            "faqExtra": [
+                {
+                    "q": "How much does implementation cost?",
+                    "a": "It depends on scope. Each stage is quoted with a fixed price before you commit: after a diagnosis it's in the report, and for a direct project we send a proposal."
+                },
+                {
+                    "q": "Why not build it ourselves with ChatGPT or an API?",
+                    "a": "You can — for a prototype it's often the right call. What takes time is production: connecting real systems, measuring accuracy, handling errors and edge cases, access and security, and keeping it working as data changes. That's the part we take on, and we can also guide your team to build it."
+                }
+            ]
         }
     },
     "chatbotWidget": {

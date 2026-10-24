@@ -63,6 +63,8 @@ interface ContactFormProps {
   showTrustNote?: boolean;
   /** Optional i18n key to override the card title. */
   titleKey?: string;
+  /** Pre-selects "What do you want to improve?" (e.g. from the ad's ?s= variant). */
+  defaultGoal?: (typeof CONTACT_GOALS)[number];
 }
 
 /** The contact form card. Fires generate_lead (via trackContactLead) only after the API accepts it. */
@@ -73,6 +75,7 @@ export const ContactForm = ({
   buttonClassName = "bg-blue-600 hover:bg-blue-700",
   showTrustNote = false,
   titleKey = "contact.formTitle",
+  defaultGoal,
 }: ContactFormProps) => {
   const { t } = useTranslation();
   const [clientReady, setClientReady] = useState(false);
@@ -85,7 +88,7 @@ export const ContactForm = ({
       email: "",
       company: "",
       subject: "Website Inquiry",
-      goal: "",
+      goal: defaultGoal ?? "",
       message: "",
       newsletter: false
     }

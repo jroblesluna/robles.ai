@@ -34,11 +34,14 @@ export function renderStaticContent(path: string, lang: ContentLanguage, t: Tran
     body = `${tag('h1', `${v.hero.title} ${v.hero.titleHighlight}`)}${paragraph(v.hero.subtitle)}${link('#contacto', v.hero.ctaPrimary)} ${link(staticPagePath('/diagnostico-ia', lang), v.hero.quizLink)}`
       + `<section>${tag('h2', v.offerCard.title)}${list(v.offerCard.items)}${paragraph(`${v.offerCard.price} — ${v.offerCard.priceNote}`)}</section>`
       + `<section id="demos">${tag('h2', v.build.title)}${paragraph(v.build.subtitle)}${cards(v.build.items)}${link(staticPagePath('/demos', lang), v.build.allDemos)}</section>`
-      + `<section>${tag('h2', v.insight.title)}${paragraph(v.insight.subtitle)}${cards(v.insight.patterns)}${tag('h3', v.insight.questionsTitle)}${list(v.insight.questions)}</section>`
+      + `<section>${tag('h2', v.industries.title)}${paragraph(v.industries.subtitle)}${cards(v.industries.items)}</section>`
+      + `<section>${tag('h2', v.insight.title)}${paragraph(v.insight.subtitle)}${cards(v.insight.patterns)}</section>`
       + `<section>${tag('h2', v.process.title)}${paragraph(v.process.subtitle)}${cards(v.process.steps)}</section>`
-      + `<section id="diagnostico">${tag('h2', v.offer.title)}${paragraph(p.diagnostico.subtitle)}${tag('h3', v.offer.deliverablesTitle)}${list(v.offer.deliverables)}${paragraph(`${v.offer.price} — ${v.offer.priceDetail}`)}</section>`
+      + `<section id="diagnostico">${tag('h2', v.paths.title)}${['diagnosis', 'project'].map(k => `${tag('h3', v.paths[k].title)}${paragraph(v.paths[k].desc)}${paragraph(`${v.paths[k].price} — ${v.paths[k].priceDetail}`)}`).join('')}${list(v.offer.deliverables)}</section>`
+      + `<section>${tag('h2', v.commitments.title)}${cards(v.commitments.items)}</section>`
+      + `<section>${tag('h2', v.security.title)}${paragraph(v.security.subtitle)}${cards(v.security.items)}</section>`
       + `<section>${tag('h2', v.founder.eyebrow)}${paragraph(v.founder.role)}${paragraph(v.founder.bio)}${list(v.founder.points)}</section>`
-      + `<section>${tag('h2', v.faq.title)}${values(v.faq.items).map(f => `${tag('h3', f?.q)}${paragraph(f?.a)}`).join('')}</section>`
+      + `<section>${tag('h2', v.faq.title)}${[...values(v.faqExtra), ...values(v.faq.items)].map(f => `${tag('h3', f?.q)}${paragraph(f?.a)}`).join('')}</section>`
       + `<section id="contacto">${tag('h2', p.cta.title)}${paragraph(v.contact.subtitle)}${link(`mailto:${PUBLIC_CONTACT.email}`, PUBLIC_CONTACT.email)} ${link(PUBLIC_CONTACT.phoneHref, PUBLIC_CONTACT.phone)}</section>`;
   } else if (path === '/careers' || path === '/apply') {
     const jobs = path === '/apply' ? t.careers.jobs.filter((job: any) => job.id === url.searchParams.get('job')) : t.careers.jobs;

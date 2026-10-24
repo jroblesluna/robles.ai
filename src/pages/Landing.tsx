@@ -9,18 +9,29 @@ import {
   Bot,
   CheckCircle2,
   ChevronDown,
+  Compass,
+  Database,
+  Factory,
   FileText,
-  HelpCircle,
+  Hammer,
+  HeartPulse,
+  Landmark,
   Linkedin,
+  Lock,
   Mail,
+  MessageCircle,
   MessageSquare,
   Phone,
   PlayCircle,
+  Plug,
+  ShieldCheck,
   Sparkles,
+  Store,
+  Truck,
+  UtensilsCrossed,
 } from "lucide-react";
 import { Link, useSearch } from "wouter";
-import { ContactForm } from "@/components/Contact";
-import CaseStudies from "@/components/CaseStudies";
+import { ContactForm, CONTACT_GOALS } from "@/components/Contact";
 import { trackContactClick } from "@/lib/analytics";
 
 /**
@@ -37,6 +48,16 @@ const WHATSAPP_NUMBER = "14085900153";
 const HERO_VARIANTS = ["chatbots", "rag", "agents", "docs"] as const;
 type HeroVariant = (typeof HERO_VARIANTS)[number];
 
+/** Ad variant → pre-selected goal in the contact form. */
+const VARIANT_GOAL: Record<HeroVariant, (typeof CONTACT_GOALS)[number]> = {
+  chatbots: "service",
+  rag: "knowledge",
+  agents: "automation",
+  docs: "documents",
+};
+const INDUSTRY_ICONS = [Store, Truck, HeartPulse, UtensilsCrossed, Landmark, Factory];
+const SECURITY_ICONS = [Plug, Database, Lock, ShieldCheck];
+
 /** Service → live demo id in demosCatalog.items. */
 const BUILD_ITEMS: Array<{ key: HeroVariant; demoId: string; icon: typeof Bot }> = [
   { key: "chatbots", demoId: "sitechatbot", icon: MessageSquare },
@@ -50,6 +71,7 @@ type Step = { when: string; title: string; desc: string };
 type Pattern = { title: string; desc: string };
 type Faq = { q: string; a: string };
 type TeamMember = { name: string; image: string; linkedin?: string };
+type Item = { title: string; desc: string };
 
 function Reveal({ children, className, delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
   return (
@@ -72,6 +94,21 @@ function PrimaryCta({ children, className = "" }: { children: ReactNode; classNa
       className={`tap-target inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-7 py-4 rounded-lg text-lg transition-colors ${className}`}
     >
       {children} <ArrowRight className="w-5 h-5" aria-hidden="true" />
+    </a>
+  );
+}
+
+function WhatsAppButton({ href, children, location }: { href: string; children: ReactNode; location: string }) {
+  return (
+    <a
+      href={href}
+      onClick={() => trackContactClick("whatsapp", location)}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="tap-target inline-flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-emerald-400/50 text-white font-semibold px-7 py-4 rounded-lg text-lg transition-colors"
+    >
+      <MessageCircle className="w-5 h-5 text-emerald-400" aria-hidden="true" />
+      {children}
     </a>
   );
 }
@@ -100,7 +137,7 @@ export default function Landing() {
   };
   const demos = list<DemoCatalogItem>("demosCatalog.items");
   const founder = list<TeamMember>("team.members")[0];
-  const whatsappMessage = encodeURIComponent(t("landing.whatsapp.message"));
+  const whatsappMessage = encodeURIComponent(t(variant ? `landing.v2.variants.${variant}.whatsapp` : "landing.whatsapp.message"));
   const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`;
 
   // Sticky mobile CTA: visible after the hero, hidden while the contact form is on screen.
@@ -154,7 +191,7 @@ export default function Landing() {
               transition={{ duration: 0.6, delay: 0.15 }}
               className="text-lg text-slate-300 max-w-xl mx-auto lg:mx-0 mb-8"
             >
-              {t("landing.v2.hero.subtitle")}
+              {t(variant ? `landing.v2.variants.${variant}.subtitle` : "landing.v2.hero.subtitle")}
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -162,16 +199,20 @@ export default function Landing() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="flex flex-col sm:flex-row items-center lg:items-start gap-4"
             >
-              <PrimaryCta>{t("landing.v2.hero.ctaPrimary")}</PrimaryCta>
-              <a
-                href="#demos"
-                className="tap-target inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/20 text-white font-semibold px-7 py-4 rounded-lg text-lg transition-colors"
-              >
-                <PlayCircle className="w-5 h-5 text-emerald-400" aria-hidden="true" />
+              <PrimaryCta>{t(variant ? `landing.v2.variants.${variant}.cta` : "landing.v2.hero.ctaPrimary")}</PrimaryCta>
+              <WhatsAppButton href={whatsappHref} location="landing_hero">{t("landing.v2.hero.ctaWhatsapp")}</WhatsAppButton>
+            </motion.div>
+            <p className="mt-5 flex flex-wrap justify-center lg:justify-start gap-x-5 gap-y-2 text-sm text-slate-300">
+              <a href="#demos" className="inline-flex items-center gap-1.5 underline underline-offset-4 hover:text-white">
+                <PlayCircle className="w-4 h-4 text-emerald-400" aria-hidden="true" />
                 {t("landing.v2.hero.ctaDemo")}
               </a>
-            </motion.div>
-            <p className="mt-5 text-sm text-slate-300">
+              {!variant && (
+                <a href="#diagnostico" className="inline-flex items-center gap-1.5 underline underline-offset-4 hover:text-white">
+                  <Hammer className="w-4 h-4 text-emerald-400" aria-hidden="true" />
+                  {t("landing.v2.hero.proposalLink")}
+                </a>
+              )}
               <Link href={staticPagePath("/diagnostico-ia", lang)} className="inline-flex items-center gap-1.5 underline underline-offset-4 hover:text-white">
                 <Sparkles className="w-4 h-4 text-emerald-400" aria-hidden="true" />
                 {t("landing.v2.hero.quizLink")}
@@ -192,21 +233,38 @@ export default function Landing() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25 }}
             className="bg-slate-900/80 border border-emerald-500/30 rounded-2xl p-6 md:p-8 shadow-2xl"
-            aria-label={t("landing.v2.offerCard.title")}
+            aria-label={t(variant ? `landing.v2.variants.${variant}.card.title` : "landing.v2.offerCard.title")}
           >
-            <h2 className="text-xl font-bold mb-5">{t("landing.v2.offerCard.title")}</h2>
-            <ul className="space-y-3 mb-6">
-              {list<string>("landing.v2.offerCard.items").map((item) => (
-                <li key={item} className="flex items-start gap-3 text-slate-200">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400 mt-0.5 shrink-0" aria-hidden="true" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="border-t border-slate-700 pt-5">
-              <div className="text-2xl font-bold">{t("landing.v2.offerCard.price")}</div>
-              <p className="text-sm text-slate-300 mt-1">{t("landing.v2.offerCard.priceNote")}</p>
-            </div>
+            {variant ? (
+              <>
+                <h2 className="text-xl font-bold mb-5">{t(`landing.v2.variants.${variant}.card.title`)}</h2>
+                <ol className="space-y-3 mb-6">
+                  {list<string>(`landing.v2.variants.${variant}.card.items`).map((item, i) => (
+                    <li key={item} className="flex items-start gap-3 text-slate-200">
+                      <span className="w-6 h-6 shrink-0 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ol>
+                <p className="border-t border-slate-700 pt-5 text-sm text-slate-300">{t("contact.replyNote")}</p>
+              </>
+            ) : (
+              <>
+                <h2 className="text-xl font-bold mb-5">{t("landing.v2.offerCard.title")}</h2>
+                <ul className="space-y-3 mb-6">
+                  {list<string>("landing.v2.offerCard.items").map((item) => (
+                    <li key={item} className="flex items-start gap-3 text-slate-200">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-400 mt-0.5 shrink-0" aria-hidden="true" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="border-t border-slate-700 pt-5">
+                  <div className="text-2xl font-bold">{t("landing.v2.offerCard.price")}</div>
+                  <p className="text-sm text-slate-300 mt-1">{t("landing.v2.offerCard.priceNote")}</p>
+                </div>
+              </>
+            )}
           </motion.aside>
         </div>
       </section>
@@ -249,11 +307,32 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Insight — useful on its own, memorable */}
+      {/* Where it fits — industry starting points (examples, not results) */}
       <section className="py-16 md:py-24">
         <div className="max-w-6xl mx-auto px-6">
+          <SectionTitle title={t("landing.v2.industries.title")} subtitle={t("landing.v2.industries.subtitle")} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {list<Item>("landing.v2.industries.items").map((item, i) => {
+              const Icon = INDUSTRY_ICONS.at(i) ?? Store;
+              return (
+                <Reveal key={item.title} delay={i * 0.04} className="flex gap-4 bg-slate-800/60 border border-slate-700/60 rounded-xl p-5">
+                  <Icon className="w-7 h-7 shrink-0 text-purple-300" aria-hidden="true" />
+                  <div>
+                    <h3 className="font-semibold mb-1">{item.title}</h3>
+                    <p className="text-slate-300 text-sm">{item.desc}</p>
+                  </div>
+                </Reveal>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Insight — useful on its own, memorable */}
+      <section className="py-16 md:py-24 bg-slate-900/50">
+        <div className="max-w-6xl mx-auto px-6">
           <SectionTitle title={t("landing.v2.insight.title")} subtitle={t("landing.v2.insight.subtitle")} />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {list<Pattern>("landing.v2.insight.patterns").map((p, i) => (
               <Reveal key={p.title} delay={i * 0.05} className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-6">
                 <div className="text-emerald-300 font-mono text-sm mb-2">{String(i + 1).padStart(2, "0")}</div>
@@ -262,17 +341,6 @@ export default function Landing() {
               </Reveal>
             ))}
           </div>
-          <Reveal className="max-w-3xl mx-auto bg-gradient-to-br from-purple-900/40 to-slate-800/60 border border-purple-500/30 rounded-2xl p-6 md:p-8">
-            <h3 className="flex items-center gap-2 text-lg md:text-xl font-semibold mb-4">
-              <HelpCircle className="w-5 h-5 text-emerald-400" aria-hidden="true" />
-              {t("landing.v2.insight.questionsTitle")}
-            </h3>
-            <ol className="space-y-3 list-decimal list-inside text-slate-200">
-              {list<string>("landing.v2.insight.questions").map((q) => (
-                <li key={q}>{q}</li>
-              ))}
-            </ol>
-          </Reveal>
           <div className="mt-12 text-center">
             <p className="text-slate-300 mb-4">{t("landing.v2.midCta.text")}</p>
             <PrimaryCta>{t("landing.v2.midCta.button")}</PrimaryCta>
@@ -281,7 +349,7 @@ export default function Landing() {
       </section>
 
       {/* How we work — one merged process */}
-      <section className="py-16 md:py-24 bg-slate-900/50">
+      <section className="py-16 md:py-24">
         <div className="max-w-6xl mx-auto px-6">
           <SectionTitle title={t("landing.v2.process.title")} subtitle={t("landing.v2.process.subtitle")} />
           <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -313,39 +381,87 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Illustrative cases (same component as the home page, clearly labelled) */}
-      <CaseStudies />
-
-      {/* The offer — priced diagnosis */}
-      <section id="diagnostico" className="scroll-mt-20 py-16 md:py-24">
+      {/* Two ways to start — diagnosis or direct project */}
+      <section id="diagnostico" className="scroll-mt-20 py-16 md:py-24 bg-slate-900/50">
         <div className="max-w-5xl mx-auto px-6">
-          <SectionTitle title={t("landing.v2.offer.title")} subtitle={t("landing.diagnostico.subtitle")} />
-          <Reveal className="grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] gap-6 items-stretch">
-            <div className="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 md:p-8">
-              <h3 className="text-lg font-semibold mb-4">{t("landing.v2.offer.deliverablesTitle")}</h3>
-              <ul className="space-y-3">
-                {list<string>("landing.v2.offer.deliverables").map((d) => (
-                  <li key={d} className="flex items-start gap-3 text-slate-200">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400 mt-0.5 shrink-0" aria-hidden="true" />
-                    <span>{d}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="bg-gradient-to-br from-purple-900/50 to-slate-800/70 border border-emerald-500/40 rounded-2xl p-6 md:p-8 text-center flex flex-col justify-center">
-              <div className="text-sm text-emerald-300 uppercase tracking-wider mb-2">{t("landing.v2.offer.priceLabel")}</div>
-              <div className="text-3xl font-bold mb-2">{t("landing.v2.offer.price")}</div>
-              <p className="text-slate-300 text-sm mb-3">{t("landing.v2.offer.priceDetail")}</p>
-              <p className="text-slate-300 text-sm mb-6">{t("landing.diagnostico.pricing.note")}</p>
-              <PrimaryCta className="w-full">{t("landing.v2.offer.cta")}</PrimaryCta>
-            </div>
-          </Reveal>
+          <SectionTitle title={t("landing.v2.paths.title")} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {(["diagnosis", "project"] as const).map((key, i) => {
+              const Icon = key === "diagnosis" ? Compass : Hammer;
+              const deliverables = key === "diagnosis" ? list<string>("landing.v2.offer.deliverables") : [];
+              return (
+                <Reveal
+                  key={key}
+                  delay={i * 0.05}
+                  className={`flex flex-col rounded-2xl p-6 md:p-8 border ${
+                    key === "diagnosis" ? "bg-gradient-to-br from-purple-900/50 to-slate-800/70 border-emerald-500/40" : "bg-slate-800/60 border-slate-700/60"
+                  }`}
+                >
+                  <p className="text-xs font-semibold uppercase tracking-wider text-emerald-300 mb-2">{t(`landing.v2.paths.${key}.eyebrow`)}</p>
+                  <h3 className="flex items-center gap-2 text-xl font-bold mb-3">
+                    <Icon className="w-5 h-5 text-purple-300" aria-hidden="true" />
+                    {t(`landing.v2.paths.${key}.title`)}
+                  </h3>
+                  <p className="text-slate-300 mb-4">{t(`landing.v2.paths.${key}.desc`)}</p>
+                  {deliverables.length > 0 && (
+                    <ul className="space-y-2 mb-5 text-sm text-slate-200">
+                      {deliverables.map((d) => (
+                        <li key={d} className="flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" aria-hidden="true" />
+                          {d}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <div className="mt-auto">
+                    <div className="text-2xl font-bold">{t(`landing.v2.paths.${key}.price`)}</div>
+                    <p className="text-sm text-slate-300 mt-1 mb-5">{t(`landing.v2.paths.${key}.priceDetail`)}</p>
+                    <PrimaryCta className="w-full">{t(`landing.v2.paths.${key}.cta`)}</PrimaryCta>
+                  </div>
+                </Reveal>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Commitments — the answers buyers otherwise dig for in the FAQ */}
+      <section className="py-12 md:py-16">
+        <div className="max-w-6xl mx-auto px-6">
+          <SectionTitle title={t("landing.v2.commitments.title")} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {list<Item>("landing.v2.commitments.items").map((item, i) => (
+              <Reveal key={item.title} delay={i * 0.04} className="border-l-2 border-emerald-500 pl-4">
+                <h3 className="font-semibold mb-1">{item.title}</h3>
+                <p className="text-slate-300 text-sm">{item.desc}</p>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Security and integration — for IT, finance and compliance reviewers */}
+      <section className="py-16 md:py-24 bg-slate-900/50">
+        <div className="max-w-6xl mx-auto px-6">
+          <SectionTitle title={t("landing.v2.security.title")} subtitle={t("landing.v2.security.subtitle")} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {list<Item>("landing.v2.security.items").map((item, i) => {
+              const Icon = SECURITY_ICONS.at(i) ?? ShieldCheck;
+              return (
+                <Reveal key={item.title} delay={i * 0.04} className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-6">
+                  <Icon className="w-7 h-7 text-purple-300 mb-3" aria-hidden="true" />
+                  <h3 className="font-semibold mb-2">{item.title}</h3>
+                  <p className="text-slate-300 text-sm">{item.desc}</p>
+                </Reveal>
+              );
+            })}
+          </div>
         </div>
       </section>
 
       {/* Who you'll work with */}
       {founder && (
-        <section className="py-16 md:py-24 bg-slate-900/50">
+        <section className="py-16 md:py-24">
           <Reveal className="max-w-4xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-[180px_1fr] gap-8 items-center">
             <img
               src={`/images/${founder.image}`}
@@ -383,12 +499,12 @@ export default function Landing() {
       )}
 
       {/* FAQ — objections */}
-      <section className="py-16 md:py-24">
+      <section className="py-16 md:py-24 bg-slate-900/50">
         <div className="max-w-3xl mx-auto px-6">
           <SectionTitle title={t("landing.v2.faq.title")} />
           <div className="space-y-3">
-            {list<Faq>("landing.v2.faq.items").map((f) => (
-              <details key={f.q} className="group bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 open:border-emerald-500/40">
+            {[...list<Faq>("landing.v2.faqExtra"), ...list<Faq>("landing.v2.faq.items")].map((f, i) => (
+              <details key={f.q} open={i < 2} className="group bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 open:border-emerald-500/40">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">
                   {f.q}
                   <ChevronDown className="w-5 h-5 shrink-0 text-slate-300 transition-transform group-open:rotate-180" aria-hidden="true" />
@@ -401,10 +517,10 @@ export default function Landing() {
       </section>
 
       {/* Contact — form first, direct channels second */}
-      <section id="contacto" className="scroll-mt-20 py-16 md:py-24 bg-slate-900/50">
+      <section id="contacto" className="scroll-mt-20 py-16 md:py-24">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <Reveal>
-            <h2 className="text-2xl md:text-4xl font-bold mb-4">{t("landing.cta.title")}</h2>
+            <h2 className="text-2xl md:text-4xl font-bold mb-4">{t(variant ? `landing.v2.variants.${variant}.contactTitle` : "landing.cta.title")}</h2>
             <p className="text-slate-300 max-w-2xl mx-auto mb-10">{t("landing.v2.contact.subtitle")}</p>
           </Reveal>
 
@@ -413,8 +529,9 @@ export default function Landing() {
               className="bg-white text-gray-900 p-5 sm:p-8 rounded-xl shadow-lg"
               showNewsletter={false}
               titleKey="landing.v2.contact.formTitle"
+              defaultGoal={variant ? VARIANT_GOAL[variant] : undefined}
               showTrustNote
-              submitLabelKey="contact.submitDiagnosis"
+              submitLabelKey={variant ? `landing.v2.variants.${variant}.submit` : "contact.submitDiagnosis"}
               buttonClassName="bg-emerald-600 hover:bg-emerald-500 text-white"
             />
           </Reveal>
