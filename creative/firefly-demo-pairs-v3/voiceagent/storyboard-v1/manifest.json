@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "createdDate": "2026-10-21",
+  "kind": "five-frame-reference-storyboard",
+  "actualFireflyVideoGenerated": false,
+  "adaptivePromptChars": 2283,
+  "transitions": [
+    {
+      "file": "edit-1-to-2.txt",
+      "characters": 733
+    },
+    {
+      "file": "edit-2-to-3.txt",
+      "characters": 717
+    },
+    {
+      "file": "edit-3-to-4.txt",
+      "characters": 656
+    },
+    {
+      "file": "edit-4-to-5.txt",
+      "characters": 677
+    }
+  ],
+  "frames": [
+    {
+      "file": "01-off.jpg",
+      "width": 1280,
+      "height": 720,
+      "bytes": 80888,
+      "sha256": "1016f7f7b1b141bd74a1ae7ae0d7d44f3acab2cfe6a214bd1b1a746348b1b196",
+      "phasePercent": 0,
+      "source": "/Users/antoniorobles/.codex/generated_images/01a14d57-17c2-70d1-ba0c-8219eafc3e8c/exec-5a4643f3-3773-4292-b9d5-2f7fe11dd009.png",
+      "imagePrompt": "Edit the provided Robles.AI VOICE TO ACTION reference into ONE individual 16:9 storyboard keyframe, not a collage. Preserve the exact navy/cyan/purple premium 3D style, title typography, three-part layout, left phone, center CALENDAR with exactly SIX columns and FIVE rows of blank cells, and right rounded status-card outline. Keep every panel fully within frame with margins. Calendar and right panel remain front-facing and identical in position/size to reference. No dates, new labels, timestamps, actual customer information or extra objects. Chosen eventual cell is row 3 column 3, counting from top-left, exactly as reference. Only alter phone yaw, screen content and specified UI stage. Phone stays anchored to its original left position with same height; realistic rigid rectangular phone geometry, no bending. Cinematic controlled rim light and subtle floor reflections. No captions or frame numbers. STATE 1, beginning: phone is powered OFF, entire display BLACK, with NO microphone, NO waveform and NO speech bubble. Phone front screen is angled 12 degrees toward VIEWER'S LEFT, exposing its RIGHT side edge; it remains readable as a phone, not back-facing. Every calendar cell unselected, absolutely no arrows, no checkmark and no BOOKED text: right status-card interior EMPTY. Keep title, calendar header and empty grid."
+    },
+    {
+      "file": "02-message.jpg",
+      "width": 1280,
+      "height": 720,
+      "bytes": 95590,
+      "sha256": "f1ffa2cd89d5ec1fb8997533be7bc142c7ec2e2bf94ca578033daab72d599122",
+      "phasePercent": 25,
+      "source": "/Users/antoniorobles/.codex/generated_images/01a14d57-17c2-70d1-ba0c-8219eafc3e8c/exec-9dc59158-1b3b-4c29-93e5-b0d2f10c0f15.png",
+      "imagePrompt": "Create one corrected individual storyboard frame 02, 16:9. Use FIRST reference as the authoritative composition and phone POSE: preserve its black phone's exact orientation facing toward VIEWER LEFT, exposing the purple RIGHT side edge; do NOT expose left-side volume buttons. Keep phone silhouette, position, size, perspective, notch and side edge EXACTLY as in first reference. Change ONLY its display from off to ON: add the microphone ring, cyan-purple irregular waveform and speech bubble reading exactly 'Book a meeting.' using SECOND reference for these screen contents only. No other changes. Exact same VOICE TO ACTION title, background waves, lighting, calendar six columns by five rows, all cells unselected, and empty right confirmation panel as first reference. No arrows, checkmark, BOOKED, dates or new words. All graphics fit the left-facing screen perspective. This frame remains left-facing; later frames turn to frontal and then right. Do not change the phone to the second reference's opposite orientation."
+    },
+    {
+      "file": "03-search.jpg",
+      "width": 1280,
+      "height": 720,
+      "bytes": 92637,
+      "sha256": "24ab56987ae7c65ee64ad816f948c60855b8e09895d7c9f7c657430a5bde789a",
+      "phasePercent": 55,
+      "source": "/Users/antoniorobles/.codex/generated_images/01a14d57-17c2-70d1-ba0c-8219eafc3e8c/exec-eb507b11-b94d-4ce8-9d1b-a29519f6e2b6.png",
+      "imagePrompt": "Edit the provided Robles.AI VOICE TO ACTION reference into ONE individual 16:9 storyboard keyframe, not a collage. Preserve the exact navy/cyan/purple premium 3D style, title typography, three-part layout, left phone, center CALENDAR with exactly SIX columns and FIVE rows of blank cells, and right rounded status-card outline. Keep every panel fully within frame with margins. Calendar and right panel remain front-facing and identical in position/size to reference. No dates, new labels, timestamps, actual customer information or extra objects. Chosen eventual cell is row 3 column 3, counting from top-left, exactly as reference. Only alter phone yaw, screen content and specified UI stage. Phone stays anchored to its original left position with same height; realistic rigid rectangular phone geometry, no bending. Cinematic controlled rim light and subtle floor reflections. No captions or frame numbers. STATE 3, searching availability: phone EXACTLY frontal, parallel with calendar. Screen ON with reference microphone, waveform bars in a different irregular amplitude pattern, speech bubble 'Book a meeting.' Highlight ONLY calendar row 2 column 5 with soft VIOLET fill as a temporary candidate. All other cells dim and unselected, especially row3 column3. NO input or output arrows, NO checkmark, NO BOOKED: right status-card interior EMPTY. Do not add moving trails or multiple highlighted cells; this is one still of an in-progress search."
+    },
+    {
+      "file": "04-selected.jpg",
+      "width": 1280,
+      "height": 720,
+      "bytes": 95756,
+      "sha256": "563c255c6dd4154a6111776688d4f2490eecc75cc7b9e89ad7da87c98941371c",
+      "phasePercent": 75,
+      "source": "/Users/antoniorobles/.codex/generated_images/01a14d57-17c2-70d1-ba0c-8219eafc3e8c/exec-233d9488-4e55-474c-b06c-705a51e96659.png",
+      "imagePrompt": "Edit the provided Robles.AI VOICE TO ACTION reference into ONE individual 16:9 storyboard keyframe, not a collage. Preserve the exact navy/cyan/purple premium 3D style, title typography, three-part layout, left phone, center CALENDAR with exactly SIX columns and FIVE rows of blank cells, and right rounded status-card outline. Keep every panel fully within frame with margins. Calendar and right panel remain front-facing and identical in position/size to reference. No dates, new labels, timestamps, actual customer information or extra objects. Chosen eventual cell is row 3 column 3, counting from top-left, exactly as reference. Only alter phone yaw, screen content and specified UI stage. Phone stays anchored to its original left position with same height; realistic rigid rectangular phone geometry, no bending. Cinematic controlled rim light and subtle floor reflections. No captions or frame numbers. STATE 4, slot chosen but NOT booked yet: phone front screen angled 6 degrees toward VIEWER'S RIGHT, exposing its LEFT side edge. Screen ON, microphone, new irregular waveform bar amplitudes and 'Book a meeting.' speech bubble. Highlight ONLY calendar row3 column3 with CYAN fill, same final chosen cell as reference. Add the reference curved cyan input arrow FROM PHONE TO THIS CELL. NO output arrow to confirmation, NO checkmark, NO BOOKED: right status-card interior EMPTY. All other grid cells dim."
+    },
+    {
+      "file": "05-booked.jpg",
+      "width": 1280,
+      "height": 720,
+      "bytes": 106406,
+      "sha256": "05f9ce40664d5fb33ab4da73302f146614c6459f22ed326f463292c929b4efa8",
+      "phasePercent": 100,
+      "source": "/Users/antoniorobles/.codex/generated_images/01a14d57-17c2-70d1-ba0c-8219eafc3e8c/exec-a0c14ce5-f1ee-4f70-b617-237415ab905b.png",
+      "imagePrompt": "Edit the provided Robles.AI VOICE TO ACTION reference into ONE individual 16:9 storyboard keyframe, not a collage. Preserve the exact navy/cyan/purple premium 3D style, title typography, three-part layout, left phone, center CALENDAR with exactly SIX columns and FIVE rows of blank cells, and right rounded status-card outline. Keep every panel fully within frame with margins. Calendar and right panel remain front-facing and identical in position/size to reference. No dates, new labels, timestamps, actual customer information or extra objects. Chosen eventual cell is row 3 column 3, counting from top-left, exactly as reference. Only alter phone yaw, screen content and specified UI stage. Phone stays anchored to its original left position with same height; realistic rigid rectangular phone geometry, no bending. Cinematic controlled rim light and subtle floor reflections. No captions or frame numbers. STATE 5, finished: phone front screen angled 12 degrees toward VIEWER'S RIGHT exposing its LEFT side edge, opposite to initial state; never show back cover. Screen ON, microphone, waveform bars now small resting amplitudes, speech bubble 'Book a meeting.' Calendar ONLY row3 column3 cyan selected. Show reference cyan input arrow into selected cell and output arrow from that SAME cell to right status panel. Right status panel shows exactly the large cyan/green checkmark and BOOKED, as reference. Everything complete, clean stable end-frame."
+    }
+  ]
+}

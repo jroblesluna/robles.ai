@@ -1,6 +1,8 @@
-# Firefly — 13 parejas de frames v3.3
+> **TTS:** el flujo activo vuelve a Firefly por solicitud del usuario, con prompt 3.13 simplificado y pendiente de validar en video. El [MP4 programado](tts/rendered-v1/README.md) se conserva como alternativa; las demás demos mantienen sus referencias actuales.
 
-Este paquete sustituye el flujo de una sola imagen inicial por **13 parejas completas: 26 JPG y 13 prompts de transición**. Se generaron 13 inicios nuevos a partir de los visuales existentes y tres finales nuevos: sonrisa, landmarks internos de identidad y transcripción completada. Los otros 10 finales reutilizan los visuales v2: no se afirma que los 26 sean generaciones nuevas.
+# Firefly — 13 parejas de frames v3.13
+
+Este paquete sustituye el flujo de una sola imagen inicial por **13 parejas completas: 26 JPG y 13 prompts de transición**. Se prepararon 13 inicios: 12 ediciones generadas y el visual neutro facial existente, reutilizado con puntos y barras pobladas. Cinco finales son ediciones nuevas (sonrisa, landmarks de identidad, transcripción completada, factura con composición nueva y TTS terminado); los otros ocho finales reutilizan v2. No se afirma que los 26 sean generaciones nuevas.
 
 **Límite:** cada prompt de video tiene como máximo 2.500 caracteres, incluido el salto de línea final. Los 13 archivos se verifican con `node scripts/verifyFireflyPrompts.mjs`.
 
@@ -19,9 +21,9 @@ Adobe documenta First/Last para Veo 3.1 y especifica 16:9 y ocho segundos para r
 
 ## Qué debe animarse
 
-El chatbot pasa de escribir a mostrar respuesta/citas; identidad adquiere landmarks internos, malla y guías geométricas y muestra la comparación; RAG recupera fuentes y construye una respuesta citada; transcripción construye las ondas y revela frases por hablante mientras timer, cursor y barra avanzan de 00:00 a 00:20; herramientas producen un reporte; detección dibuja tres cajas y cuenta; el rostro pasa de neutro a sonrisa con seguimiento; factura completa campos; TTS genera una onda; voz crea una reserva; anomalías generan una revisión; pronóstico dibuja el futuro; imágenes completan variantes.
+El chatbot pasa de escribir a mostrar respuesta/citas; identidad adquiere landmarks internos, malla y guías geométricas y muestra la comparación; RAG recupera fuentes y construye una respuesta citada; transcripción reproduce ondas precargadas visibles desde el inicio y revela A antes de B mientras timer, cursor y barra avanzan de 00:00 a 00:20; herramientas producen un reporte; detección dibuja tres cajas y cuenta; el rostro empieza neutro con landmarks y NEUTRAL alto, luego pasa a sonrisa con seguimiento y SMILE alto; factura completa campos; TTS escribe Welcome., genera una onda y reproduce hasta el final; voz crea una reserva; anomalías generan una revisión; pronóstico dibuja el futuro; imágenes completan variantes.
 
-Las transiciones deben mostrar esas acciones, sin disolver la imagen completa. El fondo, textos ya visibles, geometría de paneles y datos fuente permanecen estables. Los conectores del chatbot no persiguen objetos y el cerebro no se transforma.
+Las transiciones deben mostrar esas acciones, sin disolver la imagen completa. En interfaces, el fondo, textos ya visibles, geometría de paneles y datos fuente permanecen estables. Excepción intencional: detección de objetos usa un START más abierto y un acercamiento cinematográfico hacia END, con cajas que siguen la proyección de los objetos. Los conectores del chatbot no persiguen objetos y el cerebro no se transforma.
 
 ## Revisión y límites
 
@@ -38,3 +40,18 @@ Frames: 1280×720 JPG, composición 16:9 completa. El MP4 final conservará ocho
 Los assets están fuera de public. No se habilitaron nuevos videos ni se modificó la web en esta entrega. La integración posterior mantendrá posters lazy, carga de video solo al hover/touch solicitado, un clip activo, reduced motion/data saver y pausa fuera de pantalla. Sin descargas MP4 iniciales ni overlays explicativos externos.
 
 Herramienta: image_gen integrada. No se generaron videos en Firefly ni se consumieron créditos de Adobe.
+
+Revisión facial 3.7: expresión, malla y ambas barras llegan juntas a END a los 4,5 s y se mantienen hasta 8 s, sin sonrisa intermedia más intensa ni barras independientes. Las fotografías de miniaturas no se animan. START/END permanecen iguales.
+
+Revisión documental 3.8: cámara 2.5D suave entre los mismos frames, documentos fantasma con deriva corta y flecha con impulsos ligados a cada extracción. Todo se estabiliza al llegar a END; no cambian las imágenes ni los datos.
+
+Revisión documental 3.9 sustituye la 3.8: ambos frames se regeneraron, con diferencias reales de encuadre, perspectiva y poses de los cuatro ghost papers/flecha. Usar la pareja nueva completa y el nuevo prompt. El resto de las correcciones anteriores se conserva.
+
+TTS 3.10: ambos frames nuevos. START tiene input vacío con cursor; END tiene Welcome., onda y bolita al final. El prompt ordena escritura → generación → reproducción, sin mover la bolita antes de tener la onda completa.
+
+TTS 3.11: escritura por inserciones discretas de glifos completos y saltos del cursor; prohíbe máscaras/wipes que descubren letras. Frames 3.10 conservados.
+
+
+## v3.14 — Agente de voz con cinco estados
+
+[Storyboard y guía Edit video](voiceagent/storyboard-v1/README.md): móvil apagado a la izquierda → mensaje → búsqueda de varios días → selección → BOOKED a la derecha. Prompt adaptativo y cuatro prompts por transición, todos ≤2.500 caracteres. start.jpg/end.jpg corresponden a los nuevos extremos; los otros casos se conservan. No se generó ni publicó un nuevo video Firefly.

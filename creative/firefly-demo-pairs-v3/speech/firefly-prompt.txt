@@ -1,11 +1,16 @@
-Create an 8-second silent conceptual audio-to-transcript video using START and END. Locked full 16:9 interface; no zoom, cuts, crop or whole-image dissolve. All animation is inside the MP4, without webpage overlays. This accelerates a 20-second sample recording; it is not real-time playback or a measured processing-speed claim.
+Create an 8-second silent audio-to-transcript video from START and END. Locked 16:9 interface, no cuts, zoom, crop or whole-image dissolve. All animation belongs inside the MP4. This is an accelerated preview of a preloaded 20-second recording, not a processing-speed claim.
 
-0-1s: hold START. Timer: 00:00 / 00:20. Bottom seek knob at left, seek fill empty. One white vertical chart cursor at the 00:00 tick. Two quiet speaker-lane baselines; transcript bodies empty.
+CRITICAL: BOTH recorded waveforms are ALREADY VISIBLE in START. Keep them visible throughout. Never replace them with flat lines or postpone the peaks until the cursor finishes. This is playback/analysis of existing audio, NOT building waveforms from nothing.
 
-1-6s: advance ONE shared source time uniformly from 00:00 to 00:20. Synchronize the vertical chart cursor, bottom seek knob/fill, elapsed timer and waveform reveal to the SAME progress fraction. Chart cursor travels between the existing 00:00 and 00:20 ticks; seek knob travels between its own track endpoints. Keep the separate volume slider fixed. Elapsed digits increase in whole source seconds; total stays / 00:20. Axis labels never change. No backwards jumps.
+Begin visible motion immediately: by video 0.25s, cyan A bars near the active cursor must already rise and fall gently around their existing heights. Continue small local bar oscillations during playback; keep their positions, baselines and recorded pattern stable. Do not slide or randomly reshape the whole waveform. Processed regions settle to END's shape.
 
-Build END's waveforms left-to-right behind the cursor: cyan speaker A, purple speaker B. Newly revealed bars grow from their lane centerlines and may flex gently, then settle into END's recorded shape. No peaks ahead of the cursor; no shifting or randomly reshaping processed history.
+From video 0 to 6s advance ONE shared source time uniformly 00:00 to 00:20. Synchronize vertical chart cursor, bottom seek knob/fill and elapsed timer. Use each track's own endpoints. Keep / 00:20, axes and volume slider fixed. Waveform activity occurs WHILE the cursor advances, never afterward.
 
-At source 00:10 (video 3.5s), reveal A's fixed selected region, connector and complete phrase Let us begin. with its utterance timestamp 00:10. At source 00:15 (video 4.75s), reveal B's corresponding region, connector and Ready. with timestamp 00:15. Keep those utterance timestamps fixed; they are not the playback timer. No invented or morphing words.
+STRICT ORDER: A first, then B. A remains the upper cyan card/lane; B the lower purple card/lane.
+0-3s (source 00:00-00:10): A is active: cyan peaks visibly flex and brighten near the cursor. B's preloaded waveform remains visible but subdued, without active speech pulses; B transcript stays empty.
+At 3s/source 00:10: reveal A's selected region, fixed connector and complete phrase "Let us begin." with utterance timestamp 00:10.
+3-4.5s (source 00:10-00:15): ONLY after A's phrase is visible, activate purple B bars near the cursor. Keep A's earlier waveform and phrase visible.
+At 4.5s/source 00:15: reveal B's selected region, connector and complete phrase "Ready." with timestamp 00:15.
+4.5-6s: finish playback; do not delay either waveform or transcript until this phase.
 
-6-8s: hold END completely still: timer 00:20 / 00:20, seek fill 100%, knob at seek-track right endpoint, exactly ONE white vertical cursor on the CHART 00:20 tick, both waveforms complete up to that tick, both transcript phrases visible. No peaks beyond 20s. No leftover cursor at 10s, looping, reset, extra text or movement of source selections. Preserve title, panels, microphone, colors and typography. Reject inconsistent timer/cursor/bar/waveform progress.
+6-8s: hold END still: 00:20 / 00:20, seek fill 100%, knob at right, ONE white cursor at chart 00:20, both waveforms and phrases visible. Keep utterance timestamps 00:10/00:15 unchanged. No late waveform appearance, extra cursor, reset, new words or morphing text.

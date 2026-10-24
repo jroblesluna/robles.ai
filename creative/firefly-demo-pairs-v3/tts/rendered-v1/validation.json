@@ -1,0 +1,66 @@
+{
+  "method": "deterministic canvas animation; entire explanation baked into MP4",
+  "typing": "whole-glyph insertion; fixed glyph advances; no wipe/mask/fade",
+  "keystrokes": [
+    {
+      "frame": 24,
+      "time": 1,
+      "text": "W"
+    },
+    {
+      "frame": 29,
+      "time": 1.2083333333333333,
+      "text": "We"
+    },
+    {
+      "frame": 33,
+      "time": 1.375,
+      "text": "Wel"
+    },
+    {
+      "frame": 37,
+      "time": 1.5416666666666667,
+      "text": "Welc"
+    },
+    {
+      "frame": 42,
+      "time": 1.75,
+      "text": "Welco"
+    },
+    {
+      "frame": 46,
+      "time": 1.9166666666666667,
+      "text": "Welcom"
+    },
+    {
+      "frame": 50,
+      "time": 2.0833333333333335,
+      "text": "Welcome"
+    },
+    {
+      "frame": 55,
+      "time": 2.2916666666666665,
+      "text": "Welcome."
+    }
+  ],
+  "completeFirstGlyphPixelStableAcrossPrefixes": true,
+  "master": {
+    "file": "tts-typed-master-v1.mp4",
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "duration": 8,
+    "audio": false,
+    "bytes": 84417
+  },
+  "web": {
+    "file": "tts-typed-web-v1.mp4",
+    "width": 640,
+    "height": 360,
+    "fps": 24,
+    "duration": 8,
+    "audio": false,
+    "bytes": 34358
+  },
+  "deployed": false
+}
