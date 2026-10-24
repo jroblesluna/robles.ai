@@ -399,7 +399,7 @@ Source: `src/pages/Landing.tsx`; copy under `landing.v2.*` (plus `landing.cta.*`
 10. **Security and compliance** (`landing.v2.security.items`, 9 items) — NDA, encryption in transit/at rest, SSO and roles, models in the client's cloud, audit log, retention/deletion, Peru Ley 29733 / US privacy, AI safeguards, vendor onboarding.
 11. **Who you'll work with** — founder (`team.members[0]`) + **local presence**: offices from `PUBLIC_OFFICES` (Cupertino, CA and Lima, Peru; labels in `landing.v2.presence`).
 12. **FAQ** — includes implementation cost and *why not build it ourselves*.
-13. **Contact** (`#contacto`) — `ContactForm` (green submit, no newsletter, optional `defaultGoal`) + calendar booking (when set) / email / WhatsApp.
+13. **Contact** (`#contacto`) — `ContactForm` (green submit, no newsletter, optional `defaultGoal`) + calendar booking / email / phone (`tel:`) / WhatsApp.
 14. **Sticky mobile CTA** — appears after the hero and hides when the form is visible.
 
 **Client logos**: `src/components/ClientLogos.tsx` renders `CLIENT_LOGOS` (`shared/publicContent.ts`, files in `public/images/clients/`) in full color on white tiles (`large: true` for logos with built-in padding, e.g. Mibanco); copy `clients.title` / `clients.note`. Used on the landing (dark) and on the home page right after the hero (light). They are enterprise software clients of the team since 2011 (not AI-project clients); add new logos by dropping the file and appending an entry.

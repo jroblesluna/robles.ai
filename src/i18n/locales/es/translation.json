@@ -2124,9 +2124,11 @@
             "title": "Agenda tu Diagnóstico IA",
             "subtitle": "Contáctanos hoy y da el primer paso hacia una transformación con IA basada en datos reales, no en supuestos.",
             "email": "Correo electrónico",
-            "phone": "Teléfono / WhatsApp",
+            "phone": "Teléfono",
             "whatsappCta": "Agendar por WhatsApp",
-            "orReachUs": "O contáctanos directamente:"
+            "orReachUs": "O contáctanos directamente:",
+            "whatsapp": "WhatsApp",
+            "whatsappValue": "Escríbenos ahora"
         },
         "whatsapp": {
             "greeting": "¡Hola! Estamos para ayudarte.",

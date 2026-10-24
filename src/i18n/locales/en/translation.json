@@ -2124,9 +2124,11 @@
             "title": "Book Your AI Diagnosis",
             "subtitle": "Contact us today and take the first step toward an AI transformation based on real data, not assumptions.",
             "email": "Email",
-            "phone": "Phone / WhatsApp",
+            "phone": "Phone",
             "whatsappCta": "Book via WhatsApp",
-            "orReachUs": "Or reach us directly:"
+            "orReachUs": "Or reach us directly:",
+            "whatsapp": "WhatsApp",
+            "whatsappValue": "Message us now"
         },
         "whatsapp": {
             "greeting": "Hi! We're here to help you.",

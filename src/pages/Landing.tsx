@@ -703,7 +703,7 @@ export default function Landing() {
           </Reveal>
 
           <p className="text-slate-300 text-sm mb-6">{t("landing.cta.orReachUs")}</p>
-          <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
             {bookingUrl && (
               <a
                 href={bookingUrl}
@@ -731,16 +731,27 @@ export default function Landing() {
               </span>
             </a>
             <a
+              href={PUBLIC_CONTACT.phoneHref}
+              onClick={() => trackContactClick("phone", "landing_contact")}
+              className="flex items-center gap-3 bg-slate-800 border border-slate-700 hover:border-purple-500/50 rounded-xl px-6 py-4 transition-colors"
+            >
+              <Phone className="w-5 h-5 text-purple-300" aria-hidden="true" />
+              <span className="text-left">
+                <span className="block text-xs text-slate-300">{t("landing.cta.phone")}</span>
+                <span className="block font-medium">{PUBLIC_CONTACT.phone}</span>
+              </span>
+            </a>
+            <a
               href={whatsappHref}
               onClick={() => trackContactClick("whatsapp", "landing_contact")}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 bg-slate-800 border border-slate-700 hover:border-emerald-500/50 rounded-xl px-6 py-4 transition-colors"
             >
-              <Phone className="w-5 h-5 text-emerald-300" aria-hidden="true" />
+              <MessageCircle className="w-5 h-5 text-emerald-300" aria-hidden="true" />
               <span className="text-left">
-                <span className="block text-xs text-slate-300">{t("landing.cta.phone")}</span>
-                <span className="block font-medium">{PUBLIC_CONTACT.phone}</span>
+                <span className="block text-xs text-slate-300">{t("landing.cta.whatsapp")}</span>
+                <span className="block font-medium">{t("landing.cta.whatsappValue")}</span>
               </span>
             </a>
           </div>
