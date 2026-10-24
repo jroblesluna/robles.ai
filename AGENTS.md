@@ -74,7 +74,7 @@ __test_pointing_video.ts  # script ad-hoc: renderiza un video del Dominical con 
 src/
   App.tsx, Root.tsx, main.tsx, entry-server.tsx (build SSR)
   components/
-    Header, Hero, Features, Solutions, DemosCatalog, CaseStudies, Courses, Testimonials,
+    Header, Hero, ClientLogos, Features, Solutions, DemosCatalog, CaseStudies, Courses, Testimonials,
     Team, Contact (exporta ContactForm y CONTACT_GOALS), Footer, BlogArticle, BlogModal,
     BlogSearch, VideoModal, ParticleBackground
     chat/            # ChatbotWidget, ChatPanel, MessageList, MessageInput
@@ -127,7 +127,7 @@ server/
   data/          # posts/, editors.json, dominical.db (ignorado), ga4-service-account.json (ignorado), medios generados
 
 shared/          # schema.ts (zod), chatTypes, seoPolicy, seoMetadata, publicContent, dominicalSelection, disposableEmailDomains
-public/          # images/, avatars/, robly-avatar/, case-studies/, assets/, demo-previews/, demo-samples/,
+public/          # images/ (incl. images/clients/), avatars/, robly-avatar/, case-studies/, assets/, demo-previews/, demo-samples/,
                  # videos/, robots.txt, sitemap.xml, static-pages.xml
 scripts/         # HTML de casos, render de previews/clips de demos, kit de Firefly
 study-cases/     # documentos de casos (PDF + DOCX, EN + ES)
@@ -165,17 +165,20 @@ creative/        # material fuente de los visuales de demos (prompts y frames de
 **Página**: `src/pages/Landing.tsx`; copy en `landing.v2.*` (+ `landing.cta.*`, `landing.whatsapp.*`, `landing.diagnostico.*`, `landing.howWeWork.quote`). Secciones en orden:
 
 1. **Hero**: titular orientado a resultado, CTA *Agenda tu Diagnóstico IA* (`#contacto`), botón de WhatsApp, enlaces a demos (`#demos`), *solicitar propuesta* (`#diagnostico`) y test de 2 minutos; fila de confianza; tarjeta lateral *Lo que recibes en 2 semanas* + precio.
-2. **Lo que construimos — pruébalo** (`#demos`): chatbots, asistentes de conocimiento, agentes e IA documental, cada uno enlazado a su demo (`demosCatalog.items`).
-3. **Dónde encaja en tu negocio**: puntos de partida por industria, rotulados como ejemplos, no resultados de clientes.
-4. **Dónde la IA suele pagarse primero**: tres patrones + CTA.
-5. **Cómo trabajamos**: cuatro pasos.
-6. **Dos formas de empezar** (`#diagnostico`): diagnóstico 2 semanas (USD 1,500–3,000; el rango depende de cuántos procesos se revisan) o proyecto directo con propuesta (alcance, plazo, precio).
-7. **Compromisos**: hoja de ruta/código/datos del cliente, sin entrenar con sus datos, revisión humana.
-8. **Seguridad e integración**: SAP/ERP (OData/REST, RFC/BAPI), modelos en la nube del cliente, confidencialidad, revisión de proveedor.
-9. **Con quién trabajarás**: fundador (datos de `team.members[0]`).
-10. **FAQ**: incluye costo de implementación y "¿por qué no hacerlo nosotros mismos?".
-11. **Contacto** (`#contacto`): `ContactForm` (botón verde, sin newsletter, `defaultGoal` opcional) + email/WhatsApp.
-12. **CTA fijo en móvil**: aparece tras el hero y se oculta cuando el formulario es visible (deja espacio al botón de Robly).
+2. **Logos de clientes** (`#clients`): `ClientLogos` (ver abajo).
+3. **Lo que construimos — pruébalo** (`#demos`): chatbots, asistentes de conocimiento, agentes e IA documental, cada uno enlazado a su demo (`demosCatalog.items`).
+4. **Dónde encaja en tu negocio**: puntos de partida por industria, rotulados como ejemplos, no resultados de clientes.
+5. **Dónde la IA suele pagarse primero**: tres patrones + CTA.
+6. **Cómo trabajamos**: cuatro pasos.
+7. **Dos formas de empezar** (`#diagnostico`): diagnóstico 2 semanas (USD 1,500–3,000; el rango depende de cuántos procesos se revisan) o proyecto directo con propuesta (alcance, plazo, precio).
+8. **Compromisos**: hoja de ruta/código/datos del cliente, sin entrenar con sus datos, revisión humana.
+9. **Seguridad e integración**: SAP/ERP (OData/REST, RFC/BAPI), modelos en la nube del cliente, confidencialidad, revisión de proveedor.
+10. **Con quién trabajarás**: fundador (datos de `team.members[0]`).
+11. **FAQ**: incluye costo de implementación y "¿por qué no hacerlo nosotros mismos?".
+12. **Contacto** (`#contacto`): `ContactForm` (botón verde, sin newsletter, `defaultGoal` opcional) + email/WhatsApp.
+13. **CTA fijo en móvil**: aparece tras el hero y se oculta cuando el formulario es visible (deja espacio al botón de Robly).
+
+**Logos de clientes**: `src/components/ClientLogos.tsx` muestra `CLIENT_LOGOS` (`shared/publicContent.ts`, archivos en `public/images/clients/`) en tarjetas blancas, en gris hasta el hover; textos `clients.title` / `clients.note`. Va en la landing (tono oscuro) y en el home justo después del hero (claro). Son clientes de los proyectos de software empresarial del equipo (Inversiones On Line · Sistemas Perú) desde 2011, y la nota lo dice explícitamente; no presentarlos como clientes de proyectos de IA. Para agregar uno: copiar el archivo (SVG con `viewBox` ajustado al logo, o PNG/WebP recortado, ~120 px de alto) y añadir la entrada. Logos de BBVA, BCP, Interbank, El Comercio, Banco Falabella, Ripley, Caja Piura y financieras salen del carrusel de sistemas.com.pe; Lexmark, Xerox y Scotiabank de logotyp.us.
 
 **Variantes `?s=`** (`chatbots`, `rag`, `agents`, `docs`, en `landing.v2.variants.*`): cambian titular, subtítulo, tarjeta lateral, CTA, título/botón del formulario, objetivo preseleccionado y mensaje de WhatsApp, para que cada grupo de anuncios aterrice en un mensaje coherente (Quality Score). URLs finales: `/get-started` (EN) o `/get-started?lang=es` (ES) + `s=`.
 
@@ -358,7 +361,7 @@ Specs estilo Kiro (`requirements.md`, `design.md`, `tasks.md` + `tasks.meta.json
 
 | Ruta | Página | Descripción |
 |------|--------|-------------|
-| `/` | Home | Hero, features, soluciones, catálogo de demos, casos, cursos, testimonios, equipo, contacto |
+| `/` | Home | Hero, logos de clientes, features, soluciones, catálogo de demos, casos, cursos, testimonios, equipo, contacto |
 | `/get-started` | Landing | Landing de tráfico pagado (§6), variantes `?s=` |
 | `/diagnostico-ia` | Quiz | Quiz con lead verificado + PDF |
 | `/demos` | Demos | Catálogo del laboratorio |

@@ -1,5 +1,5 @@
 import { STATIC_PAGES, staticPagePath, blogPagePath, schemaDate, type ContentLanguage } from '../../shared/seoPolicy.js';
-import { PUBLIC_CONTACT, visibleTeamMembers } from '../../shared/publicContent.js';
+import { PUBLIC_CONTACT, visibleTeamMembers, CLIENT_LOGOS } from '../../shared/publicContent.js';
 import type { BlogPostData } from './types.js';
 
 type Translations = Record<string, any>;
@@ -11,6 +11,7 @@ const link = (href: string, text: string) => `<a href="${escape(href)}">${escape
 const values = (value: unknown): any[] => value && typeof value === 'object' ? Object.values(value) : [];
 const items = (value: unknown) => values(value).map(item => `<section>${tag('h3', item?.title)}${paragraph(item?.description ?? item?.desc)}${paragraph(item?.fullDescription?.overview)}</section>`).join('');
 const section = (id: string, value: any) => value ? `<section id="${escape(id)}">${tag('h2', value.title)}${paragraph(value.subtitle)}${items(value.items)}${paragraph(value.footnote)}</section>` : '';
+const clientsSection = (t: Translations) => `<section id="clients">${tag('h2', t.clients?.title)}${paragraph(t.clients?.note)}<ul>${CLIENT_LOGOS.map(c => tag('li', c.name)).join('')}</ul></section>`;
 const demoCards = (demos: any[], lang: ContentLanguage, t: Translations, heading = 'h2') => demos.map(demo => `<section>${tag(heading, demo.title)}${paragraph(demo.description)}${demo.status === 'live' && typeof demo.href === 'string' && /^\/try-[a-z-]+$/.test(demo.href) ? link(staticPagePath(demo.href, lang), t.demosCatalog.cta_try) : paragraph(t.demosCatalog.badge_soon)}</section>`).join('');
 
 /** A public, readable first response for every visitor, replaced by React on startup.
@@ -25,7 +26,7 @@ export function publicDocument(body: string, lang: ContentLanguage, t: Translati
 export function renderStaticContent(path: string, lang: ContentLanguage, t: Translations, url: URL): string {
   let body = '';
   if (path === '/') {
-    body = `${tag('h1', t.hero.title)}${paragraph(t.hero.subtitle)}${link(staticPagePath('/get-started', lang), t.hero.cta3)}${section('features', t.features)}${section('solutions', t.solutions)}<section id="demos">${tag('h2', t.demosCatalog.title)}${paragraph(t.demosCatalog.subtitle)}${demoCards(values(t.demosCatalog.items).slice(0,8), lang, t, 'h3')}</section>${section('case-studies', t.caseStudies)}${section('courses', t.courses)}<section id="about">${tag('h2', t.team.title)}${paragraph(t.team.subtitle)}${visibleTeamMembers<any>(values(t.team.members)).map(member => `<section>${tag('h3', member.name)}${paragraph(member.position)}${paragraph(member.bio)}</section>`).join('')}</section><section id="contact">${tag('h2', t.contact.title)}${paragraph(t.contact.subtitle)}${link(`mailto:${PUBLIC_CONTACT.email}`, PUBLIC_CONTACT.email)} ${link(PUBLIC_CONTACT.phoneHref, PUBLIC_CONTACT.phone)}${paragraph(PUBLIC_CONTACT.street)}${paragraph(PUBLIC_CONTACT.city)}</section>`;
+    body = `${tag('h1', t.hero.title)}${paragraph(t.hero.subtitle)}${link(staticPagePath('/get-started', lang), t.hero.cta3)}${clientsSection(t)}${section('features', t.features)}${section('solutions', t.solutions)}<section id="demos">${tag('h2', t.demosCatalog.title)}${paragraph(t.demosCatalog.subtitle)}${demoCards(values(t.demosCatalog.items).slice(0,8), lang, t, 'h3')}</section>${section('case-studies', t.caseStudies)}${section('courses', t.courses)}<section id="about">${tag('h2', t.team.title)}${paragraph(t.team.subtitle)}${visibleTeamMembers<any>(values(t.team.members)).map(member => `<section>${tag('h3', member.name)}${paragraph(member.position)}${paragraph(member.bio)}</section>`).join('')}</section><section id="contact">${tag('h2', t.contact.title)}${paragraph(t.contact.subtitle)}${link(`mailto:${PUBLIC_CONTACT.email}`, PUBLIC_CONTACT.email)} ${link(PUBLIC_CONTACT.phoneHref, PUBLIC_CONTACT.phone)}${paragraph(PUBLIC_CONTACT.street)}${paragraph(PUBLIC_CONTACT.city)}</section>`;
   } else if (path === '/get-started') {
     const p = t.landing;
     const v = p.v2;
@@ -33,6 +34,7 @@ export function renderStaticContent(path: string, lang: ContentLanguage, t: Tran
     const cards = (value: unknown) => values(value).map(item => `<section>${tag('h3', item?.title)}${paragraph(item?.desc)}</section>`).join('');
     body = `${tag('h1', `${v.hero.title} ${v.hero.titleHighlight}`)}${paragraph(v.hero.subtitle)}${link('#contacto', v.hero.ctaPrimary)} ${link(staticPagePath('/diagnostico-ia', lang), v.hero.quizLink)}`
       + `<section>${tag('h2', v.offerCard.title)}${list(v.offerCard.items)}${paragraph(`${v.offerCard.price} — ${v.offerCard.priceNote}`)}</section>`
+      + clientsSection(t)
       + `<section id="demos">${tag('h2', v.build.title)}${paragraph(v.build.subtitle)}${cards(v.build.items)}${link(staticPagePath('/demos', lang), v.build.allDemos)}</section>`
       + `<section>${tag('h2', v.industries.title)}${paragraph(v.industries.subtitle)}${cards(v.industries.items)}</section>`
       + `<section>${tag('h2', v.insight.title)}${paragraph(v.insight.subtitle)}${cards(v.insight.patterns)}</section>`

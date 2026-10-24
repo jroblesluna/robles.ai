@@ -3386,5 +3386,9 @@
     "notFound": {
         "title": "404 Página no encontrada",
         "description": "Esta página no existe. Es posible que se haya eliminado o que la dirección sea incorrecta."
+    },
+    "clients": {
+        "title": "Empresas que han confiado en nuestro equipo",
+        "note": "Clientes de los proyectos de software empresarial de nuestro equipo (Inversiones On Line · Sistemas Perú) desde 2011."
     }
 }

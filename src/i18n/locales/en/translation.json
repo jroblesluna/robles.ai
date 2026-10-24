@@ -3386,5 +3386,9 @@
     "notFound": {
         "title": "404 Page Not Found",
         "description": "This page does not exist. It might have been removed, or you may have entered an incorrect URL."
+    },
+    "clients": {
+        "title": "Companies that have trusted our team",
+        "note": "Clients of our team’s enterprise software projects (Inversiones On Line · Sistemas Perú) since 2011."
     }
 }

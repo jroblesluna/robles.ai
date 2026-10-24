@@ -33,12 +33,13 @@ import {
 import { Link, useSearch } from "wouter";
 import { ContactForm, CONTACT_GOALS } from "@/components/Contact";
 import { trackContactClick } from "@/lib/analytics";
+import ClientLogos from "@/components/ClientLogos";
 
 /**
  * /get-started — paid-traffic landing page.
  *
  * Structure (CRO + buyer-persona review, 2026-10): outcome-led hero (diagnosis CTA, WhatsApp,
- * links to demos / proposal / 2-minute test) with the offer card; live demos; industry starting
+ * links to demos / proposal / 2-minute test) with the offer card; client logos; live demos; industry starting
  * points (examples, not results); "where AI pays back first"; one merged process; two ways to
  * start (priced diagnosis or direct project); commitments; security & integration; founder;
  * FAQ; contact form; sticky mobile CTA. `?s=chatbots|rag|agents|docs` swaps the hero copy,
@@ -270,6 +271,9 @@ export default function Landing() {
           </motion.aside>
         </div>
       </section>
+
+      {/* Clients — trust right after the offer */}
+      <ClientLogos tone="dark" />
 
       {/* What we build — live demos, no sign-up */}
       <section id="demos" className="scroll-mt-20 py-16 md:py-24 bg-slate-900/50">

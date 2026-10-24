@@ -96,7 +96,7 @@ __test_pointing_video.ts  # Ad-hoc script: renders a Dominical video with the po
 src/
   App.tsx, Root.tsx, main.tsx, entry-server.tsx
   components/
-    Header, Hero, Features, Solutions, DemosCatalog, CaseStudies, Courses,
+    Header, Hero, ClientLogos, Features, Solutions, DemosCatalog, CaseStudies, Courses,
     Testimonials, Team, Contact (ContactForm), Footer, BlogArticle, BlogModal,
     BlogSearch, VideoModal, ParticleBackground
     chat/               # ChatbotWidget, ChatPanel, MessageList, MessageInput
@@ -156,7 +156,7 @@ server/
 
 shared/                 # schema.ts (zod), chatTypes, seoPolicy, seoMetadata, publicContent,
                         # dominicalSelection, disposableEmailDomains
-public/                 # images/, avatars/, robly-avatar/, case-studies/, assets/,
+public/                 # images/ (incl. images/clients/), avatars/, robly-avatar/, case-studies/, assets/,
                         # demo-previews/, demo-samples/, videos/, robots.txt, sitemaps
 scripts/                # Case-study HTML, demo preview/clip rendering, Firefly kit tooling
 study-cases/            # Case study documents (PDF + DOCX, EN + ES)
@@ -302,7 +302,7 @@ Contact-form submissions are **not** stored; they are emailed to `EMAIL_TO` with
 
 | Route | Page | Description |
 |-------|------|-------------|
-| `/` | Home | Hero, features, solutions, demos catalog, case studies, courses, testimonials, team, contact |
+| `/` | Home | Hero, client logos, features, solutions, demos catalog, case studies, courses, testimonials, team, contact |
 | `/get-started` | Landing | Paid-traffic landing (see below); `?s=` headline variants |
 | `/diagnostico-ia` | Quiz | AI-readiness quiz with verified lead + PDF |
 | `/demos` | Demos | Demos lab catalog |
@@ -387,17 +387,20 @@ Auth: admin JWT in httpOnly cookie `admin_token` (7 days); Robly uses httpOnly c
 Source: `src/pages/Landing.tsx`; copy under `landing.v2.*` (plus `landing.cta.*`, `landing.whatsapp.*`, `landing.diagnostico.*`, `landing.howWeWork.quote`) in both locales. Sections, top to bottom:
 
 1. **Hero** — outcome headline, *Book your AI Diagnosis* (`#contacto`), WhatsApp button, links to live demos (`#demos`), *request a proposal* (`#diagnostico`) and the 2-minute test; trust row; side card with *What you get in 2 weeks* and the price.
-2. **What we build — try it yourself** (`#demos`) — chatbots, knowledge assistants, agents and document AI, each linked to its live demo (`demosCatalog.items`).
-3. **Where it fits in your business** — industry starting points, explicitly labelled as examples, not client results.
-4. **Where AI usually pays back first** — three patterns, then a CTA.
-5. **How we work** — four steps.
-6. **Two ways to start** (`#diagnostico`) — AI Diagnosis (2 weeks, USD 1,500–3,000, range depends on the number of processes reviewed) or a direct project with a proposal (scope, timeline, price).
-7. **What you can count on** — roadmap/code/data ownership, no training on your data, human review.
-8. **Security and integration** — SAP/ERP interfaces, models in the client's cloud, confidentiality, vendor review.
-9. **Who you'll work with** — founder (data from `team.members[0]`).
-10. **FAQ** — includes implementation cost and *why not build it ourselves*.
-11. **Contact** (`#contacto`) — `ContactForm` (green submit, no newsletter, optional `defaultGoal`) + email/WhatsApp.
-12. **Sticky mobile CTA** — appears after the hero and hides when the form is visible.
+2. **Client logos** (`#clients`) — `ClientLogos` (see below).
+3. **What we build — try it yourself** (`#demos`) — chatbots, knowledge assistants, agents and document AI, each linked to its live demo (`demosCatalog.items`).
+4. **Where it fits in your business** — industry starting points, explicitly labelled as examples, not client results.
+5. **Where AI usually pays back first** — three patterns, then a CTA.
+6. **How we work** — four steps.
+7. **Two ways to start** (`#diagnostico`) — AI Diagnosis (2 weeks, USD 1,500–3,000, range depends on the number of processes reviewed) or a direct project with a proposal (scope, timeline, price).
+8. **What you can count on** — roadmap/code/data ownership, no training on your data, human review.
+9. **Security and integration** — SAP/ERP interfaces, models in the client's cloud, confidentiality, vendor review.
+10. **Who you'll work with** — founder (data from `team.members[0]`).
+11. **FAQ** — includes implementation cost and *why not build it ourselves*.
+12. **Contact** (`#contacto`) — `ContactForm` (green submit, no newsletter, optional `defaultGoal`) + email/WhatsApp.
+13. **Sticky mobile CTA** — appears after the hero and hides when the form is visible.
+
+**Client logos**: `src/components/ClientLogos.tsx` renders `CLIENT_LOGOS` (`shared/publicContent.ts`, files in `public/images/clients/`) on white tiles, grayscale until hover; copy `clients.title` / `clients.note`. Used on the landing (dark) and on the home page right after the hero (light). They are clients of the team's enterprise software work (Inversiones On Line · Sistemas Perú) since 2011, and the note says so; add new logos by dropping the file and appending an entry.
 
 `?s=chatbots|rag|agents|docs` swaps the hero copy, side card, CTA, contact title/submit, pre-selected form goal and pre-filled WhatsApp message (`landing.v2.variants.*`). Ad URLs: `/get-started` (EN) or `/get-started?lang=es` (ES), plus `s=` to match the ad group. The crawler HTML for this route is built in `server/seo/publicContent.ts` from the same keys.
 
@@ -527,7 +530,7 @@ Four bilingual cases in `public/case-studies/content.json` and `caseStudies.item
 ## Internationalization
 
 - `src/i18n/locales/{en,es}/translation.json`, initialised before render; keep key parity between locales.
-- Main namespaces: `nav`, `hero`, `features`, `solutions`, `demosCatalog`, `demoBusiness`, `try-*`, `caseStudies`, `courses`, `testimonials`, `team`, `contact`, `landing` (`landing.v2` for the current landing), `quiz`, `quizPromo`, `chatbotWidget`, `chatInput`, `whatsappWidget`, `apiLog`, `blogModal`, `blogSearch`, `state`, `videoModal`, `seo`, `footer`, `careers`.
+- Main namespaces: `nav`, `hero`, `features`, `solutions`, `demosCatalog`, `demoBusiness`, `try-*`, `caseStudies`, `clients`, `courses`, `testimonials`, `team`, `contact`, `landing` (`landing.v2` for the current landing), `quiz`, `quizPromo`, `chatbotWidget`, `chatInput`, `whatsappWidget`, `apiLog`, `blogModal`, `blogSearch`, `state`, `videoModal`, `seo`, `footer`, `careers`.
 - The admin panel UI is English-only (not translated).
 
 ---

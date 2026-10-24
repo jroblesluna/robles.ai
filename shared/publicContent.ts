@@ -11,3 +11,24 @@ export const PUBLIC_CONTACT = {
   street: '20380 Stevens Creek Blvd, Suite 205',
   city: 'Cupertino, CA 95014',
 };
+
+/**
+ * Client logos shown on the home page and /get-started (files in public/images/clients/).
+ * Clients of the team's enterprise software work (Inversiones On Line · Sistemas Perú) since 2011.
+ * Shared so the SPA and the crawler HTML list the same names.
+ */
+export const CLIENT_LOGOS: ReadonlyArray<{ name: string; file: string }> = [
+  { name: 'Interbank', file: 'interbank.webp' },
+  { name: 'BBVA', file: 'bbva.webp' },
+  { name: 'Scotiabank', file: 'scotiabank.svg' },
+  { name: 'Xerox', file: 'xerox.svg' },
+  { name: 'Lexmark', file: 'lexmark.svg' },
+  { name: 'BCP', file: 'bcp.webp' },
+  { name: 'El Comercio', file: 'el-comercio.webp' },
+  { name: 'Banco Falabella', file: 'banco-falabella.webp' },
+  { name: 'Ripley', file: 'ripley.webp' },
+  { name: 'Caja Piura', file: 'caja-piura.webp' },
+  { name: 'Financiera ProEmpresa', file: 'financiera-proempresa.webp' },
+  { name: 'Financiera Edyficar', file: 'financiera-edyficar.webp' },
+  { name: 'Financiera Efectiva', file: 'financiera-efectiva.webp' },
+];
