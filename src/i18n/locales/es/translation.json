@@ -851,7 +851,23 @@
         "successTitle": "¡Mensaje enviado!",
         "successMessage": "Gracias por contactarnos. Te responderemos pronto.",
         "errorTitle": "Error",
-        "errorMessage": "Hubo un problema al enviar tu mensaje. Por favor, intenta de nuevo."
+        "errorMessage": "Hubo un problema al enviar tu mensaje. Por favor, intenta de nuevo.",
+        "goalLabel": "¿Qué quieres mejorar?",
+        "goalPlaceholder": "Selecciona una opción",
+        "goals": {
+            "service": "Atención al cliente y ventas",
+            "documents": "Documentos e ingreso de datos",
+            "knowledge": "Conocimiento interno y búsqueda",
+            "automation": "Automatizar procesos",
+            "analytics": "Pronósticos y analítica",
+            "unsure": "Aún no lo sé"
+        },
+        "messageOptional": "Mensaje (opcional)",
+        "goalOrMessage": "Elige una opción o escribe un mensaje breve (10+ caracteres).",
+        "interestedIn": "Interesado en",
+        "replyNote": "Respondemos en 1 día hábil.",
+        "privacyNote": "Solo usamos tus datos para responderte. Sin spam.",
+        "submitDiagnosis": "Solicitar mi diagnóstico"
     },
     "footer": {
         "titles": {
@@ -2164,6 +2180,197 @@
                 }
             },
             "disclaimer": "Ejemplo ilustrativo de estructura, no vinculado a un cliente específico."
+        },
+        "v2": {
+            "hero": {
+                "eyebrow": "Consultoría e implementación de IA · EE. UU. y Latinoamérica",
+                "title": "Encuentra los proyectos de IA que se pagan primero —",
+                "titleHighlight": "y llévalos a producción.",
+                "subtitle": "En 2 semanas mapeamos tus procesos y datos, priorizamos las oportunidades de IA por impacto y esfuerzo, y te entregamos una hoja de ruta por etapas. Luego la construimos: chatbots, automatización de documentos, agentes de IA y asistentes de conocimiento conectados a los sistemas que ya usas.",
+                "ctaPrimary": "Agenda tu Diagnóstico IA",
+                "ctaDemo": "Prueba una demo en vivo",
+                "quizLink": "¿No sabes por dónde empezar? Haz el test de 2 minutos",
+                "trust": [
+                    "Software empresarial desde 2011",
+                    "Experiencia en banca y grandes empresas",
+                    "Español e inglés · equipo senior"
+                ]
+            },
+            "variants": {
+                "chatbots": {
+                    "eyebrow": "Chatbots y asistentes de IA para empresas",
+                    "title": "Un chatbot que conoce tu negocio —",
+                    "titleHighlight": "atendiendo a tus clientes 24/7 con tu propio contenido."
+                },
+                "rag": {
+                    "eyebrow": "Asistentes de conocimiento (RAG)",
+                    "title": "Pregúntale a tus documentos en lenguaje natural —",
+                    "titleHighlight": "respuestas desde tus propias políticas, manuales y datos."
+                },
+                "agents": {
+                    "eyebrow": "Agentes de IA y automatización",
+                    "title": "Agentes de IA que hacen el trabajo, no solo conversan —",
+                    "titleHighlight": "automatizando tareas repetitivas en tus sistemas."
+                },
+                "docs": {
+                    "eyebrow": "IA documental y extracción de datos",
+                    "title": "Facturas, contratos y formularios convertidos en datos —",
+                    "titleHighlight": "en segundos y directo a tus sistemas."
+                }
+            },
+            "offerCard": {
+                "title": "Lo que recibes en 2 semanas",
+                "items": [
+                    "Un mapa de tus procesos, datos y herramientas",
+                    "Oportunidades de IA priorizadas por impacto y esfuerzo",
+                    "Una hoja de ruta por etapas con riesgos y dependencias",
+                    "Una sesión de revisión en vivo con próximos pasos claros"
+                ],
+                "price": "USD 1,500 – 3,000",
+                "priceNote": "Tarifa fija según alcance · misma tarifa en cualquier país"
+            },
+            "build": {
+                "title": "Lo que construimos — pruébalo tú mismo",
+                "subtitle": "Cada demo funciona en vivo y sin registro. Es la forma más rápida de ver lo que la IA podría hacer con tu propio contenido.",
+                "items": {
+                    "chatbots": {
+                        "title": "Chatbots y asistentes",
+                        "desc": "Atiende a clientes y colaboradores 24/7 con tu propio contenido."
+                    },
+                    "rag": {
+                        "title": "Asistentes de conocimiento (RAG)",
+                        "desc": "Tus manuales, políticas y documentos, consultables en lenguaje natural."
+                    },
+                    "agents": {
+                        "title": "Agentes de IA y automatización",
+                        "desc": "Asistentes que ejecutan tareas en tus sistemas, no solo conversan."
+                    },
+                    "docs": {
+                        "title": "IA documental",
+                        "desc": "Facturas, contratos y formularios convertidos en datos estructurados en segundos."
+                    }
+                },
+                "tryCta": "Probar en vivo",
+                "allDemos": "Ver todas las demos en vivo"
+            },
+            "insight": {
+                "title": "Dónde la IA suele pagarse primero",
+                "subtitle": "Un patrón que vemos una y otra vez — útil trabajes o no con nosotros.",
+                "patterns": [
+                    {
+                        "title": "Preguntas repetitivas y de alto volumen",
+                        "desc": "Atención al cliente, mesas de ayuda internas y preguntas de ventas: las respuestas ya existen, solo tardan en encontrarse."
+                    },
+                    {
+                        "title": "Documentos que se digitan a mano",
+                        "desc": "Facturas, pedidos, contratos y formularios que se vuelven a ingresar al ERP: errores, demoras y horas perdidas cada semana."
+                    },
+                    {
+                        "title": "Conocimiento atrapado en personas y archivos",
+                        "desc": "Procedimientos que viven en pocas cabezas o en PDFs dispersos: cada nuevo ingreso y cada auditoría lo pagan."
+                    }
+                ],
+                "questionsTitle": "5 preguntas antes de invertir en IA",
+                "questions": [
+                    "¿Qué proceso te cuesta hoy más horas o errores — y cómo lo mides?",
+                    "¿Los datos que necesita ese proceso están disponibles, y quién es su dueño?",
+                    "Si la IA se equivoca el 5% de las veces, ¿quién lo revisa y qué pasa?",
+                    "¿Con qué sistemas debe conectarse — ERP, CRM, correo, WhatsApp?",
+                    "¿Qué resultado en 90 días haría que la inversión valga claramente la pena?"
+                ]
+            },
+            "midCta": {
+                "text": "¿Quieres saber cuál de estos aplica a tu negocio?",
+                "button": "Agenda tu Diagnóstico IA"
+            },
+            "process": {
+                "title": "Cómo trabajamos",
+                "subtitle": "Un solo método del diagnóstico a producción, medido en cada etapa.",
+                "steps": [
+                    {
+                        "when": "Semana 1",
+                        "title": "Diagnóstico",
+                        "desc": "Entrevistas y revisión de procesos reales — no solo de lo documentado."
+                    },
+                    {
+                        "when": "Semana 1–2",
+                        "title": "Priorización",
+                        "desc": "Cada oportunidad se evalúa por impacto, factibilidad y disponibilidad de datos."
+                    },
+                    {
+                        "when": "Semana 2",
+                        "title": "Hoja de ruta por etapas",
+                        "desc": "Iniciativas agrupadas por datos y sistemas compartidos para reducir riesgo y tiempo."
+                    },
+                    {
+                        "when": "Cada etapa",
+                        "title": "Medir y ajustar",
+                        "desc": "KPIs reales en producción deciden el siguiente paso."
+                    }
+                ]
+            },
+            "offer": {
+                "title": "Empieza con un Diagnóstico IA",
+                "deliverablesTitle": "Qué incluye",
+                "deliverables": [
+                    "Entrevistas con quienes operan cada proceso",
+                    "Revisión de tus datos, sistemas e integraciones",
+                    "Oportunidades priorizadas por impacto, esfuerzo y riesgo",
+                    "Hoja de ruta por etapas con esfuerzo estimado por etapa",
+                    "Informe escrito y una sesión de revisión en vivo"
+                ],
+                "priceLabel": "Inversión",
+                "price": "USD 1,500 – 3,000",
+                "priceDetail": "Tarifa fija según alcance. Misma tarifa en cualquier país.",
+                "cta": "Agenda tu Diagnóstico IA"
+            },
+            "founder": {
+                "eyebrow": "Con quién trabajarás",
+                "role": "Fundador y CEO, Robles.AI",
+                "bio": "Más de 20 años construyendo software empresarial e IA para bancos y grandes empresas — desde SAP y plataformas documentales hasta nube, RAG y agentes de IA. Trabajas directamente con él, no con un equipo de ventas.",
+                "points": [
+                    "Empresa en operación desde 2011",
+                    "Proyectos empresariales y de banca en Latinoamérica y EE. UU.",
+                    "Con base en Cupertino, California"
+                ]
+            },
+            "faq": {
+                "title": "Preguntas frecuentes",
+                "items": [
+                    {
+                        "q": "¿Nuestros datos están seguros?",
+                        "a": "Podemos firmar un acuerdo de confidencialidad, trabajar con el mínimo de datos necesario y desplegar en tu propia cuenta de nube o con proveedores que no usan tus datos para entrenar. La seguridad y el control de accesos forman parte del diseño desde el primer día."
+                    },
+                    {
+                        "q": "¿Y si nuestros datos están desordenados o incompletos?",
+                        "a": "Es lo más común — y el diagnóstico te dice exactamente dónde estás. Priorizamos oportunidades que funcionan con los datos que ya tienes y señalamos qué vale la pena preparar después."
+                    },
+                    {
+                        "q": "¿Se integran con SAP, ERPs o CRMs?",
+                        "a": "Sí. La integración con los sistemas centrales (SAP/ERP, CRM, bases de datos, correo, WhatsApp) es donde está la mayor parte del valor, y donde más ayuda nuestra experiencia empresarial."
+                    },
+                    {
+                        "q": "¿Cuánto tardamos en ver resultados?",
+                        "a": "El diagnóstico dura 2 semanas y termina con una estimación de esfuerzo para cada etapa, así conoces los plazos antes de comprometerte con algo mayor."
+                    },
+                    {
+                        "q": "¿Tenemos que implementar con ustedes después?",
+                        "a": "No. El informe y la hoja de ruta son tuyos para ejecutarlos con nosotros, con tu equipo o con otro proveedor."
+                    },
+                    {
+                        "q": "¿Trabajan en español e inglés?",
+                        "a": "Sí. Trabajamos con empresas de EE. UU. y Latinoamérica, en ambos idiomas."
+                    }
+                ]
+            },
+            "contact": {
+                "subtitle": "Cuéntanos qué quieres mejorar. Te respondemos en 1 día hábil con los próximos pasos — sin compromiso.",
+                "formTitle": "Cuéntanos sobre tu proyecto"
+            },
+            "sticky": {
+                "book": "Agendar diagnóstico",
+                "whatsapp": "WhatsApp"
+            }
         }
     },
     "chatbotWidget": {

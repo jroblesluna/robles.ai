@@ -64,3 +64,26 @@ it.each(['network', 'rejected', 'invalid-json'])('does not count a lead on %s fa
   expect(mocks.lead).not.toHaveBeenCalled();
   expect(fields[0]).toHaveValue('QA Visitor');
 });
+it('accepts a goal without a message and folds the goal into subject and message', async () => {
+  mocks.api.mockResolvedValue({ json: async () => ({ success: true }) });
+  render(<Contact />);
+  const fields = screen.getAllByRole('textbox');
+  fireEvent.change(fields[0], { target: { value: 'QA Visitor' } });
+  fireEvent.change(fields[1], { target: { value: 'visitor@example.org' } });
+  fireEvent.change(screen.getByRole('combobox'), { target: { value: 'documents' } });
+  fireEvent.submit(fields[0].closest('form')!);
+  await waitFor(() => expect(mocks.api).toHaveBeenCalledOnce());
+  const payload = mocks.api.mock.calls[0][2];
+  expect(payload.subject).toBe('Website Inquiry — Documents & data entry');
+  expect(payload.message).toBe('Interested in: Documents & data entry');
+  await waitFor(() => expect(mocks.lead).toHaveBeenCalledOnce());
+});
+it('asks for a goal or a message when both are empty', async () => {
+  render(<Contact />);
+  const fields = screen.getAllByRole('textbox');
+  fireEvent.change(fields[0], { target: { value: 'QA Visitor' } });
+  fireEvent.change(fields[1], { target: { value: 'visitor@example.org' } });
+  fireEvent.submit(fields[0].closest('form')!);
+  await waitFor(() => expect(screen.getByText(/Choose an option or write a short message/)).toBeInTheDocument());
+  expect(mocks.api).not.toHaveBeenCalled();
+});

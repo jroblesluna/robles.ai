@@ -851,7 +851,23 @@
         "successTitle": "Message sent!",
         "successMessage": "Thank you for contacting us. We'll get back to you soon.",
         "errorTitle": "Error",
-        "errorMessage": "There was a problem sending your message. Please try again."
+        "errorMessage": "There was a problem sending your message. Please try again.",
+        "goalLabel": "What do you want to improve?",
+        "goalPlaceholder": "Select an option",
+        "goals": {
+            "service": "Customer service & sales",
+            "documents": "Documents & data entry",
+            "knowledge": "Internal knowledge & search",
+            "automation": "Automating workflows",
+            "analytics": "Forecasting & analytics",
+            "unsure": "Not sure yet"
+        },
+        "messageOptional": "Message (optional)",
+        "goalOrMessage": "Choose an option or write a short message (10+ characters).",
+        "interestedIn": "Interested in",
+        "replyNote": "We reply within 1 business day.",
+        "privacyNote": "We only use your details to answer you. No spam.",
+        "submitDiagnosis": "Request my diagnosis"
     },
     "footer": {
         "titles": {
@@ -2164,6 +2180,197 @@
                 }
             },
             "disclaimer": "Illustrative structure example, not tied to a specific client."
+        },
+        "v2": {
+            "hero": {
+                "eyebrow": "AI consulting & implementation · USA & Latin America",
+                "title": "Find the AI projects that pay back first —",
+                "titleHighlight": "and get them into production.",
+                "subtitle": "In 2 weeks we map your processes and data, rank AI opportunities by impact and effort, and hand you a phased roadmap. Then we build it: chatbots, document automation, AI agents and knowledge assistants connected to the systems you already use.",
+                "ctaPrimary": "Book your AI Diagnosis",
+                "ctaDemo": "Try a live demo",
+                "quizLink": "Not sure where to start? Take the 2-minute test",
+                "trust": [
+                    "Enterprise software since 2011",
+                    "Banking & enterprise track record",
+                    "English & Spanish · senior team"
+                ]
+            },
+            "variants": {
+                "chatbots": {
+                    "eyebrow": "AI chatbots & assistants for business",
+                    "title": "A chatbot that knows your business —",
+                    "titleHighlight": "answering customers 24/7 with your own content."
+                },
+                "rag": {
+                    "eyebrow": "Knowledge assistants (RAG)",
+                    "title": "Ask your documents in plain language —",
+                    "titleHighlight": "answers from your own policies, manuals and data."
+                },
+                "agents": {
+                    "eyebrow": "AI agents & workflow automation",
+                    "title": "AI agents that do the work, not just chat —",
+                    "titleHighlight": "automating repetitive tasks across your systems."
+                },
+                "docs": {
+                    "eyebrow": "Document AI & data extraction",
+                    "title": "Invoices, contracts and forms into data —",
+                    "titleHighlight": "in seconds, straight into your systems."
+                }
+            },
+            "offerCard": {
+                "title": "What you get in 2 weeks",
+                "items": [
+                    "A map of your processes, data and tools",
+                    "AI opportunities ranked by impact and effort",
+                    "A phased roadmap with risks and dependencies",
+                    "A live review session with clear next steps"
+                ],
+                "price": "USD 1,500 – 3,000",
+                "priceNote": "Fixed fee by scope · same rate in any country"
+            },
+            "build": {
+                "title": "What we build — try it yourself",
+                "subtitle": "Every demo runs live, with no sign-up. It's the fastest way to see what AI could do with your own content.",
+                "items": {
+                    "chatbots": {
+                        "title": "Chatbots & assistants",
+                        "desc": "Answer customers and staff 24/7 with your own content."
+                    },
+                    "rag": {
+                        "title": "Knowledge assistants (RAG)",
+                        "desc": "Your manuals, policies and documents, queryable in plain language."
+                    },
+                    "agents": {
+                        "title": "AI agents & automation",
+                        "desc": "Assistants that carry out tasks across your systems, not just chat."
+                    },
+                    "docs": {
+                        "title": "Document AI",
+                        "desc": "Invoices, contracts and forms turned into structured data in seconds."
+                    }
+                },
+                "tryCta": "Try it live",
+                "allDemos": "See all live demos"
+            },
+            "insight": {
+                "title": "Where AI usually pays back first",
+                "subtitle": "A pattern we see again and again — useful whether or not you work with us.",
+                "patterns": [
+                    {
+                        "title": "High-volume, repetitive questions",
+                        "desc": "Customer service, internal help desks and sales FAQs: the answers already exist, they're just slow to find."
+                    },
+                    {
+                        "title": "Documents typed in by hand",
+                        "desc": "Invoices, orders, contracts and forms re-keyed into an ERP: errors, delays and hours lost every week."
+                    },
+                    {
+                        "title": "Knowledge trapped in people and files",
+                        "desc": "Procedures that live in a few heads or scattered PDFs: every new hire and every audit pays the price."
+                    }
+                ],
+                "questionsTitle": "5 questions to ask before investing in AI",
+                "questions": [
+                    "Which process costs the most hours or errors today — and how do you measure it?",
+                    "Is the data that process needs available, and who owns it?",
+                    "If the AI is wrong 5% of the time, who reviews it and what happens?",
+                    "Which systems must it connect to — ERP, CRM, email, WhatsApp?",
+                    "What result in 90 days would make the investment obviously worth it?"
+                ]
+            },
+            "midCta": {
+                "text": "Want to know which of these applies to your business?",
+                "button": "Book your AI Diagnosis"
+            },
+            "process": {
+                "title": "How we work",
+                "subtitle": "One method from diagnosis to production, measured at every stage.",
+                "steps": [
+                    {
+                        "when": "Week 1",
+                        "title": "Diagnosis",
+                        "desc": "Interviews and review of real processes — not just what's documented."
+                    },
+                    {
+                        "when": "Week 1–2",
+                        "title": "Prioritization",
+                        "desc": "Each opportunity scored by impact, feasibility and data readiness."
+                    },
+                    {
+                        "when": "Week 2",
+                        "title": "Phased roadmap",
+                        "desc": "Initiatives grouped by shared data and systems to cut risk and time."
+                    },
+                    {
+                        "when": "Every stage",
+                        "title": "Measure & adjust",
+                        "desc": "Real KPIs in production decide what comes next."
+                    }
+                ]
+            },
+            "offer": {
+                "title": "Start with an AI Diagnosis",
+                "deliverablesTitle": "What's included",
+                "deliverables": [
+                    "Interviews with the people who run each process",
+                    "Review of your data, systems and integrations",
+                    "Opportunities ranked by impact, effort and risk",
+                    "Phased roadmap with estimated effort per stage",
+                    "Written report and a live review session"
+                ],
+                "priceLabel": "Investment",
+                "price": "USD 1,500 – 3,000",
+                "priceDetail": "Fixed fee based on scope. Same rate in any country.",
+                "cta": "Book your AI Diagnosis"
+            },
+            "founder": {
+                "eyebrow": "Who you'll work with",
+                "role": "Founder & CEO, Robles.AI",
+                "bio": "20+ years building enterprise software and AI for banks and large companies — from SAP and document platforms to cloud, RAG and AI agents. You work directly with him, not with a sales team.",
+                "points": [
+                    "Company operating since 2011",
+                    "Enterprise and banking projects in Latin America and the US",
+                    "Based in Cupertino, California"
+                ]
+            },
+            "faq": {
+                "title": "Frequently asked questions",
+                "items": [
+                    {
+                        "q": "Is our data safe?",
+                        "a": "We can sign an NDA, work with the minimum data needed, and deploy in your own cloud account or with providers that don't use your data for training. Security and access control are part of the design from day one."
+                    },
+                    {
+                        "q": "What if our data is messy or incomplete?",
+                        "a": "That's common — and the diagnosis tells you exactly where you stand. We prioritize opportunities that work with the data you already have and flag what's worth preparing next."
+                    },
+                    {
+                        "q": "Do you integrate with SAP, ERPs or CRMs?",
+                        "a": "Yes. Integration with core systems (SAP/ERP, CRM, databases, email, WhatsApp) is where most of the value is, and where our enterprise background helps most."
+                    },
+                    {
+                        "q": "How long until we see results?",
+                        "a": "The diagnosis takes 2 weeks and ends with an effort estimate for each stage, so you know the timeline before committing to anything bigger."
+                    },
+                    {
+                        "q": "Do we have to implement with you afterwards?",
+                        "a": "No. The report and roadmap are yours to execute with us, with your own team or with another provider."
+                    },
+                    {
+                        "q": "Do you work in English and Spanish?",
+                        "a": "Yes. We work with companies in the US and Latin America, in both languages."
+                    }
+                ]
+            },
+            "contact": {
+                "subtitle": "Tell us what you want to improve. We'll reply within 1 business day with next steps — no commitment.",
+                "formTitle": "Tell us about your project"
+            },
+            "sticky": {
+                "book": "Book diagnosis",
+                "whatsapp": "WhatsApp"
+            }
         }
     },
     "chatbotWidget": {

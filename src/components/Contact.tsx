@@ -32,21 +32,48 @@ const contactFormSchema = insertContactSchema.extend({
   }),
   company: z.string().optional(),
   subject: z.string().default("Website Inquiry"),
-  message: z.string().min(10, {
-    message: "Message must be at least 10 characters."
-  }),
+  goal: z.string().default(""),
+  // Optional when a goal is chosen; see the refinement below.
+  message: z.string().default(""),
   newsletter: z.boolean().default(false)
+}).superRefine((data, ctx) => {
+  const message = data.message.trim();
+  if (message.length > 0 && message.length < 10) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["message"], message: "Message must be at least 10 characters." });
+  } else if (!data.goal && message.length === 0) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["message"], message: "goalOrMessage" });
+  }
 });
+
+/** Goal options for "What do you want to improve?" (labels live in contact.goals.*). */
+export const CONTACT_GOALS = ["service", "documents", "knowledge", "automation", "analytics", "unsure"] as const;
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
 
 interface ContactFormProps {
   /** Classes for the card wrapper (background, padding, shadow). */
   className?: string;
+  /** Show the newsletter opt-in (home). Landing pages hide it to keep the form focused. */
+  showNewsletter?: boolean;
+  /** i18n key for the submit button (defaults to contact.send). */
+  submitLabelKey?: string;
+  /** Classes for the submit button. */
+  buttonClassName?: string;
+  /** Show reply-time and privacy reassurance under the button. */
+  showTrustNote?: boolean;
+  /** Optional i18n key to override the card title. */
+  titleKey?: string;
 }
 
 /** The contact form card. Fires generate_lead (via trackContactLead) only after the API accepts it. */
-export const ContactForm = ({ className = "bg-blue-100 p-5 sm:p-8 rounded-xl shadow-sm" }: ContactFormProps) => {
+export const ContactForm = ({
+  className = "bg-blue-100 p-5 sm:p-8 rounded-xl shadow-sm",
+  showNewsletter = true,
+  submitLabelKey = "contact.send",
+  buttonClassName = "bg-blue-600 hover:bg-blue-700",
+  showTrustNote = false,
+  titleKey = "contact.formTitle",
+}: ContactFormProps) => {
   const { t } = useTranslation();
   const [clientReady, setClientReady] = useState(false);
   useEffect(() => { setClientReady(true); }, []);
@@ -58,6 +85,7 @@ export const ContactForm = ({ className = "bg-blue-100 p-5 sm:p-8 rounded-xl sha
       email: "",
       company: "",
       subject: "Website Inquiry",
+      goal: "",
       message: "",
       newsletter: false
     }
@@ -78,7 +106,20 @@ export const ContactForm = ({ className = "bg-blue-100 p-5 sm:p-8 rounded-xl sha
 
   const onSubmit = async (data: ContactFormValues) => {
     try {
-      const response = await apiRequest("POST", "/api/contact", data);
+      // The API expects subject + message; fold the chosen goal into both so the email stays readable.
+      const goalLabel = data.goal ? t(`contact.goals.${data.goal}`) : "";
+      const message = data.message.trim();
+      const payload = {
+        name: data.name,
+        email: data.email,
+        company: data.company,
+        newsletter: showNewsletter ? data.newsletter : false,
+        subject: goalLabel ? `Website Inquiry — ${goalLabel}` : data.subject,
+        message: goalLabel
+          ? `${t("contact.interestedIn")}: ${goalLabel}${message ? `\n\n${message}` : ""}`
+          : message,
+      };
+      const response = await apiRequest("POST", "/api/contact", payload);
       const result = await response.json();
       if (result.success !== true) throw new Error('Contact was not accepted');
       trackContactLead();
@@ -99,7 +140,7 @@ export const ContactForm = ({ className = "bg-blue-100 p-5 sm:p-8 rounded-xl sha
 
   return (
     <div className={`text-left ${className}`}>
-      <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6">{t("contact.formTitle")}</h3>
+      <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6">{t(titleKey)}</h3>
 
       <Form {...form}>
         <form method="post" action="/api/contact" onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-4 sm:space-y-6 min-w-0">
@@ -147,16 +188,20 @@ export const ContactForm = ({ className = "bg-blue-100 p-5 sm:p-8 rounded-xl sha
 
           <FormField
             control={form.control}
-            name="message"
+            name="goal"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm">{t("contact.message")}</FormLabel>
+                <FormLabel className="text-sm">{t("contact.goalLabel")}</FormLabel>
                 <FormControl>
-                  <Textarea
-                    placeholder={t("contact.messagePlaceholder")}
-                    className="min-h-[100px] sm:min-h-[120px] bg-white"
+                  <select
                     {...field}
-                  />
+                    className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-base md:text-sm text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <option value="">{t("contact.goalPlaceholder")}</option>
+                    {CONTACT_GOALS.map((goal) => (
+                      <option key={goal} value={goal}>{t(`contact.goals.${goal}`)}</option>
+                    ))}
+                  </select>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -165,29 +210,58 @@ export const ContactForm = ({ className = "bg-blue-100 p-5 sm:p-8 rounded-xl sha
 
           <FormField
             control={form.control}
-            name="newsletter"
+            name="message"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-start gap-3 space-y-0 rounded-md border bg-white/60 p-3 sm:p-4">
+              <FormItem>
+                <FormLabel className="text-sm">{t("contact.messageOptional")}</FormLabel>
                 <FormControl>
-                  <Checkbox className="mt-0.5" checked={field.value} onCheckedChange={field.onChange} />
+                  <Textarea
+                    placeholder={t("contact.messagePlaceholder")}
+                    className="min-h-[100px] sm:min-h-[120px] bg-white"
+                    {...field}
+                  />
                 </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel className="text-sm">{t("contact.subscribe")}</FormLabel>
-                  <p className="text-xs sm:text-sm text-gray-600">{t("contact.subscribeDesc")}</p>
-                </div>
+                {form.formState.errors.message?.message === "goalOrMessage" ? (
+                  <p className="text-sm font-medium text-destructive">{t("contact.goalOrMessage")}</p>
+                ) : (
+                  <FormMessage />
+                )}
               </FormItem>
             )}
           />
 
+          {showNewsletter && (
+          <FormField
+              control={form.control}
+              name="newsletter"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start gap-3 space-y-0 rounded-md border bg-white/60 p-3 sm:p-4">
+                  <FormControl>
+                    <Checkbox className="mt-0.5" checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel className="text-sm">{t("contact.subscribe")}</FormLabel>
+                    <p className="text-xs sm:text-sm text-gray-600">{t("contact.subscribeDesc")}</p>
+                  </div>
+                </FormItem>
+              )}
+            />
+          )}
+
           {!clientReady && <p className="text-sm text-gray-700">{t("contact.javascriptRequired")}</p>}
           <Button
             type="submit"
-            className="tap-target w-full bg-blue-600 hover:bg-blue-700"
+            className={`tap-target w-full ${buttonClassName}`}
             disabled={!clientReady || isSubmitting}
           >
-            {isSubmitting ? t("contact.sending") : t("contact.send")}
+            {isSubmitting ? t("contact.sending") : t(submitLabelKey)}
             <Send className="ml-2 h-4 w-4" />
           </Button>
+          {showTrustNote && (
+            <p className="text-xs text-gray-600 text-center">
+              {t("contact.replyNote")} {t("contact.privacyNote")}
+            </p>
+          )}
         </form>
       </Form>
     </div>
