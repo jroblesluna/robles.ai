@@ -404,7 +404,7 @@ Source: `src/pages/Landing.tsx`; copy under `landing.v2.*` (plus `landing.cta.*`
 
 **Client logos**: `src/components/ClientLogos.tsx` renders `CLIENT_LOGOS` (`shared/publicContent.ts`, files in `public/images/clients/`) in full color on white tiles (`large: true` for logos with built-in padding, e.g. Mibanco); copy `clients.title` / `clients.note`. Used on the landing (dark) and on the home page right after the hero (light). They are enterprise software clients of the team since 2011 (not AI-project clients); add new logos by dropping the file and appending an entry.
 
-**Calendar booking**: Admin → Settings → *Calendar booking* stores `booking_url`; `GET /api/public/site-config` returns it (http/https only) and `useBookingUrl()` (`src/lib/siteConfig.ts`) shows the *Book a call* links (hero, pricing, contact), tracked as `contact_click` with `contact_method=calendar`.
+**Calendar booking**: Admin → Settings → *Calendar booking* stores `booking_url`; `GET /api/public/site-config` returns it (http/https only; falls back to `PUBLIC_CONTACT.bookingUrl`, the Google Calendar page https://calendar.app.google/oR9yeJveKiKpBqF49) and `useBookingUrl()` (`src/lib/siteConfig.ts`) shows the *Book a call* links (hero, pricing, contact), tracked as `contact_click` with `contact_method=calendar`.
 
 `?s=chatbots|rag|agents|docs` swaps the hero copy, side card, CTA, contact title/submit, pre-selected form goal and pre-filled WhatsApp message (`landing.v2.variants.*`). Ad URLs: `/get-started` (EN) or `/get-started?lang=es` (ES), plus `s=` to match the ad group. The crawler HTML for this route is built in `server/seo/publicContent.ts` from the same keys.
 

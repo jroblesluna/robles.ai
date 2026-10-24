@@ -10,6 +10,8 @@ export const PUBLIC_CONTACT = {
   phoneHref: 'tel:+14085900153',
   street: '20380 Stevens Creek Blvd, Suite 205',
   city: 'Cupertino, CA 95014',
+  /** Default calendar booking page (Google Calendar appointment schedule); Admin → Settings `booking_url` overrides it. */
+  bookingUrl: 'https://calendar.app.google/oR9yeJveKiKpBqF49',
 };
 
 /** Offices shown as "local presence" (labels are translated in i18n `presence`). */

@@ -628,7 +628,7 @@ export default function AdminSettings() {
               value={settings.booking_url || ""}
               onChange={(e) => updateSetting("booking_url", e.target.value)}
             />
-            <p className="text-xs text-muted-foreground">Must start with https://. Leave empty to hide the buttons.</p>
+            <p className="text-xs text-muted-foreground">Must start with https://. Leave empty to use the default (PUBLIC_CONTACT.bookingUrl in shared/publicContent.ts).</p>
           </div>
         </CardContent>
       </Card>
