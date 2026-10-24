@@ -36,6 +36,7 @@ export const CLIENT_LOGOS: ReadonlyArray<{ name: string; file: string; large?: b
   { name: 'Banco Falabella', file: 'banco-falabella.webp' },
   { name: 'Ripley', file: 'ripley.webp' },
   { name: 'El Comercio', file: 'el-comercio.webp' },
+  { name: 'Chem Supply', file: 'chem-supply.webp', large: true },
   { name: 'Xerox', file: 'xerox.svg' },
   { name: 'Lexmark', file: 'lexmark.svg' },
   { name: 'Caja Piura', file: 'caja-piura.webp' },

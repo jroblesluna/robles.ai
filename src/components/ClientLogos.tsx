@@ -26,7 +26,7 @@ export default function ClientLogos({ tone = "light", className = "" }: ClientLo
           {t("clients.title")}
         </h2>
         <p className={`text-center text-sm mb-8 ${dark ? "text-slate-300" : "text-gray-600"}`}>{t("clients.note")}</p>
-        <ul className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
+        <ul className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
           {CLIENT_LOGOS.map(({ name, file, large }) => (
             <li
               key={name}
