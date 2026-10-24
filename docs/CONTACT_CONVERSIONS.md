@@ -6,7 +6,7 @@
 
 ## Measurement contract
 
-`Contact.tsx` requires a successful HTTP response and `success === true` before calling `trackContactLead()` exactly once per accepted submission. Validation, network, invalid-JSON and negative responses do not emit a lead. Analytics failures cannot turn mail success into a form failure.
+`ContactForm` (in `src/components/Contact.tsx`, used on `/` and `/get-started`) requires a successful HTTP response and `success === true` before calling `trackContactLead()` exactly once per accepted submission. Validation, network, invalid-JSON and negative responses do not emit a lead. Analytics failures cannot turn mail success into a form failure.
 
 The event payload is fixed and contains no visitor values:
 
@@ -42,3 +42,22 @@ Before advertising: repeat a clearly marked inquiry in production, inspect recei
 - Production client, SSR and server build passed.
 - Type checking has the same diagnostics as main; none are introduced in the changed application modules.
 - Production evidence and external-account completion are recorded separately after deployment. These build results alone do not certify live delivery or advertising attribution.
+
+## Additional conversion signals (2026-10-24)
+
+| Signal | Where | GA4 event | Meta (direct SDK) | Intended use |
+|---|---|---|---|---|
+| Contact form accepted | `ContactForm` on `/` and `/get-started` | `generate_lead` (`form_id: contact`, `method: contact_form`) | `Lead` | **Primary** lead conversion |
+| Quiz lead stored | `/diagnostico-ia`, after `POST /api/quiz-lead` returns a `leadId` (before email verification) | `generate_lead` (`form_id: quiz`, `method: quiz`) | `Lead` | Same primary conversion; segment by `method` |
+| WhatsApp / email / phone click | `/get-started` (contact block, CTA, sticky bar), home contact info, Robly chat buttons | `contact_click` (`contact_method`, `link_location`) | `Contact` | **Secondary** conversion only: a click is intent, not a delivered message |
+
+All three go through `trackConversion()` in `src/lib/analytics.ts`: pushed to the `dataLayer` (GTM), queued until trackers initialise, and sent directly to GA4/Meta only when GTM is not configured. No visitor values are included.
+
+The contact form now asks *"What do you want to improve?"* (`goal`, optional message). The API contract is unchanged: the client folds the goal into `subject` (`Website Inquiry — <goal>`) and `message` (`Interested in: <goal>` + optional text).
+
+External configuration still needed:
+
+- **GTM**: the existing catch-all GA4 event tag forwards `contact_click` by name. Add `contact_click → Contact` to the FBEventName lookup if Meta should receive it as the standard `Contact` event.
+- **GA4**: mark `contact_click` as a key event once it appears.
+- **Google Ads**: `generate_lead` is imported from GA4 as the primary "Submit lead form" conversion (account Robles.AI, 2026-10-23). Import `contact_click` as a **secondary** conversion.
+

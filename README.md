@@ -1,770 +1,614 @@
-# Robles.AI – Website (Vite + React + Express)
+# Robles.AI — Website (Vite + React + Express)
 
-Public website of **Robles.AI**, built with **Vite + React (TypeScript)** on the frontend and **Express** as the development/production server. Includes internationalization (**i18next**), a bilingual ad landing page, an AI chatbot widget (Robly), a full admin panel, an automated weekly newsletter (El Dominical IA), multi-platform social publishing (LinkedIn, Instagram, Facebook), a static blog with FTS5 full-text search, server-side SEO meta injection, an analytics dashboard (GA4 + Meta), an AI-readiness diagnostic quiz with verified lead capture, and an interactive AI demos lab.
+Public website and internal platform of **Robles.AI**, an AI consulting and implementation studio (Cupertino, CA · US & Latin America). Built with **Vite + React 19 (TypeScript)** on the frontend and **Express 4** as the development/production server, with **SQLite** for persistence.
+
+The platform plays three roles:
+
+1. **Corporate site and paid-traffic landing** — services, case studies, team, an AI demos lab, a diagnostic quiz with verified leads, and the `/get-started` landing for Google/Meta Ads.
+2. **AI-generated editorial outlet** — a bilingual blog written by 24 AI editor personas, with FTS5 search.
+3. **Internal admin panel** — El Dominical IA newsletter, multi-platform publishing, narrated video, chatbot inbox, quiz leads, analytics (GA4, Meta, Google Ads, Meta Ads) and the demo-backends portal.
+
+> **Documentation map.** This README is the human-oriented technical reference. [`AGENTS.md`](AGENTS.md) (Spanish) is the full context for coding agents and contributors: business, conventions, history and gotchas. These are the only two Markdown files at the repository root; everything else lives in [`docs/`](#documentation-docs) or `.kiro/specs/`.
+
+---
+
+## Table of contents
+
+1. [Features](#features)
+2. [Tech stack](#tech-stack)
+3. [Repository layout](#repository-layout)
+4. [Requirements and scripts](#requirements-and-scripts)
+5. [Local development](#local-development)
+6. [Environment variables](#environment-variables)
+7. [Admin settings (database)](#admin-settings-database)
+8. [Database (SQLite)](#database-sqlite)
+9. [Architecture](#architecture)
+10. [Pages and routes](#pages-and-routes)
+11. [API reference](#api-reference)
+12. [Landing page `/get-started`](#landing-page-get-started)
+13. [Conversion tracking](#conversion-tracking)
+14. [Analytics dashboard](#analytics-dashboard-adminanalytics)
+15. [Demos lab](#demos-lab)
+16. [Robly chatbot](#robly-chatbot)
+17. [El Dominical IA](#el-dominical-ia)
+18. [Multi-platform publishing](#multi-platform-publishing)
+19. [Blog](#blog)
+20. [SEO](#seo)
+21. [Backends portal](#backends-portal-adminbackends)
+22. [Case studies](#case-studies)
+23. [Internationalization](#internationalization)
+24. [Testing](#testing)
+25. [Deployment](#deployment)
+26. [Conventions](#conventions)
+27. [Documentation (`docs/`)](#documentation-docs)
+28. [License and contact](#license-and-contact)
 
 ---
 
 ## Features
 
-- **SPA with Vite + React** and routing via **wouter**.
-- **Express server** serving static assets and integrating Vite middleware in development.
-- **i18n** (en/es) with asynchronous `translation.json` loading per locale.
-- **Modern UI** with Tailwind, framer-motion, shadcn, and recharts.
-- **Ad Landing Page** (`/get-started`): bilingual (EN/ES) conversion-focused page with process steps, services, technologies, pricing, roadmap table, Why Now stats, and CTA. All images served locally.
-- **AI Chatbot Widget (Robly)**: floating widget replacing the old WhatsApp bubble. GPT-4o-mini powered with SSE streaming, page-context awareness, contact data collection, and conversation storage. Features Robly SVG avatar with 4 animated moods (idle/listening/thinking/speaking). Entrance sequence at 10s/20s/22s.
-- **AI Demos Lab** (`/demos`, catalog in `DemosCatalog.tsx`): seven live demos — `/try-identity`, `/try-rag`, `/try-langchain`, `/try-transcription` (real-time speech-to-text + diarization + AI analysis), `/try-chatbot` (a chatbot trained on your own website: paste a URL → crawl → chat) backed by Cloud Run APIs, plus `/try-object-detection` and `/try-emotion` running fully in the browser. `/try-medical` is **coming soon** (no backend yet; nothing is uploaded). See [Demos](#demos).
-- **AI Diagnostic Quiz** (`/diagnostico-ia`): scored AI-readiness quiz → GPT-generated result → email verification → downloadable PDF report. Leads are stored in SQLite and listed in `/admin/quiz-leads`.
-- **Static blog**: posts in `server/data/posts/YYYY/MM/DD/*.json` with bilingual translations and FTS5 full-text search. On `/blog`, cards open an accessible in-page **modal viewer** (`BlogModal`) with History-API deep-linking to `/blog/:slug`, prev/next, copy/share, and open-in-new-tab; a direct/cold load of `/blog/:slug` still renders the full `BlogPost` page (server-side SEO untouched). See [Blog](#blog).
-- **Server-side SEO**: Express middleware injects correct `<title>`, `<meta>`, Open Graph, Twitter Card, hreflang, canonical, and JSON-LD tags before serving HTML to crawlers — no JavaScript needed.
-- **Admin Panel** (`/admin`): JWT-authenticated dashboard with: El Dominical IA management, multi-platform publishing, carousel image and narrated video generation, conversation inbox, quiz leads, and analytics.
-- **El Dominical IA**: automated weekly newsletter. GPT-4o scores blog posts (multidimensional: novelty, people impact, economic impact, narrative potential), generates a LinkedIn/Instagram post draft, creates 1080×1080 carousel slides (gpt-image-1 + sharp + SVG overlay + pdfkit PDF), and publishes to LinkedIn, Instagram, and Facebook via their respective APIs.
-- **Analytics Dashboard**: GA4 traffic metrics and Meta (Instagram/Facebook) insights with SQLite caching, displayed in Overview/Traffic/Behavior/Social tabs using recharts.
-- **Forms** with validation (zod) and email delivery via **nodemailer**.
-- **Optional analytics**: GA4 and Facebook Pixel (active only in production).
-- **Sitemaps** with hreflang annotations (`sitemap.xml`, monthly per-language XML files).
+- **SPA** with Vite + React 19 and **wouter** routing; Express serves static assets and integrates Vite middleware in development.
+- **Readable first response**: `server/seo/publicContent.ts` renders a plain-HTML version of every public page from the same i18n files (progressive enhancement, replaced by React on startup), plus server-side meta tags, hreflang, canonical and JSON-LD.
+- **i18n** (en/es) with i18next; `?lang=es` selects Spanish on any public route.
+- **Paid-traffic landing** (`/get-started`): outcome-led hero, two ways to start (priced 2-week AI Diagnosis or direct project), live demos, industries, commitments, security, founder, FAQ, contact form, sticky mobile CTA, and `?s=chatbots|rag|agents|docs` variants per ad group.
+- **Contact form** with a *"What do you want to improve?"* selector, optional message, reply-time/privacy notes; delivered by email (nodemailer) and tracked as `generate_lead` only after the server accepts it.
+- **AI Diagnostic Quiz** (`/diagnostico-ia`): scored quiz → GPT result message → email verification → PDF report; leads stored in SQLite and listed in `/admin/quiz-leads`.
+- **AI Demos Lab** (`/demos`): 10 live demos (7 backed by Cloud Run APIs, 3 fully in the browser) and 3 coming soon.
+- **Robly chatbot widget**: GPT-4o-mini with SSE streaming, page-aware context, contact capture, transcripts and an admin inbox.
+- **Blog**: 24 AI editors, bilingual posts as JSON files, hourly generation, SQLite listing index and FTS5 search, accessible in-page modal viewer.
+- **El Dominical IA**: weekly newsletter — GPT-4o scoring, LinkedIn/Instagram drafts, 1080×1080 carousels (gpt-image-1 + sharp + pdfkit), narrated video (ffmpeg), auto-publishing to LinkedIn, Instagram and Facebook.
+- **Analytics dashboard** (`/admin/analytics`): Overview, Traffic, Behavior, Social and **Ads** (Google Ads via GA4 + Meta Ads via Marketing API), cached in SQLite.
+- **Backends portal** (`/admin/backends`): DNS (Hostinger), Cloud Run status and activity (Cloud Monitoring) for the demo APIs, read-only towards GCP.
+- **Analytics on the public site**: GTM (preferred) or direct GA4 + Meta Pixel, configured from `/admin/settings` and active only in production.
 
 ---
 
-## Key Directories
+## Tech stack
+
+| Layer | Technology |
+|-------|------------|
+| Frontend | React 19, Vite 6, TypeScript, Tailwind CSS, shadcn/ui (Radix), framer-motion, recharts, wouter, TanStack Query |
+| Backend | Express 4, Node.js ≥ 20 (production runs v22.14.0), `tsx watch` in dev, esbuild bundle in prod |
+| Database | SQLite via `better-sqlite3` (single file `server/data/dominical.db`) |
+| AI | OpenAI — GPT-4o, GPT-4o-mini, gpt-image-1; optional image providers (Replicate, Stability) |
+| Social / Ads APIs | LinkedIn UGC Posts API + OAuth 2.0, Meta Graph API (Instagram, Facebook, Marketing API) |
+| Analytics | Google Analytics Data API (GA4), Meta Graph API insights, GTM / GA4 / Meta Pixel on the site |
+| Media | sharp, pdfkit, fluent-ffmpeg (+ `@ffmpeg-installer`, `@ffprobe-installer`) |
+| Search | SQLite FTS5 with BM25 ranking |
+| In-browser AI | TensorFlow.js + COCO-SSD, `@vladmandic/face-api`, `pdfjs-dist` |
+| Auth | JWT in httpOnly cookie + bcrypt; OTP (`otpauth`) page |
+| Testing | vitest, fast-check (property-based), supertest, @testing-library/react |
+| Deployment | VPS + PM2, GitHub Actions → SSH → `pull.sh` |
+
+---
+
+## Repository layout
 
 ```
+AGENTS.md / README.md     # The only root-level Markdown files
+docs/                     # Plans, audits, briefs and release notes (see "Documentation")
+.kiro/specs/              # Feature specs (requirements / design / tasks) — design history
+.github/workflows/        # deploy.yml (push to main → SSH → pull.sh)
+pull.sh                   # Selective build + PM2 restart on the VPS
+push.sh                   # Local helper (git add . + commit + push) — gitignored
+__test_pointing_video.ts  # Ad-hoc script: renders a Dominical video with the pointing pose
+
 src/
-  components/           # Reusable UI components
-    DemosCatalog.tsx    # Demos lab catalog (home section + /demos page)
-    BlogModal.tsx       # In-page accessible blog article modal viewer
-    BlogArticle.tsx     # Shared article renderer (BlogPost + BlogModal)
-    VideoModal.tsx      # Video modal (role="dialog"); pattern reused by BlogModal
+  App.tsx, Root.tsx, main.tsx, entry-server.tsx
+  components/
+    Header, Hero, Features, Solutions, DemosCatalog, CaseStudies, Courses,
+    Testimonials, Team, Contact (ContactForm), Footer, BlogArticle, BlogModal,
+    BlogSearch, VideoModal, ParticleBackground
     chat/               # ChatbotWidget, ChatPanel, MessageList, MessageInput
-    demo/               # Shared demo UI: JsonHighlight, InfoTip, StepCard
-    state/              # LoadingState, EmptyState, ErrorState (i18n state.* copy)
-    admin/              # CarouselPreview, SlideEditor, PlatformPublishStatus, VideoGenerator
-    admin/analytics/    # OverviewTab, TrafficTab, BehaviorTab, SocialTab, KpiCard
-  pages/
-    admin/              # AdminLayout, AdminDashboard, AdminSettings, AdminDominicalList,
-                        # AdminDominicalDetail, AdminConversationList, AdminConversationDetail,
-                        # AdminAnalytics, AdminQuizLeads, AdminLogin, AdminSetup
+    demo/               # ApiCallLog, BusinessCase, SavingsCalculator, business.ts, DemoKit,
+                        # DemoNav, DemoVideoPreview, DemoVisualPreview, EmotionPreview,
+                        # InfoTip, JsonHighlight, StepCard
+    quiz/               # Intro, QuestionCard, ProgressBar, Analyzing, ResultPreview,
+                        # LeadForm, WaitingVerification, ResultFull
+    admin/              # CarouselPreview, SlideEditor, RegenerateModal,
+                        # PlatformPublishStatus, VideoGenerator
+    admin/analytics/    # OverviewTab, TrafficTab, BehaviorTab, SocialTab, AdsTab,
+                        # KpiCard, DateRangeSelector
+    state/              # LoadingState, EmptyState, ErrorState
+    ui/                 # shadcn/ui primitives
+  pages/                # Home, Landing, Quiz, Demos, Careers, Apply, BlogList, BlogPost,
+                        # BlogRoute, OTP, not-found, Try* demo pages
+    admin/              # AdminLayout, AdminDashboard, AdminLogin, AdminSetup, AdminSettings,
+                        # AdminDominicalList/Detail, AdminConversationList/Detail,
+                        # AdminAnalytics, AdminQuizLeads, AdminBackends
   hooks/                # useChatSession, useSearch, useSEO, useScrollRestoration,
-                        # useReducedMotion, useBlogModalRouting
-  lib/                  # blogModal.ts (pure slug/URL helpers), analytics, forecast, utils
-  scripts/              # Blog post generation, cleanup, gap detection, sitemaps
-  i18n/                 # locales/en/ and locales/es/
+                        # useReducedMotion, useBlogModalRouting, useDemoPreviewMotion,
+                        # useSpeechInput, useAdminDialog, usePublicDialog, use-toast, use-mobile
+  lib/                  # analytics, blogModal, forecast, pageMetadata, publicPost,
+                        # queryClient, quizData, utils
+  scripts/              # Blog generation, gaps, duplicates, sitemaps, avatars, news/image services
+  i18n/locales/{en,es}/translation.json
 
 server/
-  adminRoutes.ts        # All /api/admin/* endpoints
-  analyticsRoutes.ts    # /api/admin/analytics/* endpoints
-  chatRoutes.ts         # /api/chat/* (SSE streaming, session management)
-  chatAdminRoutes.ts    # /api/admin/conversations/* endpoints
-  publicRoutes.ts       # /api/public/slides/* (no auth — Meta API image access)
-  searchRoutes.ts       # /api/blog/search (FTS5 BM25 search)
-  auth.ts               # JWT middleware (generateToken, verifyToken, requireAuth)
-  db.ts                 # SQLite connection + all table creation
-  vite.ts               # Vite integration + slug index singleton
-  fts/                  # FTS5 indexer, migrate script, property tests
-  listing/              # blog_posts_index indexer, property tests
-  migrations/           # chatTables migration
-  seo/                  # MetaInjector, SlugIndex, metaBuilders, htmlInjector, types
-  jobs/
-    generateDominical.ts      # Saturday 12pm: score + generate + notify
-    autoPublishDominical.ts   # Sunday 12pm: publish or skip
-    chatSessionCleanup.ts     # Every 5min: close timed-out chat sessions
+  index.ts, routes.ts (main router, quiz/blog/editor endpoints, cron jobs), vite.ts,
+  publicServing.ts, db.ts, auth.ts
+  adminRoutes.ts        # /api/admin/* (mounts chatAdminRoutes)
+  chatAdminRoutes.ts    # /api/admin/conversations/*
+  analyticsRoutes.ts    # /api/admin/analytics/*
+  backendRoutes.ts      # /api/admin/backends/*
+  chatRoutes.ts         # /api/chat/*
+  contactRoutes.ts      # /api/contact
+  publicRoutes.ts       # /api/public/*
+  searchRoutes.ts       # /api/blog/search
+  seo/                  # metaInjector, slugIndex, metaBuilders, htmlInjector,
+                        # publicContent, sitemap, sitemapRoutes
+  fts/, listing/        # FTS5 and listing indexers (+ property tests)
+  migrations/           # chatTables
+  jobs/                 # generateDominical, autoPublishDominical, chatSessionCleanup
   services/
-    dominicalScoring.ts       # GPT-4o multidimensional scoring
-    imageGeneration.ts        # gpt-image-1 cover image generation
-    linkedin.ts               # Re-export (thin wrapper for backward compat)
-    engagementPhrases.ts      # GPT-4o batch engagement phrase generation
-    carouselImageGen.ts       # gpt-image-1 background per slide
-    slideCompositor.ts        # sharp + SVG overlay → 1080×1080 PNG
-    carouselGenerator.ts      # Carousel orchestration (generate + regenerate)
-    pdfExporter.ts            # pdfkit → PDF Buffer
-    carouselTypes.ts          # Shared carousel interfaces
-    dominicalVideoGen.ts      # Narrated Dominical video (ffmpeg + robot frames)
-    robotFrames.ts            # Robly robot SVG poses for the video
-    quizResultMessage.ts      # GPT result message for the diagnostic quiz
-    quizVerificationEmail.ts  # Verification email for quiz leads
-    quizLeadPdf.ts            # pdfkit quiz report (+ pdfIcons.ts)
-    chatEngine.ts             # GPT-4o-mini SSE streaming + tool calls
-    chatContext.ts            # Page-aware context builder (blog/home/demo)
-    chatNotifier.ts           # Email transcript notification
-    conversationStore.ts      # SQLite CRUD for conversations/messages/contacts
-    ga4Client.ts              # Google Analytics Data API client
-    metaInsights.ts           # Meta Graph API (Instagram + Facebook insights)
-    analyticsCache.ts         # SQLite-backed TTL cache for analytics responses
-    platforms/
-      types.ts                # PlatformName, PlatformStatus, PlatformAdapter interface
-      contentFormatter.ts     # Text truncation, hashtag preservation, format selection
-      linkedinAdapter.ts      # LinkedIn UGC Posts API + token refresh
-      instagramAdapter.ts     # Meta Graph API carousel publishing
-      facebookAdapter.ts      # Meta Graph API multi-photo post publishing
-      publishingEngine.ts     # Orchestrates multi-platform publish with isolation
+    dominicalScoring, engagementPhrases, imageGeneration, carouselImageGen,
+    slideCompositor, carouselGenerator, carouselTypes, pdfExporter, pdfIcons,
+    dominicalVideoGen, robotFrames, quizResultMessage, quizVerificationEmail,
+    quizLeadPdf, chatEngine, chatContext, chatNotifier, conversationStore,
+    ga4Client, googleAdsReport, metaInsights, metaAds, metaGraphApi,
+    analyticsCache, settingsSecrets, linkedin
+    platforms/          # types, contentFormatter, linkedin/instagram/facebook adapters,
+                        # publishingEngine
+    backends/           # registry, settingsStore, health
+    dns/                # DnsProvider, HostingerDnsProvider
+    gcp/                # googleAuth, cloudRunClient, monitoringClient
+  data/                 # posts/, editors.json, dominical.db (gitignored), generated media
 
-public/
-  images/               # Landing page images (local serving)
-  avatars/              # Editor headshots (38 editors)
-  robly-avatar/         # Robly SVGs: idle, listening, speaking, thinking, pointing, dominical, standby
-  case-studies/         # content.json (4 bilingual case studies HTML) + images
-
-study-cases/            # PDF + DOCX case study documents (EN + ES)
-scripts/                # generateCaseStudyContent.js (case study HTML generation)
-DEMOS_PLAN.md           # Demos lab roadmap: prioritization for wow + ROI
-REMOTION_VIDEO_CONTEXT.md # Brand context + brief for the Remotion marketing video
+shared/                 # schema.ts (zod), chatTypes, seoPolicy, seoMetadata, publicContent,
+                        # dominicalSelection, disposableEmailDomains
+public/                 # images/, avatars/, robly-avatar/, case-studies/, assets/,
+                        # demo-previews/, demo-samples/, videos/, robots.txt, sitemaps
+scripts/                # Case-study HTML, demo preview/clip rendering, Firefly kit tooling
+study-cases/            # Case study documents (PDF + DOCX, EN + ES)
+creative/               # Source material for demo visuals (Firefly prompts and frames)
 ```
 
 ---
 
-## Requirements
+## Requirements and scripts
 
-- **Node.js >= 20** (recommended)
-- **npm**
-
----
-
-## Scripts (package.json)
+- **Node.js ≥ 20** and **npm**.
 
 | Script | Description |
 |--------|-------------|
-| `npm run dev` | Start Express with `tsx watch` and Vite in dev mode |
-| `npm run build` | Compile frontend (Vite) + bundle server (esbuild) to `dist/` |
-| `npm start` | Run production: `NODE_ENV=production node dist/index.js` (inline env — NOT `&&`) |
-| `npm run check` | TypeScript type check (`tsc`) |
-| `npm test` | Run all tests with `vitest --run` |
+| `npm run dev` | Express with `tsx watch` + Vite middleware |
+| `npm run build` | Vite client build + SSR build of `src/entry-server.tsx` + esbuild server bundle to `dist/` |
+| `postbuild` (automatic) | Copies `src`, `shared`, `public` into `dist/` and syncs `server/data/` → `dist/data/` without overwriting databases |
+| `npm start` | Production: `NODE_ENV=production node dist/index.js` |
+| `npm run check` | TypeScript check (`tsc`) |
+| `npm test` | `vitest --run` |
+| `npm run fix-sitemap` | Repair missing sitemap entries |
+| `npm run cleanup-duplicates` | Remove duplicated blog posts |
+| `npm run detect-gaps` / `npm run fill-gaps` | Find / fill missing days of blog posts |
 
-> In development, available at `http://localhost:5173` (adjust with `PORT`).
+Development server: `http://localhost:5173` (change with `PORT`).
 
 ---
 
-## Environment Variables
+## Local development
 
-Create a `.env` file in root (do not commit):
+```bash
+npm install
+# create .env with the variables below (there is no .env.example)
+npm run dev
+npx tsx server/fts/migrate.ts   # optional: seed the FTS index
+npm run build && npm start      # production build
+```
+
+First visit to `/admin` runs the admin setup (creates the admin user). Most integrations (OpenAI, LinkedIn, Meta, GA4, Hostinger, GCP) are configured from `/admin/settings` and `/admin/backends`, not from `.env`.
+
+---
+
+## Environment variables
+
+`.env` at the repository root (not versioned):
 
 ```env
 # Server
 PORT=5173
 HOST=0.0.0.0
+BASE_URL=https://robles.ai          # absolute URLs in Dominical emails/publishing (default shown)
 
-# Email (forms + chatbot notifications + Dominical notifications)
+# Email (contact form, applications, quiz verification, chatbot + Dominical notifications)
 EMAIL_USER=your_gmail_user
 EMAIL_PASS=your_gmail_app_password
 EMAIL_TO=destination@domain.com
 
-# Analytics (production only)
-VITE_GA_MEASUREMENT_ID=G-XXXXXXX
-VITE_FACEBOOK_PIXEL_ID=1234567890
-
-# OpenAI (blog generation, chatbot, Dominical scoring, image generation)
-OPENAI_ORGANIZATION=org-xxx
+# OpenAI — fallback when openai_api_key is not set in admin settings
 OPENAI_API_KEY=sk-xxx
 
-# News (blog post generation cron)
-NEWS_API_KEY=xxx
+# News (hourly blog generation). Comma-separated keys rotate; NEWS_API_KEY also accepted.
+NEWS_API_KEYS=key1,key2
 
-# Admin JWT (auto-generated and stored in DB if not set)
+# Admin JWT (if unset, a secret is generated and stored in settings as jwt_secret)
 ADMIN_JWT_SECRET=your-secret-here
+
+# Optional dev overrides for demo API endpoints (frontend)
+VITE_IDENTITY_API=  VITE_RAG_API=  VITE_LANGCHAIN_API=  VITE_TRANSCRIPTION_API=
+VITE_CHATBOT_API=   VITE_DOCEXTRACT_API=  VITE_TTS_API=
 ```
 
-> **Important**: Do NOT add `NODE_ENV` to `.env`. The `start` script sets it explicitly.
-> **Frontend (Vite)** only exposes variables prefixed with `VITE_`. The rest are server-side only.
+> Do **not** put `NODE_ENV` in `.env`; the `start` script sets it inline (see [NODE_ENV fix](#node_env-fix-2026-08-29)).
+> Only `VITE_*` variables reach the browser. Site analytics IDs (GA4, Meta Pixel, GTM) are **not** env vars: they come from admin settings through `GET /api/public/analytics-config`.
+
+---
+
+## Admin settings (database)
+
+Configuration lives as key/value rows in the `settings` table. Secrets are masked in `GET /api/admin/settings` (`server/services/settingsSecrets.ts`) and masked values are never written back.
+
+| Area | Keys |
+|------|------|
+| OpenAI / images | `openai_api_key`, `image_provider` (default `dalle3`), `replicate_api_token`, `stability_api_key` |
+| Dominical IA | `dominical_top_n`, `notification_email`, `auto_publish` (on unless `false`/`0`), `auto_publish_time` (default `18:00`), `auto_publish_timezone` (default `America/Lima`) |
+| Admin auth | `jwt_secret` (generated when `ADMIN_JWT_SECRET` is unset) |
+| LinkedIn | `linkedin_client_id`, `linkedin_client_secret`, `linkedin_access_token`, `linkedin_refresh_token`, `linkedin_token_expires_at`, `linkedin_person_id`, `linkedin_oauth_state` (transient) |
+| Meta publishing / insights | `meta_app_id`, `meta_app_secret`, `instagram_business_account_id` (legacy `instagram_user_id`), `instagram_access_token`, `facebook_page_id`, `facebook_page_access_token`, `meta_token_expires_at` |
+| Meta Ads (Ads tab) | `meta_ad_account_id`, `meta_ads_access_token` (System User token with `ads_read`) |
+| Site tracking | `gtm_container_id`, `ga4_measurement_id`, `meta_pixel_id` |
+| GA4 Data API | `ga4_property_id` (+ service-account JSON stored as `server/data/ga4-service-account.json`) |
+| Backends portal | `hostinger_api_key`, `hostinger_domain` (default `robles.ai`), `gcp_sa_key`, `dns_cname_target` (default `ghs.googlehosted.com.`) |
 
 ---
 
 ## Database (SQLite)
 
-All persistent state lives in `server/data/dominical.db` (gitignored). Tables:
+All persistent state lives in `server/data/dominical.db` (gitignored, preserved across builds).
 
 | Table | Purpose |
 |-------|---------|
-| `admin_users` | Admin authentication (bcrypt passwords) |
-| `settings` | Key-value store for API keys, tokens, preferences |
+| `admin_users` | Admin authentication (bcrypt) |
+| `settings` | Key/value configuration (see above) |
 | `dominical_reports` | Weekly Dominical IA reports (text, status, scores) |
-| `carousel_slides` | Per-slide data for Dominical carousel images |
-| `platform_publish_status` | Per-platform publish lifecycle (linkedin/instagram/facebook) |
-| `analytics_cache` | TTL-cached responses from GA4 and Meta APIs |
-| `chat_conversations` | Chatbot sessions (open/closed) |
-| `chat_messages` | Individual messages per conversation |
-| `chat_contacts` | Visitor contact data captured during chat |
-| `blog_fts` | FTS5 virtual table for full-text blog search |
-| `blog_posts_index` | Listing index for fast paginated blog queries |
-| `quiz_leads` | Diagnostic quiz leads (answers, score, profile, result message, verified flag) |
-| `quiz_verification_tokens` | Email verification tokens for quiz leads (expiry, used_at) |
+| `carousel_slides` | Per-slide data of Dominical carousels |
+| `platform_publish_status` | Per-platform publish lifecycle (LinkedIn / Instagram / Facebook) |
+| `analytics_cache` | TTL cache for GA4, Meta and Ads responses |
+| `chat_conversations` / `chat_messages` / `chat_contacts` | Robly sessions, messages and captured contact data |
+| `blog_fts` | FTS5 virtual table for blog search |
+| `blog_posts_index` | Listing index for paginated blog queries |
+| `quiz_leads` / `quiz_verification_tokens` | Diagnostic quiz leads and email-verification tokens |
+
+Contact-form submissions are **not** stored; they are emailed to `EMAIL_TO` with `Reply-To` set to the visitor.
 
 ---
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        Frontend (React)                          │
-│  SPA pages: Home, Landing, Blog, Demos, Admin panel             │
-│  Components: ChatbotWidget (Robly), BlogSearch, CarouselPreview │
-│  Admin tabs: Dominical, Settings, Conversations, Analytics      │
-└──────────────────────────────┬──────────────────────────────────┘
-                               │ HTTP / SSE / fetch + JWT cookie
-┌──────────────────────────────▼──────────────────────────────────┐
-│                       Express Server                             │
-│  server/routes.ts       ← main router + cron jobs               │
-│  server/adminRoutes.ts  ← /api/admin/* (auth required)          │
-│  server/chatRoutes.ts   ← /api/chat/* (SSE streaming)           │
-│  server/analyticsRoutes.ts ← /api/admin/analytics/*             │
-│  server/searchRoutes.ts ← /api/blog/search (FTS5)               │
-│  server/publicRoutes.ts ← /api/public/slides/* (no auth)        │
-├──────────────────────────────────────────────────────────────────┤
-│  SEO Middleware (server/seo/)                                    │
-│  MetaInjector → SlugIndex → BlogMetaBuilder / StaticMetaBuilder │
-│  → HtmlInjector → serves modified HTML to crawlers              │
-├──────────────────────────────────────────────────────────────────┤
-│  Cron Jobs (node-cron, America/Lima timezone)                   │
-│  - Hourly:     generate blog posts + FTS/listing index update   │
-│  - Saturday 12pm: generateDominical (score → post → notify)     │
-│  - Sunday 12pm:   autoPublishDominical (LinkedIn/IG/FB)         │
-│  - Every 5min:    chatSessionCleanup (timeout idle sessions)     │
-├──────────────────────────────────────────────────────────────────┤
-│  External APIs                                                   │
-│  OpenAI (GPT-4o, GPT-4o-mini, gpt-image-1)                      │
-│  LinkedIn UGC Posts API + OAuth 2.0                             │
-│  Meta Graph API (Instagram carousel + Facebook multi-photo)     │
-│  Google Analytics Data API (GA4)                                │
-│  NewsAPI (blog post topic discovery)                            │
-└──────────────────────────────┬──────────────────────────────────┘
-                               │
-┌──────────────────────────────▼──────────────────────────────────┐
-│  SQLite (server/data/dominical.db)                               │
-│  13 tables: admin, settings, dominical, carousel, platform,      │
-│             analytics_cache, chat×3, fts5, listing_index, quiz×2│
-└─────────────────────────────────────────────────────────────────┘
+┌──────────────────────────── Frontend (React SPA) ────────────────────────────┐
+│ Home · Landing · Quiz · Demos + Try* · Blog · Careers · Admin panel           │
+│ Robly widget · ContactForm · analytics.ts (GTM / GA4 / Meta Pixel)             │
+└───────────────────────────────┬──────────────────────────────────────────────┘
+                                │ fetch / SSE / cookies (admin_token, chat_session)
+┌───────────────────────────────▼──────────────────────────────────────────────┐
+│ Express                                                                       │
+│  routes.ts (quiz, blog, editors, applications, cron) · adminRoutes ·          │
+│  analyticsRoutes · backendRoutes · chatRoutes · contactRoutes ·               │
+│  publicRoutes · searchRoutes · seo/ (meta injection, public HTML, sitemaps)    │
+│ Cron (node-cron): hourly blog · Sat 12:00 Dominical · every 30 min           │
+│ auto-publish slot check · every 5 min chat cleanup                           │
+└───────┬──────────────────────────────┬───────────────────────────────────────┘
+        │                              │
+┌───────▼─────────┐   ┌────────────────▼────────────────────────────────────────┐
+│ SQLite           │   │ External: OpenAI · LinkedIn · Meta Graph/Marketing API  │
+│ dominical.db     │   │ GA4 Data API · NewsAPI · Gmail SMTP · Hostinger DNS ·   │
+│ 13 tables        │   │ GCP (Cloud Run Admin, Cloud Monitoring) · demo APIs     │
+└──────────────────┘   └─────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Pages & Routes
+## Pages and routes
 
 | Route | Page | Description |
 |-------|------|-------------|
-| `/` | Home | Hero, solutions, courses, case studies, team |
-| `/get-started` | Landing | Bilingual AI diagnosis landing page |
-| `/diagnostico-ia` | Quiz | AI-readiness diagnostic quiz with verified lead capture + PDF report |
-| `/demos` | Demos | AI Demos Lab catalog (live + coming soon) |
-| `/careers` | Careers | Job listings |
-| `/apply` | Apply | Application form |
-| `/blog` | BlogList | Paginated blog + FTS5 search |
-| `/blog/:slug` | BlogPost | Individual post with server-injected SEO |
-| `/try-identity` | TryIdentity | Identity verification demo (Cloud Run → `identity-api.robles.ai`) |
-| `/try-langchain` | TryLangChain | LangChain demo (Cloud Run → `langchain-api.robles.ai`) |
-| `/try-rag` | TryRAG | RAG pipeline demo (Cloud Run → `rag-api.robles.ai`) |
-| `/try-medical` | TryMedical | **Coming soon** — modality picker only; no backend, nothing uploaded |
-| `/try-transcription` | TryTranscription | Real-time speech-to-text + diarization + AI analysis (Cloud Run → `transcription-api.robles.ai`) |
-| `/try-chatbot` | TryChatbot | Chatbot trained on your website: paste URL → crawl → chat (Cloud Run → `chatbot-api.robles.ai`) |
-| `/try-object-detection` | TryObjectDetection | Object detection (in-browser, COCO-SSD) |
-| `/try-emotion` | TryEmotion | Emotion recognition (in-browser, face-api.js) |
-| `/otp` | OTP | OTP second-factor page |
-| `/admin` | AdminPage | Login / first-time setup |
-| `/admin/settings` | AdminSettings | LinkedIn, Meta, OpenAI, Dominical preferences |
-| `/admin/dominical` | AdminDominicalList | Weekly report listing |
-| `/admin/dominical/:id` | AdminDominicalDetail | Review, edit, carousel, narrated video, publish |
-| `/admin/quiz-leads` | AdminQuizLeads | Diagnostic quiz leads |
-| `/admin/conversations` | AdminConversationList | Chat inbox with filters + analytics |
-| `/admin/conversations/:id` | AdminConversationDetail | Full transcript + contact data |
-| `/admin/analytics` | AdminAnalytics | GA4 + Meta dashboard (4 tabs) |
-| `/admin/backends` | AdminBackends | Backend portal: connect Hostinger/GCP, see DNS + Cloud Run + health status, publish CNAMEs (read-only towards GCP) |
+| `/` | Home | Hero, features, solutions, demos catalog, case studies, courses, testimonials, team, contact |
+| `/get-started` | Landing | Paid-traffic landing (see below); `?s=` headline variants |
+| `/diagnostico-ia` | Quiz | AI-readiness quiz with verified lead + PDF |
+| `/demos` | Demos | Demos lab catalog |
+| `/try-chatbot` | TryChatbot | Chatbot trained on your website (Cloud Run) |
+| `/try-identity` | TryIdentity | Identity verification (Cloud Run) |
+| `/try-rag` | TryRAG | Ask your documents (Cloud Run; PDF text extracted in the browser) |
+| `/try-transcription` | TryTranscription | Live speech-to-text + diarization + analysis (Cloud Run) |
+| `/try-langchain` | TryLangChain | Agent / tools / JSON modes (Cloud Run) |
+| `/try-docextract` | TryDocExtract | Documents → structured data (Cloud Run) |
+| `/try-tts` | TryTTS | Voice studio + narrator with subtitles (Cloud Run) |
+| `/try-forecast` | TryForecast | Demand forecast from a CSV (in the browser) |
+| `/try-object-detection` | TryObjectDetection | Object detection (in the browser) |
+| `/try-emotion` | TryEmotion | Emotion recognition (in the browser) |
+| `/try-medical` | TryMedical | Coming soon page; not in the catalog, nothing is uploaded |
+| `/blog`, `/blog/:slug` | BlogRoute → BlogList / BlogPost | Blog listing, modal viewer and post pages |
+| `/careers`, `/apply` | Careers, Apply | Job listings and application form |
+| `/otp` | OTP | One-time-password page |
+| `/admin` | AdminDashboard | Login / first-time setup / dashboard |
+| `/admin/settings` | AdminSettings | Integrations, tracking IDs, GA4, Meta, Meta Ads, OpenAI, Dominical |
+| `/admin/dominical`, `/admin/dominical/:id` | AdminDominicalList / Detail | Reports, review, carousel, video, publishing |
+| `/admin/conversations`, `/admin/conversations/:id` | AdminConversationList / Detail | Robly inbox and transcripts |
+| `/admin/quiz-leads` | AdminQuizLeads | Quiz leads |
+| `/admin/analytics` | AdminAnalytics | Overview · Traffic · Behavior · Social · Ads |
+| `/admin/backends` | AdminBackends | Demo backends portal |
 
 ---
 
-## Demos
+## API reference
 
-The AI Demos Lab (`/demos`) lists every demo with a `live` / `soon` status. The catalog data lives in the i18n files (`demosCatalog.items` in `src/i18n/locales/{en,es}/translation.json`); `DemosCatalog.tsx` renders it on the home page and on `/demos`. Robly knows the catalog through `server/services/chatContext.ts` — keep both in sync when a status changes.
+Public:
 
-| Demo | Route | Where it runs | Status |
-|------|-------|---------------|--------|
-| Identity verification | `/try-identity` | Cloud Run `identity-api.robles.ai` (repo `robles.ai-identity-api`) | live |
-| RAG pipeline | `/try-rag` | Cloud Run `rag-api.robles.ai` (repo `robles.ai-rag-api`); PDF text extracted in the browser with `pdfjs-dist` | live |
-| LangChain agent | `/try-langchain` | Cloud Run `langchain-api.robles.ai` (repo `robles.ai-langchain-api`) | live |
-| Speech-to-text + diarization | `/try-transcription` | Cloud Run `transcription-api.robles.ai` (repo `robles.ai-transcription-api`): WebSocket → Deepgram Nova-3, `/analyze` → OpenAI | live |
-| Your chatbot in 60 seconds | `/try-chatbot` | Cloud Run `chatbot-api.robles.ai` (repo `robles.ai-chatbot-api`): crawl a URL (static HTML, same-host, robots.txt, anti-SSRF) → Pinecone (ephemeral namespace, 24h TTL) → gpt-4o-mini | live |
-| Object detection | `/try-object-detection` | In the browser: TensorFlow.js COCO-SSD (`lite_mobilenet_v2`) | live |
-| Emotion recognition | `/try-emotion` | In the browser: `@vladmandic/face-api` (models from jsDelivr) | live |
-| Medical image analysis | `/try-medical` | **No backend** — modality picker only; images never leave the browser | soon |
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/contact` | Contact form → email (`{ success: true }` only after the mail is accepted); `GET` returns 404 |
+| POST | `/api/send-application` | Job application → email |
+| POST | `/api/quiz-lead` | Quiz submission: result message, stores lead, sends verification email |
+| GET | `/api/quiz-lead/status?leadId=` | Verification polling |
+| GET | `/api/quiz-lead/verify?token=` | Email verification link (HTML) |
+| POST | `/api/quiz-lead/resend` | Resend verification email |
+| GET | `/api/quiz-lead/pdf?leadId=` | PDF report (verified leads only) |
+| GET | `/api/blog`, `/api/blog/:slug`, `/api/blog/search?q=` | Listing (SQL index), detail (JSON file), FTS5 search |
+| GET | `/api/editors` | Editor personas |
+| GET | `/api/generate-posts?date=YYYY-MM-DD` | Manual blog generation trigger |
+| GET | `/api/test` | Health check |
+| GET | `/api/public/analytics-config` | GTM / GA4 / Meta Pixel IDs for the site |
+| GET | `/api/public/slides/:reportId/:position(.png)` | Carousel slide image (for Meta) |
+| POST | `/api/chat/session` · GET `/api/chat/history` · POST `/api/chat/message` (SSE) · POST `/api/chat/close` | Robly chat (`chat_session` cookie) |
+| GET | `/sitemap.xml`, `/sitemaps/:filename` | Sitemap index and monthly blog sitemaps (`/static-pages.xml` for static pages) |
 
-**Cold starts.** The Cloud Run APIs scale to zero, so each demo page pings its API on mount (warm-up) and shows a status banner. `rag-api` is the slowest to wake (can exceed 45 s).
+Admin (all under `/api/admin`, `admin_token` cookie required except `status`, `setup`, `login` and the LinkedIn OAuth callback):
 
-**Transcription audio format.** The transcription API forwards audio to Deepgram as raw PCM `linear16`, 16 kHz, mono — it ignores the `encoding` declared in the `start` frame. `TryTranscription.tsx` therefore captures PCM with an `AudioWorklet` (ScriptProcessor fallback) instead of `MediaRecorder`, whose WebM/Opus output Deepgram would read as noise.
+| Method | Path | Description |
+|--------|------|-------------|
+| GET / POST / POST / POST / GET | `/status`, `/setup`, `/login`, `/logout`, `/me` | Auth state and session |
+| GET / PUT | `/settings` | Read (masked) / write settings |
+| GET / POST / POST | `/settings/meta`, `/settings/meta`, `/settings/meta/validate` | Meta publishing credentials |
+| GET / POST | `/settings/ga4-status`, `/settings/ga4-service-account` | GA4 Data API credentials |
+| GET | `/linkedin/auth-url`, `/linkedin/callback` | LinkedIn OAuth |
+| POST | `/reindex-posts` | Rebuild blog indexes |
+| GET / POST | `/dominical`, `/dominical/generate` | List / generate reports |
+| GET / PUT | `/dominical/:id` | Report detail / update |
+| POST | `/dominical/:id/{regenerate-post, regenerate-instagram, regenerate-linkedin, cancel, generate-image}` | Report actions |
+| POST / GET | `/dominical/:id/generate-carousel`, `/dominical/:id/carousel`, `/dominical/:id/carousel/pdf` | Carousel generation, metadata, PDF |
+| GET / POST / PUT | `/dominical/:id/carousel/slides/:position/{image, generation-info, regenerate, text}` | Per-slide operations |
+| POST / GET | `/dominical/:id/generate-video`, `/dominical/:id/video`, `/dominical/:id/video/file` | Narrated video |
+| POST / GET | `/dominical/:id/publish` (legacy LinkedIn), `/publish/:platform`, `/publish-all`, `/publish/:platform/reset`, `/publish-status` | Publishing |
+| GET | `/quiz-leads` | Quiz leads |
+| GET | `/conversations`, `/conversations/analytics`, `/conversations/:id` | Robly inbox |
+| GET | `/analytics/{overview, realtime, traffic, behavior, social/instagram, social/facebook, ads/google, ads/meta}` | Analytics (cached) |
+| POST | `/analytics/refresh` | Clear analytics cache |
+| GET / PUT | `/backends/connections` | Hostinger / GCP credentials (write-only) |
+| GET | `/backends`, `/backends/:id/cloudrun` | Backend list with DNS + activity; Cloud Run status |
+| POST | `/backends/:id/dns`, `/backends/:id/ping` | Publish CNAME; opt-in live health ping (wakes the service) |
+| POST | `/test-ig-linebreaks` | Internal Instagram formatting test |
 
-**Demo backend infra conventions** (all four API repos share them):
-
-- One GCP project per API, all on the same billing account; Cloud Run with no `minScale` (scale to zero) and request-based billing.
-- Artifact Registry repo named `<service>-api-repo`. `prune_registry.sh` keeps the 3 newest versions per package and registers a cleanup policy; it runs at the end of `update_docker.sh`, `deploy_fresh_gcp.sh` and in CI.
-- Secrets live in Secret Manager and Cloud Run binds them as `:latest`. `rotate_secret.sh` pushes new values from `.env`, reloads Cloud Run and destroys every older version (Secret Manager bills per active version).
-- Push to `main` → GitHub Actions builds on the runner and deploys to Cloud Run.
+Auth: admin JWT in httpOnly cookie `admin_token` (7 days); Robly uses httpOnly cookie `chat_session` (1 hour, refreshed per message).
 
 ---
 
-## AI Chatbot Widget (Robly)
+## Landing page `/get-started`
 
-Global floating widget (`src/components/chat/ChatbotWidget.tsx`) powered by GPT-4o-mini:
+Source: `src/pages/Landing.tsx`; copy under `landing.v2.*` (plus `landing.cta.*`, `landing.whatsapp.*`, `landing.diagnostico.*`, `landing.howWeWork.quote`) in both locales. Sections, top to bottom:
 
-- Appears on all non-admin pages with a timed entrance sequence (bubble at 10s, typing dots at 20s, greeting at 22s)
-- Robly avatar with 4 SVG moods: idle, listening, thinking, speaking (in `public/robly-avatar/`)
-- SSE streaming for real-time token delivery
-- Page-context awareness: reads blog post content, homepage services, demo descriptions
-- Naturally collects visitor contact data (name, email/phone) during conversation
-- Each session stored in SQLite with full transcript
-- Email notification sent to `EMAIL_TO` when a session closes
-- Admin inbox at `/admin/conversations` with filters, analytics, and detail view
-- WhatsApp fallback button inside the chat panel (`https://wa.me/14085900153`)
-- Hidden on `/admin/*` routes and during print
+1. **Hero** — outcome headline, *Book your AI Diagnosis* (`#contacto`), WhatsApp button, links to live demos (`#demos`), *request a proposal* (`#diagnostico`) and the 2-minute test; trust row; side card with *What you get in 2 weeks* and the price.
+2. **What we build — try it yourself** (`#demos`) — chatbots, knowledge assistants, agents and document AI, each linked to its live demo (`demosCatalog.items`).
+3. **Where it fits in your business** — industry starting points, explicitly labelled as examples, not client results.
+4. **Where AI usually pays back first** — three patterns, then a CTA.
+5. **How we work** — four steps.
+6. **Two ways to start** (`#diagnostico`) — AI Diagnosis (2 weeks, USD 1,500–3,000, range depends on the number of processes reviewed) or a direct project with a proposal (scope, timeline, price).
+7. **What you can count on** — roadmap/code/data ownership, no training on your data, human review.
+8. **Security and integration** — SAP/ERP interfaces, models in the client's cloud, confidentiality, vendor review.
+9. **Who you'll work with** — founder (data from `team.members[0]`).
+10. **FAQ** — includes implementation cost and *why not build it ourselves*.
+11. **Contact** (`#contacto`) — `ContactForm` (green submit, no newsletter, optional `defaultGoal`) + email/WhatsApp.
+12. **Sticky mobile CTA** — appears after the hero and hides when the form is visible.
+
+`?s=chatbots|rag|agents|docs` swaps the hero copy, side card, CTA, contact title/submit, pre-selected form goal and pre-filled WhatsApp message (`landing.v2.variants.*`). Ad URLs: `/get-started` (EN) or `/get-started?lang=es` (ES), plus `s=` to match the ad group. The crawler HTML for this route is built in `server/seo/publicContent.ts` from the same keys.
+
+---
+
+## Conversion tracking
+
+`src/lib/analytics.ts` loads trackers only in production and never on `/admin`. When `gtm_container_id` is set, **GTM is the only tracker** (events go to `dataLayer`); otherwise GA4 and Meta Pixel are loaded directly. Conversions are queued until trackers initialise and contain no visitor data.
+
+| Function | GA4 event | Meta | Fired when |
+|----------|-----------|------|------------|
+| `trackContactLead()` | `generate_lead` (`form_id: contact`, `method: contact_form`) | `Lead` | `POST /api/contact` returns `success: true` |
+| `trackQuizLead()` | `generate_lead` (`form_id: quiz`, `method: quiz`) | `Lead` | `POST /api/quiz-lead` returns a `leadId` |
+| `trackContactClick(channel, location)` | `contact_click` (`contact_method`, `link_location`) | `Contact` | WhatsApp / email / phone link clicks (landing, home contact, Robly) |
+| `trackDemoEvent(event, demoId)` | `demo_start`, `demo_complete`, `roi_calculated`, `demo_cta_click` | custom | Demo funnel |
+
+Google Ads (account *Robles.AI*, USD, Pacific time) imports `generate_lead` from GA4 property `492769320` as the primary *Submit lead form* conversion; `contact_click` is meant to be a secondary conversion. Details and external setup: [`docs/CONTACT_CONVERSIONS.md`](docs/CONTACT_CONVERSIONS.md).
+
+---
+
+## Analytics dashboard (`/admin/analytics`)
+
+| Tab | Source | Content |
+|-----|--------|---------|
+| Overview | GA4 Data API | Users, sessions, page views, bounce rate, avg. duration vs previous period, daily trend, real-time users |
+| Traffic | GA4 | Top pages, channel groups, countries, devices |
+| Behavior | GA4 | Landing pages, new vs returning |
+| Social | Meta Graph API | Instagram and Facebook page insights and recent posts |
+| Ads | GA4 (`googleAdsReport.ts`) + Meta Marketing API (`metaAds.ts`) | Google Ads spend, clicks, impressions, CPC, key events per campaign and per day (requires the Ads account linked to GA4); paid vs organic channels; Meta Ads spend, clicks, leads per campaign and per day |
+
+Caching (`analytics_cache`): real-time 30 s, ranges ending today 5 min, historical ranges 1 h, Meta 30 min. *Refresh* clears the cache. GA4 needs `ga4_property_id` and the service-account JSON (uploaded in settings); Meta Ads needs `meta_ad_account_id` + `meta_ads_access_token`.
+
+---
+
+## Demos lab
+
+Catalog data: `demosCatalog.items` in both translation files (`id`, `href`, `status`, `title`, `description`, `benefit`, …), rendered by `DemosCatalog.tsx` on the home page and `/demos`. Robly knows the catalog through `server/services/chatContext.ts` — keep both in sync. Business framing (`BusinessCase`, `SavingsCalculator`, `business.ts`) is documented in [`docs/DEMOS_PLAN.md`](docs/DEMOS_PLAN.md).
+
+| Catalog id | Route | Runs on | Status |
+|-----------|-------|---------|--------|
+| `sitechatbot` | `/try-chatbot` | `chatbot-api.robles.ai` (repo `robles.ai-chatbot-api`): crawl → Pinecone (24 h namespace) → gpt-4o-mini | live |
+| `identity` | `/try-identity` | `identity-api.robles.ai` (repo `robles.ai-identity-api`, service `identity-server`) | live |
+| `rag` | `/try-rag` | `rag-api.robles.ai` (repo `robles.ai-rag-api`) | live |
+| `speech` | `/try-transcription` | `transcription-api.robles.ai` (repo `robles.ai-transcription-api`): WebSocket → Deepgram Nova-3, `/analyze` → OpenAI | live |
+| `langchain` | `/try-langchain` | `langchain-api.robles.ai` (repo `robles.ai-langchain-api`) | live |
+| `docextract` | `/try-docextract` | `docextract-api.robles.ai` (repo `robles.ai-docextract-api`) | live |
+| `tts` | `/try-tts` | `tts-api.robles.ai` (repo `robles.ai-tts-api`): gpt-4o-mini-tts + ffmpeg | live |
+| `forecast` | `/try-forecast` | Browser (`src/lib/forecast.ts`) | live |
+| `objectdetection` | `/try-object-detection` | Browser (TensorFlow.js COCO-SSD) | live |
+| `emotion` | `/try-emotion` | Browser (`@vladmandic/face-api`) | live |
+| `voiceagent`, `anomaly`, `imagegen` | — | — | soon |
+
+- **Cold starts**: Cloud Run APIs scale to zero; each page warms its API on mount and shows a status banner.
+- **Transcription audio**: the API forwards raw PCM `linear16` 16 kHz mono to Deepgram, so `TryTranscription` captures PCM with an `AudioWorklet` (ScriptProcessor fallback).
+- **Demo API conventions** (sibling repos): one GCP project per API, scale to zero with request-based billing, Artifact Registry `<service>-api-repo` pruned to 3 versions, secrets in Secret Manager rotated with `rotate_secret.sh`, push to `main` deploys via GitHub Actions.
+- Preview videos and visuals: [`docs/DEMO_VIDEO_RELEASE.md`](docs/DEMO_VIDEO_RELEASE.md), [`docs/DEMO_VISUALS.md`](docs/DEMO_VISUALS.md), [`docs/FIREFLY_CLIPS.md`](docs/FIREFLY_CLIPS.md).
+
+---
+
+## Robly chatbot
+
+`src/components/chat/ChatbotWidget.tsx` (GPT-4o-mini, `server/services/chatEngine.ts`):
+
+- Shown on all public pages (hidden on `/admin/*` and in print). Entrance: bubble on mount, typing dots at 3 s, greeting at 5 s (auto-hidden after 8 s on phones); the open/closed state persists across reloads. Animated SVG moods in `public/robly-avatar/`.
+- SSE streaming, page-aware context (`chatContext.ts`: blog posts, home, demos with business angle), natural contact capture, tool calls.
+- Sessions stored in SQLite; transcript email to `EMAIL_TO` on close; idle sessions closed every 5 minutes.
+- Admin inbox at `/admin/conversations`; WhatsApp buttons (`https://wa.me/14085900153`) tracked as `contact_click`.
 
 ---
 
 ## El Dominical IA
 
-Automated weekly newsletter system managed from `/admin/dominical`:
-
-**Saturday 12:00pm (America/Lima)** — generation job:
-1. Reads all blog posts from last 7 days
-2. Sends to GPT-4o for multidimensional scoring (novelty, people impact, economic impact, narrative potential, 1–100 scale)
-3. Selects top N posts (configurable, default 5)
-4. Generates LinkedIn post draft (hook + opinions + hashtags, Spanish)
-5. Generates Instagram-specific post text variant
-6. Stores report in `dominical_reports` with status `pending_review`
-7. Sends notification email to admin
-
-**Admin review panel** (`/admin/dominical/:id`):
-- Split view: scored news list (left) + editable post text (right)
-- Carousel image generation: 1080×1080 PNG slides (cover + article×N + CTA)
-  - Background images: gpt-image-1 conceptual vector illustrations
-  - Composition: SVG overlay with white band header, logo, 3-line title, engagement phrase, category labels, color palette selector
-  - Individual slide regeneration, text editing (re-compose without re-generating background)
-  - Download PDF carousel (pdfkit)
-- Multi-platform publish status panel (LinkedIn/Instagram/Facebook)
-- Manual publish or cancel
-
-**Sunday 12:00pm (America/Lima)** — auto-publish job:
-- Publishes to all platforms with valid credentials and `not_published` status
-- 5-second delay between platform attempts
-- Per-platform failure isolation
-- Notification email with results summary
+- **Saturday 12:00 (America/Lima)** — `generateDominical`: reads the last 7 days of posts, scores them with GPT-4o (novelty, people impact, economic impact, narrative potential), keeps the top N (`dominical_top_n`, default 5), drafts LinkedIn and Instagram texts, stores the report as `pending_review`, emails `notification_email`, then generates the carousel (`natural` palette, `cinematic-scene` style).
+- **Review** (`/admin/dominical/:id`): edit texts, regenerate posts, 1080×1080 carousel (cover + articles + CTA; gpt-image-1 backgrounds, SVG overlay via sharp, per-slide regenerate/edit, PDF via pdfkit), narrated video with Robly poses (`dominicalVideoGen.ts`, `robotFrames.ts`, `VideoGenerator.tsx`), publish status per platform, manual publish or cancel.
+- **Auto-publish** — a cron runs every 30 minutes and publishes only on **Sunday** at `auto_publish_time` (default 18:00) in `auto_publish_timezone` (default America/Lima), unless `auto_publish` is `false`/`0`. Platforms with valid credentials and `not_published` status are published in sequence (5 s apart, failures isolated) and a summary email is sent.
 
 ---
 
-## Multi-Platform Publishing
+## Multi-platform publishing
 
-Platform adapter pattern in `server/services/platforms/`:
+Adapters in `server/services/platforms/` behind `publishingEngine.ts`:
 
-| Platform | API | Content Format |
-|----------|-----|---------------|
-| LinkedIn | UGC Posts API | PDF carousel (≥2 slides) or text+image |
-| Instagram | Meta Graph API | Multi-image carousel (PNG slides, converted to JPEG) |
-| Facebook | Meta Graph API | Multi-photo post (uploaded photos + feed post) |
+| Platform | API | Format |
+|----------|-----|--------|
+| LinkedIn | UGC Posts API (OAuth 2.0 + refresh) | PDF carousel (≥ 2 slides) or text + image |
+| Instagram | Meta Graph API | Carousel (PNG → JPEG) |
+| Facebook | Meta Graph API | Multi-photo post |
 
-`platform_publish_status` table tracks independent status per platform: `not_published → publishing → published / failed`.
-
-Credentials configured in `/admin/settings` (Meta App ID/Secret, Instagram Business Account ID, Facebook Page ID + access tokens).
-
----
-
-## SEO (Server-Side Meta Injection)
-
-`server/seo/metaInjector.ts` intercepts HTML requests before serving:
-
-- **Blog posts** (`/blog/:slug`): injects title, description (≤160 chars), Open Graph, Twitter Card, canonical URL, hreflang (en/es/x-default), BlogPosting JSON-LD, BreadcrumbList JSON-LD
-- **Static pages** (`/`, `/blog`, `/careers`, `/get-started`): injects page-specific meta from i18n translations, WebSite JSON-LD on home
-- **Slug resolution**: `SlugIndex` maps both EN and ES slugs to file paths with O(1) lookup, rebuilt lazily on first request
-- Works in both dev (Vite transform) and production (reads built `dist/index.html`)
-- Sitemaps include `xhtml:link` hreflang annotations (one file per month, both languages combined)
-
----
-
-## Analytics Dashboard (`/admin/analytics`)
-
-Four-tab dashboard at `/admin/analytics`:
-
-| Tab | Data Source | Key Metrics |
-|-----|-------------|-------------|
-| Overview | GA4 Data API | Users, page views, session duration, bounce rate, daily trend chart, real-time active users |
-| Traffic | GA4 Data API | Top pages, traffic sources (pie), countries table, device distribution, social platform traffic |
-| Behavior | GA4 Data API | Pages/session, avg duration, top landing pages, new vs returning users (donut) |
-| Social | Meta Graph API | Instagram followers/reach/impressions, Facebook fans/page views/engagement, recent posts with per-post metrics |
-
-All API responses cached in SQLite with TTL (today: 5min, historical: 24h). Cache cleared via "Refresh" button. GA4 Service Account JSON uploaded through admin settings.
+`platform_publish_status`: `not_published → publishing → published | failed`. Meta fetches slide images from `/api/public/slides/...`. Graph API version is pinned in `server/services/metaGraphApi.ts`.
 
 ---
 
 ## Blog
 
-- Location: `server/data/posts/YYYY/MM/DD/*.json`
-- Post structure: `slug`, `date`, `editorId`, `categories`, `keywords`, `translations` (en/es), `sources`
-- **38 editor personas** defined in `server/data/editors.json`
-- Blog listing backed by `blog_posts_index` SQLite table (fast SQL pagination, O(1) filter by `editorId`, `category`)
-- Full-text search via FTS5 virtual table with BM25 ranking (title-weighted), highlight snippets with `<mark>` tags
-- Hourly cron generates new posts and updates both FTS and listing indexes incrementally
-- Utility scripts: `detectGaps.ts` (find missing posts), `fillGaps.ts` (auto-complete gaps), `cleanupDuplicates.ts`
-- **In-page modal viewer** (`BlogModal`): clicking a card on `/blog` opens an accessible modal (`role="dialog"`, focus trap, body-scroll lock, Esc/backdrop/close) instead of navigating. It deep-links to `/blog/:slug` via the History API (open-in-new-tab + copy/share with a clipboard fallback), supports prev/next across the fetched posts, and restores scroll + focus to the originating card on close. The article body is rendered by the shared `BlogArticle` component; pure slug/URL helpers live in `src/lib/blogModal.ts` and the routing/state logic in `src/hooks/useBlogModalRouting.ts`. A direct or reloaded `/blog/:slug` still renders the full `BlogPost` page, so server-side SEO and sitemaps are unaffected. (Spec: `.kiro/specs/ux-overhaul/`.)
+- Posts: `server/data/posts/YYYY/MM/DD/*.json` (`slug`, `date`, `image?`, `editorId`, `categories`, `keywords`, `translations.en/es` with `slug`, `title`, `excerpt`, `content[{heading, body}]`, `sources`).
+- **24 editor personas** in `server/data/editors.json` (ids 1–24; specialty, system prompt, profile, signature, palette, temperature/top_p ranges); avatars in `public/avatars/`.
+- Hourly cron generates posts (NewsAPI topics) and updates the FTS5 and listing indexes; `detect-gaps`, `fill-gaps`, `cleanup-duplicates` scripts.
+- `/blog` opens posts in an accessible modal (`BlogModal`, `useBlogModalRouting`, `lib/blogModal.ts`) with History-API deep links; a direct load of `/blog/:slug` renders the full `BlogPost` page.
 
 ---
 
-## Case Studies
+## SEO
 
-Four bilingual (EN/ES) case studies in `public/case-studies/content.json`:
+- `server/seo/metaInjector.ts`: title, description, Open Graph, Twitter Card, canonical, hreflang (en/es/x-default) and JSON-LD for blog posts and static pages, in dev and production.
+- `server/seo/publicContent.ts`: readable HTML body for each public route (home, landing, quiz, demos, careers, try pages, blog) from the same locale files.
+- `SlugIndex` maps EN and ES slugs to files; sitemaps with `xhtml:link` alternates (`/sitemap.xml`, `/static-pages.xml`, monthly `/sitemaps/*`).
+- Audits and plan: [`docs/SEO_AUDIT.md`](docs/SEO_AUDIT.md), [`docs/SEO_IMPLEMENTATION_PLAN.md`](docs/SEO_IMPLEMENTATION_PLAN.md).
 
-| Industry | Case | Key Result |
-|----------|------|------------|
-| Smart City | AI Security Surveillance System | 27% crime reduction, 42% faster emergency response |
-| Health | Predictive Analytics for Patient Care | 87% readmission prediction accuracy, 23% reduction in readmissions |
-| Finance | Fraud Detection for Financial Services | 99.2% accuracy, $4.5M+ annual savings, <300ms response |
-| Telco | AI Chatbot for Customer Service | 78% autonomous resolution, 85% faster response, 32% CSAT increase |
+---
 
-Full case study documents (PDF + DOCX, EN + ES) in `study-cases/`.
+## Backends portal (`/admin/backends`)
+
+Connects, monitors and publishes DNS for the 7 demo APIs registered in `server/services/backends/registry.ts` (`chatbot`, `identity`, `rag`, `langchain`, `transcription`, `docextract`, `tts`). Spec: `.kiro/specs/admin-backend-management/`.
+
+- Credentials (write-only): Hostinger API key and the GCP service-account JSON (`backend-viewer@robles-ai-admin`, roles `run.viewer`, `monitoring.viewer`, `serviceusage.serviceUsageConsumer` on each backend project).
+- Listing never wakes a service: activity comes from Cloud Monitoring (billed to the backend project via `x-goog-user-project`); only the explicit *Test* button pings `/health`.
+- DNS: `POST /:id/dns` upserts `<sub>-api CNAME ghs.googlehosted.com.` through Hostinger; names come from the server registry, never from the request body. `DnsProvider` allows a future Cloud DNS provider.
+
+---
+
+## Case studies
+
+Four bilingual cases in `public/case-studies/content.json` and `caseStudies.items` (Smart City, Healthcare, Finance, Telco). They are **illustrative**: metrics are labelled "up to"/"about" and the UI states they show potential results of this kind of solution, not results from a specific client. Source documents (PDF/DOCX, EN/ES) are in `study-cases/`.
+
+---
+
+## Internationalization
+
+- `src/i18n/locales/{en,es}/translation.json`, initialised before render; keep key parity between locales.
+- Main namespaces: `nav`, `hero`, `features`, `solutions`, `demosCatalog`, `demoBusiness`, `try-*`, `caseStudies`, `courses`, `testimonials`, `team`, `contact`, `landing` (`landing.v2` for the current landing), `quiz`, `quizPromo`, `chatbotWidget`, `chatInput`, `whatsappWidget`, `apiLog`, `blogModal`, `blogSearch`, `state`, `videoModal`, `seo`, `footer`, `careers`.
+- The admin panel UI is English-only (not translated).
 
 ---
 
 ## Testing
 
 ```bash
-npm test          # Run all tests (vitest --run)
+npm test
 ```
 
-Test infrastructure:
-- **vitest** + **fast-check** (property-based) + **supertest** (integration)
-- Tests co-located with modules: `server/fts/*.test.ts`, `server/listing/*.test.ts`, `server/__tests__/*.ts`
-- Property tests verify universal invariants: description truncation, hreflang symmetry, FTS ranking, pagination completeness, publish isolation, text truncation, etc.
-
-Key test files:
-- `server/__tests__/chatRoutes.integration.test.ts` — full SSE chat flow
-- `server/__tests__/fullChatFlow.integration.test.ts` — session lifecycle
-- `server/fts/search.property.test.ts` — BM25 ranking properties
-- `server/listing/listingApi.property.test.ts` — pagination/filter properties
-- `server/seo/__tests__/` — meta injection properties
-
----
-
-## Internationalization (i18n)
-
-- Folder: `src/i18n/`
-- Files: `locales/en/translation.json` and `locales/es/translation.json`
-- Async initialization via `initI18n()` before rendering
-
-Translation namespaces:
-- `nav`, `hero`, `footer` — site-wide UI (`nav.primaryLabel`/`nav.footerLabel` name the ARIA nav landmarks; `footer.social.*` are social-link accessible names)
-- `landing.*` — ad landing page content
-- `chat.*` — chatbot UI strings
-- `seo.*` — server-side meta tags for static pages
-- `blogModal.*` — blog modal viewer controls (close, prev/next, open-in-new-tab, copy/share)
-- `state.*` — shared loading/empty/error/retry copy for `LoadingState`/`EmptyState`/`ErrorState`
-- `videoModal.*` — accessible name + close label for the video modal dialog
-
----
-
-## Local Development
-
-```bash
-# 1) Install dependencies
-npm install
-
-# 2) Environment variables
-cp .env.example .env   # adjust EMAIL_*, OPENAI_*, API keys
-
-# 3) Run dev environment
-npm run dev
-
-# 4) (Optional) Seed FTS index
-npx tsx server/fts/migrate.ts
-
-# 5) Production build
-npm run build
-npm start
-```
+- vitest with `jsdom` by default and `node` for `server/**`; fast-check property tests; supertest integration tests; tests are co-located with their modules (`__tests__/`, `*.test.ts(x)`).
+- Useful suites: `server/__tests__/chatRoutes.integration.test.ts`, `server/__tests__/contactRoutes.test.ts`, `server/seo/__tests__/`, `server/fts/*.property.test.ts`, `server/listing/*.test.ts`, `server/services/__tests__/{googleAdsReport,metaAds}.test.ts`, `src/components/__tests__/Contact.conversion.test.tsx`, `src/lib/__tests__/analytics.ssr.test.ts`.
+- If SQLite tests fail with `NODE_MODULE_VERSION ...`, rebuild the native module with the Node you run tests with: `npm rebuild better-sqlite3`.
+- Some suites read `server/data/` and `creative/`; they fail when run from a copy without those folders.
 
 ---
 
 ## Deployment
 
-The project runs on a VPS with PM2 under user `roblesai`. Deployment is
-automated with **GitHub Actions**:
+VPS with PM2 (user `roblesai`). Push to `main` → GitHub Actions (`.github/workflows/deploy.yml`) → SSH → `bash pull.sh`.
 
 ```
-bash push.sh (local)  →  git commit + push to main
-                             ↓
-        GitHub Actions (.github/workflows/deploy.yml)
-                             ↓
-        SSH into VPS  →  bash pull.sh (fetch + selective build + pm2 restart)
+git push origin main   (or the local helper `bash push.sh`, which commits EVERYTHING with `git add .`)
+        ↓
+GitHub Actions → SSH to VPS → pull.sh (fetch, reset to origin/main, selective install/build, pm2 restart)
 ```
 
-After the one-time setup, the full cycle is just `bash push.sh` — the deploy
-runs automatically.
-
-### `pull.sh` — selective build by change type
-
-`pull.sh` fetches `origin/main` and inspects **which files changed** to do only
-the work that's justified:
-
-| Changed files | Action |
-|---------------|--------|
-| `package.json` / `package-lock.json` | `npm install` + build + pm2 restart |
-| `src/`, `server/`, `shared/`, configs, `index.html` | build + pm2 restart |
-| only `server/data/` (blog posts) | sync data into `dist/` + pm2 restart (no compile) |
-| only docs / `*.sh` / `.gitignore` | nothing (server left running) |
+| Changed files | `pull.sh` action |
+|---------------|------------------|
+| `package.json` / `package-lock.json` | `npm install` + build + restart |
+| `src/`, `server/`, `shared/`, configs, `index.html` | build + restart |
+| only `server/data/` | sync data into `dist/` + restart |
+| only docs / `*.sh` / `.gitignore` | nothing |
 | no new commits | no-op |
 
-It handles: `git fetch` → `git reset --hard origin/main` → (npm install) →
-(build) → pm2 restart. It requires NVM loaded (the script sources
-`~/.nvm/nvm.sh`).
+Secrets: `VPS_HOST` (`robles.ai`), `VPS_USER` (`roblesai`), `VPS_SSH_KEY`, `VPS_REPO_PATH` (`/home/roblesai/htdocs/robles.ai`). Manual fallback on the VPS: `source ~/.nvm/nvm.sh && bash pull.sh`.
 
-### CI/CD setup (GitHub Secrets)
-
-The workflow authenticates to the VPS via SSH key. Four repo secrets are needed
-(Settings → Secrets and variables → Actions): `VPS_HOST` (`robles.ai`),
-`VPS_USER` (`roblesai`), `VPS_SSH_KEY` (private SSH key authorized on the VPS),
-`VPS_REPO_PATH` (`/home/roblesai/htdocs/robles.ai`).
-
-```bash
-ssh-keygen -t ed25519 -C "github-actions-deploy" -f ~/.ssh/github_deploy -N ""
-ssh-copy-id -i ~/.ssh/github_deploy.pub roblesai@robles.ai
-gh secret set VPS_SSH_KEY --repo jroblesluna/robles.ai < ~/.ssh/github_deploy
-# + VPS_HOST, VPS_USER, VPS_REPO_PATH
-```
-
-### Manual deploy (fallback)
-
-```bash
-# On the VPS, or via SSH from your Mac:
-source ~/.nvm/nvm.sh && bash pull.sh
-```
-
-### Known VPS configuration
-
-| Setting | Value |
-|---------|-------|
-| User | `roblesai` |
+| VPS setting | Value |
+|-------------|-------|
 | App path | `~/htdocs/robles.ai` |
-| PM2 process name | `robles-ai` |
-| PM2 binary | `~/.nvm/versions/node/v22.14.0/bin/pm2` |
-| Node version | v22.14.0 (via NVM) |
+| PM2 process | `robles-ai` (`~/.nvm/versions/node/v22.14.0/bin/pm2`) |
+| Node | v22.14.0 (NVM) |
 | Port | 5173 |
-| PM2 logs | `~/.pm2/logs/robles-ai-out.log` / `robles-ai-error.log` |
+| Logs | `~/.pm2/logs/robles-ai-out.log`, `robles-ai-error.log` |
 
-### NODE_ENV bug (fixed Aug 29 2026)
+### NODE_ENV fix (2026-08-29)
 
-The `start` script previously used `NODE_ENV=production && node dist/index.js`. The `&&` operator does **not** pass the variable to the child process — it runs `NODE_ENV=production` as a no-op command, then runs `node` with `NODE_ENV` undefined. Express defaults undefined `NODE_ENV` to `"development"`, which caused all cron jobs (blog generation, Dominical IA) to be skipped via their dev-mode guards.
-
-Fixed to: `NODE_ENV=production node dist/index.js` (inline assignment, POSIX-standard).
+`start` used to run `NODE_ENV=production && node dist/index.js`, which never passed the variable to Node; cron jobs then skipped themselves as "development". It is now `NODE_ENV=production node dist/index.js`.
 
 ---
 
-## Architecture Summary
+## Conventions
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | React 19 + Vite 6 + TypeScript + Tailwind + framer-motion + shadcn + recharts + wouter |
-| Backend | Express 4 + Node.js 20 + tsx (dev) / esbuild (prod) |
-| Database | SQLite via better-sqlite3 (10 tables) |
-| AI | OpenAI GPT-4o, GPT-4o-mini, gpt-image-1 |
-| Social APIs | LinkedIn UGC, Meta Graph API (Instagram + Facebook) |
-| Analytics | Google Analytics Data API (GA4) + Meta Graph API |
-| Image Processing | sharp (resize/composite) + pdfkit (PDF export) |
-| Search | SQLite FTS5 with BM25 ranking |
-| Testing | vitest + fast-check + supertest |
-| Deployment | VPS + PM2 + pull.sh |
+- **Aliases** (`vite.config.ts`, `vitest.config.ts`): `@/` → `src/`, `@shared/` → `shared/`.
+- **Imports**: server code is ESM with `.js` extensions on relative imports; frontend uses aliases without extensions; `shared/` is the only cross-boundary code.
+- **Copy**: all public copy goes through i18next with en/es parity.
+- **UX/a11y** (spec `ux-overhaul`): `.tap-target` (44 px), `.break-anywhere`, `--header-h` token, `overflow-x-auto` for wide content, `useReducedMotion` / `MotionConfig reducedMotion="user"`, shared `LoadingState`/`EmptyState`/`ErrorState`.
+- **Persistence**: never store data that must survive deploys inside `dist/`; `postbuild` copies `server/data` without overwriting databases.
+- **Claims**: case studies and demo calculators are illustrative; do not publish numbers presented as client results.
 
 ---
 
-## Code Assistant Reference
+## Documentation (`docs/`)
 
-This section documents conventions and non-obvious patterns essential for making correct changes.
+| File | Content |
+|------|---------|
+| [`DEMOS_PLAN.md`](docs/DEMOS_PLAN.md) | Demos lab roadmap prioritised by wow effect and ROI, with phase status |
+| [`REMOTION_VIDEO_CONTEXT.md`](docs/REMOTION_VIDEO_CONTEXT.md) | Brand context and brief for the Remotion marketing video |
+| [`CONTACT_CONVERSIONS.md`](docs/CONTACT_CONVERSIONS.md) | Contact delivery, lead/click conversion contract and Ads/GTM/Meta setup |
+| [`DEMO_VIDEO_RELEASE.md`](docs/DEMO_VIDEO_RELEASE.md) + `DEMO_VIDEO_ASSETS.json` | Demo preview videos release notes and asset manifest |
+| [`DEMO_VISUALS.md`](docs/DEMO_VISUALS.md) | Demo catalog images and animations log |
+| [`FIREFLY_CLIPS.md`](docs/FIREFLY_CLIPS.md) | Firefly start/end frame pairs for demo clips |
+| [`ADMIN_AUDIT.md`](docs/ADMIN_AUDIT.md) | Functional and responsive audit of the admin panel |
+| [`DESIGN_AUDIT.md`](docs/DESIGN_AUDIT.md) | Professional design audit of the public site |
+| [`SEO_AUDIT.md`](docs/SEO_AUDIT.md), [`SEO_IMPLEMENTATION_PLAN.md`](docs/SEO_IMPLEMENTATION_PLAN.md) | Technical SEO / GEO audit and implementation plan |
+| [`PENDING_WORK.md`](docs/PENDING_WORK.md) | Pending work backlog |
 
-### Path Aliases
-
-Configured in both `vite.config.ts` and `vitest.config.ts`:
-
-| Alias | Resolves to |
-|-------|------------|
-| `@/` | `src/` |
-| `@shared/` | `shared/` |
-
-Use `@/components/...`, `@/pages/...`, `@shared/schema` in frontend and test files. Server files use relative imports with `.js` extensions (ESM).
-
-### Import Conventions
-
-Server files use **ESM with `.js` extensions** even for `.ts` source files:
-```ts
-// server files — always .js extension in imports
-import db from './db.js';
-import { requireAuth } from './auth.js';
-import { generateDominicalReport } from './jobs/generateDominical.js';
-```
-
-Frontend files use path aliases or relative imports without extensions:
-```ts
-import { useChatSession } from '../../hooks/useChatSession.js'; // hooks: .js ok
-import { Button } from '@/components/ui/button';
-```
-
-`shared/schema.ts` is the only cross-boundary file — imported as `@shared/schema` from both client and server.
-
-### Blog Post JSON Format
-
-Posts live at `server/data/posts/YYYY/MM/DD/*.json`. Schema:
-
-```jsonc
-{
-  "slug": "2025-03-28-00-00-00-base-slug",   // date-prefixed base slug
-  "date": "2025-03-28",
-  "image": "/images/optional-cover.jpg",      // optional
-  "editorId": 3,                              // 1–24, references editors.json
-  "categories": ["Deep Learning", "NLP"],
-  "keywords": ["transformer", "fine-tuning"],
-  "translations": {
-    "en": {
-      "slug": "2025-03-28-00-00-00-english-slug",
-      "title": "English Title",
-      "excerpt": "Short description (≤160 chars for SEO)",
-      "content": [
-        { "heading": "Section Heading", "body": "Paragraph text..." }
-      ]
-    },
-    "es": {
-      "slug": "2025-03-28-00-00-00-slug-en-espanol",
-      "title": "Título en Español",
-      "excerpt": "Descripción corta",
-      "content": [
-        { "heading": "Encabezado", "body": "Texto del párrafo..." }
-      ]
-    }
-  },
-  "sources": [
-    { "title": "Source Title", "url": "https://...", "source": "Publisher Name" }
-  ]
-}
-```
-
-The `Detail_API` (`GET /api/blog/:slug`) reads directly from JSON files. The listing API (`GET /api/blog`) reads from the `blog_posts_index` SQLite table.
-
-### Blog Editors
-
-24 AI journalist personas defined in `server/data/editors.json` under key `editors`. Each has: `id`, `name`, `specialty`, `systemPrompt`, `profile`, `signature`, `colorPalette`, `min/max_temperature`, `min/max_top_p`.
-
-| IDs | Specialties |
-|-----|------------|
-| 1–5 | Smart Cities, Robotics, Deep Learning, Computer Vision, NLP |
-| 6–10 | Big Data, Quantum Computing, Edge Computing, Streaming Media, Autonomous Vehicles |
-| 11–15 | AI Ethics/Diversity, Quantum AI, Neuroscience, Infrastructure/Cloud, AI Governance |
-| 16–20 | Healthcare AI, Music AI, Cybersecurity, AR/VR, Animation AI |
-| 21–24 | AI Art, Telecommunications, Climate/AI, Blockchain/AI |
-
-Avatar images: `public/avatars/{id}.png` and `public/avatars/{id}-headshot.png`.
-
-### API Routes Summary
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| POST | `/api/contact` | No | Contact form → email |
-| POST | `/api/send-application` | No | Job application → email |
-| GET | `/api/blog` | No | Paginated blog listing (SQL index) |
-| GET | `/api/blog/:slug` | No | Blog post detail (JSON file) |
-| GET | `/api/blog/search?q=` | No | FTS5 full-text search |
-| GET | `/api/editors` | No | Editor list |
-| GET | `/api/generate-posts?date=YYYY-MM-DD` | No | Manual post generation trigger |
-| GET | `/api/test` | No | Health check |
-| GET | `/sitemap.xml` | No | Sitemap index |
-| GET | `/sitemaps/:filename` | No | Monthly blog sitemaps |
-| GET | `/api/public/slides/:reportId/:position` | No | Carousel slide image (for Meta API) |
-| POST | `/api/quiz-lead` | No | Submit quiz: GPT result message, store lead, send verification email |
-| GET | `/api/quiz-lead/status?leadId=` | No | Polled while waiting: verified / expired |
-| GET | `/api/quiz-lead/verify?token=` | No | Email verification link (HTML page) |
-| POST | `/api/quiz-lead/resend` | No | Resend verification email |
-| GET | `/api/quiz-lead/pdf?leadId=` | No | PDF report (only once verified) |
-| POST | `/api/chat/session` | No | Create chat session (sets cookie) |
-| GET | `/api/chat/history` | Cookie | Restore conversation |
-| POST | `/api/chat/message` | Cookie | Send message (SSE stream) |
-| POST | `/api/chat/close` | Cookie | End session |
-| GET | `/api/admin/status` | No | Check auth/setup state |
-| POST | `/api/admin/setup` | No | First-time admin setup |
-| POST | `/api/admin/login` | No | Admin login |
-| POST | `/api/admin/logout` | Yes | Admin logout |
-| GET/PUT | `/api/admin/settings` | Yes | Get/set all settings |
-| GET | `/api/admin/dominical` | Yes | List Dominical reports |
-| GET/PUT | `/api/admin/dominical/:id` | Yes | Report detail/update |
-| POST | `/api/admin/dominical/generate` | Yes | Manual Dominical generation |
-| POST | `/api/admin/dominical/:id/publish` | Yes | Publish (legacy, LinkedIn) |
-| POST | `/api/admin/dominical/:id/publish/:platform` | Yes | Publish to specific platform |
-| POST | `/api/admin/dominical/:id/publish-all` | Yes | Publish to all platforms |
-| GET | `/api/admin/dominical/:id/publish-status` | Yes | Per-platform status |
-| POST | `/api/admin/dominical/:id/generate-carousel` | Yes | Generate carousel images |
-| GET | `/api/admin/dominical/:id/carousel` | Yes | Carousel metadata |
-| GET | `/api/admin/dominical/:id/carousel/pdf` | Yes | Download PDF |
-| POST | `/api/admin/dominical/:id/generate-video` | Yes | Generate narrated Dominical video |
-| GET | `/api/admin/quiz-leads` | Yes | Quiz lead list |
-| GET | `/api/admin/conversations` | Yes | Chat conversation list |
-| GET | `/api/admin/conversations/:id` | Yes | Conversation detail |
-| GET | `/api/admin/conversations/analytics` | Yes | Chat analytics |
-| GET | `/api/admin/analytics/overview` | Yes | GA4 overview KPIs |
-| GET | `/api/admin/analytics/traffic` | Yes | GA4 traffic data |
-| GET | `/api/admin/analytics/behavior` | Yes | GA4 behavior data |
-| GET | `/api/admin/analytics/social/instagram` | Yes | Instagram insights |
-| GET | `/api/admin/analytics/social/facebook` | Yes | Facebook insights |
-| POST | `/api/admin/analytics/refresh` | Yes | Clear analytics cache |
-| POST | `/api/admin/reindex-posts` | Yes | Force blog index rebuild |
-
-### Authentication
-
-Admin routes use JWT in an httpOnly cookie named `admin_token` (7-day expiry). The `requireAuth` middleware in `server/auth.ts` reads this cookie, verifies the JWT, and attaches `req.user`. Always use `requireAuth` for new admin endpoints.
-
-Chat routes use a separate httpOnly cookie named `chat_session` (1-hour TTL, refreshed on each message).
-
-### Settings Table Keys
-
-All config stored as `key/value` in the `settings` SQLite table. Key names used in code:
-
-```
-openai_api_key, linkedin_client_id, linkedin_client_secret,
-linkedin_access_token, linkedin_refresh_token, linkedin_token_expires_at,
-linkedin_person_id, image_provider, dominical_notification_email,
-dominical_auto_publish, dominical_top_n, admin_jwt_secret,
-meta_app_id, meta_app_secret, instagram_business_account_id,
-instagram_access_token, facebook_page_id, facebook_page_access_token,
-meta_token_expires_at
-```
-
-### Cron Schedule (America/Lima)
-
-| Schedule | Job | Guard |
-|----------|-----|-------|
-| `0 * * * *` (hourly) | Generate blog posts + update FTS + listing index | Skipped in dev unless explicitly triggered |
-| `0 12 * * 6` (Sat 12pm) | Generate Dominical IA report | Skipped in dev |
-| `0 12 * * 0` (Sun 12pm) | Auto-publish Dominical to all platforms | Skipped in dev |
-| `*/5 * * * *` (every 5min) | Close timed-out chat sessions | Always runs |
-
-### Testing Environment
-
-`vitest.config.ts` sets `environment: 'jsdom'` globally but overrides to `node` for all `server/**/*.test.ts` files. This means:
-- Frontend component tests use jsdom (JSDOM + `@testing-library/react`)
-- Server tests use Node (no DOM, real `better-sqlite3`)
-- Property tests use `fast-check` with ≥100 iterations
-- Integration tests use `supertest` against the Express app
-
-> **Known local gotcha:** if SQLite-backed tests fail with `NODE_MODULE_VERSION ... was compiled against a different Node.js version`, the `better-sqlite3` native binary was built for another Node than the one running vitest. Run `npm rebuild better-sqlite3` with the same Node version you use for `npm test`. This accounts for most failures seen locally (Sep 2026) and is not a code bug.
-
-### UX / Accessibility Conventions (spec `ux-overhaul`)
-
-A cross-cutting responsive + accessibility + reduced-motion pass established a few standing conventions. Follow them for new UI:
-
-- **Global CSS tokens/utilities** (`src/index.css`): document-root overflow guard (`html, body { overflow-x: hidden }`), `.tap-target` (44px min hit area), `.break-anywhere` (wrap long URLs/tokens), the `--header-h` token (single source of the fixed-header height — use it instead of a magic number) with `scroll-margin` on anchors, a 16px mobile input rule (prevents iOS auto-zoom), a global `:focus-visible` ring, and a `prefers-reduced-motion` backstop.
-- **Reduced motion**: gate animations with `useReducedMotion` (`src/hooks/useReducedMotion.ts`) and `<MotionConfig reducedMotion="user">`; Hero/`ParticleBackground`/chatbot balloon and framer-motion entrances already respect it.
-- **Shared state components**: use `src/components/state/{LoadingState,EmptyState,ErrorState}.tsx` (copy from `state.*`) rather than ad-hoc spinners/messages; `ErrorState` (with retry) is wired into blog fetches.
-- **Responsiveness**: wrap wide content (tables, logs, JSON, transcripts) in `overflow-x-auto`; two-column layouts stack on mobile; images use `max-w-full h-auto` with `loading="lazy"` + reserved aspect-ratio below the fold.
-- **All new user-facing copy flows through i18next** (keep en/es key parity).
-
-### Build & Data Persistence
-
-`dist/` is fully regenerated on each build (Vite + esbuild). The postbuild step copies `server/data/` into `dist/data/` **without overwriting** existing files — so the SQLite database, blog posts, carousel images, and sitemaps persist across deployments. Do NOT store anything that needs to survive builds inside `dist/` directly.
+Feature specs (requirements/design/tasks) live in `.kiro/specs/`: `admin-backend-management`, `ai-chatbot-widget`, `analytics-dashboard`, `blog-fts5-search`, `blog-posts-db-index`, `dominical-carousel-images`, `dominical-ia`, `multi-platform-publishing`, `seo-improvements`, `ux-overhaul`, `whatsapp-widget-time-fix`.
 
 ---
 
-## License
+## License and contact
 
-MIT (c) 2025 Robles.AI
-
----
-
-## Contact
-
-- Website: https://robles.ai
-- Email: info@robles.ai
-- Phone/WhatsApp: +1 (408) 590-0153
-- Location: Cupertino, CA
+MIT © 2025 Robles.AI · https://robles.ai · info@robles.ai · +1 (408) 590-0153 (phone/WhatsApp) · 20380 Stevens Creek Blvd, Suite 205, Cupertino, CA 95014

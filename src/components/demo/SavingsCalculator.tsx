@@ -91,7 +91,7 @@ function useAnimatedNumber(value: number) {
  * The visitor enters their own volume, minutes per unit, share automated and
  * hourly cost; the panel shows yearly/monthly savings, hours freed and a
  * today-vs-with-AI cost bar. The starting values are editable examples, never
- * claims (DEMOS_PLAN.md §2). Demos without calculator defaults (e.g. emotion)
+ * claims (docs/DEMOS_PLAN.md §2). Demos without calculator defaults (e.g. emotion)
  * get the CTA panel only.
  */
 export function SavingsCalculator({ demoId }: { demoId: DemoBusinessId }) {

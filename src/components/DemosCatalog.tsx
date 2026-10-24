@@ -58,7 +58,7 @@ type DemoItem = {
   modelType: string;
   title: string;
   description: string;
-  /** One line on the money it saves or earns (DEMOS_PLAN.md §2). */
+  /** One line on the money it saves or earns (docs/DEMOS_PLAN.md §2). */
   benefit?: string;
 };
 

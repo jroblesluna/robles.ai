@@ -1,6 +1,6 @@
 /**
  * DNS provider abstraction. v1 has a single implementation (Hostinger). When
- * robles.ai migrates its DNS to Cloud DNS (DEMOS_PLAN §8), add a CloudDnsProvider
+ * robles.ai migrates its DNS to Cloud DNS (docs/DEMOS_PLAN.md §8), add a CloudDnsProvider
  * and swap the active one — endpoints and UI stay unchanged.
  */
 export interface DnsRecord {

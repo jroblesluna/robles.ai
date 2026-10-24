@@ -35,7 +35,7 @@ export const BACKENDS: BackendDef[] = [
     subdomain: 'identity-api',
     publicUrl: 'https://identity-api.robles.ai',
     cloudRunProject: 'robles-ai-identity-project',
-    // NOTE: this service is "identity-server" (no -api suffix) — see DEMOS_PLAN §8.
+    // NOTE: this service is "identity-server" (no -api suffix) — see docs/DEMOS_PLAN.md §8.
     cloudRunService: 'identity-server',
     region: 'us-central1',
   },

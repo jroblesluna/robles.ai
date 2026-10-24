@@ -1,24 +1,24 @@
 # AGENTS.md — Contexto para asistentes de código
 
-> Documento de contexto integral del proyecto `robles.ai` para agentes de IA y
-> nuevos contribuidores: negocio, arquitectura, features, datos, rutas,
-> convenciones, CI/CD y despliegue. Léelo antes de hacer cambios. El
-> [README.md](README.md) es la referencia técnica orientada a humanos. El roadmap de demos
-> (priorización por efecto wow + ROI) está en [DEMOS_PLAN.md](DEMOS_PLAN.md).
+> Contexto integral de `robles.ai` para agentes de IA y nuevos contribuidores: negocio,
+> arquitectura, features, datos, rutas, convenciones, despliegue e historial. Léelo antes de
+> hacer cambios. [`README.md`](README.md) es la referencia técnica orientada a humanos (inglés).
+> **Son los dos únicos `.md` de la raíz**: planes, auditorías y briefs viven en `docs/` (§23) y
+> las specs de features en `.kiro/specs/` (§14).
 
 ---
 
 ## 1. Qué es Robles.AI
 
-Sitio web público de **Robles.AI**, una consultora/estudio de soluciones de Inteligencia Artificial. La plataforma cumple tres roles a la vez:
+Sitio y plataforma de **Robles.AI**, consultora/estudio de soluciones de IA (Cupertino, CA · EE. UU. y Latinoamérica). Cumple tres roles:
 
-1. **Sitio corporativo / landing comercial**: presenta servicios, casos de éxito, equipo, cursos, un **laboratorio de demos de IA** en vivo, un **quiz de diagnóstico** que captura leads verificados, y formularios de contacto/postulación laboral.
-2. **Medio editorial autogenerado por IA**: un blog con 24 "editores" (personas IA) que publican notas sobre tecnología/IA de forma automática, indexado con búsqueda full-text.
-3. **Panel de administración interno**: gestiona un newsletter semanal ("El Dominical IA"), publicación multi-plataforma en redes sociales, generación de video, un chatbot con inbox de conversaciones, los leads del quiz, y un dashboard de analítica (GA4 + Meta).
+1. **Sitio corporativo + landing de tráfico pagado**: servicios, casos ilustrativos, equipo, **laboratorio de demos en vivo**, **quiz de diagnóstico** con leads verificados y la landing `/get-started` para Google Ads / Meta Ads.
+2. **Medio editorial autogenerado**: blog bilingüe escrito por 24 "editores" IA, con búsqueda full-text.
+3. **Panel de administración interno**: El Dominical IA, publicación multi-plataforma, video narrado, inbox del chatbot, leads del quiz, analítica (GA4, Meta, Google Ads, Meta Ads) y portal de backends de las demos.
 
-- **Sitio**: https://robles.ai
-- **Contacto**: info@robles.ai · WhatsApp/Tel +1 (408) 590-0153
-- **Ubicación**: Cupertino, CA
+- **Sitio**: https://robles.ai · **Contacto**: info@robles.ai · WhatsApp/Tel +1 (408) 590-0153
+- **Dirección**: 20380 Stevens Creek Blvd, Suite 205, Cupertino, CA 95014 (`shared/publicContent.ts`)
+- **Oferta de entrada**: Diagnóstico IA de 2 semanas, USD 1,500–3,000 (tarifa fija según alcance), o proyecto directo con propuesta.
 - **Licencia**: MIT (c) 2025 Robles.AI
 
 ---
@@ -27,133 +27,111 @@ Sitio web público de **Robles.AI**, una consultora/estudio de soluciones de Int
 
 | Capa | Tecnología |
 |------|-----------|
-| Frontend | React 19 + Vite 6 + TypeScript + Tailwind CSS + framer-motion + shadcn/ui (Radix) + recharts + wouter (routing) |
-| Backend | Express 4 + Node.js ≥20 + `tsx watch` (dev) / esbuild (bundle prod) |
-| Base de datos | SQLite vía `better-sqlite3` (13 tablas, archivo único `server/data/dominical.db`) |
-| IA / LLM | OpenAI — GPT-4o, GPT-4o-mini, `gpt-image-1` (generación de imágenes) |
-| APIs sociales | LinkedIn UGC Posts API, Meta Graph API (Instagram + Facebook) |
-| Analítica | Google Analytics Data API (GA4) + Meta Graph API (Insights) |
-| Procesamiento de imagen/video | `sharp` (composición/resize), `pdfkit` (export PDF), `fluent-ffmpeg` + `@ffmpeg-installer`/`@ffprobe-installer` (generación de video) |
-| Búsqueda | SQLite FTS5 con ranking BM25 |
-| Auth | JWT (cookie httpOnly) + `bcrypt` para passwords admin; OTP (`otpauth`) |
+| Frontend | React 19 + Vite 6 + TypeScript + Tailwind + shadcn/ui (Radix) + framer-motion + recharts + wouter + TanStack Query |
+| Backend | Express 4 + Node ≥ 20 (producción v22.14.0) · `tsx watch` en dev · esbuild en prod |
+| Base de datos | SQLite vía `better-sqlite3` (`server/data/dominical.db`) |
+| IA | OpenAI — GPT-4o, GPT-4o-mini, `gpt-image-1`; proveedores de imagen opcionales (Replicate, Stability) |
+| APIs sociales / ads | LinkedIn UGC Posts + OAuth 2.0; Meta Graph API (Instagram, Facebook, Marketing API) |
+| Analítica | GA4 Data API, Meta Graph Insights; en el sitio GTM o GA4 + Meta Pixel directos |
+| Medios | `sharp`, `pdfkit`, `fluent-ffmpeg` (+ `@ffmpeg-installer`, `@ffprobe-installer`) |
+| Búsqueda | SQLite FTS5 (BM25) |
+| IA en el navegador | TensorFlow.js + COCO-SSD, `@vladmandic/face-api`, `pdfjs-dist` |
+| Auth | JWT en cookie httpOnly + `bcrypt`; página OTP (`otpauth`) |
 | Email | `nodemailer` (Gmail) |
-| IA en el navegador | TensorFlow.js + COCO-SSD (detección de objetos), `@vladmandic/face-api` (emociones) |
 | i18n | `i18next` + `react-i18next` (en/es) |
-| Testing | `vitest` + `fast-check` (property-based) + `supertest` (integración) + `@testing-library/react` |
-| Despliegue | VPS + PM2, script `pull.sh` |
+| Testing | `vitest` + `fast-check` + `supertest` + `@testing-library/react` |
+| Despliegue | VPS + PM2; GitHub Actions → SSH → `pull.sh` |
 
 ---
 
 ## 3. Funcionalidades principales
 
-- **SPA** con Vite + React, routing con `wouter`.
-- **Servidor Express** que sirve estáticos e integra middleware de Vite en desarrollo.
-- **i18n** (en/es) con carga asíncrona de `translation.json` por idioma.
-- **Landing page publicitaria** (`/get-started`): bilingüe, orientada a conversión, con pasos del proceso, servicios, tecnologías, precios, roadmap y CTA.
-- **Chatbot IA "Robly"**: widget flotante (reemplazó una burbuja de WhatsApp antigua), impulsado por GPT-4o-mini con streaming SSE, consciente del contexto de página, recolecta datos de contacto durante la conversación y guarda transcripts. Avatar SVG con 4 estados de ánimo animados (idle/listening/thinking/speaking) más variantes nuevas "pointing"/"dominical" para video (ver §7).
-- **Laboratorio de demos** (`/demos`, catálogo en `DemosCatalog.tsx`): siete demos *live* — `/try-identity`, `/try-rag`, `/try-langchain`, `/try-transcription` y `/try-chatbot` contra APIs propias en Cloud Run, más `/try-object-detection` y `/try-emotion` que corren 100% en el navegador. `/try-medical` está en **"soon"**: no tiene backend y ya no sube nada (ver §18). Las APIs escalan a cero, por eso cada página hace un **warm-up** al montar (ping `mode:"no-cors"` a `/`, o `GET /health` en transcription) con banner de estado, tooltips (`InfoTip`) y log JSON con resaltado (`JsonHighlight`). `TryRAG` extrae el texto del PDF **en el navegador** con `pdfjs-dist` (solo el texto va a la API; elimina el límite de 32 MB de Cloud Run).
-- **Quiz de diagnóstico de IA** (`/diagnostico-ia`, `Quiz.tsx`): preguntas con puntaje → mensaje de resultado generado con GPT → email de verificación con token → reporte PDF descargable (solo si el email está verificado). Los leads se guardan en `quiz_leads` y se ven en `/admin/quiz-leads`; el equipo recibe un aviso por email en cuanto entra un lead.
-- **Blog estático**: posts en `server/data/posts/YYYY/MM/DD/*.json`, bilingües, con búsqueda full-text FTS5.
-- **SEO server-side**: middleware Express inyecta `<title>`, `<meta>`, Open Graph, Twitter Card, hreflang, canonical y JSON-LD antes de servir el HTML a crawlers (sin depender de JS del cliente).
-- **Panel Admin** (`/admin`): dashboard autenticado con JWT — gestión de El Dominical IA, publicación multi-plataforma, generación de carrusel de imágenes, generación de video, inbox de conversaciones del chatbot, y analítica.
-- **El Dominical IA**: newsletter semanal automatizado (ver §6).
-- **Dashboard de Analítica**: métricas de GA4 y Meta (Instagram/Facebook) con caché en SQLite, en pestañas Overview/Traffic/Behavior/Social/Ads (recharts). La pestaña **Ads** muestra campañas pagadas: Google Ads leído vía GA4 (cuenta de Ads vinculada a la propiedad; sin developer token) y Meta Ads vía Marketing API (`meta_ad_account_id` + `meta_ads_access_token` con `ads_read`).
-- **Formularios** con validación `zod` y envío por email (`nodemailer`).
-- **Analítica opcional**: GA4 y Facebook Pixel (solo en producción).
-- **Sitemaps** con anotaciones hreflang (`sitemap.xml` + archivos XML mensuales por idioma).
+- **SPA** Vite + React con `wouter`; Express sirve estáticos e integra el middleware de Vite en dev.
+- **Primera respuesta legible**: `server/seo/publicContent.ts` genera HTML plano de cada ruta pública desde los mismos JSON de i18n (mejora progresiva, React lo reemplaza al iniciar) + meta tags, hreflang, canonical y JSON-LD server-side.
+- **i18n** en/es; `?lang=es` en cualquier ruta pública.
+- **Landing `/get-started`** (§6): hero orientado a resultado, dos formas de empezar (diagnóstico con precio o proyecto directo), demos en vivo, industrias, compromisos, seguridad, fundador, FAQ, formulario y CTA fijo en móvil; variantes `?s=chatbots|rag|agents|docs` por grupo de anuncios.
+- **Formulario de contacto** (`ContactForm`): selector "¿Qué quieres mejorar?", mensaje opcional, notas de respuesta/privacidad; se envía por email y cuenta como `generate_lead` solo si el servidor lo acepta.
+- **Quiz de diagnóstico** (`/diagnostico-ia`): puntaje → mensaje GPT → verificación por email → PDF; leads en `quiz_leads`, visibles en `/admin/quiz-leads`; dispara `generate_lead` (`method: quiz`) al guardarse.
+- **Laboratorio de demos** (`/demos`, §11): 10 demos live (7 con API en Cloud Run, 3 en el navegador) y 3 "soon".
+- **Chatbot Robly** (§9), **blog** (§10), **El Dominical IA** (§8), **publicación multi-plataforma**.
+- **Analítica admin** (§7): pestañas Overview/Traffic/Behavior/Social/**Ads** con caché en SQLite.
+- **Portal de backends** (§21): DNS (Hostinger), estado Cloud Run y actividad (Cloud Monitoring), solo lectura hacia GCP.
+- **Sitemaps** con hreflang (`sitemap.xml`, `static-pages.xml`, mensuales en `/sitemaps/*`).
 
 ---
 
-## 4. Estructura de directorios clave
+## 4. Estructura de directorios
 
 ```
+AGENTS.md / README.md     # únicos .md de la raíz
+docs/                     # planes, auditorías, briefs, notas de release (§23)
+.kiro/specs/              # specs de features (requirements/design/tasks)
+.github/workflows/        # deploy.yml
+pull.sh                   # build selectivo + reinicio PM2 en el VPS
+push.sh                   # helper local (git add . + commit + push) — ignorado por git
+__test_pointing_video.ts  # script ad-hoc: renderiza un video del Dominical con la pose "pointing"
+
 src/
-  components/           # Componentes UI reutilizables
-    DemosCatalog.tsx    # Catálogo del laboratorio de demos (home + /demos)
-    BlogModal.tsx       # Visor de noticias del blog en modal (in-page, accesible)
-    BlogArticle.tsx     # Render del artículo compartido por BlogPost y BlogModal
-    VideoModal.tsx      # Modal de video (role="dialog"); patrón que reusa BlogModal
-    chat/               # ChatbotWidget, ChatPanel, MessageList, MessageInput
-    demo/               # UI compartida de demos: JsonHighlight, InfoTip, StepCard
-    state/               # LoadingState, EmptyState, ErrorState (copys i18n state.*)
-    admin/               # CarouselPreview, SlideEditor, PlatformPublishStatus, VideoGenerator
-    admin/analytics/     # OverviewTab, TrafficTab, BehaviorTab, SocialTab, KpiCard
-  pages/
-    Home, Landing, Quiz, Demos, Careers, Apply, BlogList, BlogPost, OTP, not-found,
-    TryIdentity, TryLangChain, TryRAG, TryTranscription, TryChatbot, TryDocExtract,
-    TryForecast, TryTTS, TryObjectDetection, TryEmotion, TryMedical (soon, sin backend)
-    admin/               # AdminLayout, AdminDashboard, AdminSettings, AdminDominicalList,
-                          # AdminDominicalDetail, AdminConversationList, AdminConversationDetail,
-                          # AdminAnalytics, AdminQuizLeads, AdminLogin, AdminSetup
-  hooks/                 # useChatSession, useSearch, useSEO, useScrollRestoration,
-                          # useReducedMotion, useBlogModalRouting
-  scripts/               # Generación de posts, limpieza, detección de huecos, sitemaps
-  i18n/                  # locales/en/ y locales/es/
+  App.tsx, Root.tsx, main.tsx, entry-server.tsx (build SSR)
+  components/
+    Header, Hero, Features, Solutions, DemosCatalog, CaseStudies, Courses, Testimonials,
+    Team, Contact (exporta ContactForm y CONTACT_GOALS), Footer, BlogArticle, BlogModal,
+    BlogSearch, VideoModal, ParticleBackground
+    chat/            # ChatbotWidget, ChatPanel, MessageList, MessageInput
+    demo/            # ApiCallLog, BusinessCase, SavingsCalculator, business.ts, DemoKit, DemoNav,
+                     # DemoVideoPreview, DemoVisualPreview, EmotionPreview, InfoTip, JsonHighlight, StepCard
+    quiz/            # QuizIntro, QuizQuestionCard, QuizProgressBar, QuizAnalyzing, QuizResultPreview,
+                     # QuizLeadForm, QuizWaitingVerification, QuizResultFull
+    admin/           # CarouselPreview, SlideEditor, RegenerateModal, PlatformPublishStatus, VideoGenerator
+    admin/analytics/ # OverviewTab, TrafficTab, BehaviorTab, SocialTab, AdsTab, KpiCard, DateRangeSelector
+    state/           # LoadingState, EmptyState, ErrorState
+    ui/              # primitivas shadcn/ui
+  pages/             # Home, Landing, Quiz, Demos, Careers, Apply, BlogRoute, BlogList, BlogPost, OTP,
+                     # not-found, TryChatbot, TryIdentity, TryRAG, TryTranscription, TryLangChain,
+                     # TryDocExtract, TryTTS, TryForecast, TryObjectDetection, TryEmotion, TryMedical
+    admin/           # AdminLayout, AdminDashboard, AdminLogin, AdminSetup, AdminSettings,
+                     # AdminDominicalList/Detail, AdminConversationList/Detail, AdminAnalytics,
+                     # AdminQuizLeads, AdminBackends
+  hooks/             # useChatSession, useSearch, useSEO, useScrollRestoration, useReducedMotion,
+                     # useBlogModalRouting, useDemoPreviewMotion, useSpeechInput, useAdminDialog,
+                     # usePublicDialog, use-toast, use-mobile
+  lib/               # analytics, blogModal, forecast, pageMetadata, publicPost, queryClient, quizData, utils
+  scripts/           # generación de posts, huecos, duplicados, sitemaps, avatares, servicios de noticias/imágenes
+  i18n/locales/{en,es}/translation.json
 
 server/
-  adminRoutes.ts         # Todos los endpoints /api/admin/*
-  analyticsRoutes.ts     # /api/admin/analytics/*
-  chatRoutes.ts          # /api/chat/* (SSE streaming, sesiones)
-  chatAdminRoutes.ts     # /api/admin/conversations/*
-  publicRoutes.ts        # /api/public/slides/* (sin auth — acceso de imágenes para API de Meta)
-  searchRoutes.ts        # /api/blog/search (búsqueda FTS5 BM25)
-  auth.ts                # Middleware JWT (generateToken, verifyToken, requireAuth)
-  db.ts                  # Conexión SQLite + creación de todas las tablas
-  vite.ts                # Integración de Vite + singleton de índice de slugs
-  fts/                   # Indexador FTS5, script de migración, property tests
-  listing/                # Indexador blog_posts_index, property tests
-  migrations/             # Migración chatTables
-  seo/                    # MetaInjector, SlugIndex, metaBuilders, htmlInjector, types
-  jobs/
-    generateDominical.ts      # Sábado 12pm: puntuar + generar + notificar
-    autoPublishDominical.ts   # Domingo 12pm: publicar o saltar
-    chatSessionCleanup.ts     # Cada 5min: cerrar sesiones de chat inactivas
+  index.ts, routes.ts (router principal: quiz, blog, editores, postulaciones, cron), vite.ts,
+  publicServing.ts, db.ts, auth.ts
+  adminRoutes.ts       # /api/admin/* (monta chatAdminRoutes)
+  chatAdminRoutes.ts   # /api/admin/conversations/*
+  analyticsRoutes.ts   # /api/admin/analytics/*
+  backendRoutes.ts     # /api/admin/backends/*
+  chatRoutes.ts        # /api/chat/*
+  contactRoutes.ts     # /api/contact
+  publicRoutes.ts      # /api/public/*
+  searchRoutes.ts      # /api/blog/search
+  seo/                 # metaInjector, slugIndex, metaBuilders, htmlInjector, publicContent, sitemap, sitemapRoutes
+  fts/, listing/       # indexadores FTS5 y de listado (+ property tests)
+  migrations/          # chatTables
+  jobs/                # generateDominical, autoPublishDominical, chatSessionCleanup
   services/
-    dominicalScoring.ts       # Puntuación multidimensional con GPT-4o
-    imageGeneration.ts        # Imagen de portada con gpt-image-1
-    linkedin.ts                # Re-export (wrapper de compatibilidad)
-    engagementPhrases.ts       # Frases de engagement en batch con GPT-4o
-    carouselImageGen.ts        # Fondo por slide con gpt-image-1
-    slideCompositor.ts         # sharp + overlay SVG → PNG 1080×1080
-    carouselGenerator.ts       # Orquestación del carrusel (generar + regenerar)
-    pdfExporter.ts             # pdfkit → PDF Buffer
-    carouselTypes.ts           # Interfaces compartidas del carrusel
-    dominicalVideoGen.ts       # Generación de video narrado con robot IA (nuevo)
-    robotFrames.ts             # Poses/frames SVG del robot Robly para video (nuevo)
-    quizResultMessage.ts       # Mensaje de resultado del quiz con GPT
-    quizVerificationEmail.ts   # Email de verificación de leads del quiz
-    quizLeadPdf.ts             # Reporte PDF del quiz con pdfkit (+ pdfIcons.ts)
-    chatEngine.ts               # SSE streaming GPT-4o-mini + tool calls
-    chatContext.ts              # Contexto consciente de la página (blog/home/demo)
-    chatNotifier.ts             # Notificación por email del transcript
-    conversationStore.ts        # CRUD SQLite de conversaciones/mensajes/contactos
-    ga4Client.ts                 # Cliente de Google Analytics Data API
-    metaInsights.ts              # Meta Graph API (insights de Instagram + Facebook)
-    googleAdsReport.ts           # Google Ads vía GA4 (advertiserAdCost/Clicks/Impressions por campaña + canales pagados vs orgánicos)
-    metaAds.ts                   # Meta Marketing API (insights del ad account: gasto, clics, leads por campaña)
-    analyticsCache.ts            # Caché TTL en SQLite para respuestas de analítica
-    platforms/
-      types.ts                  # PlatformName, PlatformStatus, PlatformAdapter interface
-      contentFormatter.ts       # Truncado de texto, preservación de hashtags, selección de formato
-      linkedinAdapter.ts        # LinkedIn UGC Posts API + refresh de token
-      instagramAdapter.ts       # Meta Graph API — publicación de carrusel
-      facebookAdapter.ts        # Meta Graph API — post multi-foto
-      publishingEngine.ts       # Orquesta publicación multi-plataforma con aislamiento de fallos
+    dominicalScoring, engagementPhrases, imageGeneration, carouselImageGen, slideCompositor,
+    carouselGenerator, carouselTypes, pdfExporter, pdfIcons, dominicalVideoGen, robotFrames,
+    quizResultMessage, quizVerificationEmail, quizLeadPdf, chatEngine, chatContext, chatNotifier,
+    conversationStore, ga4Client, googleAdsReport, metaInsights, metaAds, metaGraphApi,
+    analyticsCache, settingsSecrets, linkedin (re-export)
+    platforms/   # types, contentFormatter, linkedinAdapter, instagramAdapter, facebookAdapter, publishingEngine
+    backends/    # registry, settingsStore, health
+    dns/         # DnsProvider, HostingerDnsProvider
+    gcp/         # googleAuth, cloudRunClient, monitoringClient
+  data/          # posts/, editors.json, dominical.db (ignorado), ga4-service-account.json (ignorado), medios generados
 
-public/
-  images/               # Imágenes de la landing (servidas localmente)
-  avatars/              # Headshots de editores (24 editores)
-  robly-avatar/         # SVGs de Robly: idle, listening, speaking, thinking, pointing, dominical
-  case-studies/         # content.json (4 casos de éxito bilingües en HTML) + imágenes
-
-study-cases/            # Documentos PDF + DOCX de casos de éxito (EN + ES)
-scripts/                # generateCaseStudyContent.js (generación de HTML de casos de éxito)
-shared/
-  schema.ts             # Único archivo cruzado cliente/servidor (@shared/schema)
-  chatTypes.ts           # Tipos compartidos del sistema de chat
-.kiro/specs/             # Specs de features (requirements/design/tasks) — ver §11
-DEMOS_PLAN.md            # Roadmap del laboratorio de demos (wow + ahorro/ROI)
-REMOTION_VIDEO_CONTEXT.md # Contexto de marca + brief del video de marketing en Remotion
+shared/          # schema.ts (zod), chatTypes, seoPolicy, seoMetadata, publicContent, dominicalSelection, disposableEmailDomains
+public/          # images/, avatars/, robly-avatar/, case-studies/, assets/, demo-previews/, demo-samples/,
+                 # videos/, robots.txt, sitemap.xml, static-pages.xml
+scripts/         # HTML de casos, render de previews/clips de demos, kit de Firefly
+study-cases/     # documentos de casos (PDF + DOCX, EN + ES)
+creative/        # material fuente de los visuales de demos (prompts y frames de Firefly)
 ```
 
 ---
@@ -161,357 +139,129 @@ REMOTION_VIDEO_CONTEXT.md # Contexto de marca + brief del video de marketing en 
 ## 5. Arquitectura
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        Frontend (React)                          │
-│  Páginas SPA: Home, Landing, Blog, Demos, Panel Admin            │
-│  Componentes: ChatbotWidget (Robly), BlogSearch, CarouselPreview │
-│  Tabs admin: Dominical, Settings, Conversations, Analytics       │
-└──────────────────────────────┬──────────────────────────────────┘
-                               │ HTTP / SSE / fetch + cookie JWT
-┌──────────────────────────────▼──────────────────────────────────┐
-│                       Servidor Express                           │
-│  server/routes.ts        ← router principal + cron jobs         │
-│  server/adminRoutes.ts   ← /api/admin/* (requiere auth)         │
-│  server/chatRoutes.ts    ← /api/chat/* (streaming SSE)          │
-│  server/analyticsRoutes.ts ← /api/admin/analytics/*             │
-│  server/searchRoutes.ts  ← /api/blog/search (FTS5)              │
-│  server/publicRoutes.ts  ← /api/public/slides/* (sin auth)      │
-├──────────────────────────────────────────────────────────────────┤
-│  Middleware SEO (server/seo/)                                    │
-│  MetaInjector → SlugIndex → BlogMetaBuilder / StaticMetaBuilder │
-│  → HtmlInjector → sirve HTML modificado a crawlers               │
-├──────────────────────────────────────────────────────────────────┤
-│  Cron Jobs (node-cron, zona horaria America/Lima)                │
-│  - Cada hora:      genera posts de blog + actualiza índices FTS  │
-│  - Sábado 12pm:     generateDominical (puntuar → post → notificar)│
-│  - Domingo 12pm:    autoPublishDominical (LinkedIn/IG/FB)         │
-│  - Cada 5min:       chatSessionCleanup (cierra sesiones inactivas)│
-├──────────────────────────────────────────────────────────────────┤
-│  APIs externas                                                    │
-│  OpenAI (GPT-4o, GPT-4o-mini, gpt-image-1)                        │
-│  LinkedIn UGC Posts API + OAuth 2.0                               │
-│  Meta Graph API (carrusel Instagram + multi-foto Facebook)        │
-│  Google Analytics Data API (GA4)                                  │
-│  NewsAPI (descubrimiento de temas para posts de blog)             │
-└──────────────────────────────┬──────────────────────────────────┘
-                               │
-┌──────────────────────────────▼──────────────────────────────────┐
-│  SQLite (server/data/dominical.db)                                │
-│  13 tablas: admin, settings, dominical, carousel, platform,       │
-│             analytics_cache, chat×3, fts5, listing_index, quiz×2  │
-└─────────────────────────────────────────────────────────────────┘
+┌──────────────────────────── Frontend (SPA React) ────────────────────────────┐
+│ Home · Landing · Quiz · Demos + Try* · Blog · Careers · Panel admin          │
+│ Widget Robly · ContactForm · analytics.ts (GTM / GA4 / Meta Pixel)            │
+└───────────────────────────────┬──────────────────────────────────────────────┘
+                                │ fetch / SSE / cookies (admin_token, chat_session)
+┌───────────────────────────────▼──────────────────────────────────────────────┐
+│ Express                                                                       │
+│  routes.ts · adminRoutes · analyticsRoutes · backendRoutes · chatRoutes ·     │
+│  contactRoutes · publicRoutes · searchRoutes · seo/                           │
+│ Cron (node-cron, America/Lima): blog cada hora · sáb 12:00 Dominical ·        │
+│ cada 30 min chequeo del slot de auto-publicación · cada 5 min limpieza chat   │
+└───────┬──────────────────────────────┬───────────────────────────────────────┘
+┌───────▼─────────┐   ┌────────────────▼────────────────────────────────────────┐
+│ SQLite           │   │ OpenAI · LinkedIn · Meta Graph/Marketing · GA4 Data API │
+│ dominical.db     │   │ NewsAPI · Gmail SMTP · Hostinger DNS · GCP (Cloud Run   │
+│ 13 tablas        │   │ Admin, Cloud Monitoring) · APIs de demos en Cloud Run   │
+└──────────────────┘   └─────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 6. El Dominical IA (newsletter automatizado)
+## 6. Landing `/get-started` y conversiones
 
-Sistema gestionado desde `/admin/dominical`:
+**Página**: `src/pages/Landing.tsx`; copy en `landing.v2.*` (+ `landing.cta.*`, `landing.whatsapp.*`, `landing.diagnostico.*`, `landing.howWeWork.quote`). Secciones en orden:
 
-**Sábado 12:00pm (America/Lima)** — job de generación:
-1. Lee todos los posts de blog de los últimos 7 días.
-2. Envía a GPT-4o para puntuación multidimensional (novedad, impacto en personas, impacto económico, potencial narrativo, escala 1–100).
-3. Selecciona el top N posts (configurable, por defecto 5).
-4. Genera borrador de post para LinkedIn (hook + opiniones + hashtags, en español).
-5. Genera variante de texto específica para Instagram.
-6. Guarda el reporte en `dominical_reports` con estado `pending_review`.
-7. Envía email de notificación al admin.
+1. **Hero**: titular orientado a resultado, CTA *Agenda tu Diagnóstico IA* (`#contacto`), botón de WhatsApp, enlaces a demos (`#demos`), *solicitar propuesta* (`#diagnostico`) y test de 2 minutos; fila de confianza; tarjeta lateral *Lo que recibes en 2 semanas* + precio.
+2. **Lo que construimos — pruébalo** (`#demos`): chatbots, asistentes de conocimiento, agentes e IA documental, cada uno enlazado a su demo (`demosCatalog.items`).
+3. **Dónde encaja en tu negocio**: puntos de partida por industria, rotulados como ejemplos, no resultados de clientes.
+4. **Dónde la IA suele pagarse primero**: tres patrones + CTA.
+5. **Cómo trabajamos**: cuatro pasos.
+6. **Dos formas de empezar** (`#diagnostico`): diagnóstico 2 semanas (USD 1,500–3,000; el rango depende de cuántos procesos se revisan) o proyecto directo con propuesta (alcance, plazo, precio).
+7. **Compromisos**: hoja de ruta/código/datos del cliente, sin entrenar con sus datos, revisión humana.
+8. **Seguridad e integración**: SAP/ERP (OData/REST, RFC/BAPI), modelos en la nube del cliente, confidencialidad, revisión de proveedor.
+9. **Con quién trabajarás**: fundador (datos de `team.members[0]`).
+10. **FAQ**: incluye costo de implementación y "¿por qué no hacerlo nosotros mismos?".
+11. **Contacto** (`#contacto`): `ContactForm` (botón verde, sin newsletter, `defaultGoal` opcional) + email/WhatsApp.
+12. **CTA fijo en móvil**: aparece tras el hero y se oculta cuando el formulario es visible (deja espacio al botón de Robly).
 
-**Panel de revisión admin** (`/admin/dominical/:id`):
-- Vista dividida: lista de noticias puntuadas (izquierda) + texto editable del post (derecha).
-- Generación de carrusel de imágenes: slides PNG 1080×1080 (portada + artículo×N + CTA).
-  - Fondos: ilustraciones vectoriales conceptuales con gpt-image-1.
-  - Composición: overlay SVG con banda blanca de encabezado, logo, título de 3 líneas, frase de engagement, etiquetas de categoría, selector de paleta de colores.
-  - Regeneración individual de slides, edición de texto (recompone sin regenerar el fondo).
-  - Descarga de carrusel en PDF (pdfkit).
-- **Generación de video narrado (feature nueva)**: video con un robot IA ("Robly") que narra y señala el contenido del Dominical, compuesto con `fluent-ffmpeg`, fondo generado con `gpt-image-1`, frames del robot renderizados desde SVG (`server/services/robotFrames.ts`) y subtítulos superpuestos (`server/services/dominicalVideoGen.ts`, componente `src/components/admin/VideoGenerator.tsx`).
-- Panel de estado de publicación multi-plataforma (LinkedIn/Instagram/Facebook).
-- Publicación manual o cancelación.
+**Variantes `?s=`** (`chatbots`, `rag`, `agents`, `docs`, en `landing.v2.variants.*`): cambian titular, subtítulo, tarjeta lateral, CTA, título/botón del formulario, objetivo preseleccionado y mensaje de WhatsApp, para que cada grupo de anuncios aterrice en un mensaje coherente (Quality Score). URLs finales: `/get-started` (EN) o `/get-started?lang=es` (ES) + `s=`.
 
-**Domingo 12:00pm (America/Lima)** — job de auto-publicación:
-- Publica en todas las plataformas con credenciales válidas y estado `not_published`.
-- Delay de 5 segundos entre intentos por plataforma.
-- Aislamiento de fallos por plataforma.
-- Email de notificación con resumen de resultados.
+**Formulario** (`src/components/Contact.tsx` → `ContactForm`, usado en `/` y `/get-started`): campos nombre, email, empresa (opcional), objetivo (`CONTACT_GOALS`: service, documents, knowledge, automation, analytics, unsure) y mensaje (opcional si hay objetivo; si se escribe, ≥ 10 caracteres). La API no cambió: el cliente compone `subject` (`Website Inquiry — <objetivo>`) y `message` (`Interested in: <objetivo>` + texto). `POST /api/contact` valida con `insertContactSchema`, envía el correo (Reply-To = visitante) y responde `{ success: true }` solo si el envío fue aceptado; no se guarda en BD.
 
----
+**Medición** (`src/lib/analytics.ts`, solo producción y nunca en `/admin`): con `gtm_container_id` configurado **GTM es el único tracker** (eventos al `dataLayer`); si no, GA4 y Meta Pixel directos. `trackConversion()` encola eventos hasta que los trackers cargan y nunca incluye datos del visitante.
 
-## 7. Chatbot IA "Robly"
+| Función | GA4 | Meta | Cuándo |
+|---------|-----|------|--------|
+| `trackContactLead()` | `generate_lead` (`form_id: contact`, `method: contact_form`) | `Lead` | `POST /api/contact` → `success: true` |
+| `trackQuizLead()` | `generate_lead` (`form_id: quiz`, `method: quiz`) | `Lead` | `POST /api/quiz-lead` devuelve `leadId` |
+| `trackContactClick(canal, ubicación)` | `contact_click` (`contact_method`, `link_location`) | `Contact` | clic en WhatsApp/email/teléfono (landing, contacto del home, Robly) |
+| `trackDemoEvent(evento, demoId)` | `demo_start`, `demo_complete`, `roi_calculated`, `demo_cta_click` | custom | embudo de demos |
 
-Widget flotante global (`src/components/chat/ChatbotWidget.tsx`) impulsado por GPT-4o-mini:
-
-- Aparece en todas las páginas no-admin con secuencia de entrada temporizada (burbuja a los 10s, puntos de "escribiendo" a los 20s, saludo a los 22s).
-- Avatar Robly con SVGs de 4 estados de ánimo: idle, listening, thinking, speaking (`public/robly-avatar/`), más variantes nuevas `robly-pointing`, `robly-pointing-glasses` y `robly-dominical` para las escenas de video de El Dominical IA.
-- Streaming SSE para entrega de tokens en tiempo real.
-- Consciente del contexto de página: lee contenido de posts de blog, servicios de home, descripciones de demos.
-- Recolecta de forma natural datos de contacto del visitante (nombre, email/teléfono) durante la conversación.
-- Cada sesión se guarda en SQLite con transcript completo.
-- Notificación por email a `EMAIL_TO` cuando una sesión se cierra.
-- Inbox admin en `/admin/conversations` con filtros, analítica y vista de detalle.
-- Botón de fallback a WhatsApp dentro del panel de chat (`https://wa.me/14085900153`).
-- Oculto en rutas `/admin/*` y al imprimir.
+Configuración externa: el GTM existente tiene una etiqueta GA4 *catch-all* que reenvía los eventos por nombre y una tabla FBEventName que mapea `generate_lead → Lead` (añadir `contact_click → Contact` si se quiere en Meta). En GA4, `generate_lead` es key event. **Google Ads**: cuenta *Robles.AI* (EE. UU., USD, hora del Pacífico, login `antonio@robles.ai`) vinculada a la propiedad GA4 `492769320`; `generate_lead` importado como conversión principal "Submit lead form"; `contact_click` debe importarse como **secundaria**. Detalle: `docs/CONTACT_CONVERSIONS.md`.
 
 ---
 
-## 8. Blog editorial (IA)
+## 7. Analítica admin (`/admin/analytics`)
 
-- Ubicación: `server/data/posts/YYYY/MM/DD/*.json`.
-- Estructura del post: `slug`, `date`, `editorId`, `categories`, `keywords`, `translations` (en/es), `sources`.
-- **24 personas de editores IA** definidas en `server/data/editors.json` (id 1–24), cada una con especialidad, `systemPrompt`, perfil, firma, paleta de colores y rangos de temperatura/top_p.
+| Pestaña | Fuente | Contenido |
+|---------|--------|-----------|
+| Overview | GA4 Data API | Usuarios, sesiones, vistas, rebote, duración vs período anterior, tendencia diaria, usuarios en tiempo real |
+| Traffic | GA4 | Páginas top, canales, países, dispositivos |
+| Behavior | GA4 | Landing pages, nuevos vs recurrentes |
+| Social | Meta Graph API | Insights de Instagram y de la página de Facebook + publicaciones recientes |
+| Ads | GA4 (`googleAdsReport.ts`) + Meta Marketing API (`metaAds.ts`) | Google Ads: gasto, clics, impresiones, CPC y key events por campaña y por día (requiere cuenta de Ads vinculada a GA4; métricas `advertiserAd*` con dimensión `sessionGoogleAdsCampaignName`), canales pagados vs orgánicos. Meta Ads: gasto, clics, leads por campaña y por día |
+
+- Caché `analytics_cache`: tiempo real 30 s, rangos que terminan hoy 5 min, históricos 1 h, Meta 30 min; *Refresh* la limpia.
+- GA4 requiere `ga4_property_id` + JSON de service account (`server/data/ga4-service-account.json`, subido desde settings).
+- Meta Ads requiere `meta_ad_account_id` + `meta_ads_access_token` (token de System User con `ads_read`; los tokens de página/Instagram no sirven). El token va en cabecera `Authorization`, nunca en la URL.
+- Leads de Meta: se toma el primer tipo presente entre `lead`, `offsite_conversion.fb_pixel_lead`, `onsite_conversion.lead_grouped` (no se suman para no duplicar).
+- La UI del panel admin está en inglés (no usa i18n).
+
+---
+
+## 8. El Dominical IA (newsletter automatizado)
+
+- **Sábado 12:00 (America/Lima)** — `generateDominicalReport`: lee los posts de los últimos 7 días, los puntúa con GPT-4o (novedad, impacto en personas, impacto económico, potencial narrativo), toma el top N (`dominical_top_n`, por defecto 5), redacta textos para LinkedIn e Instagram, guarda el reporte como `pending_review`, notifica a `notification_email` y genera el carrusel (paleta `natural`, estilo `cinematic-scene`).
+- **Revisión** (`/admin/dominical/:id`): edición y regeneración de textos; carrusel 1080×1080 (portada + artículos + CTA; fondos `gpt-image-1`, overlay SVG con sharp, regeneración/edición por slide, PDF con pdfkit); **video narrado** con Robly (`dominicalVideoGen.ts`, `robotFrames.ts`, `VideoGenerator.tsx`; fluent-ffmpeg, subtítulos); estado de publicación por plataforma; publicación manual o cancelación.
+- **Auto-publicación**: un cron cada 30 min llama a `shouldRunAutoPublishNow()` y publica solo el **domingo** a `auto_publish_time` (por defecto `18:00`) en `auto_publish_timezone` (por defecto `America/Lima`), salvo que `auto_publish` sea `false`/`0`. Publica en las plataformas con credenciales válidas y estado `not_published`, con 5 s entre intentos y aislamiento de fallos, y envía un email resumen.
+
+### Publicación multi-plataforma
+
+Adaptadores en `server/services/platforms/` orquestados por `publishingEngine.ts`:
+
+| Plataforma | API | Formato |
+|-----------|-----|---------|
+| LinkedIn | UGC Posts (OAuth 2.0 + refresh) | Carrusel PDF (≥ 2 slides) o texto + imagen |
+| Instagram | Meta Graph API | Carrusel (PNG → JPEG) |
+| Facebook | Meta Graph API | Post multi-foto |
+
+`platform_publish_status`: `not_published → publishing → published | failed`. Meta descarga las imágenes desde `/api/public/slides/...`. Versión de Graph API fijada en `server/services/metaGraphApi.ts`.
+
+---
+
+## 9. Chatbot IA "Robly"
+
+Widget global `src/components/chat/ChatbotWidget.tsx` (GPT-4o-mini vía `server/services/chatEngine.ts`):
+
+- En todas las páginas públicas (oculto en `/admin/*` y al imprimir). Entrada: burbuja al montar, puntos de "escribiendo" a los 3 s, saludo a los 5 s (en teléfonos se oculta a los 8 s); el estado abierto/cerrado persiste entre recargas.
+- SVGs en `public/robly-avatar/` (idle, listening, thinking, speaking, standby, pointing, pointing-glasses, dominical, entre otros).
+- Streaming SSE, contexto según la página (`chatContext.ts`: posts, home, demos con su "business angle" y oferta de calculadora/diagnóstico sin prometer cifras), captura natural de contacto, tool calls.
+- Sesiones en SQLite (`chat_conversations`, `chat_messages`, `chat_contacts`); email con transcript a `EMAIL_TO` al cerrar; cierre de sesiones inactivas cada 5 min.
+- Inbox en `/admin/conversations`; botones de WhatsApp (`https://wa.me/14085900153`) medidos como `contact_click`.
+
+---
+
+## 10. Blog editorial (IA)
+
+- Posts en `server/data/posts/YYYY/MM/DD/*.json`.
+- **24 editores IA** en `server/data/editors.json` (ids 1–24: especialidad, `systemPrompt`, perfil, firma, paleta, rangos de temperatura/top_p). Avatares en `public/avatars/`.
 
 | IDs | Especialidades |
-|-----|-----------------|
+|-----|----------------|
 | 1–5 | Ciudades inteligentes, Robótica, Deep Learning, Visión por computadora, NLP |
 | 6–10 | Big Data, Computación cuántica, Edge Computing, Streaming, Vehículos autónomos |
 | 11–15 | Ética/Diversidad en IA, IA cuántica, Neurociencia, Infraestructura/Cloud, Gobernanza de IA |
 | 16–20 | IA en salud, IA musical, Ciberseguridad, AR/VR, IA en animación |
 | 21–24 | Arte con IA, Telecomunicaciones, Clima/IA, Blockchain/IA |
 
-- Avatares: `public/avatars/{id}.png` y `{id}-headshot.png`.
-- Listado respaldado por la tabla SQLite `blog_posts_index` (paginación SQL rápida, filtro O(1) por `editorId`/`category`).
-- Búsqueda full-text vía tabla virtual FTS5 con ranking BM25 (título ponderado), snippets resaltados con `<mark>`.
-- Cron horario genera nuevos posts y actualiza incrementalmente los índices FTS y de listado.
-- Scripts de utilidad: `detectGaps.ts` (encuentra posts faltantes), `fillGaps.ts` (autocompleta huecos), `cleanupDuplicates.ts`.
-- **Visor en modal**: en `/blog` las tarjetas abren un modal accesible en la misma página (`BlogModal`) con deep-link History-API a `/blog/:slug`, prev/next, copiar/compartir y abrir en pestaña nueva (ver §18, spec `ux-overhaul`). El cold-load / entrada directa a `/blog/:slug` sigue renderizando la página completa `BlogPost` con el SEO server-side intacto.
+- Listado desde `blog_posts_index` (paginación SQL, filtros por `editorId`/`category`); búsqueda FTS5 (`blog_fts`, BM25 con título ponderado, snippets con `<mark>`).
+- Cron horario genera posts (temas de NewsAPI) y actualiza ambos índices; scripts `detect-gaps`, `fill-gaps`, `cleanup-duplicates`.
+- `/blog` abre los posts en un modal accesible (`BlogModal`, `useBlogModalRouting`, `lib/blogModal.ts`) con deep-link History API; la carga directa de `/blog/:slug` renderiza `BlogPost` completo (SEO intacto).
 
----
-
-## 9. Casos de éxito (contenido comercial)
-
-Cuatro casos de éxito bilingües (EN/ES) en `public/case-studies/content.json`:
-
-| Industria | Caso | Resultado clave |
-|-----------|------|------------------|
-| Smart City | Sistema de vigilancia de seguridad con IA | 27% reducción de crimen, 42% respuesta de emergencia más rápida |
-| Salud | Analítica predictiva para cuidado de pacientes | 87% precisión en predicción de reingresos, 23% reducción de reingresos |
-| Finanzas | Detección de fraude para servicios financieros | 99.2% precisión, $4.5M+ ahorro anual, <300ms de respuesta |
-| Telco | Chatbot IA para atención al cliente | 78% resolución autónoma, 85% respuesta más rápida, 32% aumento de CSAT |
-
-Documentos completos (PDF + DOCX, EN + ES) en `study-cases/`.
-
----
-
-## 10. Base de datos (SQLite)
-
-Todo el estado persistente vive en `server/data/dominical.db` (ignorado por git). Tablas:
-
-| Tabla | Propósito |
-|-------|-----------|
-| `admin_users` | Autenticación admin (passwords con bcrypt) |
-| `settings` | Almacén key-value para API keys, tokens, preferencias |
-| `dominical_reports` | Reportes semanales de El Dominical IA (texto, estado, scores) |
-| `carousel_slides` | Datos por slide para imágenes de carrusel del Dominical |
-| `platform_publish_status` | Ciclo de vida de publicación por plataforma (linkedin/instagram/facebook) |
-| `analytics_cache` | Respuestas cacheadas con TTL de APIs de GA4 y Meta |
-| `chat_conversations` | Sesiones del chatbot (abiertas/cerradas) |
-| `chat_messages` | Mensajes individuales por conversación |
-| `chat_contacts` | Datos de contacto del visitante capturados durante el chat |
-| `blog_fts` | Tabla virtual FTS5 para búsqueda full-text del blog |
-| `blog_posts_index` | Índice de listado para queries paginadas rápidas del blog |
-| `quiz_leads` | Leads del quiz de diagnóstico (respuestas, puntaje, perfil, mensaje de resultado, verificado) |
-| `quiz_verification_tokens` | Tokens de verificación de email de los leads (expiración, `used_at`) |
-
-### Claves de la tabla `settings`
-
-```
-openai_api_key, linkedin_client_id, linkedin_client_secret,
-linkedin_access_token, linkedin_refresh_token, linkedin_token_expires_at,
-linkedin_person_id, image_provider, dominical_notification_email,
-dominical_auto_publish, dominical_top_n, admin_jwt_secret,
-meta_app_id, meta_app_secret, instagram_business_account_id,
-instagram_access_token, facebook_page_id, facebook_page_access_token,
-meta_token_expires_at, meta_ad_account_id, meta_ads_access_token,
-hostinger_api_key, gcp_sa_key, hostinger_domain, dns_cname_target
-```
-
-> Las cuatro últimas son del **portal de backends** (`/admin/backends`, ver §21):
-> `hostinger_api_key` (token de la API de Hostinger para el DNS), `gcp_sa_key` (JSON de
-> la SA `backend-viewer@robles-ai-admin`, solo lectura de Cloud Run), `hostinger_domain`
-> (default `robles.ai`), `dns_cname_target` (default `ghs.googlehosted.com.`). Las dos
-> primeras son secretos write-only: la API nunca las devuelve.
-
----
-
-## 11. Especificaciones de features (`.kiro/specs/`)
-
-El proyecto usa specs estilo "Kiro" (requirements/design/tasks) para features grandes. Directorios existentes:
-
-- `ai-chatbot-widget/`
-- `analytics-dashboard/`
-- `blog-fts5-search/`
-- `blog-posts-db-index/`
-- `dominical-carousel-images/`
-- `dominical-ia/`
-- `multi-platform-publishing/`
-- `seo-improvements/`
-- `ux-overhaul/`
-- `whatsapp-widget-time-fix/`
-
-Cada una contiene `requirements.md`, `design.md`, `tasks.md` (+ `tasks.meta.json`). Útil como fuente de verdad histórica de decisiones de diseño por feature.
-
----
-
-## 12. Páginas y rutas del frontend
-
-| Ruta | Página | Descripción |
-|------|--------|-------------|
-| `/` | Home | Hero, soluciones, cursos, casos de éxito, equipo |
-| `/get-started` | Landing | Landing bilingüe de diagnóstico IA |
-| `/diagnostico-ia` | Quiz | Quiz de diagnóstico con captura de lead verificado + PDF |
-| `/demos` | Demos | Catálogo del laboratorio de demos (live + soon) |
-| `/careers` | Careers | Listado de vacantes |
-| `/apply` | Apply | Formulario de postulación |
-| `/blog` | BlogList | Blog paginado + búsqueda FTS5 |
-| `/blog/:slug` | BlogPost | Post individual con SEO inyectado server-side |
-| `/try-identity` | TryIdentity | Demo de verificación de identidad |
-| `/try-langchain` | TryLangChain | Demo de LangChain |
-| `/try-rag` | TryRAG | Demo de pipeline RAG |
-| `/try-medical` | TryMedical | **Soon**: solo selector de modalidad; sin backend, no sube nada |
-| `/try-transcription` | TryTranscription | Transcripción en vivo + diarización + análisis IA |
-| `/try-chatbot` | TryChatbot | Chatbot entrenado con tu web: pegas URL → crawl → chat |
-| `/try-docextract` | TryDocExtract | Extracción de datos de documentos (OpenAI visión, un invoke) → JSON/CSV/Excel |
-| `/try-forecast` | TryForecast | Pronóstico de series temporales 100% en el navegador (sin backend) |
-| `/try-tts` | TryTTS | Texto a voz neural premium: Estudio de voz (`/synthesize`) + Narrador con subtítulos (`/narrate`) |
-| `/try-object-detection` | TryObjectDetection | Detección de objetos en el navegador (COCO-SSD) |
-| `/try-emotion` | TryEmotion | Reconocimiento de emociones en el navegador (face-api) |
-| `/otp` | OTP | Segundo factor OTP |
-| `/admin` | AdminPage | Login / setup inicial |
-| `/admin/settings` | AdminSettings | Preferencias LinkedIn, Meta, OpenAI, Dominical |
-| `/admin/dominical` | AdminDominicalList | Listado de reportes semanales |
-| `/admin/dominical/:id` | AdminDominicalDetail | Revisión, edición, carrusel, video, publicación |
-| `/admin/quiz-leads` | AdminQuizLeads | Leads del quiz de diagnóstico |
-| `/admin/backends` | AdminBackends | Portal de backends: conexión (Hostinger/GCP), estado DNS + Cloud Run + salud, publicar CNAMEs (ver §21) |
-| `/admin/conversations` | AdminConversationList | Inbox de chat con filtros + analítica |
-| `/admin/conversations/:id` | AdminConversationDetail | Transcript completo + datos de contacto |
-| `/admin/analytics` | AdminAnalytics | Dashboard GA4 + Meta (5 tabs, incl. Ads) |
-
----
-
-## 13. API — resumen de endpoints
-
-| Método | Ruta | Auth | Descripción |
-|--------|------|------|-------------|
-| POST | `/api/contact` | No | Formulario de contacto → email |
-| POST | `/api/send-application` | No | Postulación laboral → email |
-| GET | `/api/blog` | No | Listado paginado del blog (índice SQL) |
-| GET | `/api/blog/:slug` | No | Detalle de post (archivo JSON) |
-| GET | `/api/blog/search?q=` | No | Búsqueda full-text FTS5 |
-| GET | `/api/editors` | No | Listado de editores |
-| GET | `/api/generate-posts?date=YYYY-MM-DD` | No | Disparo manual de generación de posts |
-| GET | `/api/test` | No | Health check |
-| GET | `/sitemap.xml` | No | Índice de sitemap |
-| GET | `/sitemaps/:filename` | No | Sitemaps mensuales del blog |
-| GET | `/api/public/slides/:reportId/:position` | No | Imagen de slide de carrusel (para API de Meta) |
-| POST | `/api/quiz-lead` | No | Envía el quiz: mensaje GPT, guarda lead, manda email de verificación |
-| GET | `/api/quiz-lead/status?leadId=` | No | Polling mientras espera: verificado / expirado |
-| GET | `/api/quiz-lead/verify?token=` | No | Link de verificación del email (página HTML) |
-| POST | `/api/quiz-lead/resend` | No | Reenvía el email de verificación |
-| GET | `/api/quiz-lead/pdf?leadId=` | No | Reporte PDF (solo si está verificado) |
-| POST | `/api/chat/session` | No | Crea sesión de chat (setea cookie) |
-| GET | `/api/chat/history` | Cookie | Restaura conversación |
-| POST | `/api/chat/message` | Cookie | Envía mensaje (stream SSE) |
-| POST | `/api/chat/close` | Cookie | Termina sesión |
-| GET | `/api/admin/status` | No | Chequea estado de auth/setup |
-| POST | `/api/admin/setup` | No | Setup inicial de admin |
-| POST | `/api/admin/login` | No | Login admin |
-| POST | `/api/admin/logout` | Sí | Logout admin |
-| GET/PUT | `/api/admin/settings` | Sí | Obtener/setear todas las settings |
-| GET | `/api/admin/dominical` | Sí | Listar reportes Dominical |
-| GET/PUT | `/api/admin/dominical/:id` | Sí | Detalle/actualización de reporte |
-| POST | `/api/admin/dominical/generate` | Sí | Generación manual del Dominical |
-| POST | `/api/admin/dominical/:id/publish` | Sí | Publicar (legacy, LinkedIn) |
-| POST | `/api/admin/dominical/:id/publish/:platform` | Sí | Publicar a plataforma específica |
-| POST | `/api/admin/dominical/:id/publish-all` | Sí | Publicar a todas las plataformas |
-| GET | `/api/admin/dominical/:id/publish-status` | Sí | Estado por plataforma |
-| POST | `/api/admin/dominical/:id/generate-carousel` | Sí | Generar imágenes de carrusel |
-| GET | `/api/admin/dominical/:id/carousel` | Sí | Metadata del carrusel |
-| GET | `/api/admin/dominical/:id/carousel/pdf` | Sí | Descargar PDF |
-| POST | `/api/admin/dominical/:id/generate-video` | Sí | Generar video narrado del Dominical |
-| GET | `/api/admin/conversations` | Sí | Listado de conversaciones de chat |
-| GET | `/api/admin/conversations/:id` | Sí | Detalle de conversación |
-| GET | `/api/admin/conversations/analytics` | Sí | Analítica de chat |
-| GET | `/api/admin/analytics/overview` | Sí | KPIs de overview GA4 |
-| GET | `/api/admin/analytics/traffic` | Sí | Datos de tráfico GA4 |
-| GET | `/api/admin/analytics/behavior` | Sí | Datos de comportamiento GA4 |
-| GET | `/api/admin/analytics/social/instagram` | Sí | Insights de Instagram |
-| GET | `/api/admin/analytics/social/facebook` | Sí | Insights de Facebook |
-| GET | `/api/admin/analytics/ads/google` | Sí | Google Ads vía GA4 (campañas, gasto diario, canales) |
-| GET | `/api/admin/analytics/ads/meta` | Sí | Meta Ads (campañas, gasto diario, leads) |
-| POST | `/api/admin/analytics/refresh` | Sí | Limpiar caché de analítica |
-| POST | `/api/admin/reindex-posts` | Sí | Forzar reconstrucción del índice del blog |
-| GET | `/api/admin/quiz-leads` | Sí | Listado de leads del quiz |
-| GET/PUT | `/api/admin/backends/connections` | Sí | Estado/guardado de credenciales Hostinger+GCP (write-only) |
-| GET | `/api/admin/backends` | Sí | Listado de backends con estado DNS + salud + Cloud Run |
-| POST | `/api/admin/backends/:id/dns` | Sí | Publicar/actualizar el CNAME del backend (Hostinger) |
-| GET | `/api/admin/backends/:id/cloudrun` | Sí | Estado Cloud Run (solo lectura) de un backend |
-
-> La ruta `generate-video` ya figura también en README.md.
-
----
-
-## 14. Autenticación
-
-- Rutas admin usan JWT en cookie httpOnly `admin_token` (expiración 7 días). El middleware `requireAuth` en `server/auth.ts` lee la cookie, verifica el JWT y adjunta `req.user`.
-- Rutas de chat usan una cookie httpOnly separada `chat_session` (TTL 1 hora, se refresca en cada mensaje).
-- Passwords admin con `bcrypt`. Soporte de OTP (`otpauth`) para segundo factor (página `/OTP`).
-
----
-
-## 15. Variables de entorno (`.env`, no versionado)
-
-```env
-# Servidor
-PORT=5173
-HOST=0.0.0.0
-
-# Email (formularios + notificaciones del chatbot + notificaciones del Dominical)
-EMAIL_USER=...
-EMAIL_PASS=...
-EMAIL_TO=...
-
-# Analítica (solo producción)
-VITE_GA_MEASUREMENT_ID=G-XXXXXXX
-VITE_FACEBOOK_PIXEL_ID=1234567890
-
-# OpenAI (generación de blog, chatbot, scoring del Dominical, generación de imágenes/video)
-OPENAI_ORGANIZATION=org-xxx
-OPENAI_API_KEY=sk-xxx
-
-# Noticias (cron de generación de posts de blog)
-NEWS_API_KEYS=xxx
-
-# JWT admin (auto-generado y guardado en DB si no se define)
-ADMIN_JWT_SECRET=your-secret-here
-```
-
-> **Importante**: no agregar `NODE_ENV` al `.env` — el script `start` lo setea explícitamente inline. Ver bug corregido en §17.
-> Solo las variables con prefijo `VITE_` se exponen al frontend; el resto son solo del servidor.
-
----
-
-## 16. Convenciones de código
-
-### Alias de rutas
-Configurados en `vite.config.ts` y `vitest.config.ts`:
-
-| Alias | Resuelve a |
-|-------|------------|
-| `@/` | `src/` |
-| `@shared/` | `shared/` |
-
-### Convenciones de import
-- Archivos de servidor: **ESM con extensión `.js`** incluso para código fuente `.ts` (`import db from './db.js'`).
-- Archivos de frontend: alias de ruta o imports relativos sin extensión (`import { Button } from '@/components/ui/button'`).
-- `shared/schema.ts` es el único archivo cruzado cliente/servidor, importado como `@shared/schema`.
-
-### Convenciones de UX/A11y (spec `ux-overhaul`, ver §18)
-- Todo copy nuevo pasa por i18next (nunca literales); mantener paridad de claves en/es.
-- Usar las utilidades globales de `src/index.css`: `.tap-target` (mínimo 44px) en controles, `.break-anywhere` para URLs/tokens largos, y el token `--header-h` en vez del número mágico de la altura del header.
-- Envolver contenido ancho (tablas, logs, JSON, transcripts) en `overflow-x-auto`; los layouts de dos columnas apilan en móvil.
-- Animaciones nuevas deben respetar `useReducedMotion` (`src/hooks/useReducedMotion.ts`) / `<MotionConfig reducedMotion="user">` y el backstop CSS `prefers-reduced-motion`.
-- Estados de carga/vacío/error via `src/components/state/{LoadingState,EmptyState,ErrorState}.tsx` (copys `state.*`).
-
-### Formato de posts de blog (JSON)
+Formato del post:
 
 ```jsonc
 {
@@ -529,124 +279,314 @@ Configurados en `vite.config.ts` y `vitest.config.ts`:
 }
 ```
 
-### Cron schedule (America/Lima)
+---
 
-| Horario | Job | Guard |
-|---------|-----|-------|
-| `0 * * * *` (cada hora) | Genera posts de blog + actualiza índices FTS/listado | Saltado en dev salvo disparo explícito |
-| `0 12 * * 6` (sáb 12pm) | Genera reporte de El Dominical IA | Saltado en dev |
-| `0 12 * * 0` (dom 12pm) | Auto-publica el Dominical en todas las plataformas | Saltado en dev |
-| `*/5 * * * *` (cada 5min) | Cierra sesiones de chat inactivas | Siempre corre |
+## 11. Laboratorio de demos
 
-### Testing
-`vitest.config.ts` usa `environment: 'jsdom'` global, override a `node` para `server/**/*.test.ts`. Property tests con `fast-check` (≥100 iteraciones). Tests co-ubicados con los módulos.
+Catálogo en `demosCatalog.items` (en/es: `id`, `href`, `status`, `icon`, `title`, `description`, `benefit`, …), renderizado por `DemosCatalog.tsx` en el home y en `/demos`. Robly lo conoce vía `chatContext.ts`: **mantener ambos sincronizados** al cambiar un estado. Encuadre de negocio (`BusinessCase`, `SavingsCalculator`, `business.ts`, textos `demoBusiness.<id>`) y roadmap en `docs/DEMOS_PLAN.md`. Los valores iniciales de la calculadora son **ejemplos editables, no resultados**.
 
-**Gotcha local conocido (sep 2026):** ~96 tests de servidor fallan localmente con `NODE_MODULE_VERSION 115 ... requires 137`: el binario nativo de `better-sqlite3` quedó compilado para Node 20 y vitest corre con otro Node. No es un bug del código (fallan igual en `main` sin cambios). Se arregla con `npm rebuild better-sqlite3` usando la misma versión de Node que corre `npm test`. Antes de atribuir una falla a tu cambio, compará contra `main`.
+| id | Ruta | Dónde corre | Estado |
+|----|------|-------------|--------|
+| `sitechatbot` | `/try-chatbot` | `chatbot-api.robles.ai` (repo `robles.ai-chatbot-api`): crawl acotado → Pinecone (namespace 24 h) → gpt-4o-mini | live |
+| `identity` | `/try-identity` | `identity-api.robles.ai` (repo `robles.ai-identity-api`, servicio `identity-server`) | live |
+| `rag` | `/try-rag` | `rag-api.robles.ai` (repo `robles.ai-rag-api`); el texto del PDF se extrae en el navegador | live |
+| `speech` | `/try-transcription` | `transcription-api.robles.ai` (repo `robles.ai-transcription-api`): WS → Deepgram Nova-3, `/analyze` → OpenAI | live |
+| `langchain` | `/try-langchain` | `langchain-api.robles.ai` (repo `robles.ai-langchain-api`) | live |
+| `docextract` | `/try-docextract` | `docextract-api.robles.ai` (repo `robles.ai-docextract-api`) | live |
+| `tts` | `/try-tts` | `tts-api.robles.ai` (repo `robles.ai-tts-api`): gpt-4o-mini-tts + ffmpeg | live |
+| `forecast` | `/try-forecast` | Navegador (`src/lib/forecast.ts`) | live |
+| `objectdetection` | `/try-object-detection` | Navegador (TensorFlow.js COCO-SSD `lite_mobilenet_v2`) | live |
+| `emotion` | `/try-emotion` | Navegador (`@vladmandic/face-api`, modelos desde jsDelivr) | live |
+| `voiceagent`, `anomaly`, `imagegen` | — | — | soon |
 
-### Build y persistencia de datos
-`dist/` se regenera completo en cada build. El paso `postbuild` copia `server/data/` a `dist/data/` **sin sobreescribir** archivos existentes, así la base SQLite, posts, imágenes de carrusel y sitemaps persisten entre despliegues. No guardar nada que deba sobrevivir builds directamente dentro de `dist/`.
+- `/try-medical` existe como página "próximamente", sin backend y fuera del catálogo; no sube nada.
+- Las APIs escalan a cero: cada página hace warm-up al montar (ping `no-cors` a `/`, `GET /health` en transcription, `POST /rag/warmup` en RAG) y muestra un banner de estado. Overrides de endpoint en dev: `VITE_*_API`.
+- Transcription: el API reenvía PCM `linear16` 16 kHz mono a Deepgram e ignora el `encoding` del frame `start`; por eso se captura con `AudioWorklet` (fallback `ScriptProcessorNode`).
+- Previews de video y visuales del catálogo: `docs/DEMO_VIDEO_RELEASE.md`, `docs/DEMO_VISUALS.md`, `docs/FIREFLY_CLIPS.md`, material fuente en `creative/`.
+- Convenciones de los repos de APIs: un proyecto GCP por API (misma cuenta de facturación), Cloud Run sin `minScale` y facturación por request, Artifact Registry `<servicio>-api-repo` podado a 3 versiones (`prune_registry.sh`), secretos en Secret Manager rotados con `rotate_secret.sh` (destruye versiones viejas), push a `main` → GitHub Actions → Cloud Run.
 
 ---
 
-## 17. Despliegue (CI/CD)
+## 12. Casos de éxito (ilustrativos)
 
-El proyecto corre en un **VPS con PM2** bajo el usuario `roblesai`. El despliegue
-está automatizado con GitHub Actions:
+Cuatro casos bilingües en `public/case-studies/content.json` y `caseStudies.items`: Smart City (vigilancia con visión), Salud (reingresos), Finanzas (fraude), Telco (chatbot). Son **ilustrativos**: las métricas llevan "hasta"/"alrededor de" y la UI aclara que muestran resultados potenciales de este tipo de solución, no de un cliente concreto. Se muestran en el home (ya no en la landing). Documentos fuente (PDF/DOCX, EN/ES) en `study-cases/`. **No presentar cifras como resultados de clientes.**
+
+---
+
+## 13. Base de datos (SQLite)
+
+`server/data/dominical.db` (ignorado por git, se preserva entre builds):
+
+| Tabla | Propósito |
+|-------|-----------|
+| `admin_users` | Autenticación admin (bcrypt) |
+| `settings` | Configuración key/value |
+| `dominical_reports` | Reportes semanales (texto, estado, scores) |
+| `carousel_slides` | Datos por slide del carrusel |
+| `platform_publish_status` | Ciclo de publicación por plataforma |
+| `analytics_cache` | Caché TTL de GA4, Meta y Ads |
+| `chat_conversations`, `chat_messages`, `chat_contacts` | Sesiones, mensajes y contactos de Robly |
+| `blog_fts` | Tabla virtual FTS5 |
+| `blog_posts_index` | Índice de listado del blog |
+| `quiz_leads`, `quiz_verification_tokens` | Leads del quiz y tokens de verificación |
+
+### Claves de la tabla `settings`
+
+Los secretos se enmascaran en `GET /api/admin/settings` (`settingsSecrets.ts`) y un valor enmascarado nunca se vuelve a guardar.
+
+| Área | Claves |
+|------|--------|
+| OpenAI / imágenes | `openai_api_key`, `image_provider` (por defecto `dalle3`), `replicate_api_token`, `stability_api_key` |
+| Dominical | `dominical_top_n`, `notification_email`, `auto_publish`, `auto_publish_time`, `auto_publish_timezone` |
+| Auth admin | `jwt_secret` (se genera si no hay `ADMIN_JWT_SECRET`) |
+| LinkedIn | `linkedin_client_id`, `linkedin_client_secret`, `linkedin_access_token`, `linkedin_refresh_token`, `linkedin_token_expires_at`, `linkedin_person_id`, `linkedin_oauth_state` (transitoria) |
+| Meta (publicación/insights) | `meta_app_id`, `meta_app_secret`, `instagram_business_account_id` (legado `instagram_user_id`), `instagram_access_token`, `facebook_page_id`, `facebook_page_access_token`, `meta_token_expires_at` |
+| Meta Ads | `meta_ad_account_id`, `meta_ads_access_token` |
+| Tracking del sitio | `gtm_container_id`, `ga4_measurement_id`, `meta_pixel_id` (servidos por `GET /api/public/analytics-config`) |
+| GA4 Data API | `ga4_property_id` |
+| Portal de backends | `hostinger_api_key`, `hostinger_domain` (por defecto `robles.ai`), `gcp_sa_key`, `dns_cname_target` (por defecto `ghs.googlehosted.com.`) |
+
+---
+
+## 14. Specs de features (`.kiro/specs/`)
+
+Specs estilo Kiro (`requirements.md`, `design.md`, `tasks.md` + `tasks.meta.json`), fuente histórica de decisiones de diseño. **No son documentación del proyecto ni deben borrarse.** Directorios: `admin-backend-management`, `ai-chatbot-widget`, `analytics-dashboard`, `blog-fts5-search`, `blog-posts-db-index`, `dominical-carousel-images`, `dominical-ia`, `multi-platform-publishing`, `seo-improvements`, `ux-overhaul`, `whatsapp-widget-time-fix`.
+
+---
+
+## 15. Páginas y rutas del frontend
+
+| Ruta | Página | Descripción |
+|------|--------|-------------|
+| `/` | Home | Hero, features, soluciones, catálogo de demos, casos, cursos, testimonios, equipo, contacto |
+| `/get-started` | Landing | Landing de tráfico pagado (§6), variantes `?s=` |
+| `/diagnostico-ia` | Quiz | Quiz con lead verificado + PDF |
+| `/demos` | Demos | Catálogo del laboratorio |
+| `/try-chatbot`, `/try-identity`, `/try-rag`, `/try-transcription`, `/try-langchain`, `/try-docextract`, `/try-tts` | Try* | Demos con API en Cloud Run |
+| `/try-forecast`, `/try-object-detection`, `/try-emotion` | Try* | Demos 100% en el navegador |
+| `/try-medical` | TryMedical | Próximamente (sin backend, fuera del catálogo) |
+| `/blog`, `/blog/:slug` | BlogRoute → BlogList / BlogPost | Listado, modal y post |
+| `/careers`, `/apply` | Careers, Apply | Vacantes y postulación |
+| `/otp` | OTP | Página de código de un solo uso |
+| `/admin` | AdminDashboard | Login / setup inicial / dashboard |
+| `/admin/settings` | AdminSettings | Integraciones, IDs de tracking, GA4, Meta, Meta Ads, OpenAI, Dominical |
+| `/admin/dominical`, `/admin/dominical/:id` | AdminDominicalList / Detail | Reportes, revisión, carrusel, video, publicación |
+| `/admin/conversations`, `/admin/conversations/:id` | AdminConversationList / Detail | Inbox de Robly |
+| `/admin/quiz-leads` | AdminQuizLeads | Leads del quiz |
+| `/admin/analytics` | AdminAnalytics | Overview · Traffic · Behavior · Social · Ads |
+| `/admin/backends` | AdminBackends | Portal de backends (§21) |
+
+---
+
+## 16. API — endpoints
+
+Públicos:
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| POST | `/api/contact` | Formulario → email (`success: true` solo si el envío fue aceptado); `GET` → 404 |
+| POST | `/api/send-application` | Postulación → email |
+| POST | `/api/quiz-lead` | Quiz: mensaje GPT, guarda lead, envía verificación |
+| GET | `/api/quiz-lead/status?leadId=` | Polling de verificación |
+| GET | `/api/quiz-lead/verify?token=` | Enlace de verificación (HTML) |
+| POST | `/api/quiz-lead/resend` | Reenvía verificación |
+| GET | `/api/quiz-lead/pdf?leadId=` | PDF (solo verificados) |
+| GET | `/api/blog`, `/api/blog/:slug`, `/api/blog/search?q=` | Listado (índice SQL), detalle (JSON), búsqueda FTS5 |
+| GET | `/api/editors` | Editores |
+| GET | `/api/generate-posts?date=YYYY-MM-DD` | Generación manual de posts |
+| GET | `/api/test` | Health check |
+| GET | `/api/public/analytics-config` | IDs de GTM / GA4 / Meta Pixel |
+| GET | `/api/public/slides/:reportId/:position(.png)` | Imagen de slide (para Meta) |
+| POST/GET/POST/POST | `/api/chat/session`, `/api/chat/history`, `/api/chat/message` (SSE), `/api/chat/close` | Chat de Robly (cookie `chat_session`) |
+| GET | `/sitemap.xml`, `/sitemaps/:filename` | Índice y sitemaps mensuales (`/static-pages.xml` para páginas estáticas) |
+
+Admin (bajo `/api/admin`, requieren cookie `admin_token` salvo `status`, `setup`, `login` y el callback de LinkedIn):
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET/POST/POST/POST/GET | `/status`, `/setup`, `/login`, `/logout`, `/me` | Estado de auth y sesión |
+| GET/PUT | `/settings` | Leer (enmascarado) / guardar settings |
+| GET/POST/POST | `/settings/meta`, `/settings/meta`, `/settings/meta/validate` | Credenciales de publicación Meta |
+| GET/POST | `/settings/ga4-status`, `/settings/ga4-service-account` | Credenciales GA4 Data API |
+| GET | `/linkedin/auth-url`, `/linkedin/callback` | OAuth de LinkedIn |
+| POST | `/reindex-posts` | Reconstruir índices del blog |
+| GET/POST | `/dominical`, `/dominical/generate` | Listar / generar reportes |
+| GET/PUT | `/dominical/:id` | Detalle / actualización |
+| POST | `/dominical/:id/{regenerate-post, regenerate-instagram, regenerate-linkedin, cancel, generate-image}` | Acciones del reporte |
+| POST/GET | `/dominical/:id/generate-carousel`, `/dominical/:id/carousel`, `/dominical/:id/carousel/pdf` | Carrusel |
+| GET/POST/PUT | `/dominical/:id/carousel/slides/:position/{image, generation-info, regenerate, text}` | Operaciones por slide |
+| POST/GET | `/dominical/:id/generate-video`, `/dominical/:id/video`, `/dominical/:id/video/file` | Video narrado |
+| POST/GET | `/dominical/:id/publish` (legado LinkedIn), `/publish/:platform`, `/publish-all`, `/publish/:platform/reset`, `/publish-status` | Publicación |
+| GET | `/quiz-leads` | Leads del quiz |
+| GET | `/conversations`, `/conversations/analytics`, `/conversations/:id` | Inbox de Robly |
+| GET | `/analytics/{overview, realtime, traffic, behavior, social/instagram, social/facebook, ads/google, ads/meta}` | Analítica (cacheada) |
+| POST | `/analytics/refresh` | Limpia la caché de analítica |
+| GET/PUT | `/backends/connections` | Credenciales Hostinger/GCP (write-only) |
+| GET | `/backends`, `/backends/:id/cloudrun` | Backends con DNS + actividad; estado Cloud Run |
+| POST | `/backends/:id/dns`, `/backends/:id/ping` | Publicar CNAME; ping en vivo opt-in (despierta el servicio) |
+| POST | `/test-ig-linebreaks` | Prueba interna de saltos de línea en Instagram |
+
+---
+
+## 17. Autenticación
+
+- Admin: JWT en cookie httpOnly `admin_token` (7 días); `requireAuth` (`server/auth.ts`) verifica y adjunta el usuario. Usar siempre `requireAuth` en endpoints admin nuevos.
+- Secreto JWT: `ADMIN_JWT_SECRET` o, si no existe, `jwt_secret` generado y guardado en `settings`.
+- Robly: cookie httpOnly `chat_session` (1 h, se renueva con cada mensaje).
+- Passwords con bcrypt; página `/otp` para código de un solo uso.
+
+---
+
+## 18. Variables de entorno y despliegue
+
+### `.env` (no versionado; no hay `.env.example`)
+
+```env
+PORT=5173
+HOST=0.0.0.0
+BASE_URL=https://robles.ai          # URLs absolutas en emails/publicación del Dominical (valor por defecto)
+EMAIL_USER=...                      # Gmail: contacto, postulaciones, quiz, notificaciones
+EMAIL_PASS=...
+EMAIL_TO=...
+OPENAI_API_KEY=sk-...               # respaldo si no hay openai_api_key en settings
+NEWS_API_KEYS=key1,key2             # rotan; también se acepta NEWS_API_KEY
+ADMIN_JWT_SECRET=...                # opcional
+# Overrides de endpoints de demos (solo dev, frontend):
+# VITE_IDENTITY_API, VITE_RAG_API, VITE_LANGCHAIN_API, VITE_TRANSCRIPTION_API,
+# VITE_CHATBOT_API, VITE_DOCEXTRACT_API, VITE_TTS_API
+```
+
+- **No** poner `NODE_ENV` en `.env`: `start` lo define inline.
+- Solo las variables `VITE_*` llegan al navegador. Los IDs de GA4 / Meta Pixel / GTM **no** son variables de entorno: salen de settings vía `/api/public/analytics-config`.
+- La mayoría de integraciones se configuran desde `/admin/settings` y `/admin/backends`.
+
+### CI/CD
 
 ```
-bash push.sh (local)  →  git commit + push a main
-                              ↓
-        GitHub Actions (.github/workflows/deploy.yml)
-                              ↓
-        SSH al VPS  →  bash pull.sh (fetch + build selectivo + pm2 restart)
+git push origin main            (o `bash push.sh`, que hace `git add .` y commitea TODO)
+        ↓
+GitHub Actions (.github/workflows/deploy.yml) → SSH al VPS → bash pull.sh
 ```
 
-Tras el setup inicial, el ciclo completo es: `bash push.sh` (commitea, pushea y
-el deploy arranca solo).
+**Ojo con `push.sh`**: commitea todos los cambios del árbol (incluido trabajo sin terminar en `creative/` o `docs/`). Para publicar solo un conjunto de cambios, commitear esos archivos y hacer `git push origin main`.
 
-### `pull.sh` — build selectivo por tipo de cambio
-
-`pull.sh` hace `git fetch` de `origin/main`, inspecciona **qué archivos
-cambiaron** y hace solo lo justificado (no recompila a ciegas):
+`pull.sh` hace `git fetch` + `reset --hard origin/main` y solo lo necesario:
 
 | Cambió | Acción |
 |--------|--------|
-| `package.json` / `package-lock.json` | `npm install` + build + pm2 restart |
-| `src/`, `server/`, `shared/`, configs (vite/tailwind/tsconfig), `index.html` | build + pm2 restart |
-| solo `server/data/` (posts del blog) | sync de data a `dist/` + pm2 restart (sin compilar) |
-| solo docs / `*.sh` / `.gitignore` | nada (servidor sigue corriendo) |
+| `package.json` / `package-lock.json` | `npm install` + build + `pm2 restart` |
+| `src/`, `server/`, `shared/`, configs, `index.html` | build + restart |
+| solo `server/data/` | sync de datos a `dist/` + restart |
+| solo docs / `*.sh` / `.gitignore` | nada |
 | sin commits nuevos | no-op |
 
-Requiere NVM cargado (el script hace `source ~/.nvm/nvm.sh`).
-
-### Setup único del CI/CD (GitHub Secrets)
-
-El workflow se autentica al VPS por **llave SSH**. Cuatro secretos en el repo
-(Settings → Secrets and variables → Actions):
-
-| Secreto | Valor |
-|---------|-------|
-| `VPS_HOST` | IP o host del VPS (`robles.ai`) |
-| `VPS_USER` | usuario SSH (`roblesai`) |
-| `VPS_SSH_KEY` | clave **privada** SSH autorizada en el VPS |
-| `VPS_REPO_PATH` | ruta absoluta del repo en el VPS (`/home/roblesai/htdocs/robles.ai`) |
-
-Generar la llave dedicada y registrarla:
+Secretos del repo: `VPS_HOST` (`robles.ai`), `VPS_USER` (`roblesai`), `VPS_SSH_KEY`, `VPS_REPO_PATH` (`/home/roblesai/htdocs/robles.ai`). Generar la llave dedicada:
 
 ```bash
 ssh-keygen -t ed25519 -C "github-actions-deploy" -f ~/.ssh/github_deploy -N ""
 ssh-copy-id -i ~/.ssh/github_deploy.pub roblesai@robles.ai
 gh secret set VPS_SSH_KEY --repo jroblesluna/robles.ai < ~/.ssh/github_deploy
-# + VPS_HOST, VPS_USER, VPS_REPO_PATH via `gh secret set` o la UI
 ```
 
-### Deploy manual (fallback)
+Deploy manual (fallback) en el VPS: `source ~/.nvm/nvm.sh && bash pull.sh`.
 
-```bash
-# En el VPS, o por SSH desde el Mac:
-source ~/.nvm/nvm.sh && bash pull.sh
-```
-
-### Configuración conocida del VPS
-
-| Setting | Valor |
-|---------|-------|
+| VPS | Valor |
+|-----|-------|
 | Usuario | `roblesai` |
-| Ruta de la app | `~/htdocs/robles.ai` |
-| Nombre del proceso PM2 | `robles-ai` |
-| Binario PM2 | `~/.nvm/versions/node/v22.14.0/bin/pm2` |
-| Versión de Node | v22.14.0 (vía NVM) |
+| Ruta | `~/htdocs/robles.ai` |
+| Proceso PM2 | `robles-ai` (`~/.nvm/versions/node/v22.14.0/bin/pm2`) |
+| Node | v22.14.0 (NVM) |
 | Puerto | 5173 |
-| Logs PM2 | `~/.pm2/logs/robles-ai-out.log` / `robles-ai-error.log` |
+| Logs | `~/.pm2/logs/robles-ai-out.log`, `robles-ai-error.log` |
 
-### Bug histórico de NODE_ENV (corregido 29 ago 2026)
-El script `start` usaba `NODE_ENV=production && node dist/index.js`. El operador `&&` **no** pasa la variable al proceso hijo — ejecuta `NODE_ENV=production` como comando no-op y luego `node` sin `NODE_ENV` definido. Express asume `"development"` por defecto, lo que hacía que todos los cron jobs (generación de blog, Dominical IA) se saltaran por sus guards de modo dev. Corregido a `NODE_ENV=production node dist/index.js` (asignación inline, estándar POSIX).
+**Bug histórico de NODE_ENV (corregido 29 ago 2026)**: `start` usaba `NODE_ENV=production && node dist/index.js`; el `&&` no pasa la variable a Node y los cron jobs se saltaban como "development". Ahora es `NODE_ENV=production node dist/index.js`.
 
 ---
 
-## 18. Historial reciente relevante (git log, más nuevo primero)
+## 19. Convenciones de código
 
-| Commit | Descripción |
+- **Alias** (`vite.config.ts`, `vitest.config.ts`): `@/` → `src/`, `@shared/` → `shared/`.
+- **Imports**: servidor en ESM con extensión `.js` en imports relativos (`import db from './db.js'`); frontend con alias y sin extensión; `shared/` es el único código compartido cliente/servidor.
+- **Copy**: todo texto público pasa por i18next con paridad en/es (el panel admin es la excepción: inglés sin i18n).
+- **UX/A11y** (spec `ux-overhaul`): `.tap-target` (44 px), `.break-anywhere`, token `--header-h` + `scroll-margin`, inputs de 16 px en móvil, `:focus-visible` global, `overflow-x-auto` para tablas/logs/JSON, layouts que apilan en móvil, `useReducedMotion` / `<MotionConfig reducedMotion="user">` y backstop CSS `prefers-reduced-motion`, estados con `LoadingState`/`EmptyState`/`ErrorState` (copys `state.*`).
+- **Claims**: casos, industrias y calculadoras son ilustrativos; no publicar cifras como resultados de clientes ni estadísticas sin fuente citada.
+- **Persistencia**: nada que deba sobrevivir un deploy dentro de `dist/`; `postbuild` copia `server/data/` sin sobrescribir la base.
+- **Testing**: `vitest.config.ts` usa `jsdom` por defecto y `node` para `server/**`; property tests con `fast-check`; integración con `supertest`; tests junto a sus módulos.
+  - Si fallan tests de SQLite con `NODE_MODULE_VERSION ...`, recompilar con la misma versión de Node: `npm rebuild better-sqlite3`.
+  - Algunos tests leen `server/data/` (posts) y `creative/`; fallan si se corren desde una copia sin esas carpetas. Antes de atribuirle una falla a un cambio, comparar contra `main`.
+
+---
+
+## 20. Requisitos y comandos
+
+- **Node.js ≥ 20** y **npm**. En desarrollo: `http://localhost:5173` (ajustable con `PORT`). La primera visita a `/admin` crea el usuario admin.
+
+| Script | Descripción |
 |--------|-------------|
-| `6a78797` | fix(try-emotion): texto de las etiquetas ya no sale espejado |
-| `8e63cba` | feat(demos): rediseño del catálogo de demos y de la sección del home |
-| `9f2e524` | feat(home): rediseño de las secciones features y solutions |
-| `5c80c0b` | feat: demo TryTranscription (WS streaming, diarización, panel /analyze) |
-| `9f07eea` | feat(try-identity): imágenes en base64, sin subida a Firebase Storage |
-| `2acea98` | feat(demos): detección de objetos y emociones en el navegador |
-| `116b79c` | feat: flujo de quiz con verificación de lead, reporte PDF y panel admin |
-| `96758` | feat: generación de video narrado por robot IA para El Dominical IA |
-| `aa22f` | chore: gitignore de output generado de video/audio del Dominical |
-| `a9cb9` | fix: routing client-side para links de nav en Hero y Footer |
-| `a6b6f` | fix: corrección de asignación de NODE_ENV en script start |
-| `42319` | feat: pulido del panel admin — paginación fija abajo, vistas tabla-a-tarjeta, headers con color |
-| `b2fff` | feat: panel admin responsive con layout persistente y branding del sitio |
-| `5177d` | feat: rediseño del avatar del chatbot, fix de búsqueda de blog, paginación/filtros de blog |
+| `npm run dev` | Express con `tsx watch` + middleware de Vite |
+| `npm run build` | Build cliente Vite + build SSR de `src/entry-server.tsx` + bundle del servidor con esbuild |
+| `postbuild` (automático) | Copia `src`, `shared`, `public` a `dist/` y sincroniza `server/data/` → `dist/data/` sin sobrescribir bases |
+| `npm start` | `NODE_ENV=production node dist/index.js` |
+| `npm run check` | `tsc` |
+| `npm test` | `vitest --run` |
+| `npm run fix-sitemap` | Corrige entradas faltantes del sitemap |
+| `npm run cleanup-duplicates` | Elimina posts duplicados |
+| `npm run detect-gaps` / `npm run fill-gaps` | Detecta / completa días sin posts |
+| `npx tsx server/fts/migrate.ts` | Poblar el índice FTS (opcional) |
 
-### Cambios recientes de las páginas demo (2026-09)
-- **`TryChatbot` — demo D1 "Tu chatbot en 60 segundos" (2026-09, Fase 2 de `DEMOS_PLAN.md`)**: nueva demo *live*. El visitante pega la URL de su web → el backend la rastrea (crawler de HTML estático, mismo host, `robots.txt`, anti-SSRF, tope 20 páginas) → indexa el texto en un namespace efímero de Pinecone (TTL 24h) → responde preguntas con `gpt-4o-mini` usando solo ese contenido. Página `src/pages/TryChatbot.tsx` (patrón autocontenido, color de marca violeta/índigo, warm-up + `BusinessCase` + `SavingsCalculator`, `ApiCallLog`, `HowItWorks`), ruta `/try-chatbot` en `App.tsx`. El item de catálogo `sitechatbot` pasó de `soon` a `live` (+`href`). `business.ts`: `DemoBusinessId` y `CALCULATOR_DEFAULTS` += `sitechatbot` (test `business.test.ts` actualizado). i18n en/es: bloque `try-chatbot.*` + `demoBusiness.sitechatbot.*`. `chatContext.ts`: descripción, business angle y calculadora para `/try-chatbot`. Backend nuevo: **`robles.ai-chatbot-api`** en Cloud Run (proyecto `robles-ai-chatbot-project`, servicio `chatbot-api-server`, dominio `chatbot-api.robles.ai`), molde de `langchain-api` (FastAPI + OpenAI + Pinecone) sin torch (1Gi). Override de endpoint en dev: `VITE_CHATBOT_API`. Es la demo estrella (mayor potencial de leads); se mide por separado.
-- **`TryDocExtract` — demo D2 "Facturas y documentos → datos" (2026-09, Fase 1 de `DEMOS_PLAN.md`)**: nueva demo *live*. El visitante sube una imagen o PDF → se codifica a base64 en el navegador → `POST /extract` → un modelo de visión de OpenAI (`gpt-4o-mini`) en **un único invoke** detecta el tipo de documento y extrae los campos como JSON estructurado (con confianza por campo y bounding boxes opcionales). La página muestra tabla + JSON + overlay de las cajas sobre el documento y permite descargar JSON/CSV/Excel (SpreadsheetML `.xls`, sin librería extra). Página `src/pages/TryDocExtract.tsx` (`/try-docextract`, tono indigo). Backend nuevo autónomo `robles.ai-docextract-api` (FastAPI, molde de `langchain-api`, **sin Pinecone ni LangChain**; pura extracción, sin RAG), Cloud Run `docextract-api.robles.ai` (proyecto `robles-ai-docextract-project`, servicio `docextract-api-server`, 1Gi, `--max-instances=4`, billing temporal `01B173-4B6B66-240F5E` porque la cuenta principal tiene la cuota de proyectos llena). Ítem de catálogo `docextract` → `live`. chatContext actualizado. DNS: el CNAME `docextract-api` → `ghs.googlehosted.com.` ya se publicó en Hostinger (vía la API, mismo patrón que los hermanos); Cloud Run emite el TLS automáticamente al propagar. `docextract-api.robles.ai` es el dominio público del backend.
-- **`TryForecast` — demo D6 "Pronóstico con tu CSV" (2026-09, Fase 3 de `DEMOS_PLAN.md`)**: nueva demo *live*, **100% en el navegador (sin backend, sin GCP, sin costo)**. Descomposición aditiva estilo Holt-Winters (nivel + tendencia lineal OLS + perfil estacional promediado con detección automática de la estación por autocorrelación) y bandas de incertidumbre q10/q50/q90 a partir de los residuos en muestra. Presets de ejemplo (estándar/al alza/estacional/volátil) o CSV propio del visitante, horizonte 24 pasos (≈1 día) o 168 (≈1 semana), gráfica recharts (histórico + mediana + banda + tendencia) y descarga CSV. Lógica en `src/lib/forecast.ts` (con tests en `src/lib/__tests__/forecast.test.ts`), página `src/pages/TryForecast.tsx` (`/try-forecast`, tono cyan). Ítem de catálogo `forecast` → `live`. chatContext actualizado.
+---
+
+## 21. Portal de administración de backends (`/admin/backends`)
+
+Conecta, monitorea y publica el DNS de los **7 backends** de demos registrados en `server/services/backends/registry.ts`: `chatbot`, `identity` (servicio `identity-server`, sin `-api`), `rag`, `langchain`, `transcription`, `docextract`, `tts`. Spec: `.kiro/specs/admin-backend-management/`. Solo lectura hacia GCP; el sitio nunca despliega Cloud Run (eso lo hacen los scripts y el CI de cada repo).
+
+- **Conexiones**: `hostinger_api_key` y `gcp_sa_key` en `settings`, **write-only** (el `GET` solo informa `connected`). Se cargan desde la UI, no desde `.env`.
+- **Estado por backend**: DNS (`ok`/`missing`/`mismatch`/`unknown` para `<sub>-api CNAME ghs.googlehosted.com.`), actividad (En uso/En reposo + última actividad) y Cloud Run (revisión, ready).
+- **La lista nunca despierta un backend**: la actividad viene de Cloud Monitoring (`monitoringClient.ts`: `request_count`, `container/instance_count`). Solo el botón *Probar* (`POST /:id/ping`) golpea `GET /health`.
+- **Publicar DNS**: `POST /:id/dns` crea/actualiza el CNAME vía Hostinger (idempotente); nombre y destino salen del registry, nunca del body. `DnsProvider` permite un futuro proveedor Cloud DNS (`docs/DEMOS_PLAN.md` §8).
+- **Auth GCP** (`googleAuth.ts`): JWT bearer (RS256) desde `gcp_sa_key`, scope `cloud-platform` (el `.read-only` da 403 en la Cloud Run Admin API); la solo-lectura la garantiza IAM.
+- **SA `backend-viewer@robles-ai-admin`** (proyecto raíz `robles-ai-admin`, sin billing a propósito) con `roles/run.viewer`, `roles/monitoring.viewer` y `roles/serviceusage.serviceUsageConsumer` en cada proyecto de backend.
+- **Billing de Monitoring**: `timeSeries` exige billing en el proyecto que factura; `monitoringClient` envía `x-goog-user-project: <proyecto del backend>`. Sin eso Monitoring devuelve `403 "requires billing to be enabled"` (Cloud Run Admin no lo necesita).
+
+---
+
+## 22. Historial reciente relevante
+
+### Commits recientes (`git log`, más nuevo primero)
+
+| Commit | Fecha | Descripción |
+|--------|-------|-------------|
+| `3f558c3` | 2026-10-23 | Preserva fuentes creativas y storyboards refinados de las demos |
+| `66c7c0c` | 2026-10-24 | Rediseño comercial de `/get-started` a partir de simulaciones de buyer personas |
+| `819151d` | 2026-10-24 | Rework de `/get-started` para tráfico pagado (revisión CRO) |
+| `6c82e48` | 2026-10-24 | Pestaña Ads en analítica + medición de leads de landing, quiz y `contact_click` |
+| `95f9b50` | 2026-10-22 | Leads de contacto confirmados y respuestas dirigidas al visitante (#34) |
+| `46573d0` | 2026-10-22 | Videos de demos optimizados con carga en hover/toque (#33) |
+| `4cb6cd6` | 2026-10-21 | Límite de 2500 caracteres en prompts de video Firefly (#32) |
+| `6aafec1` | 2026-10-21 | Timeline completo del clip de transcripción (#31) |
+| `d1f2ef8` | 2026-10-21 | Landmarks faciales internos en los frames de identity (#30) |
+| `e84117b` | 2026-10-21 | Frames de inicio y fin para todos los conceptos Firefly (#29) |
+| `ca60f03` | 2026-10-19 | Todas las demos en el home + kit Firefly por demo (#26) |
+| `0f9321e` | 2026-10-19 | Fotos generadas y previews animados en todas las tarjetas de demos (#23) |
+| `bb0aae8` | 2026-10-18 | Admin responsive, diálogos por teclado y cobertura de auditoría (#19) |
+| `0e77b67` | 2026-10-18 | Hero profesional en lugar de la mascota (#17) |
+| `05f91f9` | 2026-10-18 | Registro de releases SEO verificados (#16) |
+
+### Cambios de octubre 2026
+
+- **Landing `/get-started`** (`819151d`, `66c7c0c`): rehecha para tráfico pagado tras una revisión CRO y simulaciones de buyer personas. Estructura actual en §6. Se eliminaron las estadísticas "Why Now" sin fuente, las secciones duplicadas de proceso, la sección de tecnologías, las fotos de stock, los casos ilustrativos, la lista de "5 preguntas" y la nota de "cupos limitados". Variantes `?s=` completas por grupo de anuncios. El HTML para crawlers (`server/seo/publicContent.ts`) refleja la estructura.
+- **Formulario de contacto**: componente `ContactForm` reutilizable (home y landing), selector de objetivo, mensaje opcional, `defaultGoal`, `showNewsletter`, `showTrustNote`, `submitLabelKey`, `titleKey`, `buttonClassName`.
+- **Medición** (`6c82e48`): `trackConversion()` genérico con cola; `trackQuizLead()` y `trackContactClick()` nuevos; Robly y el contacto del home también miden clics.
+- **Pestaña Ads** (`6c82e48`): `googleAdsReport.ts` (Google Ads vía GA4, consultas independientes con `Promise.allSettled` y advertencias no fatales), `metaAds.ts` (Marketing API), endpoints `/analytics/ads/google|meta`, tarjeta "Meta Ads (Analytics)" en settings; `ga4Client.queryReport` ahora devuelve `currencyCode`.
+- **Google Ads**: cuenta nueva *Robles.AI* (EE. UU., USD, Pacífico, persona natural, login `antonio@robles.ai`, `jrobles@sistemas.com.pe` invitado como admin), vinculada a GA4 `492769320`, auto-apply desactivado, `generate_lead` importado como conversión principal. La cuenta antigua *Inversiones On Line* (Perú, cancelada en 2025) no se usa.
+- **Leads de contacto confirmados** (`95f9b50`): el contrato completo está en `docs/CONTACT_CONVERSIONS.md`.
+- **Demos**: previews de video/foto en todas las tarjetas, carga en hover/toque, kit y clips Firefly (`docs/DEMO_VIDEO_RELEASE.md`, `docs/DEMO_VISUALS.md`, `docs/FIREFLY_CLIPS.md`).
+- **Documentación**: `DEMOS_PLAN.md` y `REMOTION_VIDEO_CONTEXT.md` pasaron a `docs/`; README y AGENTS son los únicos `.md` de la raíz.
+
+### Cambios de septiembre 2026 (demos, UX, infra)
+- **`TryChatbot` — demo D1 "Tu chatbot en 60 segundos" (2026-09, Fase 2 de `docs/DEMOS_PLAN.md`)**: nueva demo *live*. El visitante pega la URL de su web → el backend la rastrea (crawler de HTML estático, mismo host, `robots.txt`, anti-SSRF, tope 20 páginas) → indexa el texto en un namespace efímero de Pinecone (TTL 24h) → responde preguntas con `gpt-4o-mini` usando solo ese contenido. Página `src/pages/TryChatbot.tsx` (patrón autocontenido, color de marca violeta/índigo, warm-up + `BusinessCase` + `SavingsCalculator`, `ApiCallLog`, `HowItWorks`), ruta `/try-chatbot` en `App.tsx`. El item de catálogo `sitechatbot` pasó de `soon` a `live` (+`href`). `business.ts`: `DemoBusinessId` y `CALCULATOR_DEFAULTS` += `sitechatbot` (test `business.test.ts` actualizado). i18n en/es: bloque `try-chatbot.*` + `demoBusiness.sitechatbot.*`. `chatContext.ts`: descripción, business angle y calculadora para `/try-chatbot`. Backend nuevo: **`robles.ai-chatbot-api`** en Cloud Run (proyecto `robles-ai-chatbot-project`, servicio `chatbot-api-server`, dominio `chatbot-api.robles.ai`), molde de `langchain-api` (FastAPI + OpenAI + Pinecone) sin torch (1Gi). Override de endpoint en dev: `VITE_CHATBOT_API`. Es la demo estrella (mayor potencial de leads); se mide por separado.
+- **`TryDocExtract` — demo D2 "Facturas y documentos → datos" (2026-09, Fase 1 de `docs/DEMOS_PLAN.md`)**: nueva demo *live*. El visitante sube una imagen o PDF → se codifica a base64 en el navegador → `POST /extract` → un modelo de visión de OpenAI (`gpt-4o-mini`) en **un único invoke** detecta el tipo de documento y extrae los campos como JSON estructurado (con confianza por campo y bounding boxes opcionales). La página muestra tabla + JSON + overlay de las cajas sobre el documento y permite descargar JSON/CSV/Excel (SpreadsheetML `.xls`, sin librería extra). Página `src/pages/TryDocExtract.tsx` (`/try-docextract`, tono indigo). Backend nuevo autónomo `robles.ai-docextract-api` (FastAPI, molde de `langchain-api`, **sin Pinecone ni LangChain**; pura extracción, sin RAG), Cloud Run `docextract-api.robles.ai` (proyecto `robles-ai-docextract-project`, servicio `docextract-api-server`, 1Gi, `--max-instances=4`, billing temporal `01B173-4B6B66-240F5E` porque la cuenta principal tiene la cuota de proyectos llena). Ítem de catálogo `docextract` → `live`. chatContext actualizado. DNS: el CNAME `docextract-api` → `ghs.googlehosted.com.` ya se publicó en Hostinger (vía la API, mismo patrón que los hermanos); Cloud Run emite el TLS automáticamente al propagar. `docextract-api.robles.ai` es el dominio público del backend.
+- **`TryForecast` — demo D6 "Pronóstico con tu CSV" (2026-09, Fase 3 de `docs/DEMOS_PLAN.md`)**: nueva demo *live*, **100% en el navegador (sin backend, sin GCP, sin costo)**. Descomposición aditiva estilo Holt-Winters (nivel + tendencia lineal OLS + perfil estacional promediado con detección automática de la estación por autocorrelación) y bandas de incertidumbre q10/q50/q90 a partir de los residuos en muestra. Presets de ejemplo (estándar/al alza/estacional/volátil) o CSV propio del visitante, horizonte 24 pasos (≈1 día) o 168 (≈1 semana), gráfica recharts (histórico + mediana + banda + tendencia) y descarga CSV. Lógica en `src/lib/forecast.ts` (con tests en `src/lib/__tests__/forecast.test.ts`), página `src/pages/TryForecast.tsx` (`/try-forecast`, tono cyan). Ítem de catálogo `forecast` → `live`. chatContext actualizado.
 - **`TryTTS` — demo "Dale voz a tu contenido" (2026-09)**: nueva demo *live*. Texto a voz neural premium con **OpenAI `gpt-4o-mini-tts`**. Dos modos: **Estudio de voz** (`/synthesize`: frase + voz + vibe + velocidad, muestra por voz con botón de preview) y **Narrador de contenido** (`/narrate`: texto largo fragmentado → audio unido con ffmpeg + subtítulos SRT/VTT, con casos precargados marketing/artículo/tutorial/e-learning/IVR). La velocidad se pasa como instrucción (no es control nativo); la voz es generada por IA (banner visible, R8) y no se clonan voces reales. Página `src/pages/TryTTS.tsx` (`/try-tts`, tono rosa/fucsia), ruta en `App.tsx`, ítem de catálogo `tts` → `live` (categoría `audio`), `business.ts` (+`tts`, test actualizado), i18n en/es (`try-tts.*` + `demoBusiness.tts.*`), `chatContext.ts`, y registrado como 7º backend en `server/services/backends/registry.ts`. Backend `robles.ai-tts-api` en Cloud Run (`tts-api.robles.ai`, proyecto `robles-ai-tts-project`, 1Gi + ffmpeg, billing temporal `01B173-4B6B66-240F5E`). Detalles de UX: la muestra de voz dice el nombre ("Hola, soy X y esta es mi voz..."), muestra un spinner y bloquea los demás previews mientras carga (para no acoplar voces), y al terminar de narrar el reproductor inicia el play automáticamente. Override de endpoint en dev: `VITE_TTS_API`.
 - **Sección/página de catálogo de demos**: `src/components/DemosCatalog.tsx` (usada en el home y en la ruta `/demos`, `src/pages/Demos.tsx`), con demos "live" y placeholders "coming soon". El chatbot Robly conoce el catálogo (contexto inyectado en `server/services/chatContext.ts`).
 - **`TryIdentity` y `TryRAG` rediseñadas** al mismo nivel: header con badge, tooltips por bloque (`InfoTip`), log JSON con resaltado de sintaxis (`JsonHighlight`), sección técnica colapsable, y **warm-up del servicio** (ping `mode:"no-cors"` a `/`, para el cold-start de Cloud Run que escala a cero).
@@ -666,14 +606,14 @@ El script `start` usaba `NODE_ENV=production && node dist/index.js`. El operador
   - `prune_registry.sh` (nuevo en cada repo) conserva las 3 versiones más recientes por paquete y registra una cleanup policy; corre al final de `update_docker.sh`, `deploy_fresh_gcp.sh` y en CI (`continue-on-error`). El SA `github-deployer` solo tiene `artifactregistry.writer`, que no puede borrar ni registrar políticas: en CI solo avisa; hace falta `roles/artifactregistry.repoAdmin` para que pode en cada push.
   - `rotate_secret.sh` sube los secretos desde `.env`, recarga Cloud Run (`:latest`) y **destruye** todas las versiones anteriores (Secret Manager cobra por versión activa, incluidas las deshabilitadas).
 - **Resuelto: `/analyze` de transcription devolvía 502.** Primero por una clave de OpenAI inválida (se rota con `rotate_secret.sh` en el repo `robles.ai-transcription-api`, **no** con el `.env` del sitio) y después por `brain_bad_schema` (ver Fase 0 más abajo). Para diagnosticarlo, buscar `openai_call_failed` / `openai_bad_schema` en Cloud Logging.
-- **Fase 0 de `DEMOS_PLAN.md` (2026-09-21)** — encuadre de negocio del laboratorio de demos:
+- **Fase 0 de `docs/DEMOS_PLAN.md` (2026-09-21)** — encuadre de negocio del laboratorio de demos:
   - El catálogo (`demosCatalog.items`, en/es) tiene títulos orientados a resultados y un campo nuevo `benefit` (línea de ahorro en cada tarjeta). Los ids *live* son `identity`, `rag`, `speech`, `langchain`, `sitechatbot`, `objectdetection` y `emotion`; el roadmap, `docextract`, `voiceagent`, `anomaly`, `forecast` e `imagegen`. `medical`, `sentiment` y `recommend` salieron del catálogo.
   - `src/components/demo/`: `BusinessCase` (bajo el header de cada demo), `SavingsCalculator` (antes de la sección técnica; volumen × minutos × % automatizable × costo/hora, más los CTA a `/diagnostico-ia` y a contacto) y `business.ts` (valores de ejemplo por demo, `computeSavings`, `useDemoTracking`, `useGoToHomeSection`). Los textos van en i18n bajo `demoBusiness.<id>`. Los valores iniciales de la calculadora son **ejemplos editables, no cifras de resultado**.
   - Analítica: `trackDemoEvent` (`src/lib/analytics.ts`) envía `demo_start`, `demo_complete`, `roi_calculated` y `demo_cta_click` con `demo_id`. Funciona con GTM (`dataLayer`), GA4 directo y Meta Pixel. **Ojo:** el `trackEvent` viejo no hace nada cuando el sitio usa GTM. Con GTM hay que crear la etiqueta GA4 para estos eventos para que aparezcan en GA4.
   - Robly (`chatContext.ts`): cada demo *live* tiene un "business angle" y la instrucción de ofrecer la calculadora y el diagnóstico, sin prometer cifras.
   - `transcription-api`: `/analyze` fallaba con `brain_bad_schema` en conversaciones casuales porque el modelo omitía `summary`. Se corrigió el prompt y el reintento ahora nombra los campos faltantes (los logs incluyen `schema_errors`: ruta del campo y tipo de error, nunca valores).
   - `rag-api` (cold start de ~60 s → ~29 s): los modelos de Hugging Face (MiniLM, monoT5, BGE) se incluyen en la imagen al construirla (`HF_HOME=/opt/hf-cache`), y monoT5/BGE se cargan de forma diferida (getters con lock). `POST /rag/warmup` los carga y corre una inferencia de prueba; `TryRAG` lo llama sin esperar respuesta apenas empieza el upload. Así el rerank tarda ~1.5 s en vez de ~46 s. Dos lecciones de Cloud Run con facturación por request: (1) un thread en segundo plano casi no recibe CPU entre requests, así que el trabajo pesado tiene que ocurrir *dentro* de una request; (2) los pesos van memory-mapped, así que cargar el modelo no alcanza: hasta la primera inferencia no se leen del disco.
-- **Documentos nuevos**: `REMOTION_VIDEO_CONTEXT.md` (contexto de marca + brief del video de marketing en Remotion) y `DEMOS_PLAN.md` (roadmap del laboratorio de demos priorizado por efecto wow y ahorro/ROI).
+- **Documentos nuevos**: `REMOTION_VIDEO_CONTEXT.md` (contexto de marca + brief del video de marketing en Remotion) y `DEMOS_PLAN.md` (roadmap del laboratorio de demos priorizado por efecto wow y ahorro/ROI). Desde oct 2026 viven en `docs/`.
 - **UX overhaul (2026-09, spec `.kiro/specs/ux-overhaul/`)**: pasada transversal de responsive + accesibilidad + reduced-motion, más un visor de noticias del blog en modal.
   - **Modal del blog**: las tarjetas de `/blog` ahora abren un modal accesible **en la misma página** (`src/components/BlogModal.tsx`) en vez de navegar. Deep-link con History API a `/blog/:slug` (abrir en pestaña nueva + copiar/compartir con fallback de portapapeles a un input de solo lectura auto-seleccionado), prev/next entre los posts ya traídos, cierre con Esc/backdrop/botón, bloqueo de scroll del body, focus trap y restauración de scroll + foco a la tarjeta de origen. El cold-load / entrada directa a `/blog/:slug` sigue renderizando la página completa `BlogPost` (SEO server-side y sitemaps intactos). Nuevos: `src/hooks/useBlogModalRouting.ts` (routing/estado del modal) y `src/lib/blogModal.ts` (helpers puros de slug/URL/navegación, con tests). El renderizado del artículo se extrajo a `src/components/BlogArticle.tsx`, compartido entre `BlogPost` y el modal para estructura idéntica.
   - **Reduced-motion**: hook `src/hooks/useReducedMotion.ts` + `<MotionConfig reducedMotion="user">` que apaga Hero/`ParticleBackground`/globo del chatbot y las entradas framer-motion cuando el usuario pide menos movimiento.
@@ -681,104 +621,28 @@ El script `start` usaba `NODE_ENV=production && node dist/index.js`. El operador
   - **Componentes de estado compartidos**: `src/components/state/{LoadingState,EmptyState,ErrorState}.tsx` (copys por i18n `state.*`); `ErrorState` con retry se cablea en los fetch del blog (se conserva el redirect 404).
   - **Responsive/A11y transversal**: lazy-loading de imágenes (`loading="lazy"` + reserva de aspect-ratio), landmarks ARIA + `role="dialog"` (incl. `VideoModal`), layouts que apilan en móvil, wrappers `overflow-x-auto` para tablas/logs/JSON/transcripts (demos y admin), tap targets de 44px. Se preserva el patrón de overlay de canvas (`absolute inset-0 h-full w-full`) para que las cajas alineen con el medio escalado.
   - **i18n (en+es)**: bloques nuevos `blogModal.*` y `state.*`, más `nav.primaryLabel`/`nav.footerLabel`, `videoModal.dialogLabel`/`videoModal.close` y `footer.social.*`.
-- **CI/CD del sitio**: push a `main` → GitHub Actions (`.github/workflows/deploy.yml`) → SSH al VPS → `pull.sh` (build selectivo por tipo de archivo). Ver §17.
+- **CI/CD del sitio**: push a `main` → GitHub Actions (`.github/workflows/deploy.yml`) → SSH al VPS → `pull.sh` (build selectivo por tipo de archivo). Ver §18.
 
 ---
 
-## 19. Requisitos y comandos
+## 23. Documentación y referencias
 
-- **Node.js ≥ 20** (recomendado)
-- **npm**
+- [`README.md`](README.md): referencia técnica en inglés para humanos.
+- `docs/` (todo lo que no es README/AGENTS):
 
-| Script | Descripción |
-|--------|-------------|
-| `npm run dev` | Levanta Express con `tsx watch` y Vite en modo dev |
-| `npm run build` | Compila frontend (Vite) + empaqueta servidor (esbuild) a `dist/` |
-| `npm start` | Producción: `NODE_ENV=production node dist/index.js` |
-| `npm run check` | Type check con TypeScript (`tsc`) |
-| `npm test` | Corre todos los tests (`vitest --run`) |
-| `npm run fix-sitemap` | Corrige entradas faltantes del sitemap |
-| `npm run cleanup-duplicates` | Elimina posts duplicados |
-| `npm run detect-gaps` | Detecta huecos en la generación diaria de posts |
-| `npm run fill-gaps` | Autocompleta huecos detectados |
+| Archivo | Contenido |
+|---------|-----------|
+| `docs/DEMOS_PLAN.md` | Roadmap del laboratorio de demos (wow + ROI) con estado por fase |
+| `docs/REMOTION_VIDEO_CONTEXT.md` | Contexto de marca y brief del video de marketing en Remotion |
+| `docs/CONTACT_CONVERSIONS.md` | Contrato de entrega del contacto y de conversiones (lead/click) + configuración de GTM, GA4, Ads y Meta |
+| `docs/DEMO_VIDEO_RELEASE.md` + `docs/DEMO_VIDEO_ASSETS.json` | Release de videos de preview de demos y manifiesto de assets |
+| `docs/DEMO_VISUALS.md` | Registro de imágenes y animaciones del catálogo de demos |
+| `docs/FIREFLY_CLIPS.md` | Parejas de frames inicio/fin de Firefly para los clips de demos |
+| `docs/ADMIN_AUDIT.md` | Auditoría funcional y responsive del panel admin |
+| `docs/DESIGN_AUDIT.md` | Auditoría de diseño del sitio público |
+| `docs/SEO_AUDIT.md`, `docs/SEO_IMPLEMENTATION_PLAN.md` | Auditoría SEO/GEO técnica y plan de implementación |
+| `docs/PENDING_WORK.md` | Backlog de trabajo pendiente |
 
-En desarrollo, disponible en `http://localhost:5173` (ajustable con `PORT`).
-
----
-
-## 20. Referencias
-
-- Referencia técnica orientada a humanos: [README.md](README.md)
-- Specs de features por módulo (fuente de verdad histórica de diseño): `.kiro/specs/*/`
-  (contienen `requirements.md` / `design.md` / `tasks.md` — NO son documentación
-  del proyecto, son artefactos del flujo de specs; no borrar).
-
----
-
-## 21. Portal de administración de backends (`/admin/backends`)
-
-Portal para **conectar, ver el estado y publicar el DNS** de los backends de demo
-(los servicios de Cloud Run: identity, rag, langchain, transcription, chatbot). Spec:
-`.kiro/specs/admin-backend-management/`. v1 = opción de solo lectura hacia GCP +
-escritura de DNS por Hostinger; el sitio nunca despliega/opera Cloud Run (eso lo hacen
-los scripts y el CI/CD de cada repo).
-
-### Qué hace
-- **Conexiones:** guarda en `settings` (BD) la `hostinger_api_key` y el `gcp_sa_key`
-  (JSON de la SA). Ambos **write-only**: el `GET` reporta solo `connected: bool`, nunca
-  el valor. Editable desde la UI (conectar/rotar sin redesplegar).
-- **Estado por backend:** DNS (¿existe el CNAME `<sub>-api → ghs.googlehosted.com.`?
-  `ok`/`missing`/`mismatch`/`unknown`), **actividad** (En uso / En reposo + "última
-  actividad hace Xh") y Cloud Run (revisión + ready, solo lectura).
-- **La lista NUNCA despierta un backend (corregido 2026-09).** Antes se pineaba
-  `GET /health` de cada servicio al cargar la página, lo que hacía cold-start de los que
-  escalan a cero (Transcription se "encendía" solo por abrir el portal). Ahora la actividad
-  se lee de **Cloud Monitoring** (`monitoringClient.ts`: `request_count` → última actividad,
-  `container/instance_count` → En uso/En reposo), que consulta telemetría de GCP sin tocar
-  el contenedor. Requiere `roles/monitoring.viewer` en cada proyecto (además de `run.viewer`).
-- **Ping en vivo opt-in:** botón "Probar" → `POST /:id/ping` que sí golpea `GET /health`
-  (única ruta que toca el backend directamente y **lo despierta**); solo por acción explícita
-  del admin, nunca automático.
-- **Publicar DNS:** `POST /:id/dns` crea/actualiza el CNAME del backend vía Hostinger
-  (idempotente). El `name`/`target` salen del **registry del servidor**, nunca del body.
-
-### Arquitectura (server)
-- `server/backendRoutes.ts` → montado en `/api/admin/backends` con `requireAuth`.
-  Endpoints: `GET/PUT /connections`, `GET /`, `POST /:id/dns`, `GET /:id/cloudrun`,
-  `POST /:id/ping` (wake+test opt-in).
-- `server/services/backends/registry.ts` → catálogo declarativo de los 6 backends
-  (id, subdominio, proyecto/servicio Cloud Run reales): chatbot, identity, rag, langchain,
-  transcription, docextract. Ojo: identity es `identity-server` (sin `-api`).
-- `server/services/dns/DnsProvider.ts` (interfaz) + `HostingerDnsProvider.ts` (impl v1,
-  API DNS de Hostinger `GET/PUT /api/dns/v1/zones/{domain}`). La interfaz existe para el
-  swap futuro a **Cloud DNS** cuando se migre a GCP (ver `DEMOS_PLAN.md` §8).
-- `server/services/gcp/googleAuth.ts` → JWT bearer grant (RS256) desde `gcp_sa_key`,
-  canje por access token. **Scope `cloud-platform`** (el `.read-only` da 403
-  `ACCESS_TOKEN_SCOPE_INSUFFICIENT` en la Cloud Run Admin API; la lectura-sólo se
-  garantiza por IAM: la SA solo tiene `roles/run.viewer` + `roles/monitoring.viewer` +
-  `roles/serviceusage.serviceUsageConsumer` en cada proyecto de backend).
-- `server/services/gcp/cloudRunClient.ts` → `getServiceStatus` (GET v2 API, sin métodos
-  de escritura). `server/services/gcp/monitoringClient.ts` → `getServiceActivity` (Cloud
-  Monitoring, sin tocar el servicio; usado en el `list`). `server/services/backends/health.ts`
-  → `pingHealth` (solo desde el ping opt-in `POST /:id/ping`, no en el `list`).
-- **Facturación de las lecturas de Monitoring (importante).** La API de Cloud Monitoring
-  (`timeSeries`) **exige billing en el proyecto que factura la llamada**. Como
-  `robles-ai-admin` (donde vive la SA) es a propósito **sin billing**, el `monitoringClient`
-  manda la cabecera **`x-goog-user-project: <proyecto del backend>`** para que la cuota/billing
-  se atribuya al proyecto del backend (que sí tiene billing), no al de la SA. Por eso la SA
-  necesita `roles/serviceusage.serviceUsageConsumer` en cada backend. Sin esto, Monitoring
-  devuelve `403 "requires billing to be enabled"`. La Cloud Run Admin API NO necesita esto
-  (por eso Cloud Run funciona aunque Monitoring falle). Se descartó vincular billing al
-  proyecto raíz para mantenerlo limpio.
-
-### Infra GCP: proyecto raíz `robles-ai-admin`
-La SA de lectura vive en un **proyecto raíz dedicado** `robles-ai-admin` (no en un
-backend, para no acoplar el acceso a un proyecto descartable), con `roles/run.viewer` +
-`roles/monitoring.viewer` en los 6 proyectos de backend (cross-project). El proyecto raíz **no necesita billing** para alojar
-la SA ni para las lecturas (la cuota de billing de la cuenta estaba llena con los 5
-backends). Este proyecto será además el hogar del sitio y de Cloud DNS cuando se migre
-todo a GCP (`DEMOS_PLAN.md` §8).
-
-### Producción
-Tras desplegar, cargar las credenciales **desde la UI** (`/admin/backends`): la API key
-de Hostinger y el JSON de la SA `backend-viewer@robles-ai-admin`. No van en `.env`.
+- `.kiro/specs/*/`: specs de features (§14).
+- `creative/`: fuentes de los visuales de demos (`firefly-demo-clips/`, `firefly-demo-pairs-v3/`, con un `README.md` por carpeta).
+- Regla: **no crear nuevos `.md` en la raíz**. Planes, auditorías, briefs y notas de release van en `docs/` y se agregan a la tabla de arriba y a la de `README.md`.

@@ -52,7 +52,7 @@ conectar/rotar sin redesplegar.
 La gestión de DNS se implementa detrás de una interfaz **`DnsProvider`** (métodos
 `getRecords(domain)`, `upsertCname(domain, name, target)`). En v1 la única implementación
 es `HostingerDnsProvider`. Cuando Robles.AI migre su DNS a **Cloud DNS** (pendiente en
-`DEMOS_PLAN.md` §8), solo se añade `CloudDnsProvider` y se cambia el proveedor activo, sin
+`docs/DEMOS_PLAN.md` §8), solo se añade `CloudDnsProvider` y se cambia el proveedor activo, sin
 tocar los endpoints ni la UI.
 
 ### 1.5 Proyecto raíz `robles-ai-admin` y la SA de solo lectura (decisión)
@@ -72,7 +72,7 @@ otorgado **en cada** proyecto de backend (binding cross-project). Ventajas:
 - Es solo lectura: perder este acceso nunca rompe un backend, solo el panel de monitoreo.
 
 Este proyecto raíz es además el hogar previsto del sitio `robles.ai` y de Cloud DNS
-cuando se ejecute la migración a GCP (`DEMOS_PLAN.md` §8).
+cuando se ejecute la migración a GCP (`docs/DEMOS_PLAN.md` §8).
 
 ---
 

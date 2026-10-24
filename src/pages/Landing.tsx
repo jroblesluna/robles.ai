@@ -37,11 +37,13 @@ import { trackContactClick } from "@/lib/analytics";
 /**
  * /get-started — paid-traffic landing page.
  *
- * Structure (CRO review 2026-10): outcome-led hero with the offer above the fold, live demos
- * for genuine interest, a useful insight block, one merged process, the priced diagnosis,
- * the founder, illustrative cases, FAQ and the contact form. CTAs repeat down the page and
- * a sticky bar appears on mobile. `?s=chatbots|rag|agents|docs` swaps the hero headline so
- * each Google Ads ad group lands on a matching message.
+ * Structure (CRO + buyer-persona review, 2026-10): outcome-led hero (diagnosis CTA, WhatsApp,
+ * links to demos / proposal / 2-minute test) with the offer card; live demos; industry starting
+ * points (examples, not results); "where AI pays back first"; one merged process; two ways to
+ * start (priced diagnosis or direct project); commitments; security & integration; founder;
+ * FAQ; contact form; sticky mobile CTA. `?s=chatbots|rag|agents|docs` swaps the hero copy,
+ * side card, CTA, contact title/submit, pre-selected form goal and WhatsApp message so each
+ * Google Ads ad group lands on a matching message.
  */
 
 const WHATSAPP_NUMBER = "14085900153";

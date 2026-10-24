@@ -266,7 +266,7 @@ function getDemoContext(pagePath: string): string {
 }
 
 /**
- * What each live demo is worth to a business (DEMOS_PLAN.md §3.1). Robly leads
+ * What each live demo is worth to a business (docs/DEMOS_PLAN.md §3.1). Robly leads
  * with this instead of the model's technical details.
  */
 const DEMO_BUSINESS_ANGLE: Record<string, string> = {

@@ -7,6 +7,13 @@
 > Estado base: septiembre 2026. Fuente: `demosCatalog.items` en
 > `src/i18n/locales/{en,es}/translation.json`, las páginas `src/pages/Try*.tsx` y los cuatro
 > repos de APIs en Cloud Run.
+>
+> **Estado al 24 oct 2026:** Fases 0, 1 (D2), 2 (D1) y parte de la 3 (D6, TTS) completadas.
+> El catálogo tiene **10 demos live** (`sitechatbot`, `identity`, `rag`, `speech`, `langchain`,
+> `objectdetection`, `emotion`, `docextract`, `tts`, `forecast`) y **3 "soon"** (`voiceagent`,
+> `anomaly`, `imagegen`). Pendientes: D3 (notas de reunión), D4 (recepcionista por voz),
+> D5 (simulador de fraude) y D7 (estudio de foto de producto). La referencia operativa vigente
+> está en `AGENTS.md` y `README.md`; las tablas de §1 describen el punto de partida de sept. 2026.
 
 ---
 
@@ -66,7 +73,7 @@ Toda demo, nueva o existente, cumple con esto antes de marcarse `live`:
 > **Regla de claims.** No publicar porcentajes ni montos de ahorro que no estén respaldados.
 > Solo se pueden citar (a) las cifras de nuestros casos de éxito
 > (`public/case-studies/content.json`) y (b) los resultados de la calculadora con los datos del
-> propio visitante. Ver también la §6 de `REMOTION_VIDEO_CONTEXT.md`.
+> propio visitante. Ver también la §6 de `docs/REMOTION_VIDEO_CONTEXT.md`.
 
 ---
 

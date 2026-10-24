@@ -47,7 +47,7 @@ export const BACKENDS: BackendDef[] = [ identity, rag, langchain, transcription,
 Valores tomados de los AGENTS.md de cada repo hermano (proyectos/servicios reales).
 `transcription` usa proyecto `robles-ai-transcript-project` y servicio
 `transcription-api-server`; `identity` el servicio `identity-server` (nota: aún sin
-sufijo `-api`, ver deuda en DEMOS_PLAN §8) — el registry refleja los nombres **reales**.
+sufijo `-api`, ver deuda en docs/DEMOS_PLAN.md §8) — el registry refleja los nombres **reales**.
 
 ---
 

@@ -134,6 +134,10 @@ retroalimentación real entre etapas.
 
 ### 4.2 Datos de mercado ("Por Qué Ahora") — son de industria, no nuestros
 
+> **Actualización 24 oct 2026:** estas cifras se **retiraron de la landing `/get-started`**
+> porque no tienen una fuente citada en el sitio. No usarlas en el video sin antes conseguir y
+> citar la fuente; si no hay fuente, omitirlas.
+
 | Cifra | Afirmación |
 |-------|------------|
 | **83%** | de Pymes ya se declaran listas para adoptar IA |

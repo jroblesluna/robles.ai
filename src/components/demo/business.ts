@@ -6,7 +6,7 @@ import { useLocation } from "wouter";
 import { trackDemoEvent } from "@/lib/analytics";
 
 /**
- * Business framing for the live demos (DEMOS_PLAN.md §2–§3).
+ * Business framing for the live demos (docs/DEMOS_PLAN.md §2–§3).
  *
  * Copy lives in i18n under `demoBusiness.<id>`. The numbers below are only the
  * *example* inputs the savings calculator starts with — the visitor edits them
@@ -46,7 +46,7 @@ export const CALCULATOR_DEFAULTS: Partial<Record<DemoBusinessId, CalculatorDefau
   emotion: { volume: 600, minutes: 5, automation: 60, hourlyCost: 10 },
   // "Tu chatbot en 60 segundos" (D1): consultas/mes que hoy atiende una persona,
   // minutos por consulta, % que el bot resuelve solo. Referencia citable: caso telco
-  // 78% de resolución autónoma (DEMOS_PLAN.md §4.1).
+  // 78% de resolución autónoma (docs/DEMOS_PLAN.md §4.1).
   sitechatbot: { volume: 800, minutes: 6, automation: 70, hourlyCost: 15 },
   // D2 "Document data extraction": documents keyed in by hand per month, minutes
   // each takes, % the model reads automatically. Example values, not claims.
