@@ -169,7 +169,7 @@ creative/        # material fuente de los visuales de demos (prompts y frames de
 2. **Logos de clientes** (`#clients`): `ClientLogos` (ver abajo).
 3. **Lo que construimos — pruébalo** (`#demos`): chatbots, asistentes de conocimiento, agentes e IA documental, cada uno enlazado a su demo (`demosCatalog.items`).
 4. **Dónde encaja en tu negocio**: puntos de partida por industria, rotulados como ejemplos, no resultados de clientes.
-5. **Dónde la IA suele pagarse primero**: tres patrones + CTA.
+5. **Dónde la IA suele dar resultados más rápido**: tres patrones + CTA.
 6. **Cómo trabajamos**: cuatro pasos.
 7. **Precios** (`#diagnostico`): tres paquetes del Diagnóstico IA (`landing.v2.packages.items`) — Esencial *desde USD 1,500* (hasta 2 procesos; beneficio: 30 días de consultas), Avanzado *USD 2,500* (hasta 4; destacado; beneficio: demo funcional del caso prioritario), Integral *USD 3,000* (hasta 6; beneficio: taller ejecutivo de 2 h); entregables comunes arriba y, debajo, el proyecto directo (`landing.v2.paths.project`). Los beneficios son propuestas comerciales: cambiarlos solo en el i18n.
 8. **Compromisos**: hoja de ruta/código/datos del cliente, sin entrenar con sus datos, revisión humana.
