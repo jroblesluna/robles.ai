@@ -55,3 +55,33 @@ it('never lets tracker failures break an accepted contact', async () => {
   expect(() => analytics.trackContactLead()).not.toThrow();
   expect(sdk.pixel.track).toHaveBeenCalledWith('Lead', expect.any(Object));
 });
+it('counts a quiz lead as generate_lead with method quiz', async () => {
+  vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ ga4: 'G-TEST', metaPixel: '123' }) })));
+  const analytics = await import('../analytics');
+  await analytics.initAnalytics();
+  analytics.trackQuizLead();
+  expect((window as any).dataLayer).toContainEqual({ event: 'generate_lead', form_id: 'quiz', method: 'quiz' });
+  expect(sdk.ga.event).toHaveBeenCalledExactlyOnceWith('generate_lead', { form_id: 'quiz', method: 'quiz' });
+  expect(sdk.pixel.track).toHaveBeenCalledExactlyOnceWith('Lead', { form_id: 'quiz', method: 'quiz' });
+});
+it('tracks contact link clicks as contact_click (GTM) without sending a lead', async () => {
+  vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ gtm: 'GTM-TEST123' }) })));
+  const analytics = await import('../analytics');
+  analytics.trackContactClick('whatsapp', 'landing_cta');
+  await analytics.initAnalytics();
+  analytics.trackContactClick('email', 'landing_contact');
+  expect((window as any).dataLayer.filter((e: any) => e.event === 'contact_click')).toEqual([
+    { event: 'contact_click', contact_method: 'whatsapp', link_location: 'landing_cta' },
+    { event: 'contact_click', contact_method: 'email', link_location: 'landing_contact' },
+  ]);
+  expect((window as any).dataLayer.some((e: any) => e.event === 'generate_lead')).toBe(false);
+  expect(sdk.ga.event).not.toHaveBeenCalled();
+});
+it('sends contact clicks to direct trackers as GA4 contact_click and Meta Contact', async () => {
+  vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ ga4: 'G-TEST', metaPixel: '123' }) })));
+  const analytics = await import('../analytics');
+  await analytics.initAnalytics();
+  analytics.trackContactClick('phone', 'home_contact');
+  expect(sdk.ga.event).toHaveBeenCalledExactlyOnceWith('contact_click', { contact_method: 'phone', link_location: 'home_contact' });
+  expect(sdk.pixel.track).toHaveBeenCalledExactlyOnceWith('Contact', { contact_method: 'phone', link_location: 'home_contact' });
+});

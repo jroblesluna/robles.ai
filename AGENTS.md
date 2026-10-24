@@ -57,7 +57,7 @@ Sitio web público de **Robles.AI**, una consultora/estudio de soluciones de Int
 - **SEO server-side**: middleware Express inyecta `<title>`, `<meta>`, Open Graph, Twitter Card, hreflang, canonical y JSON-LD antes de servir el HTML a crawlers (sin depender de JS del cliente).
 - **Panel Admin** (`/admin`): dashboard autenticado con JWT — gestión de El Dominical IA, publicación multi-plataforma, generación de carrusel de imágenes, generación de video, inbox de conversaciones del chatbot, y analítica.
 - **El Dominical IA**: newsletter semanal automatizado (ver §6).
-- **Dashboard de Analítica**: métricas de GA4 y Meta (Instagram/Facebook) con caché en SQLite, en pestañas Overview/Traffic/Behavior/Social (recharts).
+- **Dashboard de Analítica**: métricas de GA4 y Meta (Instagram/Facebook) con caché en SQLite, en pestañas Overview/Traffic/Behavior/Social/Ads (recharts). La pestaña **Ads** muestra campañas pagadas: Google Ads leído vía GA4 (cuenta de Ads vinculada a la propiedad; sin developer token) y Meta Ads vía Marketing API (`meta_ad_account_id` + `meta_ads_access_token` con `ads_read`).
 - **Formularios** con validación `zod` y envío por email (`nodemailer`).
 - **Analítica opcional**: GA4 y Facebook Pixel (solo en producción).
 - **Sitemaps** con anotaciones hreflang (`sitemap.xml` + archivos XML mensuales por idioma).
@@ -129,6 +129,8 @@ server/
     conversationStore.ts        # CRUD SQLite de conversaciones/mensajes/contactos
     ga4Client.ts                 # Cliente de Google Analytics Data API
     metaInsights.ts              # Meta Graph API (insights de Instagram + Facebook)
+    googleAdsReport.ts           # Google Ads vía GA4 (advertiserAdCost/Clicks/Impressions por campaña + canales pagados vs orgánicos)
+    metaAds.ts                   # Meta Marketing API (insights del ad account: gasto, clics, leads por campaña)
     analyticsCache.ts            # Caché TTL en SQLite para respuestas de analítica
     platforms/
       types.ts                  # PlatformName, PlatformStatus, PlatformAdapter interface
@@ -318,7 +320,7 @@ linkedin_person_id, image_provider, dominical_notification_email,
 dominical_auto_publish, dominical_top_n, admin_jwt_secret,
 meta_app_id, meta_app_secret, instagram_business_account_id,
 instagram_access_token, facebook_page_id, facebook_page_access_token,
-meta_token_expires_at,
+meta_token_expires_at, meta_ad_account_id, meta_ads_access_token,
 hostinger_api_key, gcp_sa_key, hostinger_domain, dns_cname_target
 ```
 
@@ -381,7 +383,7 @@ Cada una contiene `requirements.md`, `design.md`, `tasks.md` (+ `tasks.meta.json
 | `/admin/backends` | AdminBackends | Portal de backends: conexión (Hostinger/GCP), estado DNS + Cloud Run + salud, publicar CNAMEs (ver §21) |
 | `/admin/conversations` | AdminConversationList | Inbox de chat con filtros + analítica |
 | `/admin/conversations/:id` | AdminConversationDetail | Transcript completo + datos de contacto |
-| `/admin/analytics` | AdminAnalytics | Dashboard GA4 + Meta (4 tabs) |
+| `/admin/analytics` | AdminAnalytics | Dashboard GA4 + Meta (5 tabs, incl. Ads) |
 
 ---
 
@@ -433,6 +435,8 @@ Cada una contiene `requirements.md`, `design.md`, `tasks.md` (+ `tasks.meta.json
 | GET | `/api/admin/analytics/behavior` | Sí | Datos de comportamiento GA4 |
 | GET | `/api/admin/analytics/social/instagram` | Sí | Insights de Instagram |
 | GET | `/api/admin/analytics/social/facebook` | Sí | Insights de Facebook |
+| GET | `/api/admin/analytics/ads/google` | Sí | Google Ads vía GA4 (campañas, gasto diario, canales) |
+| GET | `/api/admin/analytics/ads/meta` | Sí | Meta Ads (campañas, gasto diario, leads) |
 | POST | `/api/admin/analytics/refresh` | Sí | Limpiar caché de analítica |
 | POST | `/api/admin/reindex-posts` | Sí | Forzar reconstrucción del índice del blog |
 | GET | `/api/admin/quiz-leads` | Sí | Listado de leads del quiz |

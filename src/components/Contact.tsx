@@ -20,7 +20,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { toast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { insertContactSchema } from "@shared/schema";
-import { trackContactLead } from "@/lib/analytics";
+import { trackContactClick, trackContactLead } from "@/lib/analytics";
 import { useTranslation } from "react-i18next";
 
 const contactFormSchema = insertContactSchema.extend({
@@ -40,7 +40,13 @@ const contactFormSchema = insertContactSchema.extend({
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
 
-const Contact = () => {
+interface ContactFormProps {
+  /** Classes for the card wrapper (background, padding, shadow). */
+  className?: string;
+}
+
+/** The contact form card. Fires generate_lead (via trackContactLead) only after the API accepts it. */
+export const ContactForm = ({ className = "bg-blue-100 p-5 sm:p-8 rounded-xl shadow-sm" }: ContactFormProps) => {
   const { t } = useTranslation();
   const [clientReady, setClientReady] = useState(false);
   useEffect(() => { setClientReady(true); }, []);
@@ -92,6 +98,106 @@ const Contact = () => {
   };
 
   return (
+    <div className={`text-left ${className}`}>
+      <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6">{t("contact.formTitle")}</h3>
+
+      <Form {...form}>
+        <form method="post" action="/api/contact" onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-4 sm:space-y-6 min-w-0">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm">{t("contact.name")}</FormLabel>
+                <FormControl>
+                  <Input placeholder={t("contact.namePlaceholder")} className="bg-white" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm">{t("contact.email")}</FormLabel>
+                <FormControl>
+                  <Input placeholder={t("contact.emailPlaceholder")} className="bg-white" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="company"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm">{t("contact.company")}</FormLabel>
+                <FormControl>
+                  <Input placeholder={t("contact.companyPlaceholder")} className="bg-white" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="message"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm">{t("contact.message")}</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder={t("contact.messagePlaceholder")}
+                    className="min-h-[100px] sm:min-h-[120px] bg-white"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="newsletter"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start gap-3 space-y-0 rounded-md border bg-white/60 p-3 sm:p-4">
+                <FormControl>
+                  <Checkbox className="mt-0.5" checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel className="text-sm">{t("contact.subscribe")}</FormLabel>
+                  <p className="text-xs sm:text-sm text-gray-600">{t("contact.subscribeDesc")}</p>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          {!clientReady && <p className="text-sm text-gray-700">{t("contact.javascriptRequired")}</p>}
+          <Button
+            type="submit"
+            className="tap-target w-full bg-blue-600 hover:bg-blue-700"
+            disabled={!clientReady || isSubmitting}
+          >
+            {isSubmitting ? t("contact.sending") : t("contact.send")}
+            <Send className="ml-2 h-4 w-4" />
+          </Button>
+        </form>
+      </Form>
+    </div>
+  );
+};
+
+const Contact = () => {
+  const { t } = useTranslation();
+
+  return (
     <section id="contact" className="py-16 bg-gray-50 scroll-mt-10">
       <motion.div
         className="container mx-auto px-6"
@@ -128,7 +234,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4 className="text-lg font-medium text-gray-900">{t("contact.phone")}</h4>
-                  <a className="text-gray-600 hover:underline" href={PUBLIC_CONTACT.phoneHref}>{PUBLIC_CONTACT.phone}</a>
+                  <a className="text-gray-600 hover:underline" href={PUBLIC_CONTACT.phoneHref} onClick={() => trackContactClick("phone", "home_contact")}>{PUBLIC_CONTACT.phone}</a>
                 </div>
               </div>
 
@@ -138,7 +244,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4 className="text-lg font-medium text-gray-900">{t("contact.email")}</h4>
-                  <a className="text-gray-600 hover:underline" href={`mailto:${PUBLIC_CONTACT.email}`}>{PUBLIC_CONTACT.email}</a>
+                  <a className="text-gray-600 hover:underline" href={`mailto:${PUBLIC_CONTACT.email}`} onClick={() => trackContactClick("email", "home_contact")}>{PUBLIC_CONTACT.email}</a>
                 </div>
               </div>
 
@@ -163,99 +269,8 @@ const Contact = () => {
           <motion.div
             variants={fadeIn}
             custom={0.3}
-            className="bg-blue-100 p-5 sm:p-8 rounded-xl shadow-sm"
           >
-            <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6">{t("contact.formTitle")}</h3>
-
-            <Form {...form}>
-              <form method="post" action="/api/contact" onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-4 sm:space-y-6 min-w-0">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm">{t("contact.name")}</FormLabel>
-                      <FormControl>
-                        <Input placeholder={t("contact.namePlaceholder")} className="bg-white" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm">{t("contact.email")}</FormLabel>
-                      <FormControl>
-                        <Input placeholder={t("contact.emailPlaceholder")} className="bg-white" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="company"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm">{t("contact.company")}</FormLabel>
-                      <FormControl>
-                        <Input placeholder={t("contact.companyPlaceholder")} className="bg-white" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="message"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm">{t("contact.message")}</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder={t("contact.messagePlaceholder")}
-                          className="min-h-[100px] sm:min-h-[120px] bg-white"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="newsletter"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start gap-3 space-y-0 rounded-md border bg-white/60 p-3 sm:p-4">
-                      <FormControl>
-                        <Checkbox className="mt-0.5" checked={field.value} onCheckedChange={field.onChange} />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel className="text-sm">{t("contact.subscribe")}</FormLabel>
-                        <p className="text-xs sm:text-sm text-gray-600">{t("contact.subscribeDesc")}</p>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-
-                {!clientReady && <p className="text-sm text-gray-700">{t("contact.javascriptRequired")}</p>}
-                <Button
-                  type="submit"
-                  className="tap-target w-full bg-blue-600 hover:bg-blue-700"
-                  disabled={!clientReady || isSubmitting}
-                >
-                  {isSubmitting ? t("contact.sending") : t("contact.send")}
-                  <Send className="ml-2 h-4 w-4" />
-                </Button>
-              </form>
-            </Form>
+            <ContactForm />
           </motion.div>
         </div>
       </motion.div>

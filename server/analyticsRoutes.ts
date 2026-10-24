@@ -3,6 +3,8 @@ import { requireAuth } from './auth.js';
 import * as ga4Client from './services/ga4Client.js';
 import * as metaInsights from './services/metaInsights.js';
 import * as analyticsCache from './services/analyticsCache.js';
+import { getGoogleAdsReport } from './services/googleAdsReport.js';
+import * as metaAds from './services/metaAds.js';
 
 const analyticsRouter = Router();
 analyticsRouter.use(requireAuth);
@@ -149,6 +151,47 @@ analyticsRouter.get('/social/facebook', (_req: Request, res: Response) => {
       res.json(data);
     } catch (error) {
       console.error('[Analytics] Facebook error:', error);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      res.status(500).json({ error: message });
+    }
+  })();
+});
+
+// --- Paid campaigns (Ads tab) ---
+
+analyticsRouter.get('/ads/google', (req: Request, res: Response) => {
+  (async () => {
+    try {
+      const { startDate, endDate } = parseDateRange(req);
+      const key = cacheKey('ads:google', startDate, endDate);
+      const cached = analyticsCache.get(key);
+      if (cached) { res.json(cached); return; }
+      const config = ga4Client.isConfigured();
+      if (!config.configured) { res.json({ error: 'GA4 not configured', ...config }); return; }
+      const data = await getGoogleAdsReport({ startDate, endDate });
+      analyticsCache.set(key, data, getTtl(startDate, endDate));
+      res.json(data);
+    } catch (error) {
+      console.error('[Analytics] Google Ads error:', error);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      res.status(500).json({ error: message });
+    }
+  })();
+});
+
+analyticsRouter.get('/ads/meta', (req: Request, res: Response) => {
+  (async () => {
+    try {
+      const { startDate, endDate } = parseDateRange(req);
+      const key = cacheKey('ads:meta', startDate, endDate);
+      const cached = analyticsCache.get(key);
+      if (cached) { res.json(cached); return; }
+      const data = await metaAds.queryMetaAds({ startDate, endDate });
+      if (metaAds.isMetaAdsError(data)) { res.json(data); return; }
+      analyticsCache.set(key, data, analyticsCache.TTL.META);
+      res.json(data);
+    } catch (error) {
+      console.error('[Analytics] Meta Ads error:', error);
       const message = error instanceof Error ? error.message : 'Unknown error';
       res.status(500).json({ error: message });
     }

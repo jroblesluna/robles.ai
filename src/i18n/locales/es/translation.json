@@ -2109,7 +2109,8 @@
             "subtitle": "Contáctanos hoy y da el primer paso hacia una transformación con IA basada en datos reales, no en supuestos.",
             "email": "Correo electrónico",
             "phone": "Teléfono / WhatsApp",
-            "whatsappCta": "Agendar por WhatsApp"
+            "whatsappCta": "Agendar por WhatsApp",
+            "orReachUs": "O contáctanos directamente:"
         },
         "whatsapp": {
             "greeting": "¡Hola! Estamos para ayudarte.",

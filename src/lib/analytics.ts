@@ -6,27 +6,59 @@ let gaInitialized = false;
 let fbInitialized = false;
 let gtmInitialized = false;
 let analyticsReady = false;
-let pendingContactLeads = 0;
+type TrackingParams = Record<string, string>;
+type QueuedEvent = { ga: string; pixel: string; params: TrackingParams };
+
+// Conversions fired before the trackers finish loading, replayed once on direct GA4/Pixel.
+let pendingEvents: QueuedEvent[] = [];
 
 const contactLeadParams = { form_id: 'contact', method: 'contact_form' } as const;
+const quizLeadParams = { form_id: 'quiz', method: 'quiz' } as const;
 
-function sendDirectContactLead(): void {
+function sendDirect({ ga, pixel, params }: QueuedEvent): void {
   // Tracking failures must never turn an accepted inquiry into a form error.
-  try { if (gaInitialized) ReactGA.event('generate_lead', contactLeadParams); } catch { /* non-critical */ }
-  try { if (fbInitialized) ReactPixel.track('Lead', contactLeadParams); } catch { /* non-critical */ }
+  try { if (gaInitialized) ReactGA.event(ga, params); } catch { /* non-critical */ }
+  try { if (fbInitialized) ReactPixel.track(pixel, params); } catch { /* non-critical */ }
 }
 
-/** Call once after the contact API confirms success. Never include form values. */
-export function trackContactLead(): void {
-  if (typeof window === 'undefined' || !import.meta.env.PROD || window.location.pathname.startsWith('/admin')) return;
+function canTrack(): boolean {
+  return typeof window !== 'undefined' && import.meta.env.PROD && !window.location.pathname.startsWith('/admin');
+}
+
+/**
+ * Push a conversion to the dataLayer (GTM) and, without GTM, to GA4 + Meta Pixel directly.
+ * Queued until initAnalytics() finishes so early events are not lost or duplicated.
+ */
+function trackConversion(event: QueuedEvent): void {
+  if (!canTrack()) return;
   try {
     // Queue before GTM loads too; GTM consumes the existing dataLayer on startup.
     const w = window as unknown as { dataLayer?: Record<string, unknown>[] };
     w.dataLayer = w.dataLayer || [];
-    w.dataLayer.push({ event: 'generate_lead', ...contactLeadParams });
+    w.dataLayer.push({ event: event.ga, ...event.params });
   } catch { /* non-critical */ }
-  if (!analyticsReady) pendingContactLeads++;
-  else if (!gtmInitialized) sendDirectContactLead();
+  if (!analyticsReady) pendingEvents.push(event);
+  else if (!gtmInitialized) sendDirect(event);
+}
+
+/** Call once after the contact API confirms success. Never include form values. */
+export function trackContactLead(): void {
+  trackConversion({ ga: 'generate_lead', pixel: 'Lead', params: { ...contactLeadParams } });
+}
+
+/** Call once after the quiz lead is saved by the API. Never include form values. */
+export function trackQuizLead(): void {
+  trackConversion({ ga: 'generate_lead', pixel: 'Lead', params: { ...quizLeadParams } });
+}
+
+export type ContactChannel = 'whatsapp' | 'email' | 'phone';
+
+/**
+ * A click on a WhatsApp / email / phone link. Intent only (the message may never be sent),
+ * so import it in Google Ads as a *secondary* conversion. Meta receives the standard "Contact" event.
+ */
+export function trackContactClick(channel: ContactChannel, location: string): void {
+  trackConversion({ ga: 'contact_click', pixel: 'Contact', params: { contact_method: channel, link_location: location } });
 }
 
 /**
@@ -98,9 +130,9 @@ export const initAnalytics = async () => {
   } finally {
     analyticsReady = true;
     if (!gtmInitialized) {
-      for (let i = 0; i < pendingContactLeads; i++) sendDirectContactLead();
+      for (const event of pendingEvents) sendDirect(event);
     }
-    pendingContactLeads = 0;
+    pendingEvents = [];
   }
 };
 

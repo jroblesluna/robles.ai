@@ -8,6 +8,7 @@ import type { ConnectionStatus, ConversationStatus } from '../../hooks/useChatSe
 import type { RobotMood } from './ChatbotWidget.js';
 import MessageList from './MessageList.js';
 import MessageInput from './MessageInput.js';
+import { trackContactClick } from '@/lib/analytics';
 
 // ============================================================
 // ChatPanel — Full conversation view for the AI chatbot widget
@@ -196,6 +197,7 @@ export default function ChatPanel({
       <div className="flex items-center justify-between px-3 py-2 border-t border-gray-100 bg-gray-50 flex-shrink-0">
         <a
           href={whatsappUrl}
+          onClick={() => trackContactClick('whatsapp', 'chat_footer')}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1.5 text-xs text-gray-600 hover:text-green-600 transition-colors"

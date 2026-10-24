@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { QUIZ_QUESTIONS, computeQuizResult, type QuizResult } from "@/lib/quizData";
 import { apiRequest } from "@/lib/queryClient";
+import { trackQuizLead } from "@/lib/analytics";
 import { toast } from "@/hooks/use-toast";
 import QuizIntro from "@/components/quiz/QuizIntro";
 import QuizProgressBar from "@/components/quiz/QuizProgressBar";
@@ -68,6 +69,8 @@ const Quiz = () => {
       setLeadName(data.name);
       setLeadEmail(data.email);
       setLeadId(body?.leadId ?? null);
+      // Count the lead once the API has stored it (before email verification). No form values are sent.
+      if (body?.leadId) trackQuizLead();
       setStep("waiting");
     } catch (error) {
       toast({

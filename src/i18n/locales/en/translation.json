@@ -2109,7 +2109,8 @@
             "subtitle": "Contact us today and take the first step toward an AI transformation based on real data, not assumptions.",
             "email": "Email",
             "phone": "Phone / WhatsApp",
-            "whatsappCta": "Book via WhatsApp"
+            "whatsappCta": "Book via WhatsApp",
+            "orReachUs": "Or reach us directly:"
         },
         "whatsapp": {
             "greeting": "Hi! We're here to help you.",

@@ -15,7 +15,11 @@ import Careers from '@/pages/Careers';
 import Team from '../Team';
 import QuizResultFull from '../quiz/QuizResultFull';
 import { computeQuizResult } from '@/lib/quizData';
-vi.mock('@/lib/analytics', () => ({ trackDemoEvent: vi.fn() }));
+vi.mock('@/lib/analytics', () => ({ trackDemoEvent: vi.fn(), trackContactLead: vi.fn(), trackContactClick: vi.fn(), trackQuizLead: vi.fn() }));
+// The landing now embeds the contact form; Radix (checkbox) measures itself with ResizeObserver.
+if (typeof globalThis.ResizeObserver === 'undefined') {
+  (globalThis as any).ResizeObserver = class { observe() {} unobserve() {} disconnect() {} };
+}
 const locale = vi.hoisted(() => ({ language: 'es' as 'en' | 'es', reduced: true }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({
   i18n: { language: locale.language, resolvedLanguage: locale.language },

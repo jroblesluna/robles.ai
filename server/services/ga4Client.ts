@@ -162,7 +162,7 @@ export async function queryReport(
   metrics: string[],
   dateRange: DateRange,
   options?: { limit?: number; orderBy?: string; orderDesc?: boolean }
-): Promise<{ dimensionHeaders: string[]; metricHeaders: string[]; rows: Record<string, string>[] }> {
+): Promise<{ dimensionHeaders: string[]; metricHeaders: string[]; rows: Record<string, string>[]; currencyCode?: string }> {
   const client = getClient();
   if (!client) {
     throw new Error('GA4 client not configured. Upload service account credentials.');
@@ -212,7 +212,10 @@ export async function queryReport(
     return record;
   });
 
-  return { dimensionHeaders, metricHeaders, rows };
+  // Currency of monetary metrics (e.g. advertiserAdCost), as configured on the property.
+  const currencyCode = (response as any).metadata?.currencyCode || undefined;
+
+  return { dimensionHeaders, metricHeaders, rows, currencyCode };
 }
 
 /**

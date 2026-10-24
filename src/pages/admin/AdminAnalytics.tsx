@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { format, subDays } from "date-fns";
-import { BarChart3, Globe, Activity, Share2, RefreshCw } from "lucide-react";
+import { BarChart3, Globe, Activity, Share2, Megaphone, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import DateRangeSelector, { type DateRange } from "@/components/admin/analytics/DateRangeSelector";
@@ -8,6 +8,7 @@ import OverviewTab from "@/components/admin/analytics/OverviewTab";
 import TrafficTab from "@/components/admin/analytics/TrafficTab";
 import BehaviorTab from "@/components/admin/analytics/BehaviorTab";
 import SocialTab from "@/components/admin/analytics/SocialTab";
+import AdsTab from "@/components/admin/analytics/AdsTab";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -16,6 +17,7 @@ const tabs = [
   { id: "traffic", label: "Traffic", icon: Globe },
   { id: "behavior", label: "Behavior", icon: Activity },
   { id: "social", label: "Social", icon: Share2 },
+  { id: "ads", label: "Ads", icon: Megaphone },
 ] as const;
 
 type TabId = typeof tabs[number]["id"];
@@ -51,7 +53,7 @@ export default function AdminAnalytics() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Analytics</h1>
           <p className="text-sm text-muted-foreground sm:text-base">
-            Website traffic and social media performance.
+            Website traffic, social media and paid campaign performance.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -102,6 +104,9 @@ export default function AdminAnalytics() {
         )}
         {activeTab === "social" && (
           <SocialTab dateRange={dateRange} />
+        )}
+        {activeTab === "ads" && (
+          <AdsTab dateRange={dateRange} />
         )}
       </div>
     </div>

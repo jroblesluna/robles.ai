@@ -22,6 +22,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Link } from "wouter";
+import { ContactForm } from "@/components/Contact";
+import { trackContactClick } from "@/lib/analytics";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -626,11 +628,24 @@ export default function DiagnosticoIA() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ delay: 0.15 }}
+            className="max-w-xl mx-auto mb-10"
+          >
+            <ContactForm className="bg-white text-gray-900 p-5 sm:p-8 rounded-xl shadow-lg" />
+          </motion.div>
+
+          <p className="text-slate-400 text-sm mb-6">{t("landing.cta.orReachUs")}</p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
             transition={{ delay: 0.2 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-6"
           >
             <a
               href="mailto:info@robles.ai"
+              onClick={() => trackContactClick("email", "landing_contact")}
               className="flex items-center gap-3 bg-slate-800 border border-slate-700 hover:border-purple-500/50 rounded-xl px-6 py-4 transition-colors"
             >
               <Mail className="w-5 h-5 text-purple-400" />
@@ -641,6 +656,7 @@ export default function DiagnosticoIA() {
             </a>
             <a
               href="https://wa.me/14085900153"
+              onClick={() => trackContactClick("whatsapp", "landing_contact")}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 bg-slate-800 border border-slate-700 hover:border-purple-500/50 rounded-xl px-6 py-4 transition-colors"
@@ -662,6 +678,7 @@ export default function DiagnosticoIA() {
           >
             <a
               href={`https://wa.me/14085900153?text=${whatsappMessage}`}
+              onClick={() => trackContactClick("whatsapp", "landing_cta")}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-colors"

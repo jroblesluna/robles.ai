@@ -609,6 +609,47 @@ export default function AdminSettings() {
           </div>
         </CardContent>
       </Card>
+      {/* Meta Ads (Marketing API) — used by Analytics → Ads */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Meta Ads (Analytics)</CardTitle>
+          <CardDescription>
+            Read-only access to the ad account so Analytics &rarr; Ads can show spend, clicks and leads. Google Ads needs no
+            setup here: link it to the GA4 property instead (GA4 &rarr; Admin &rarr; Product links &rarr; Google Ads).
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="meta_ad_account_id">Ad Account ID</Label>
+            <Input
+              id="meta_ad_account_id"
+              type="text"
+              placeholder="act_1234567890"
+              value={settings.meta_ad_account_id || ""}
+              onChange={(e) => updateSetting("meta_ad_account_id", e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Find it in Meta Business Settings &rarr; Accounts &rarr; Ad accounts.
+            </p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="meta_ads_access_token">Access token (ads_read)</Label>
+            <Input
+              id="meta_ads_access_token"
+              type="password"
+              placeholder="EAAB••••••••"
+              value={settings.meta_ads_access_token || ""}
+              onChange={(e) => updateSetting("meta_ads_access_token", e.target.value)}
+            />
+            {settings.meta_ads_access_token && <p className="break-words text-xs text-muted-foreground">Saved: {credentialPreview(settings.meta_ads_access_token)}. Enter a new value only to replace it.</p>}
+            <p className="text-xs text-muted-foreground">
+              Use a System User token with the <code>ads_read</code> permission and access to the ad account. The Page and
+              Instagram tokens above cannot read ad accounts.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* OpenAI API Key */}
       <Card>
         <CardHeader>
