@@ -23,24 +23,25 @@ export const PUBLIC_OFFICES = [
 /**
  * Client logos shown on the home page and /get-started (files in public/images/clients/).
  * Companies and public institutions the team has delivered enterprise software for since 2011.
- * Shared so the SPA and the crawler HTML list the same names.
+ * Ordered by market recognition (global brands first, then Peru's largest). Shared so the SPA
+ * and the crawler HTML list the same names.
  */
 export const CLIENT_LOGOS: ReadonlyArray<{ name: string; file: string; large?: boolean }> = [
-  { name: 'Interbank', file: 'interbank.webp' },
   { name: 'BBVA', file: 'bbva.svg' },
-  { name: 'BCP', file: 'bcp.webp' },
   { name: 'Scotiabank', file: 'scotiabank.svg' },
+  { name: 'Xerox', file: 'xerox.svg' },
+  { name: 'Lexmark', file: 'lexmark.svg' },
+  { name: 'BCP', file: 'bcp.webp' },
+  { name: 'Interbank', file: 'interbank.webp' },
+  { name: 'Banco Falabella', file: 'banco-falabella.webp' },
+  { name: 'Ripley', file: 'ripley.webp' },
   { name: 'SUNAT', file: 'sunat.webp' },
   { name: 'Banco de la Nación', file: 'banco-de-la-nacion.webp' },
   { name: 'Mibanco', file: 'mibanco.webp', large: true },
-  { name: 'Banco Falabella', file: 'banco-falabella.webp' },
-  { name: 'Ripley', file: 'ripley.webp' },
   { name: 'El Comercio', file: 'el-comercio.webp' },
-  { name: 'Chem Supply', file: 'chem-supply.webp', large: true },
   { name: 'MasterCook', file: 'mastercook.webp', large: true },
-  { name: 'Xerox', file: 'xerox.svg' },
-  { name: 'Lexmark', file: 'lexmark.svg' },
   { name: 'Caja Piura', file: 'caja-piura.webp' },
-  { name: 'Financiera ProEmpresa', file: 'financiera-proempresa.webp' },
+  { name: 'Chem Supply', file: 'chem-supply.webp', large: true },
   { name: 'Financiera Efectiva', file: 'financiera-efectiva.webp' },
+  { name: 'Financiera ProEmpresa', file: 'financiera-proempresa.webp' },
 ];
