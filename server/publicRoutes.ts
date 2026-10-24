@@ -82,6 +82,28 @@ publicRouter.get('/analytics-config', (_req, res) => {
   });
 });
 
+/**
+ * GET /api/public/site-config
+ * Public, non-secret site settings for the SPA (currently the calendar booking link).
+ * Only http(s) URLs are returned so a bad setting can never inject a javascript: link.
+ */
+publicRouter.get('/site-config', (_req, res) => {
+  const row = db.prepare("SELECT value FROM settings WHERE key = 'booking_url'").get() as { value: string | null } | undefined;
+  res.setHeader('Cache-Control', 'public, max-age=300');
+  res.json({ bookingUrl: safeHttpUrl(row?.value) });
+});
+
+/** Returns the value only when it is an absolute http(s) URL. */
+export function safeHttpUrl(value: string | null | undefined): string | null {
+  if (!value) return null;
+  try {
+    const url = new URL(value.trim());
+    return url.protocol === 'https:' || url.protocol === 'http:' ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
 // Original route (backward compat)
 publicRouter.get('/slides/:reportId/:position', serveSlideImage);
 

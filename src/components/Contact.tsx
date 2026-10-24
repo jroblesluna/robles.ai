@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { PUBLIC_CONTACT } from '@shared/publicContent';
+import { PUBLIC_CONTACT, PUBLIC_OFFICES } from '@shared/publicContent';
 // i18n version of Contact.tsx
 import { motion } from "framer-motion";
 import {
@@ -331,7 +331,15 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4 className="text-lg font-medium text-gray-900">{t("contact.address")}</h4>
-                  <p className="text-gray-600">{PUBLIC_CONTACT.street}<br />{PUBLIC_CONTACT.city}</p>
+                  {PUBLIC_OFFICES.map((office) => (
+                    <p key={office.id} className="text-gray-600 mb-2 last:mb-0">
+                      <span className="font-medium text-gray-800">{t(`landing.v2.presence.offices.${office.id}.country`)}</span>
+                      <br />
+                      {office.street}
+                      <br />
+                      {office.city}
+                    </p>
+                  ))}
                 </div>
               </div>
             </div>

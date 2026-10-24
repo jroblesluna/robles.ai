@@ -18,7 +18,8 @@ Sitio y plataforma de **Robles.AI**, consultora/estudio de soluciones de IA (Cup
 
 - **Sitio**: https://robles.ai · **Contacto**: info@robles.ai · WhatsApp/Tel +1 (408) 590-0153
 - **Dirección**: 20380 Stevens Creek Blvd, Suite 205, Cupertino, CA 95014 (`shared/publicContent.ts`)
-- **Oferta de entrada**: Diagnóstico IA de 2 semanas, USD 1,500–3,000 (tarifa fija según alcance), o proyecto directo con propuesta.
+- **Oferta de entrada**: Diagnóstico IA de 2 semanas en tres paquetes de tarifa fija — Esencial desde USD 1,500 (hasta 2 procesos), Avanzado USD 2,500 (hasta 4), Integral USD 3,000 (hasta 6), cada uno con un beneficio adicional — o proyecto directo con propuesta.
+- **Presencia local**: oficinas en Cupertino, CA (20380 Stevens Creek Blvd, Suite 205) y Lima, Perú (Calle Cuarenta 190, San Isidro) — `PUBLIC_OFFICES` en `shared/publicContent.ts`.
 - **Licencia**: MIT (c) 2025 Robles.AI
 
 ---
@@ -49,7 +50,7 @@ Sitio y plataforma de **Robles.AI**, consultora/estudio de soluciones de IA (Cup
 - **SPA** Vite + React con `wouter`; Express sirve estáticos e integra el middleware de Vite en dev.
 - **Primera respuesta legible**: `server/seo/publicContent.ts` genera HTML plano de cada ruta pública desde los mismos JSON de i18n (mejora progresiva, React lo reemplaza al iniciar) + meta tags, hreflang, canonical y JSON-LD server-side.
 - **i18n** en/es; `?lang=es` en cualquier ruta pública.
-- **Landing `/get-started`** (§6): hero orientado a resultado, dos formas de empezar (diagnóstico con precio o proyecto directo), demos en vivo, industrias, compromisos, seguridad, fundador, FAQ, formulario y CTA fijo en móvil; variantes `?s=chatbots|rag|agents|docs` por grupo de anuncios.
+- **Landing `/get-started`** (§6): hero orientado a resultado, tres paquetes de diagnóstico (desde USD 1,500 / 2,500 / 3,000) o proyecto directo, demos en vivo, industrias, compromisos, integraciones, seguridad y cumplimiento, fundador y oficinas EE. UU./Perú, FAQ, formulario, enlace de agenda y CTA fijo en móvil; variantes `?s=chatbots|rag|agents|docs` por grupo de anuncios.
 - **Formulario de contacto** (`ContactForm`): selector "¿Qué quieres mejorar?", mensaje opcional, notas de respuesta/privacidad; se envía por email y cuenta como `generate_lead` solo si el servidor lo acepta.
 - **Quiz de diagnóstico** (`/diagnostico-ia`): puntaje → mensaje GPT → verificación por email → PDF; leads en `quiz_leads`, visibles en `/admin/quiz-leads`; dispara `generate_lead` (`method: quiz`) al guardarse.
 - **Laboratorio de demos** (`/demos`, §11): 10 demos live (7 con API en Cloud Run, 3 en el navegador) y 3 "soon".
@@ -164,21 +165,24 @@ creative/        # material fuente de los visuales de demos (prompts y frames de
 
 **Página**: `src/pages/Landing.tsx`; copy en `landing.v2.*` (+ `landing.cta.*`, `landing.whatsapp.*`, `landing.diagnostico.*`, `landing.howWeWork.quote`). Secciones en orden:
 
-1. **Hero**: titular orientado a resultado, CTA *Agenda tu Diagnóstico IA* (`#contacto`), botón de WhatsApp, enlaces a demos (`#demos`), *solicitar propuesta* (`#diagnostico`) y test de 2 minutos; fila de confianza; tarjeta lateral *Lo que recibes en 2 semanas* + precio.
+1. **Hero**: titular orientado a resultado, CTA *Agenda tu Diagnóstico IA* (`#contacto`), botón de WhatsApp, enlaces a demos (`#demos`), *solicitar propuesta* (`#diagnostico`) test de 2 minutos y, si hay `booking_url`, *Agenda una llamada de 30 min*; fila de confianza (incluye oficinas EE. UU./Perú); tarjeta lateral *Lo que recibes en 2 semanas* + *Desde USD 1,500*.
 2. **Logos de clientes** (`#clients`): `ClientLogos` (ver abajo).
 3. **Lo que construimos — pruébalo** (`#demos`): chatbots, asistentes de conocimiento, agentes e IA documental, cada uno enlazado a su demo (`demosCatalog.items`).
 4. **Dónde encaja en tu negocio**: puntos de partida por industria, rotulados como ejemplos, no resultados de clientes.
 5. **Dónde la IA suele pagarse primero**: tres patrones + CTA.
 6. **Cómo trabajamos**: cuatro pasos.
-7. **Dos formas de empezar** (`#diagnostico`): diagnóstico 2 semanas (USD 1,500–3,000; el rango depende de cuántos procesos se revisan) o proyecto directo con propuesta (alcance, plazo, precio).
+7. **Precios** (`#diagnostico`): tres paquetes del Diagnóstico IA (`landing.v2.packages.items`) — Esencial *desde USD 1,500* (hasta 2 procesos; beneficio: 30 días de consultas), Avanzado *USD 2,500* (hasta 4; destacado; beneficio: demo funcional del caso prioritario), Integral *USD 3,000* (hasta 6; beneficio: taller ejecutivo de 2 h); entregables comunes arriba y, debajo, el proyecto directo (`landing.v2.paths.project`). Los beneficios son propuestas comerciales: cambiarlos solo en el i18n.
 8. **Compromisos**: hoja de ruta/código/datos del cliente, sin entrenar con sus datos, revisión humana.
-9. **Seguridad e integración**: SAP/ERP (OData/REST, RFC/BAPI), modelos en la nube del cliente, confidencialidad, revisión de proveedor.
-10. **Con quién trabajarás**: fundador (datos de `team.members[0]`).
-11. **FAQ**: incluye costo de implementación y "¿por qué no hacerlo nosotros mismos?".
-12. **Contacto** (`#contacto`): `ContactForm` (botón verde, sin newsletter, `defaultGoal` opcional) + email/WhatsApp.
-13. **CTA fijo en móvil**: aparece tras el hero y se oculta cuando el formulario es visible (deja espacio al botón de Robly).
+9. **Integraciones** (`landing.v2.integrations.groups`): ERP, CRM, canales, documentos, datos/BI, nube y modelos.
+10. **Seguridad y cumplimiento** (`landing.v2.security.items`, 9 ítems): NDA, cifrado en tránsito y en reposo, SSO y roles, modelos en la nube del cliente, auditoría, retención y borrado, Ley 29733 / privacidad EE. UU., salvaguardas de IA, homologación.
+11. **Con quién trabajarás**: fundador (`team.members[0]`) + **presencia local** (`PUBLIC_OFFICES`, textos en `landing.v2.presence`).
+12. **FAQ**: incluye costo de implementación y "¿por qué no hacerlo nosotros mismos?".
+13. **Contacto** (`#contacto`): `ContactForm` (botón verde, sin newsletter, `defaultGoal` opcional) + agenda (si hay `booking_url`) / email / WhatsApp.
+14. **CTA fijo en móvil**: aparece tras el hero y se oculta cuando el formulario es visible (deja espacio al botón de Robly).
 
-**Logos de clientes**: `src/components/ClientLogos.tsx` muestra `CLIENT_LOGOS` (`shared/publicContent.ts`, archivos en `public/images/clients/`) en tarjetas blancas, en gris hasta el hover; textos `clients.title` / `clients.note`. Va en la landing (tono oscuro) y en el home justo después del hero (claro). Son clientes de los proyectos de software empresarial del equipo (Inversiones On Line · Sistemas Perú) desde 2011, y la nota lo dice explícitamente; no presentarlos como clientes de proyectos de IA. Para agregar uno: copiar el archivo (SVG con `viewBox` ajustado al logo, o PNG/WebP recortado, ~120 px de alto) y añadir la entrada. Logos de BBVA, BCP, Interbank, El Comercio, Banco Falabella, Ripley, Caja Piura y financieras salen del carrusel de sistemas.com.pe; Lexmark, Xerox y Scotiabank de logotyp.us.
+**Logos de clientes**: `src/components/ClientLogos.tsx` muestra `CLIENT_LOGOS` (`shared/publicContent.ts`, archivos en `public/images/clients/`) a color en tarjetas blancas (`large: true` para logos con mucho aire interno, p. ej. Mibanco); textos `clients.title` / `clients.note`. Va en la landing (tono oscuro) y en el home justo después del hero (claro). Son clientes de software empresarial del equipo desde 2011; no presentarlos como clientes de proyectos de IA y no nombrar a la razón social anterior en la web. Para agregar uno: copiar el archivo (SVG con `viewBox` ajustado al logo, o PNG/WebP recortado y con fondo transparente) y añadir la entrada. Orígenes: BCP, Interbank, El Comercio, Banco Falabella, Ripley, Caja Piura y financieras del carrusel de sistemas.com.pe; BBVA (logo actual), Lexmark, Xerox y Scotiabank de logotyp.us; Mibanco y Banco de la Nación de whatthelogo.com; SUNAT de vectorseek.com (fondo eliminado). Pendientes: Mastercook y Chem Supply (sin fuente fiable).
+
+**Agenda**: Admin → Settings → *Calendar booking* guarda `booking_url`; `GET /api/public/site-config` lo expone (solo http/https) y `useBookingUrl()` (`src/lib/siteConfig.ts`) muestra los enlaces *Agenda una llamada* (hero, precios, contacto), medidos como `contact_click` con `contact_method=calendar`.
 
 **Variantes `?s=`** (`chatbots`, `rag`, `agents`, `docs`, en `landing.v2.variants.*`): cambian titular, subtítulo, tarjeta lateral, CTA, título/botón del formulario, objetivo preseleccionado y mensaje de WhatsApp, para que cada grupo de anuncios aterrice en un mensaje coherente (Quality Score). URLs finales: `/get-started` (EN) o `/get-started?lang=es` (ES) + `s=`.
 
@@ -190,7 +194,7 @@ creative/        # material fuente de los visuales de demos (prompts y frames de
 |---------|-----|------|--------|
 | `trackContactLead()` | `generate_lead` (`form_id: contact`, `method: contact_form`) | `Lead` | `POST /api/contact` → `success: true` |
 | `trackQuizLead()` | `generate_lead` (`form_id: quiz`, `method: quiz`) | `Lead` | `POST /api/quiz-lead` devuelve `leadId` |
-| `trackContactClick(canal, ubicación)` | `contact_click` (`contact_method`, `link_location`) | `Contact` | clic en WhatsApp/email/teléfono (landing, contacto del home, Robly) |
+| `trackContactClick(canal, ubicación)` | `contact_click` (`contact_method`, `link_location`) | `Contact` | clic en WhatsApp/email/teléfono/agenda (landing, contacto del home, Robly) |
 | `trackDemoEvent(evento, demoId)` | `demo_start`, `demo_complete`, `roi_calculated`, `demo_cta_click` | custom | embudo de demos |
 
 Configuración externa: el GTM existente tiene una etiqueta GA4 *catch-all* que reenvía los eventos por nombre y una tabla FBEventName que mapea `generate_lead → Lead` (añadir `contact_click → Contact` si se quiere en Meta). En GA4, `generate_lead` es key event. **Google Ads**: cuenta *Robles.AI* (EE. UU., USD, hora del Pacífico, login `antonio@robles.ai`) vinculada a la propiedad GA4 `492769320`; `generate_lead` importado como conversión principal "Submit lead form"; `contact_click` debe importarse como **secundaria**. Detalle: `docs/CONTACT_CONVERSIONS.md`.
@@ -346,6 +350,7 @@ Los secretos se enmascaran en `GET /api/admin/settings` (`settingsSecrets.ts`) y
 | Meta (publicación/insights) | `meta_app_id`, `meta_app_secret`, `instagram_business_account_id` (legado `instagram_user_id`), `instagram_access_token`, `facebook_page_id`, `facebook_page_access_token`, `meta_token_expires_at` |
 | Meta Ads | `meta_ad_account_id`, `meta_ads_access_token` |
 | Tracking del sitio | `gtm_container_id`, `ga4_measurement_id`, `meta_pixel_id` (servidos por `GET /api/public/analytics-config`) |
+| Sitio público | `booking_url` (servido por `GET /api/public/site-config`) |
 | GA4 Data API | `ga4_property_id` |
 | Portal de backends | `hostinger_api_key`, `hostinger_domain` (por defecto `robles.ai`), `gcp_sa_key`, `dns_cname_target` (por defecto `ghs.googlehosted.com.`) |
 
@@ -399,6 +404,7 @@ Públicos:
 | GET | `/api/generate-posts?date=YYYY-MM-DD` | Generación manual de posts |
 | GET | `/api/test` | Health check |
 | GET | `/api/public/analytics-config` | IDs de GTM / GA4 / Meta Pixel |
+| GET | `/api/public/site-config` | Ajustes públicos del sitio (`bookingUrl`) |
 | GET | `/api/public/slides/:reportId/:position(.png)` | Imagen de slide (para Meta) |
 | POST/GET/POST/POST | `/api/chat/session`, `/api/chat/history`, `/api/chat/message` (SSE), `/api/chat/close` | Chat de Robly (cookie `chat_session`) |
 | GET | `/sitemap.xml`, `/sitemaps/:filename` | Índice y sitemaps mensuales (`/static-pages.xml` para páginas estáticas) |

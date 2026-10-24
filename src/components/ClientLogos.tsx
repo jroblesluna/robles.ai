@@ -9,7 +9,7 @@ interface ClientLogosProps {
 
 /**
  * Client logo wall. Logos sit on white tiles so every brand keeps its own colors on both
- * light and dark backgrounds. Shown in grayscale until hover/focus to keep the strip calm.
+ * light and dark backgrounds. `large` gives logos with a lot of built-in padding a taller box.
  */
 export default function ClientLogos({ tone = "light", className = "" }: ClientLogosProps) {
   const { t } = useTranslation();
@@ -26,8 +26,8 @@ export default function ClientLogos({ tone = "light", className = "" }: ClientLo
           {t("clients.title")}
         </h2>
         <p className={`text-center text-sm mb-8 ${dark ? "text-slate-300" : "text-gray-600"}`}>{t("clients.note")}</p>
-        <ul className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-2 sm:gap-3 md:gap-4">
-          {CLIENT_LOGOS.map(({ name, file }) => (
+        <ul className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
+          {CLIENT_LOGOS.map(({ name, file, large }) => (
             <li
               key={name}
               className={`group flex h-14 sm:h-16 md:h-20 items-center justify-center rounded-lg md:rounded-xl bg-white px-2 md:px-4 ${
@@ -40,7 +40,7 @@ export default function ClientLogos({ tone = "light", className = "" }: ClientLo
                 title={name}
                 loading="lazy"
                 decoding="async"
-                className="max-h-7 sm:max-h-8 md:max-h-10 max-w-full object-contain grayscale opacity-80 transition duration-300 group-hover:grayscale-0 group-hover:opacity-100 motion-reduce:transition-none"
+                className={`${large ? "max-h-10 sm:max-h-12 md:max-h-16" : "max-h-7 sm:max-h-8 md:max-h-10"} max-w-full object-contain transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none`}
               />
             </li>
           ))}

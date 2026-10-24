@@ -609,6 +609,30 @@ export default function AdminSettings() {
           </div>
         </CardContent>
       </Card>
+      {/* Calendar booking link — "Book a call" buttons on /get-started */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Calendar booking</CardTitle>
+          <CardDescription>
+            Public scheduling link (Google Calendar appointment page, Calendly, Cal.com…). When set, /get-started shows
+            &ldquo;Book a 30-minute call&rdquo; buttons and tracks clicks as <code>contact_click</code> (calendar).
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <Label htmlFor="booking_url">Booking URL</Label>
+            <Input
+              id="booking_url"
+              type="url"
+              placeholder="https://calendar.app.google/…"
+              value={settings.booking_url || ""}
+              onChange={(e) => updateSetting("booking_url", e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">Must start with https://. Leave empty to hide the buttons.</p>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Meta Ads (Marketing API) — used by Analytics → Ads */}
       <Card>
         <CardHeader>

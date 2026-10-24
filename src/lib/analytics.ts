@@ -51,7 +51,7 @@ export function trackQuizLead(): void {
   trackConversion({ ga: 'generate_lead', pixel: 'Lead', params: { ...quizLeadParams } });
 }
 
-export type ContactChannel = 'whatsapp' | 'email' | 'phone';
+export type ContactChannel = 'whatsapp' | 'email' | 'phone' | 'calendar';
 
 /**
  * A click on a WhatsApp / email / phone link. Intent only (the message may never be sent),

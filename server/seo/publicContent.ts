@@ -1,5 +1,5 @@
 import { STATIC_PAGES, staticPagePath, blogPagePath, schemaDate, type ContentLanguage } from '../../shared/seoPolicy.js';
-import { PUBLIC_CONTACT, visibleTeamMembers, CLIENT_LOGOS } from '../../shared/publicContent.js';
+import { PUBLIC_CONTACT, PUBLIC_OFFICES, visibleTeamMembers, CLIENT_LOGOS } from '../../shared/publicContent.js';
 import type { BlogPostData } from './types.js';
 
 type Translations = Record<string, any>;
@@ -26,7 +26,7 @@ export function publicDocument(body: string, lang: ContentLanguage, t: Translati
 export function renderStaticContent(path: string, lang: ContentLanguage, t: Translations, url: URL): string {
   let body = '';
   if (path === '/') {
-    body = `${tag('h1', t.hero.title)}${paragraph(t.hero.subtitle)}${link(staticPagePath('/get-started', lang), t.hero.cta3)}${clientsSection(t)}${section('features', t.features)}${section('solutions', t.solutions)}<section id="demos">${tag('h2', t.demosCatalog.title)}${paragraph(t.demosCatalog.subtitle)}${demoCards(values(t.demosCatalog.items).slice(0,8), lang, t, 'h3')}</section>${section('case-studies', t.caseStudies)}${section('courses', t.courses)}<section id="about">${tag('h2', t.team.title)}${paragraph(t.team.subtitle)}${visibleTeamMembers<any>(values(t.team.members)).map(member => `<section>${tag('h3', member.name)}${paragraph(member.position)}${paragraph(member.bio)}</section>`).join('')}</section><section id="contact">${tag('h2', t.contact.title)}${paragraph(t.contact.subtitle)}${link(`mailto:${PUBLIC_CONTACT.email}`, PUBLIC_CONTACT.email)} ${link(PUBLIC_CONTACT.phoneHref, PUBLIC_CONTACT.phone)}${paragraph(PUBLIC_CONTACT.street)}${paragraph(PUBLIC_CONTACT.city)}</section>`;
+    body = `${tag('h1', t.hero.title)}${paragraph(t.hero.subtitle)}${link(staticPagePath('/get-started', lang), t.hero.cta3)}${clientsSection(t)}${section('features', t.features)}${section('solutions', t.solutions)}<section id="demos">${tag('h2', t.demosCatalog.title)}${paragraph(t.demosCatalog.subtitle)}${demoCards(values(t.demosCatalog.items).slice(0,8), lang, t, 'h3')}</section>${section('case-studies', t.caseStudies)}${section('courses', t.courses)}<section id="about">${tag('h2', t.team.title)}${paragraph(t.team.subtitle)}${visibleTeamMembers<any>(values(t.team.members)).map(member => `<section>${tag('h3', member.name)}${paragraph(member.position)}${paragraph(member.bio)}</section>`).join('')}</section><section id="contact">${tag('h2', t.contact.title)}${paragraph(t.contact.subtitle)}${link(`mailto:${PUBLIC_CONTACT.email}`, PUBLIC_CONTACT.email)} ${link(PUBLIC_CONTACT.phoneHref, PUBLIC_CONTACT.phone)}${PUBLIC_OFFICES.map(o => paragraph(`${t.landing.v2.presence.offices[o.id].country}: ${o.street}, ${o.city}`)).join('')}</section>`;
   } else if (path === '/get-started') {
     const p = t.landing;
     const v = p.v2;
@@ -39,10 +39,12 @@ export function renderStaticContent(path: string, lang: ContentLanguage, t: Tran
       + `<section>${tag('h2', v.industries.title)}${paragraph(v.industries.subtitle)}${cards(v.industries.items)}</section>`
       + `<section>${tag('h2', v.insight.title)}${paragraph(v.insight.subtitle)}${cards(v.insight.patterns)}</section>`
       + `<section>${tag('h2', v.process.title)}${paragraph(v.process.subtitle)}${cards(v.process.steps)}</section>`
-      + `<section id="diagnostico">${tag('h2', v.paths.title)}${['diagnosis', 'project'].map(k => `${tag('h3', v.paths[k].title)}${paragraph(v.paths[k].desc)}${paragraph(`${v.paths[k].price} — ${v.paths[k].priceDetail}`)}`).join('')}${list(v.offer.deliverables)}</section>`
+      + `<section id="diagnostico">${tag('h2', v.packages.title)}${paragraph(v.packages.subtitle)}${list(v.offer.deliverables)}${values(v.packages.items).map(pkg => `<section>${tag('h3', `${pkg?.name} — ${pkg?.price}`)}${paragraph(`${pkg?.scope}. ${pkg?.desc}`)}${list(pkg?.features)}${paragraph(`${v.packages.bonusLabel}: ${pkg?.bonus}`)}</section>`).join('')}${paragraph(v.packages.note)}${tag('h3', v.paths.project.title)}${paragraph(v.paths.project.desc)}${paragraph(`${v.paths.project.price} — ${v.paths.project.priceDetail}`)}</section>`
       + `<section>${tag('h2', v.commitments.title)}${cards(v.commitments.items)}</section>`
+      + `<section>${tag('h2', v.integrations.title)}${paragraph(v.integrations.subtitle)}${values(v.integrations.groups).map(g => `${tag('h3', g?.title)}${list(g?.items)}`).join('')}${paragraph(v.integrations.note)}</section>`
       + `<section>${tag('h2', v.security.title)}${paragraph(v.security.subtitle)}${cards(v.security.items)}</section>`
       + `<section>${tag('h2', v.founder.eyebrow)}${paragraph(v.founder.role)}${paragraph(v.founder.bio)}${list(v.founder.points)}</section>`
+      + `<section>${tag('h2', v.presence.title)}${paragraph(v.presence.subtitle)}${PUBLIC_OFFICES.map(o => `${tag('h3', `${v.presence.offices[o.id].country} — ${v.presence.offices[o.id].label}`)}${paragraph(`${o.street}, ${o.city}`)}`).join('')}</section>`
       + `<section>${tag('h2', v.faq.title)}${[...values(v.faqExtra), ...values(v.faq.items)].map(f => `${tag('h3', f?.q)}${paragraph(f?.a)}`).join('')}</section>`
       + `<section id="contacto">${tag('h2', p.cta.title)}${paragraph(v.contact.subtitle)}${link(`mailto:${PUBLIC_CONTACT.email}`, PUBLIC_CONTACT.email)} ${link(PUBLIC_CONTACT.phoneHref, PUBLIC_CONTACT.phone)}</section>`;
   } else if (path === '/careers' || path === '/apply') {

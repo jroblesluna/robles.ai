@@ -831,7 +831,7 @@
         "infoTitle": "Get in Touch",
         "phone": "Phone",
         "email": "Email",
-        "address": "Address",
+        "address": "Offices",
         "hoursTitle": "Business Hours",
         "hoursWeek": "Monday - Friday: 9:00 AM - 6:00 PM PST",
         "hoursWeekend": "Saturday - Sunday: Closed",
@@ -2115,7 +2115,7 @@
             },
             "pricing": {
                 "label": "Investment",
-                "amount": "USD 1,500 – 3,000",
+                "amount": "From USD 1,500",
                 "detail": "Standard rate based on scope. Same rate in any country.",
                 "note": "Senior attention guaranteed — limited spots per quarter"
             }
@@ -2193,6 +2193,7 @@
                 "trust": [
                     "Enterprise software since 2011",
                     "Projects in banking, industry and services",
+                    "Offices in the US (Cupertino) and Peru (Lima)",
                     "English & Spanish · direct with the founder"
                 ],
                 "ctaWhatsapp": "WhatsApp us",
@@ -2284,8 +2285,8 @@
                     "A phased roadmap with risks and dependencies",
                     "A live review session with clear next steps"
                 ],
-                "price": "USD 1,500 – 3,000",
-                "priceNote": "Fixed fee · the range depends on how many processes we review"
+                "price": "From USD 1,500",
+                "priceNote": "Fixed fee · 3 packages by how many processes we review"
             },
             "build": {
                 "title": "What we build — try it yourself",
@@ -2378,8 +2379,8 @@
                     "Written report and a live review session"
                 ],
                 "priceLabel": "Investment",
-                "price": "USD 1,500 – 3,000",
-                "priceDetail": "Fixed fee based on scope. Same rate in any country.",
+                "price": "From USD 1,500",
+                "priceDetail": "Three fixed-fee packages by scope. Same fee in every country.",
                 "cta": "Book your AI Diagnosis"
             },
             "founder": {
@@ -2430,13 +2431,13 @@
                 "whatsapp": "WhatsApp"
             },
             "paths": {
-                "title": "Two ways to start",
+                "title": "Choose how to start",
                 "diagnosis": {
                     "eyebrow": "Not sure where to start?",
                     "title": "AI Diagnosis · 2 weeks",
                     "desc": "We map your processes and data, rank opportunities by impact and effort, and hand you a phased roadmap with the estimated cost of each stage.",
-                    "price": "USD 1,500 – 3,000",
-                    "priceDetail": "Fixed fee. The range depends on how many processes and areas we review.",
+                    "price": "From USD 1,500",
+                    "priceDetail": "Three fixed-fee packages: up to 2, 4 or 6 processes.",
                     "cta": "Book your AI Diagnosis"
                 },
                 "project": {
@@ -2500,24 +2501,44 @@
                 ]
             },
             "security": {
-                "title": "Security and integration",
-                "subtitle": "Designed to pass your IT and compliance review.",
+                "title": "Security and compliance",
+                "subtitle": "Built to pass your IT, security and compliance review.",
                 "items": [
                     {
-                        "title": "Your systems",
-                        "desc": "SAP and other ERPs through standard interfaces (OData/REST, RFC/BAPI), plus CRMs, databases, email and WhatsApp."
+                        "title": "Confidentiality",
+                        "desc": "An NDA from the first meeting, and only the data each use case needs."
+                    },
+                    {
+                        "title": "Encryption in transit and at rest",
+                        "desc": "Data encrypted in transit (TLS) and at rest in everything we deploy."
+                    },
+                    {
+                        "title": "Role-based access and SSO",
+                        "desc": "Sign-in with your identity provider (Microsoft Entra ID, Google), roles and least privilege."
                     },
                     {
                         "title": "Models in your cloud",
-                        "desc": "Azure OpenAI, AWS Bedrock or Google Vertex AI in your own account when data must stay in your tenant."
+                        "desc": "Azure OpenAI, AWS Bedrock or Google Vertex AI in your own account when data must stay in your environment."
                     },
                     {
-                        "title": "Confidentiality",
-                        "desc": "NDA, the minimum data needed, and access by role."
+                        "title": "Traceability and audit",
+                        "desc": "A log of every query, answer, action and approval made by the AI system."
                     },
                     {
-                        "title": "Vendor review",
-                        "desc": "We answer your security questionnaire as part of vendor onboarding."
+                        "title": "Retention and deletion",
+                        "desc": "We agree with you what is stored, for how long, and how it is deleted when the project ends."
+                    },
+                    {
+                        "title": "Personal data",
+                        "desc": "Designed in line with Peru’s Personal Data Protection Law (Ley 29733) and applicable US privacy rules."
+                    },
+                    {
+                        "title": "AI safeguards",
+                        "desc": "Prompt-injection testing, sensitive-data filters and clear limits on what an agent can do."
+                    },
+                    {
+                        "title": "Vendor onboarding",
+                        "desc": "We complete your security questionnaire and provide the technical documentation your team asks for."
                     }
                 ]
             },
@@ -2530,7 +2551,138 @@
                     "q": "Why not build it ourselves with ChatGPT or an API?",
                     "a": "You can — for a prototype it's often the right call. What takes time is production: connecting real systems, measuring accuracy, handling errors and edge cases, access and security, and keeping it working as data changes. That's the part we take on, and we can also guide your team to build it."
                 }
-            ]
+            ],
+            "packages": {
+                "eyebrow": "AI Assessment · delivered in 2 weeks",
+                "title": "Choose the scope of your assessment",
+                "subtitle": "Fixed fee, agreed before we start. Every package includes:",
+                "popular": "Most popular",
+                "bonusLabel": "Bonus",
+                "cta": "Choose this package",
+                "note": "More than 6 processes, or several companies in a group? We’ll send you a tailored proposal.",
+                "items": [
+                    {
+                        "name": "Essential",
+                        "price": "From USD 1,500",
+                        "scope": "Up to 2 processes",
+                        "desc": "To validate a first use case in one area.",
+                        "features": [
+                            "1 business area",
+                            "Roadmap for the reviewed processes",
+                            "Live review session"
+                        ],
+                        "bonus": "30 days of questions about your roadmap by WhatsApp or email"
+                    },
+                    {
+                        "name": "Advanced",
+                        "price": "USD 2,500",
+                        "scope": "Up to 4 processes",
+                        "desc": "To compare opportunities across areas and pick where to start.",
+                        "features": [
+                            "Up to 2 business areas",
+                            "Integration analysis with your systems",
+                            "Estimated impact per opportunity"
+                        ],
+                        "bonus": "Working demo of your top-priority use case with sample data"
+                    },
+                    {
+                        "name": "Complete",
+                        "price": "USD 3,000",
+                        "scope": "Up to 6 processes",
+                        "desc": "For a company-wide view and a plan ready to present to leadership.",
+                        "features": [
+                            "Multiple business areas",
+                            "Target architecture and risk analysis",
+                            "Estimated budget per stage"
+                        ],
+                        "bonus": "2-hour executive AI workshop for your leadership team"
+                    }
+                ]
+            },
+            "integrations": {
+                "eyebrow": "Integrations",
+                "title": "Connects to the systems you already use",
+                "subtitle": "We bring AI into your tools through APIs, standard connectors or access to your database — without changing how your team works.",
+                "note": "Don’t see your system? If it has an API, a database or file exports, we can connect it.",
+                "groups": [
+                    {
+                        "title": "ERP and finance",
+                        "items": [
+                            "SAP (OData, RFC/BAPI)",
+                            "Oracle E-Business Suite",
+                            "Microsoft Dynamics 365",
+                            "Odoo"
+                        ]
+                    },
+                    {
+                        "title": "CRM and support",
+                        "items": [
+                            "Salesforce",
+                            "HubSpot",
+                            "Zendesk",
+                            "Freshdesk"
+                        ]
+                    },
+                    {
+                        "title": "Channels",
+                        "items": [
+                            "WhatsApp Business",
+                            "Microsoft Teams",
+                            "Slack",
+                            "Email",
+                            "Web chat"
+                        ]
+                    },
+                    {
+                        "title": "Documents and productivity",
+                        "items": [
+                            "Microsoft 365 and SharePoint",
+                            "Google Workspace",
+                            "OneDrive and Google Drive",
+                            "PDF, Excel and scans"
+                        ]
+                    },
+                    {
+                        "title": "Data and BI",
+                        "items": [
+                            "SQL Server",
+                            "PostgreSQL and MySQL",
+                            "Oracle Database",
+                            "BigQuery and Snowflake",
+                            "Power BI"
+                        ]
+                    },
+                    {
+                        "title": "Cloud and models",
+                        "items": [
+                            "Azure OpenAI",
+                            "AWS Bedrock",
+                            "Google Vertex AI",
+                            "OpenAI and Anthropic"
+                        ]
+                    }
+                ]
+            },
+            "presence": {
+                "eyebrow": "Local presence",
+                "title": "A team in the US and Peru",
+                "subtitle": "In-person or remote meetings, in English or Spanish, in your time zone.",
+                "offices": {
+                    "us": {
+                        "country": "United States",
+                        "label": "Headquarters · Silicon Valley"
+                    },
+                    "pe": {
+                        "country": "Peru",
+                        "label": "Lima office · projects and delivery"
+                    }
+                }
+            },
+            "booking": {
+                "cta": "Book a 30-minute call",
+                "title": "Book a call",
+                "desc": "Pick a day and time on the calendar"
+            }
         }
     },
     "chatbotWidget": {
@@ -3389,6 +3541,6 @@
     },
     "clients": {
         "title": "Companies that have trusted our team",
-        "note": "Clients of our team’s enterprise software projects (Inversiones On Line · Sistemas Perú) since 2011."
+        "note": "Banks, public institutions and leading companies our team has delivered projects for since 2011."
     }
 }

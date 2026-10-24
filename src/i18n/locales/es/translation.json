@@ -831,7 +831,7 @@
         "infoTitle": "Ponte en contacto",
         "phone": "Teléfono",
         "email": "Correo electrónico",
-        "address": "Dirección",
+        "address": "Oficinas",
         "hoursTitle": "Horario de atención",
         "hoursWeek": "Lunes a Viernes: 9:00 AM - 6:00 PM PST",
         "hoursWeekend": "Sábado y Domingo: Cerrado",
@@ -2115,7 +2115,7 @@
             },
             "pricing": {
                 "label": "Inversión",
-                "amount": "USD 1,500 – 3,000",
+                "amount": "Desde USD 1,500",
                 "detail": "Tarifa estándar según alcance. Misma tarifa en cualquier país.",
                 "note": "Atención senior garantizada — cupo limitado por trimestre"
             }
@@ -2193,6 +2193,7 @@
                 "trust": [
                     "Software empresarial desde 2011",
                     "Proyectos en banca, industria y servicios",
+                    "Oficinas en EE. UU. (Cupertino) y Perú (Lima)",
                     "Español e inglés · trato directo con el fundador"
                 ],
                 "ctaWhatsapp": "Escríbenos por WhatsApp",
@@ -2284,8 +2285,8 @@
                     "Una hoja de ruta por etapas con riesgos y dependencias",
                     "Una sesión de revisión en vivo con próximos pasos claros"
                 ],
-                "price": "USD 1,500 – 3,000",
-                "priceNote": "Tarifa fija · el rango depende de cuántos procesos revisamos"
+                "price": "Desde USD 1,500",
+                "priceNote": "Tarifa fija · 3 paquetes según cuántos procesos revisamos"
             },
             "build": {
                 "title": "Lo que construimos — pruébalo tú mismo",
@@ -2378,8 +2379,8 @@
                     "Informe escrito y una sesión de revisión en vivo"
                 ],
                 "priceLabel": "Inversión",
-                "price": "USD 1,500 – 3,000",
-                "priceDetail": "Tarifa fija según alcance. Misma tarifa en cualquier país.",
+                "price": "Desde USD 1,500",
+                "priceDetail": "Tres paquetes de tarifa fija según alcance. Misma tarifa en cualquier país.",
                 "cta": "Agenda tu Diagnóstico IA"
             },
             "founder": {
@@ -2430,13 +2431,13 @@
                 "whatsapp": "WhatsApp"
             },
             "paths": {
-                "title": "Dos formas de empezar",
+                "title": "Elige cómo empezar",
                 "diagnosis": {
                     "eyebrow": "¿No sabes por dónde empezar?",
                     "title": "Diagnóstico IA · 2 semanas",
                     "desc": "Mapeamos tus procesos y datos, priorizamos oportunidades por impacto y esfuerzo, y te entregamos una hoja de ruta por etapas con el costo estimado de cada una.",
-                    "price": "USD 1,500 – 3,000",
-                    "priceDetail": "Tarifa fija. El rango depende de cuántos procesos y áreas revisamos.",
+                    "price": "Desde USD 1,500",
+                    "priceDetail": "Tres paquetes de tarifa fija: hasta 2, 4 o 6 procesos.",
                     "cta": "Agenda tu Diagnóstico IA"
                 },
                 "project": {
@@ -2500,24 +2501,44 @@
                 ]
             },
             "security": {
-                "title": "Seguridad e integración",
-                "subtitle": "Pensado para pasar la revisión de tu área de TI y de cumplimiento.",
+                "title": "Seguridad y cumplimiento",
+                "subtitle": "Diseñado para pasar la revisión de tus áreas de TI, seguridad y cumplimiento.",
                 "items": [
                     {
-                        "title": "Tus sistemas",
-                        "desc": "SAP y otros ERPs mediante interfaces estándar (OData/REST, RFC/BAPI), además de CRMs, bases de datos, correo y WhatsApp."
+                        "title": "Confidencialidad",
+                        "desc": "Acuerdo de confidencialidad (NDA) desde la primera reunión y solo los datos necesarios para cada caso."
+                    },
+                    {
+                        "title": "Cifrado en tránsito y en reposo",
+                        "desc": "Datos cifrados en tránsito (TLS) y en reposo en todo lo que desplegamos."
+                    },
+                    {
+                        "title": "Acceso por rol y SSO",
+                        "desc": "Inicio de sesión con tu proveedor de identidad (Microsoft Entra ID, Google), roles y mínimo privilegio."
                     },
                     {
                         "title": "Modelos en tu nube",
                         "desc": "Azure OpenAI, AWS Bedrock o Google Vertex AI en tu propia cuenta cuando los datos deben quedarse en tu entorno."
                     },
                     {
-                        "title": "Confidencialidad",
-                        "desc": "Acuerdo de confidencialidad, el mínimo de datos necesario y acceso por rol."
+                        "title": "Trazabilidad y auditoría",
+                        "desc": "Registro de cada consulta, respuesta, acción y aprobación del sistema de IA."
                     },
                     {
-                        "title": "Homologación",
-                        "desc": "Respondemos tu cuestionario de seguridad como parte del alta de proveedor."
+                        "title": "Retención y borrado",
+                        "desc": "Definimos contigo qué se guarda, por cuánto tiempo y cómo se elimina al cerrar el proyecto."
+                    },
+                    {
+                        "title": "Datos personales",
+                        "desc": "Diseño alineado con la Ley 29733 de Protección de Datos Personales (Perú) y la normativa de privacidad de EE. UU. que aplique."
+                    },
+                    {
+                        "title": "Salvaguardas de IA",
+                        "desc": "Pruebas contra prompt injection, filtros de datos sensibles y límites claros a lo que un agente puede hacer."
+                    },
+                    {
+                        "title": "Homologación de proveedor",
+                        "desc": "Respondemos tu cuestionario de seguridad y entregamos la documentación técnica que pida tu equipo."
                     }
                 ]
             },
@@ -2530,7 +2551,138 @@
                     "q": "¿Por qué no lo construimos nosotros con ChatGPT o una API?",
                     "a": "Puedes — para un prototipo suele ser lo correcto. Lo que toma tiempo es producción: conectar sistemas reales, medir precisión, manejar errores y casos borde, accesos y seguridad, y mantenerlo funcionando cuando cambian los datos. Esa es la parte que asumimos, y también podemos guiar a tu equipo para construirlo."
                 }
-            ]
+            ],
+            "packages": {
+                "eyebrow": "Diagnóstico IA · entregado en 2 semanas",
+                "title": "Elige el alcance de tu diagnóstico",
+                "subtitle": "Tarifa fija y acordada antes de empezar. Todos los paquetes incluyen:",
+                "popular": "Más elegido",
+                "bonusLabel": "Beneficio adicional",
+                "cta": "Elegir este paquete",
+                "note": "¿Más de 6 procesos o varias empresas del grupo? Te enviamos una propuesta a medida.",
+                "items": [
+                    {
+                        "name": "Esencial",
+                        "price": "Desde USD 1,500",
+                        "scope": "Hasta 2 procesos",
+                        "desc": "Para validar un primer caso de uso en un área.",
+                        "features": [
+                            "1 área de negocio",
+                            "Hoja de ruta para los procesos revisados",
+                            "Sesión de revisión en vivo"
+                        ],
+                        "bonus": "30 días de consultas por WhatsApp o correo sobre tu hoja de ruta"
+                    },
+                    {
+                        "name": "Avanzado",
+                        "price": "USD 2,500",
+                        "scope": "Hasta 4 procesos",
+                        "desc": "Para comparar oportunidades entre áreas y elegir por dónde empezar.",
+                        "features": [
+                            "Hasta 2 áreas de negocio",
+                            "Análisis de integración con tus sistemas",
+                            "Estimación de impacto por oportunidad"
+                        ],
+                        "bonus": "Demo funcional de tu caso prioritario con datos de ejemplo"
+                    },
+                    {
+                        "name": "Integral",
+                        "price": "USD 3,000",
+                        "scope": "Hasta 6 procesos",
+                        "desc": "Para una visión transversal y un plan listo para presentar a dirección.",
+                        "features": [
+                            "Varias áreas de negocio",
+                            "Arquitectura objetivo y análisis de riesgos",
+                            "Presupuesto estimado por etapas"
+                        ],
+                        "bonus": "Taller ejecutivo de IA (2 h) para tu equipo directivo"
+                    }
+                ]
+            },
+            "integrations": {
+                "eyebrow": "Integraciones",
+                "title": "Se conecta con los sistemas que ya usas",
+                "subtitle": "Llevamos la IA a tus herramientas mediante APIs, conectores estándar o acceso a tu base de datos — sin cambiar cómo trabaja tu equipo.",
+                "note": "¿Tu sistema no está en la lista? Si tiene API, base de datos o exportación de archivos, lo conectamos.",
+                "groups": [
+                    {
+                        "title": "ERP y finanzas",
+                        "items": [
+                            "SAP (OData, RFC/BAPI)",
+                            "Oracle E-Business Suite",
+                            "Microsoft Dynamics 365",
+                            "Odoo"
+                        ]
+                    },
+                    {
+                        "title": "CRM y atención",
+                        "items": [
+                            "Salesforce",
+                            "HubSpot",
+                            "Zendesk",
+                            "Freshdesk"
+                        ]
+                    },
+                    {
+                        "title": "Canales",
+                        "items": [
+                            "WhatsApp Business",
+                            "Microsoft Teams",
+                            "Slack",
+                            "Correo electrónico",
+                            "Chat web"
+                        ]
+                    },
+                    {
+                        "title": "Documentos y productividad",
+                        "items": [
+                            "Microsoft 365 y SharePoint",
+                            "Google Workspace",
+                            "OneDrive y Google Drive",
+                            "PDF, Excel y escaneos"
+                        ]
+                    },
+                    {
+                        "title": "Datos y BI",
+                        "items": [
+                            "SQL Server",
+                            "PostgreSQL y MySQL",
+                            "Oracle Database",
+                            "BigQuery y Snowflake",
+                            "Power BI"
+                        ]
+                    },
+                    {
+                        "title": "Nube y modelos",
+                        "items": [
+                            "Azure OpenAI",
+                            "AWS Bedrock",
+                            "Google Vertex AI",
+                            "OpenAI y Anthropic"
+                        ]
+                    }
+                ]
+            },
+            "presence": {
+                "eyebrow": "Presencia local",
+                "title": "Equipo en EE. UU. y Perú",
+                "subtitle": "Reuniones presenciales o remotas, en español o inglés y en tu zona horaria.",
+                "offices": {
+                    "us": {
+                        "country": "Estados Unidos",
+                        "label": "Sede · Silicon Valley"
+                    },
+                    "pe": {
+                        "country": "Perú",
+                        "label": "Oficina Lima · proyectos e implementación"
+                    }
+                }
+            },
+            "booking": {
+                "cta": "Agenda una llamada de 30 min",
+                "title": "Agenda una llamada",
+                "desc": "Elige día y hora en el calendario"
+            }
         }
     },
     "chatbotWidget": {
@@ -3389,6 +3541,6 @@
     },
     "clients": {
         "title": "Empresas que han confiado en nuestro equipo",
-        "note": "Clientes de los proyectos de software empresarial de nuestro equipo (Inversiones On Line · Sistemas Perú) desde 2011."
+        "note": "Bancos, entidades públicas y empresas líderes para las que nuestro equipo ha desarrollado proyectos desde 2011."
     }
 }

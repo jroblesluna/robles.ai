@@ -49,7 +49,7 @@ Before advertising: repeat a clearly marked inquiry in production, inspect recei
 |---|---|---|---|---|
 | Contact form accepted | `ContactForm` on `/` and `/get-started` | `generate_lead` (`form_id: contact`, `method: contact_form`) | `Lead` | **Primary** lead conversion |
 | Quiz lead stored | `/diagnostico-ia`, after `POST /api/quiz-lead` returns a `leadId` (before email verification) | `generate_lead` (`form_id: quiz`, `method: quiz`) | `Lead` | Same primary conversion; segment by `method` |
-| WhatsApp / email / phone click | `/get-started` (contact block, CTA, sticky bar), home contact info, Robly chat buttons | `contact_click` (`contact_method`, `link_location`) | `Contact` | **Secondary** conversion only: a click is intent, not a delivered message |
+| WhatsApp / email / phone / calendar click | `/get-started` (hero, pricing, contact block, sticky bar), home contact info, Robly chat buttons | `contact_click` (`contact_method`, `link_location`) | `Contact` | **Secondary** conversion only: a click is intent, not a delivered message |
 
 All three go through `trackConversion()` in `src/lib/analytics.ts`: pushed to the `dataLayer` (GTM), queued until trackers initialise, and sent directly to GA4/Meta only when GTM is not configured. No visitor values are included.
 

@@ -1,38 +1,52 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { normalizeLanguage, staticPagePath } from "@shared/seoPolicy";
-import { PUBLIC_CONTACT } from "@shared/publicContent";
+import { PUBLIC_CONTACT, PUBLIC_OFFICES } from "@shared/publicContent";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
+  Archive,
   ArrowRight,
   BookOpen,
   Bot,
+  Briefcase,
+  CalendarDays,
   CheckCircle2,
+  ClipboardCheck,
+  Cloud,
   ChevronDown,
-  Compass,
   Database,
   Factory,
   FileText,
+  Gift,
   Hammer,
   HeartPulse,
+  KeyRound,
   Landmark,
   Linkedin,
   Lock,
   Mail,
+  MapPin,
   MessageCircle,
   MessageSquare,
   Phone,
   PlayCircle,
   Plug,
+  Scale,
+  ScrollText,
+  ShieldAlert,
   ShieldCheck,
   Sparkles,
+  Star,
   Store,
   Truck,
+  UserCheck,
+  Users,
   UtensilsCrossed,
 } from "lucide-react";
 import { Link, useSearch } from "wouter";
 import { ContactForm, CONTACT_GOALS } from "@/components/Contact";
 import { trackContactClick } from "@/lib/analytics";
+import { useBookingUrl } from "@/lib/siteConfig";
 import ClientLogos from "@/components/ClientLogos";
 
 /**
@@ -40,9 +54,10 @@ import ClientLogos from "@/components/ClientLogos";
  *
  * Structure (CRO + buyer-persona review, 2026-10): outcome-led hero (diagnosis CTA, WhatsApp,
  * links to demos / proposal / 2-minute test) with the offer card; client logos; live demos; industry starting
- * points (examples, not results); "where AI pays back first"; one merged process; two ways to
- * start (priced diagnosis or direct project); commitments; security & integration; founder;
- * FAQ; contact form; sticky mobile CTA. `?s=chatbots|rag|agents|docs` swaps the hero copy,
+ * points (examples, not results); "where AI pays back first"; one merged process; three fixed-fee
+ * AI Assessment packages (up to 2/4/6 processes, each with a bonus) plus the direct-project
+ * option; commitments; integrations; security & compliance; founder + local presence (US/Peru);
+ * FAQ; contact form (+ calendar booking link when `booking_url` is set); sticky mobile CTA. `?s=chatbots|rag|agents|docs` swaps the hero copy,
  * side card, CTA, contact title/submit, pre-selected form goal and WhatsApp message so each
  * Google Ads ad group lands on a matching message.
  */
@@ -59,7 +74,8 @@ const VARIANT_GOAL: Record<HeroVariant, (typeof CONTACT_GOALS)[number]> = {
   docs: "documents",
 };
 const INDUSTRY_ICONS = [Store, Truck, HeartPulse, UtensilsCrossed, Landmark, Factory];
-const SECURITY_ICONS = [Plug, Database, Lock, ShieldCheck];
+const SECURITY_ICONS = [Lock, KeyRound, UserCheck, Cloud, ScrollText, Archive, Scale, ShieldAlert, ClipboardCheck];
+const INTEGRATION_ICONS = [Briefcase, Users, MessageCircle, FileText, Database, Cloud];
 
 /** Service → live demo id in demosCatalog.items. */
 const BUILD_ITEMS: Array<{ key: HeroVariant; demoId: string; icon: typeof Bot }> = [
@@ -75,6 +91,8 @@ type Pattern = { title: string; desc: string };
 type Faq = { q: string; a: string };
 type TeamMember = { name: string; image: string; linkedin?: string };
 type Item = { title: string; desc: string };
+type Package = { name: string; price: string; scope: string; desc: string; features: string[]; bonus: string };
+type IntegrationGroup = { title: string; items: string[] };
 
 function Reveal({ children, className, delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
   return (
@@ -142,6 +160,7 @@ export default function Landing() {
   const founder = list<TeamMember>("team.members")[0];
   const whatsappMessage = encodeURIComponent(t(variant ? `landing.v2.variants.${variant}.whatsapp` : "landing.whatsapp.message"));
   const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`;
+  const bookingUrl = useBookingUrl();
 
   // Sticky mobile CTA: visible after the hero, hidden while the contact form is on screen.
   const [showSticky, setShowSticky] = useState(false);
@@ -214,6 +233,18 @@ export default function Landing() {
                 <a href="#diagnostico" className="inline-flex items-center gap-1.5 underline underline-offset-4 hover:text-white">
                   <Hammer className="w-4 h-4 text-emerald-400" aria-hidden="true" />
                   {t("landing.v2.hero.proposalLink")}
+                </a>
+              )}
+              {bookingUrl && (
+                <a
+                  href={bookingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackContactClick("calendar", "landing_hero")}
+                  className="inline-flex items-center gap-1.5 underline underline-offset-4 hover:text-white"
+                >
+                  <CalendarDays className="w-4 h-4 text-emerald-400" aria-hidden="true" />
+                  {t("landing.v2.booking.cta")}
                 </a>
               )}
               <Link href={staticPagePath("/diagnostico-ia", lang)} className="inline-flex items-center gap-1.5 underline underline-offset-4 hover:text-white">
@@ -387,47 +418,111 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Two ways to start — diagnosis or direct project */}
+      {/* Pricing — three fixed-fee AI Assessment packages + the direct-project option */}
       <section id="diagnostico" className="scroll-mt-20 py-16 md:py-24 bg-slate-900/50">
-        <div className="max-w-5xl mx-auto px-6">
-          <SectionTitle title={t("landing.v2.paths.title")} />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {(["diagnosis", "project"] as const).map((key, i) => {
-              const Icon = key === "diagnosis" ? Compass : Hammer;
-              const deliverables = key === "diagnosis" ? list<string>("landing.v2.offer.deliverables") : [];
+        <div className="max-w-6xl mx-auto px-6">
+          <Reveal className="text-center mb-10 md:mb-14">
+            <p className="text-xs font-semibold uppercase tracking-wider text-emerald-300 mb-3">{t("landing.v2.packages.eyebrow")}</p>
+            <h2 className="text-2xl md:text-4xl font-bold mb-4">{t("landing.v2.packages.title")}</h2>
+            <p className="text-slate-300 max-w-3xl mx-auto">{t("landing.v2.packages.subtitle")}</p>
+            <ul className="mt-5 mx-auto flex w-fit flex-col items-start gap-2 text-left text-sm text-slate-200 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-5">
+              {list<string>("landing.v2.offer.deliverables").map((d) => (
+                <li key={d} className="inline-flex items-start gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 mt-0.5 text-emerald-400 shrink-0" aria-hidden="true" />
+                  {d}
+                </li>
+              ))}
+            </ul>
+          </Reveal>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-5 lg:gap-6">
+            {list<Package>("landing.v2.packages.items").map((pkg, i) => {
+              const featured = i === 1;
               return (
                 <Reveal
-                  key={key}
-                  delay={i * 0.05}
-                  className={`flex flex-col rounded-2xl p-6 md:p-8 border ${
-                    key === "diagnosis" ? "bg-gradient-to-br from-purple-900/50 to-slate-800/70 border-emerald-500/40" : "bg-slate-800/60 border-slate-700/60"
+                  key={pkg.name}
+                  delay={i * 0.06}
+                  className={`relative flex flex-col rounded-2xl p-6 lg:p-7 border ${
+                    featured
+                      ? "bg-gradient-to-b from-purple-900/70 to-slate-800/80 border-emerald-400/70 shadow-2xl shadow-emerald-950/40 ring-1 ring-emerald-400/30"
+                      : "bg-slate-800/60 border-slate-700/60"
                   }`}
                 >
-                  <p className="text-xs font-semibold uppercase tracking-wider text-emerald-300 mb-2">{t(`landing.v2.paths.${key}.eyebrow`)}</p>
-                  <h3 className="flex items-center gap-2 text-xl font-bold mb-3">
-                    <Icon className="w-5 h-5 text-purple-300" aria-hidden="true" />
-                    {t(`landing.v2.paths.${key}.title`)}
-                  </h3>
-                  <p className="text-slate-300 mb-4">{t(`landing.v2.paths.${key}.desc`)}</p>
-                  {deliverables.length > 0 && (
-                    <ul className="space-y-2 mb-5 text-sm text-slate-200">
-                      {deliverables.map((d) => (
-                        <li key={d} className="flex items-start gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" aria-hidden="true" />
-                          {d}
-                        </li>
-                      ))}
-                    </ul>
+                  {featured && (
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-emerald-500 px-3 py-1 text-xs font-semibold text-slate-950">
+                      <Star className="w-3 h-3" aria-hidden="true" /> {t("landing.v2.packages.popular")}
+                    </span>
                   )}
+                  <h3 className="text-lg font-bold">{pkg.name}</h3>
+                  <p className="text-slate-300 text-sm mt-1 mb-5 md:min-h-[2.5rem]">{pkg.desc}</p>
+                  <div className="text-3xl font-bold tracking-tight">{pkg.price}</div>
+                  <p className="mt-3 inline-flex w-fit items-center rounded-full bg-emerald-500/15 border border-emerald-400/30 px-3 py-1 text-sm font-semibold text-emerald-300">
+                    {pkg.scope}
+                  </p>
+                  <ul className="space-y-2 my-6 text-sm text-slate-200">
+                    {pkg.features.map((f) => (
+                      <li key={f} className="flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" aria-hidden="true" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
                   <div className="mt-auto">
-                    <div className="text-2xl font-bold">{t(`landing.v2.paths.${key}.price`)}</div>
-                    <p className="text-sm text-slate-300 mt-1 mb-5">{t(`landing.v2.paths.${key}.priceDetail`)}</p>
-                    <PrimaryCta className="w-full">{t(`landing.v2.paths.${key}.cta`)}</PrimaryCta>
+                    <div className="rounded-xl border border-amber-300/30 bg-amber-300/10 p-4 mb-5">
+                      <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-amber-200">
+                        <Gift className="w-4 h-4" aria-hidden="true" /> {t("landing.v2.packages.bonusLabel")}
+                      </p>
+                      <p className="mt-1.5 text-sm text-slate-100">{pkg.bonus}</p>
+                    </div>
+                    <a
+                      href="#contacto"
+                      className={`tap-target flex w-full items-center justify-center gap-2 rounded-lg px-5 py-3 font-semibold transition-colors ${
+                        featured ? "bg-emerald-600 hover:bg-emerald-500 text-white" : "border border-slate-500 hover:border-emerald-400 hover:bg-white/5 text-white"
+                      }`}
+                    >
+                      {t("landing.v2.packages.cta")} <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                    </a>
                   </div>
                 </Reveal>
               );
             })}
           </div>
+          <p className="text-center text-sm text-slate-300 mt-8">
+            {t("landing.v2.packages.note")}
+            {bookingUrl && (
+              <>
+                {" "}
+                <a
+                  href={bookingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackContactClick("calendar", "landing_packages")}
+                  className="inline-flex items-center gap-1 font-semibold text-emerald-300 underline underline-offset-4 hover:text-emerald-200"
+                >
+                  <CalendarDays className="w-4 h-4" aria-hidden="true" /> {t("landing.v2.booking.cta")}
+                </a>
+              </>
+            )}
+          </p>
+
+          <Reveal className="mt-10 flex flex-col md:flex-row md:items-center gap-6 rounded-2xl border border-slate-700/60 bg-slate-800/40 p-6 md:p-8">
+            <div className="flex-1">
+              <p className="text-xs font-semibold uppercase tracking-wider text-emerald-300 mb-2">{t("landing.v2.paths.project.eyebrow")}</p>
+              <h3 className="flex items-center gap-2 text-xl font-bold mb-2">
+                <Hammer className="w-5 h-5 text-purple-300" aria-hidden="true" />
+                {t("landing.v2.paths.project.title")}
+              </h3>
+              <p className="text-slate-300 text-sm mb-2">{t("landing.v2.paths.project.desc")}</p>
+              <p className="text-sm text-slate-200">
+                <span className="font-semibold">{t("landing.v2.paths.project.price")}</span> · {t("landing.v2.paths.project.priceDetail")}
+              </p>
+            </div>
+            <a
+              href="#contacto"
+              className="tap-target inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-emerald-400/60 hover:bg-white/5 px-6 py-3 font-semibold text-white transition-colors"
+            >
+              {t("landing.v2.paths.project.cta")} <ArrowRight className="w-4 h-4" aria-hidden="true" />
+            </a>
+          </Reveal>
         </div>
       </section>
 
@@ -446,18 +541,56 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Security and integration — for IT, finance and compliance reviewers */}
+      {/* Integrations — the systems buyers ask about first */}
       <section className="py-16 md:py-24 bg-slate-900/50">
         <div className="max-w-6xl mx-auto px-6">
+          <Reveal className="text-center mb-10 md:mb-12">
+            <p className="text-xs font-semibold uppercase tracking-wider text-emerald-300 mb-3">{t("landing.v2.integrations.eyebrow")}</p>
+            <h2 className="text-2xl md:text-4xl font-bold mb-4">{t("landing.v2.integrations.title")}</h2>
+            <p className="text-slate-300 max-w-3xl mx-auto">{t("landing.v2.integrations.subtitle")}</p>
+          </Reveal>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {list<IntegrationGroup>("landing.v2.integrations.groups").map((group, i) => {
+              const Icon = INTEGRATION_ICONS.at(i) ?? Plug;
+              return (
+                <Reveal key={group.title} delay={i * 0.04} className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-6">
+                  <h3 className="flex items-center gap-3 font-semibold mb-4">
+                    <span className="rounded-lg bg-purple-500/15 border border-purple-400/20 p-2">
+                      <Icon className="w-5 h-5 text-purple-300" aria-hidden="true" />
+                    </span>
+                    {group.title}
+                  </h3>
+                  <ul className="flex flex-wrap gap-2">
+                    {group.items.map((item) => (
+                      <li key={item} className="rounded-full border border-slate-600/80 bg-slate-900/60 px-3 py-1 text-sm text-slate-200">
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </Reveal>
+              );
+            })}
+          </div>
+          <p className="text-center text-sm text-slate-300 mt-8">{t("landing.v2.integrations.note")}</p>
+        </div>
+      </section>
+
+      {/* Security and compliance — for IT, security and compliance reviewers */}
+      <section className="py-16 md:py-24">
+        <div className="max-w-6xl mx-auto px-6">
           <SectionTitle title={t("landing.v2.security.title")} subtitle={t("landing.v2.security.subtitle")} />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {list<Item>("landing.v2.security.items").map((item, i) => {
               const Icon = SECURITY_ICONS.at(i) ?? ShieldCheck;
               return (
-                <Reveal key={item.title} delay={i * 0.04} className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-6">
-                  <Icon className="w-7 h-7 text-purple-300 mb-3" aria-hidden="true" />
-                  <h3 className="font-semibold mb-2">{item.title}</h3>
-                  <p className="text-slate-300 text-sm">{item.desc}</p>
+                <Reveal key={item.title} delay={i * 0.03} className="flex gap-4 bg-slate-800/60 border border-slate-700/60 rounded-xl p-5">
+                  <span className="h-fit rounded-lg bg-emerald-500/10 border border-emerald-400/20 p-2">
+                    <Icon className="w-5 h-5 text-emerald-300" aria-hidden="true" />
+                  </span>
+                  <div>
+                    <h3 className="font-semibold mb-1">{item.title}</h3>
+                    <p className="text-slate-300 text-sm">{item.desc}</p>
+                  </div>
                 </Reveal>
               );
             })}
@@ -467,7 +600,7 @@ export default function Landing() {
 
       {/* Who you'll work with */}
       {founder && (
-        <section className="py-16 md:py-24">
+        <section className="py-16 md:py-24 bg-slate-900/50">
           <Reveal className="max-w-4xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-[180px_1fr] gap-8 items-center">
             <img
               src={`/images/${founder.image}`}
@@ -501,11 +634,38 @@ export default function Landing() {
               )}
             </div>
           </Reveal>
+
+          {/* Local presence — US and Peru offices */}
+          <div className="max-w-5xl mx-auto px-6 mt-16">
+            <Reveal className="text-center mb-8">
+              <p className="text-xs font-semibold uppercase tracking-wider text-emerald-300 mb-3">{t("landing.v2.presence.eyebrow")}</p>
+              <h2 className="text-2xl md:text-3xl font-bold mb-3">{t("landing.v2.presence.title")}</h2>
+              <p className="text-slate-300 max-w-2xl mx-auto">{t("landing.v2.presence.subtitle")}</p>
+            </Reveal>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {PUBLIC_OFFICES.map((office, i) => (
+                <Reveal key={office.id} delay={i * 0.05} className="flex gap-4 rounded-2xl border border-slate-700/60 bg-slate-800/60 p-6">
+                  <span className="h-fit rounded-full bg-purple-500/15 border border-purple-400/20 p-3">
+                    <MapPin className="w-5 h-5 text-purple-300" aria-hidden="true" />
+                  </span>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-emerald-300">{t(`landing.v2.presence.offices.${office.id}.label`)}</p>
+                    <h3 className="text-lg font-bold mt-1">{t(`landing.v2.presence.offices.${office.id}.country`)}</h3>
+                    <address className="not-italic text-slate-300 text-sm mt-1">
+                      {office.street}
+                      <br />
+                      {office.city}
+                    </address>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
         </section>
       )}
 
       {/* FAQ — objections */}
-      <section className="py-16 md:py-24 bg-slate-900/50">
+      <section className="py-16 md:py-24">
         <div className="max-w-3xl mx-auto px-6">
           <SectionTitle title={t("landing.v2.faq.title")} />
           <div className="space-y-3">
@@ -523,7 +683,7 @@ export default function Landing() {
       </section>
 
       {/* Contact — form first, direct channels second */}
-      <section id="contacto" className="scroll-mt-20 py-16 md:py-24">
+      <section id="contacto" className="scroll-mt-20 py-16 md:py-24 bg-slate-900/50">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <Reveal>
             <h2 className="text-2xl md:text-4xl font-bold mb-4">{t(variant ? `landing.v2.variants.${variant}.contactTitle` : "landing.cta.title")}</h2>
@@ -543,7 +703,22 @@ export default function Landing() {
           </Reveal>
 
           <p className="text-slate-300 text-sm mb-6">{t("landing.cta.orReachUs")}</p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-4">
+            {bookingUrl && (
+              <a
+                href={bookingUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackContactClick("calendar", "landing_contact")}
+                className="flex items-center gap-3 bg-emerald-600/15 border border-emerald-500/50 hover:border-emerald-400 rounded-xl px-6 py-4 transition-colors"
+              >
+                <CalendarDays className="w-5 h-5 text-emerald-300" aria-hidden="true" />
+                <span className="text-left">
+                  <span className="block text-xs text-slate-300">{t("landing.v2.booking.desc")}</span>
+                  <span className="block font-medium">{t("landing.v2.booking.title")}</span>
+                </span>
+              </a>
+            )}
             <a
               href={`mailto:${PUBLIC_CONTACT.email}`}
               onClick={() => trackContactClick("email", "landing_contact")}

@@ -50,7 +50,7 @@ The platform plays three roles:
 - **SPA** with Vite + React 19 and **wouter** routing; Express serves static assets and integrates Vite middleware in development.
 - **Readable first response**: `server/seo/publicContent.ts` renders a plain-HTML version of every public page from the same i18n files (progressive enhancement, replaced by React on startup), plus server-side meta tags, hreflang, canonical and JSON-LD.
 - **i18n** (en/es) with i18next; `?lang=es` selects Spanish on any public route.
-- **Paid-traffic landing** (`/get-started`): outcome-led hero, two ways to start (priced 2-week AI Diagnosis or direct project), live demos, industries, commitments, security, founder, FAQ, contact form, sticky mobile CTA, and `?s=chatbots|rag|agents|docs` variants per ad group.
+- **Paid-traffic landing** (`/get-started`): outcome-led hero, three fixed-fee AI Assessment packages (from USD 1,500 / 2,500 / 3,000 for up to 2 / 4 / 6 processes, each with a bonus) or a direct project, live demos, industries, commitments, integrations, security & compliance, founder and US/Peru offices, FAQ, calendar booking link, contact form, sticky mobile CTA, and `?s=chatbots|rag|agents|docs` variants per ad group.
 - **Contact form** with a *"What do you want to improve?"* selector, optional message, reply-time/privacy notes; delivered by email (nodemailer) and tracked as `generate_lead` only after the server accepts it.
 - **AI Diagnostic Quiz** (`/diagnostico-ia`): scored quiz → GPT result message → email verification → PDF report; leads stored in SQLite and listed in `/admin/quiz-leads`.
 - **AI Demos Lab** (`/demos`): 10 live demos (7 backed by Cloud Run APIs, 3 fully in the browser) and 3 coming soon.
@@ -348,6 +348,7 @@ Public:
 | GET | `/api/generate-posts?date=YYYY-MM-DD` | Manual blog generation trigger |
 | GET | `/api/test` | Health check |
 | GET | `/api/public/analytics-config` | GTM / GA4 / Meta Pixel IDs for the site |
+| GET | `/api/public/site-config` | Public site settings (`bookingUrl`) |
 | GET | `/api/public/slides/:reportId/:position(.png)` | Carousel slide image (for Meta) |
 | POST | `/api/chat/session` · GET `/api/chat/history` · POST `/api/chat/message` (SSE) · POST `/api/chat/close` | Robly chat (`chat_session` cookie) |
 | GET | `/sitemap.xml`, `/sitemaps/:filename` | Sitemap index and monthly blog sitemaps (`/static-pages.xml` for static pages) |
@@ -386,21 +387,24 @@ Auth: admin JWT in httpOnly cookie `admin_token` (7 days); Robly uses httpOnly c
 
 Source: `src/pages/Landing.tsx`; copy under `landing.v2.*` (plus `landing.cta.*`, `landing.whatsapp.*`, `landing.diagnostico.*`, `landing.howWeWork.quote`) in both locales. Sections, top to bottom:
 
-1. **Hero** — outcome headline, *Book your AI Diagnosis* (`#contacto`), WhatsApp button, links to live demos (`#demos`), *request a proposal* (`#diagnostico`) and the 2-minute test; trust row; side card with *What you get in 2 weeks* and the price.
+1. **Hero** — outcome headline, *Book your AI Diagnosis* (`#contacto`), WhatsApp button, links to live demos (`#demos`), *request a proposal* (`#diagnostico`) the 2-minute test and, when `booking_url` is set, *Book a 30-minute call*; trust row (incl. US/Peru offices); side card with *What you get in 2 weeks* and *From USD 1,500*.
 2. **Client logos** (`#clients`) — `ClientLogos` (see below).
 3. **What we build — try it yourself** (`#demos`) — chatbots, knowledge assistants, agents and document AI, each linked to its live demo (`demosCatalog.items`).
 4. **Where it fits in your business** — industry starting points, explicitly labelled as examples, not client results.
 5. **Where AI usually pays back first** — three patterns, then a CTA.
 6. **How we work** — four steps.
-7. **Two ways to start** (`#diagnostico`) — AI Diagnosis (2 weeks, USD 1,500–3,000, range depends on the number of processes reviewed) or a direct project with a proposal (scope, timeline, price).
+7. **Pricing** (`#diagnostico`) — three fixed-fee AI Assessment packages (`landing.v2.packages.items`): Essential *from USD 1,500* (up to 2 processes, bonus: 30 days of roadmap Q&A), Advanced *USD 2,500* (up to 4, highlighted, bonus: working demo of the top use case), Complete *USD 3,000* (up to 6, bonus: 2-hour executive workshop); shared deliverables; then the direct-project option (`landing.v2.paths.project`).
 8. **What you can count on** — roadmap/code/data ownership, no training on your data, human review.
-9. **Security and integration** — SAP/ERP interfaces, models in the client's cloud, confidentiality, vendor review.
-10. **Who you'll work with** — founder (data from `team.members[0]`).
-11. **FAQ** — includes implementation cost and *why not build it ourselves*.
-12. **Contact** (`#contacto`) — `ContactForm` (green submit, no newsletter, optional `defaultGoal`) + email/WhatsApp.
-13. **Sticky mobile CTA** — appears after the hero and hides when the form is visible.
+9. **Integrations** (`landing.v2.integrations.groups`) — ERP, CRM, channels, documents, data/BI, cloud & models.
+10. **Security and compliance** (`landing.v2.security.items`, 9 items) — NDA, encryption in transit/at rest, SSO and roles, models in the client's cloud, audit log, retention/deletion, Peru Ley 29733 / US privacy, AI safeguards, vendor onboarding.
+11. **Who you'll work with** — founder (`team.members[0]`) + **local presence**: offices from `PUBLIC_OFFICES` (Cupertino, CA and Lima, Peru; labels in `landing.v2.presence`).
+12. **FAQ** — includes implementation cost and *why not build it ourselves*.
+13. **Contact** (`#contacto`) — `ContactForm` (green submit, no newsletter, optional `defaultGoal`) + calendar booking (when set) / email / WhatsApp.
+14. **Sticky mobile CTA** — appears after the hero and hides when the form is visible.
 
-**Client logos**: `src/components/ClientLogos.tsx` renders `CLIENT_LOGOS` (`shared/publicContent.ts`, files in `public/images/clients/`) on white tiles, grayscale until hover; copy `clients.title` / `clients.note`. Used on the landing (dark) and on the home page right after the hero (light). They are clients of the team's enterprise software work (Inversiones On Line · Sistemas Perú) since 2011, and the note says so; add new logos by dropping the file and appending an entry.
+**Client logos**: `src/components/ClientLogos.tsx` renders `CLIENT_LOGOS` (`shared/publicContent.ts`, files in `public/images/clients/`) in full color on white tiles (`large: true` for logos with built-in padding, e.g. Mibanco); copy `clients.title` / `clients.note`. Used on the landing (dark) and on the home page right after the hero (light). They are enterprise software clients of the team since 2011 (not AI-project clients); add new logos by dropping the file and appending an entry.
+
+**Calendar booking**: Admin → Settings → *Calendar booking* stores `booking_url`; `GET /api/public/site-config` returns it (http/https only) and `useBookingUrl()` (`src/lib/siteConfig.ts`) shows the *Book a call* links (hero, pricing, contact), tracked as `contact_click` with `contact_method=calendar`.
 
 `?s=chatbots|rag|agents|docs` swaps the hero copy, side card, CTA, contact title/submit, pre-selected form goal and pre-filled WhatsApp message (`landing.v2.variants.*`). Ad URLs: `/get-started` (EN) or `/get-started?lang=es` (ES), plus `s=` to match the ad group. The crawler HTML for this route is built in `server/seo/publicContent.ts` from the same keys.
 
@@ -414,7 +418,7 @@ Source: `src/pages/Landing.tsx`; copy under `landing.v2.*` (plus `landing.cta.*`
 |----------|-----------|------|------------|
 | `trackContactLead()` | `generate_lead` (`form_id: contact`, `method: contact_form`) | `Lead` | `POST /api/contact` returns `success: true` |
 | `trackQuizLead()` | `generate_lead` (`form_id: quiz`, `method: quiz`) | `Lead` | `POST /api/quiz-lead` returns a `leadId` |
-| `trackContactClick(channel, location)` | `contact_click` (`contact_method`, `link_location`) | `Contact` | WhatsApp / email / phone link clicks (landing, home contact, Robly) |
+| `trackContactClick(channel, location)` | `contact_click` (`contact_method`, `link_location`) | `Contact` | WhatsApp / email / phone / calendar link clicks (landing, home contact, Robly) |
 | `trackDemoEvent(event, demoId)` | `demo_start`, `demo_complete`, `roi_calculated`, `demo_cta_click` | custom | Demo funnel |
 
 Google Ads (account *Robles.AI*, USD, Pacific time) imports `generate_lead` from GA4 property `492769320` as the primary *Submit lead form* conversion; `contact_click` is meant to be a secondary conversion. Details and external setup: [`docs/CONTACT_CONVERSIONS.md`](docs/CONTACT_CONVERSIONS.md).
