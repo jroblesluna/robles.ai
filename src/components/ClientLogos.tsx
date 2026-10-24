@@ -9,7 +9,7 @@ interface ClientLogosProps {
 
 /**
  * Client logo wall. Logos sit on white tiles so every brand keeps its own colors on both
- * light and dark backgrounds. `large` gives logos with a lot of built-in padding a taller box.
+ * light and dark backgrounds. Flex rows (2 / 4 / 6 per row) keep an incomplete last row centered. `large` gives logos with a lot of built-in padding a taller box.
  */
 export default function ClientLogos({ tone = "light", className = "" }: ClientLogosProps) {
   const { t } = useTranslation();
@@ -26,11 +26,11 @@ export default function ClientLogos({ tone = "light", className = "" }: ClientLo
           {t("clients.title")}
         </h2>
         <p className={`text-center text-sm mb-8 ${dark ? "text-slate-300" : "text-gray-600"}`}>{t("clients.note")}</p>
-        <ul className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
+        <ul className="flex flex-wrap justify-center gap-3">
           {CLIENT_LOGOS.map(({ name, file, large }) => (
             <li
               key={name}
-              className={`group flex h-14 sm:h-16 md:h-20 items-center justify-center rounded-lg md:rounded-xl bg-white px-2 md:px-4 ${
+              className={`group flex basis-[calc((100%-0.75rem)/2)] sm:basis-[calc((100%-2.25rem)/4)] lg:basis-[calc((100%-3.75rem)/6)] h-14 sm:h-16 md:h-20 items-center justify-center rounded-lg md:rounded-xl bg-white px-2 md:px-4 ${
                 dark ? "" : "border border-gray-200"
               }`}
             >
