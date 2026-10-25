@@ -83,12 +83,12 @@ export function buildGoogleAdsReport(results: {
 }
 
 export async function getGoogleAdsReport(dateRange: DateRange, accountId = '5850899991', campaignId?: string): Promise<AdsReport> {
-  const dimensions = ['sessionCampaignName', ID, NAME];
+  const dimensions = [ID, NAME];
   const options = { limit: 10000, dimensionFilter: accountFilter(accountId) };
   const [cost, engagement, daily] = await Promise.allSettled([
     queryReport(dimensions, ['advertiserAdImpressions', 'advertiserAdClicks', 'advertiserAdCost'], dateRange, options),
     queryReport([ID, NAME], ['sessions', 'keyEvents'], dateRange, options),
-    // GA4 requires a campaign dimension alongside advertising cost, including in daily reports.
+    // Use Google Ads campaign dimensions consistently; mixing sessionCampaignName is incompatible.
     queryReport(['date', ...dimensions], ['advertiserAdCost', 'advertiserAdClicks'], dateRange, options),
   ]);
   if ([cost, engagement, daily].every(result => result.status === 'rejected')) throw new Error('GA4 could not return Google Ads data. Check the account link and property access.');
