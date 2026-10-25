@@ -153,6 +153,20 @@ function computeComparisonRange(dateRange: DateRange): DateRange {
 
 // --- Core Query Wrappers ---
 
+export type ReportFilter = {
+  filter?: { fieldName: string; stringFilter?: { matchType: 'EXACT'; value: string }; inListFilter?: { values: string[] } };
+  andGroup?: { expressions: ReportFilter[] };
+};
+
+/** Discover registered dimensions; never create or change external GA4 configuration. */
+export async function getEventDimension(parameter: string): Promise<string | null> {
+  const client = getClient();
+  const propertyId = getPropertyId();
+  if (!client || !propertyId) throw new Error('GA4 is not configured.');
+  const [metadata] = await client.getMetadata({ name: `properties/${propertyId}/metadata` });
+  return metadata.dimensions?.find(d => d.apiName === `customEvent:${parameter}`)?.apiName || null;
+}
+
 /**
  * Generic report query wrapper.
  * Runs a GA4 Data API runReport call with the given dimensions, metrics, and date range.
@@ -161,7 +175,7 @@ export async function queryReport(
   dimensions: string[],
   metrics: string[],
   dateRange: DateRange,
-  options?: { limit?: number; orderBy?: string; orderDesc?: boolean }
+  options?: { limit?: number; orderBy?: string; orderDesc?: boolean; dimensionFilter?: ReportFilter }
 ): Promise<{ dimensionHeaders: string[]; metricHeaders: string[]; rows: Record<string, string>[]; currencyCode?: string }> {
   const client = getClient();
   if (!client) {
@@ -182,6 +196,8 @@ export async function queryReport(
   if (dimensions.length > 0) {
     request.dimensions = dimensions.map((name) => ({ name }));
   }
+
+  if (options?.dimensionFilter) request.dimensionFilter = options.dimensionFilter;
 
   if (options?.limit) {
     request.limit = options.limit;
