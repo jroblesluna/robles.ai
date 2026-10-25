@@ -49,7 +49,7 @@ export async function searchGoogleAds(customerId: string, token: string, query: 
   throw new Error('Google Ads report exceeded the page limit; no partial totals are shown.');
 }
 
-export async function getDirectGoogleAdsReport(dateRange: DateRange, campaignId?: string): Promise<AdsReport> {
+export async function getGoogleAdsReader(dateRange: DateRange, campaignId?: string) {
   if (campaignId && !/^\d{1,20}$/.test(campaignId)) throw new Error('Invalid campaign ID.');
   for (const date of [dateRange.startDate, dateRange.endDate]) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || new Date(date).toISOString().slice(0, 10) !== date) throw new Error('Invalid report date.');
@@ -58,11 +58,16 @@ export async function getDirectGoogleAdsReport(dateRange: DateRange, campaignId?
   if (!isGoogleAdsConfigured()) throw new Error('Google Ads API is not configured.');
   const token = await accessToken(c);
   const search = (query: string) => searchGoogleAds(c.customerId, token, query, c.managerId);
+  const filter = `campaign.status != 'REMOVED'${campaignId ? ` AND campaign.id = ${campaignId}` : ''} AND segments.date BETWEEN '${dateRange.startDate}' AND '${dateRange.endDate}'`;
+  return { search, filter, accountId: c.customerId };
+}
+
+export async function getDirectGoogleAdsReport(dateRange: DateRange, campaignId?: string): Promise<AdsReport> {
+  const { search, filter, accountId } = await getGoogleAdsReader(dateRange, campaignId);
   const [customerRows, catalog] = await Promise.all([
     search('SELECT customer.currency_code, customer.time_zone FROM customer LIMIT 1'),
     search("SELECT campaign.id, campaign.name, campaign.status, campaign_budget.amount_micros FROM campaign WHERE campaign.status != 'REMOVED' ORDER BY campaign.id"),
   ]);
-  const filter = `campaign.status != 'REMOVED'${campaignId ? ` AND campaign.id = ${campaignId}` : ''} AND segments.date BETWEEN '${dateRange.startDate}' AND '${dateRange.endDate}'`;
   const [metrics, daily] = await Promise.allSettled([
     search(`SELECT campaign.id, metrics.impressions, metrics.clicks, metrics.cost_micros, metrics.conversions FROM campaign WHERE ${filter}`),
     search(`SELECT segments.date, metrics.cost_micros, metrics.clicks FROM campaign WHERE ${filter}`),
@@ -87,7 +92,7 @@ export async function getDirectGoogleAdsReport(dateRange: DateRange, campaignId?
     point.clicks += Number(row.metrics.clicks || 0);
     byDate.set(date, point);
   }
-  return { source: 'google_ads_api', accountId: c.customerId, currency: customerRows[0]?.customer?.currencyCode || null,
+  return { source: 'google_ads_api', accountId, currency: customerRows[0]?.customer?.currencyCode || null,
     fetchedAt: new Date().toISOString(), campaignOptions, campaigns, totals: sumCampaigns(campaigns),
     daily: Array.from(byDate.values()).sort((a, b) => a.date.localeCompare(b.date)),
     availability: { cost: metrics.status === 'fulfilled', results: metrics.status === 'fulfilled', daily: daily.status === 'fulfilled' }, warnings };

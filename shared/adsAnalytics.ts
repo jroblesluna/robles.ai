@@ -41,3 +41,25 @@ export interface LeadSignalsReport {
   segmentationAvailable: boolean;
   warnings: string[];
 }
+
+export interface AdsMetrics {
+  impressions: number;
+  clicks: number;
+  cost: number;
+  results: number;
+}
+export interface AdsSegment extends AdsMetrics { label: string }
+export interface AdsInsights {
+  accountId: string;
+  fetchedAt: string;
+  availability: Record<'terms' | 'geography' | 'devices' | 'networks' | 'ages' | 'genders' | 'targeting', boolean>;
+  warnings: string[];
+  terms: Array<AdsMetrics & { term: string; campaignId: string; campaign: string; adGroup: string; keyword: string; matchType: string }>;
+  countries: AdsSegment[];
+  locations: AdsSegment[];
+  devices: AdsSegment[];
+  networks: AdsSegment[];
+  ages: AdsSegment[];
+  genders: AdsSegment[];
+  targeting: Array<{ campaignId: string; campaign: string; location: string; excluded: boolean; presence: string; exclusionPresence: string }>;
+}
