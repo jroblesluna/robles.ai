@@ -7,11 +7,14 @@ vi.mock('../db.js', () => ({ default: { prepare: () => ({ get: () => undefined }
 vi.mock('../services/ga4Client.js', () => ({ isConfigured: () => ({ configured: true }) }));
 vi.mock('../services/googleAdsReport.js', () => ({ getGoogleAdsReport: vi.fn(), getWebsiteChannelsReport: vi.fn(), getLeadSignalsReport: vi.fn() }));
 vi.mock('../services/googleAdsApi.js', () => ({ isGoogleAdsConfigured: () => true, getGoogleAdsAccountId: () => '5850899991', getDirectGoogleAdsReport: vi.fn() }));
+vi.mock('../services/googleAdsClicks.js', () => ({ getGoogleAdsClicks: vi.fn() }));
 vi.mock('../services/googleAdsInsights.js', () => ({ getGoogleAdsInsights: vi.fn() }));
 vi.mock('../services/analyticsCache.js', () => ({ get: () => null, set: vi.fn(), clear: vi.fn(), TTL: { TODAY: 300, HISTORICAL: 3600 } }));
 vi.mock('../services/metaInsights.js', () => ({}));
 vi.mock('../services/metaAds.js', () => ({}));
 import router from '../analyticsRoutes.js';
+import { getGoogleAdsClicks } from '../services/googleAdsClicks.js';
+import { set as cacheSet } from '../services/analyticsCache.js';
 import { getGoogleAdsInsights } from '../services/googleAdsInsights.js';
 import { generateToken } from '../auth.js';
 import { getDirectGoogleAdsReport } from '../services/googleAdsApi.js';
@@ -20,7 +23,7 @@ beforeEach(() => { vi.stubEnv('ADMIN_JWT_SECRET', 'test-ads-reporting-secret'); 
 afterEach(() => vi.unstubAllEnvs());
 const cookie = () => `admin_token=${generateToken(1, 'test@example.com')}`;
 
-it.each(['/ads/google', '/ads/google/insights', '/channels', '/ads/leads'])('requires admin authentication for %s', async path => {
+it.each(['/ads/google', '/ads/google/clicks', '/ads/google/insights', '/channels', '/ads/leads'])('requires admin authentication for %s', async path => {
   expect((await request(app).get('/analytics' + path)).status).toBe(401);
 });
 it.each(['campaignId=1%20OR%201=1', 'startDate=2026-02-30', 'startDate=2026-10-25&endDate=2026-10-01'])('rejects invalid report filters: %s', async query => {
@@ -51,4 +54,22 @@ it('returns an explicit error if detail reporting fails', async () => {
   const res = await request(app).get('/analytics/ads/google/insights').set('Cookie', cookie());
   expect(res.status).toBe(502);
   expect(res.body.error).toMatch(/unavailable/);
+});
+
+it('returns authenticated single-day click records without persistent or browser caching', async () => {
+  vi.mocked(getGoogleAdsClicks).mockResolvedValue({ records: [], selectedDate: '2026-10-24' } as any);
+  const res = await request(app).get('/analytics/ads/google/clicks?startDate=2026-10-01&endDate=2026-10-25&campaignId=2&clickDate=2026-10-24').set('Cookie', cookie());
+  expect(res.status).toBe(200);
+  expect(res.headers['cache-control']).toBe('private, no-store');
+  expect(getGoogleAdsClicks).toHaveBeenCalledWith({ startDate: '2026-10-01', endDate: '2026-10-25' }, '2', '2026-10-24');
+  expect(cacheSet).not.toHaveBeenCalled();
+});
+it.each(['2026-02-30', '2026-10-26', 'not-a-date'])('rejects malformed or out-of-range ClickView dates: %s', async date => {
+  const res = await request(app).get('/analytics/ads/google/clicks?startDate=2026-10-01&endDate=2026-10-25&clickDate=' + date).set('Cookie', cookie());
+  expect(res.status).toBe(400); expect(getGoogleAdsClicks).not.toHaveBeenCalled();
+});
+it('does not leak click service failures or credentials in the error response', async () => {
+  vi.mocked(getGoogleAdsClicks).mockRejectedValue(new Error('private details'));
+  const res = await request(app).get('/analytics/ads/google/clicks').set('Cookie', cookie());
+  expect(res.status).toBe(502); expect(res.body.error).not.toContain('private details');
 });

@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import KpiCard from "./KpiCard";
 import GoogleAdsInsights from "./GoogleAdsInsights";
+import GoogleAdsClicks from "./GoogleAdsClicks";
 import type { DateRange } from "./DateRangeSelector";
 
 // --- Types matching /api/admin/analytics/ads/* ---
@@ -264,6 +265,7 @@ export function GoogleAdsSection({ dateRange }: { dateRange: DateRange }) {
           {isLoading ? <Skeleton className="h-32 w-full" /> : !costAvailable && !resultsAvailable ? <p className="text-sm text-muted-foreground">Campaign metrics are unavailable.</p> : <CampaignTable label="Google Ads campaigns" currency={data?.currency} resultsLabel={resultLabel} costAvailable={costAvailable} resultsAvailable={resultsAvailable} emptyText={direct ? "No campaigns match this filter." : "No campaigns attributed to this Ads account were returned by GA4 for these dates."} rows={(data?.campaigns || []).map(c => ({ key: c.campaignId, name: c.campaign, spend: c.cost, impressions: c.impressions, clicks: c.clicks, results: c.results, status: c.status, dailyBudget: c.dailyBudget }))} />}
         </CardContent></Card>
       </>}
+      {!failed && direct && <GoogleAdsClicks key={`${dateRange.startDate}:${dateRange.endDate}:${campaignId}`} dateRange={dateRange} campaignId={campaignId} />}
       {!failed && direct && <GoogleAdsInsights dateRange={dateRange} campaignId={campaignId} currency={data?.currency || null} />}
       <LeadSignals dateRange={dateRange} campaignId={campaignId} />
     </section>

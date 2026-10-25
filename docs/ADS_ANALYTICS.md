@@ -43,3 +43,13 @@ After deploying, check authenticated reports for the account/date range, campaig
 The authenticated `/api/admin/analytics/ads/google/insights` endpoint uses the direct API only. It follows the selected customer, campaign ID and date range for search terms (including impression-only rows), matched keywords, approximate countries/cities of presence, devices, networks and Google-estimated age/gender groups. Queries run independently; errors are marked unavailable, and partial reports are not cached. Successful empty results are distinct from errors. Search terms are subject to privacy thresholds and may not reconcile to campaign totals. Geographic and demographic coverage can be incomplete. These are aggregate reports, not identifiable visitors.
 
 Current included/excluded location criteria and presence/interest rules are shown separately: they reflect current settings, regardless of the historical date range. No campaign configuration is mutated. The report resolves Google geographic identifiers, preserves IDs if lookup fails, and paginates tables without dropping rows. Refresh clears server data and refetches all dashboard queries.
+
+## Individual click records (ClickView)
+
+The authenticated `/api/admin/analytics/ads/google/clicks` endpoint lists days with campaign clicks in the selected range, defaults to the latest such day, and queries ClickView for exactly one day. Optional `clickDate` must fall within the selected date range and the supported 90-calendar-day window, computed in the Ads account’s time zone. Unsupported dates are explicitly identified; no full historical coverage is claimed. Failed daily requests remain unavailable, not successful zeroes.
+
+The widget displays full GCLID on expansion, campaign/group, keyword/match type, date, device/network, approximate presence location and interaction count. A GCLID can cover multiple interactions; records are not identified people or exact timestamps. Search queries and per-click cost are not fabricated from aggregate reports. The illustrative ad preview uses current responsive-ad assets and the default text of keyword insertion. It is not the historical served combination or a screenshot of what the visitor saw. Current landing links accept only HTTP(S) URLs and never append GCLIDs.
+
+GCLIDs remain behind admin authentication, are not logged, and are excluded from the persistent analytics cache (`Cache-Control: private, no-store`); React Query caches the report in memory. Geographic and ad asset lookup failures preserve click records with warnings. The UI supports day selection and pagination. No tracking, campaign, budget or goal configuration changes are made.
+
+Reference: https://developers.google.com/google-ads/api/reference/rpc/v26/ClickView

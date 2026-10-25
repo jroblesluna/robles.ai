@@ -5,6 +5,7 @@ import * as metaInsights from './services/metaInsights.js';
 import * as analyticsCache from './services/analyticsCache.js';
 import { getGoogleAdsReport, getWebsiteChannelsReport, getLeadSignalsReport } from './services/googleAdsReport.js';
 import { getDirectGoogleAdsReport, isGoogleAdsConfigured, getGoogleAdsAccountId } from './services/googleAdsApi.js';
+import { getGoogleAdsClicks } from './services/googleAdsClicks.js';
 import { getGoogleAdsInsights } from './services/googleAdsInsights.js';
 import type { LeadForm } from '../shared/adsAnalytics.js';
 import * as metaAds from './services/metaAds.js';
@@ -210,6 +211,26 @@ analyticsRouter.get('/ads/google', (req: Request, res: Response) => {
       if (Object.values(data.availability).every(Boolean)) analyticsCache.set(key, data, getTtl(dateRange.startDate, dateRange.endDate));
       res.json(data);
     } catch (error) { res.status(502).json({ error: error instanceof Error ? error.message : 'Google Ads data unavailable.' }); }
+  })();
+});
+
+analyticsRouter.get('/ads/google/clicks', (req: Request, res: Response) => {
+  (async () => {
+    let dateRange, campaignId;
+    const clickDate = req.query.clickDate;
+    try {
+      dateRange = adsDates(req); campaignId = adsCampaign(req);
+      if (clickDate !== undefined && (typeof clickDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(clickDate) || !Number.isFinite(Date.parse(clickDate)) || new Date(clickDate).toISOString().slice(0, 10) !== clickDate || clickDate < dateRange.startDate || clickDate > dateRange.endDate)) throw new Error('Invalid click date.');
+    } catch (error) { res.status(400).json({ error: (error as Error).message }); return; }
+    res.setHeader('Cache-Control', 'private, no-store');
+    try {
+      if (!isGoogleAdsConfigured()) { res.status(409).json({ error: 'Connect the direct Google Ads API in Settings to view click records.' }); return; }
+      // Keep GCLIDs out of persistent analytics cache; the authenticated UI caches in memory.
+      res.json(await getGoogleAdsClicks(dateRange, campaignId, clickDate as string | undefined));
+    } catch (error) {
+      if (error instanceof Error && error.message.startsWith('Click date is outside')) { res.status(400).json({ error: error.message }); return; }
+      res.status(502).json({ error: 'Google Ads click records unavailable. Check the direct connection and try Refresh.' });
+    }
   })();
 });
 

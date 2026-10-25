@@ -29,7 +29,7 @@ function fillInquiry() {
   const fields = screen.getAllByRole('textbox');
   fireEvent.change(fields[0], { target: { value: 'QA Visitor' } });
   fireEvent.change(fields[1], { target: { value: 'visitor@example.org' } });
-  fireEvent.change(fields[3], { target: { value: 'Please discuss an AI implementation.' } });
+  fireEvent.change(screen.getByRole('textbox', { name: en.contact.messageOptional }), { target: { value: 'Please discuss an AI implementation.' } });
   return fields;
 }
 it('emits exactly one lead only after the server confirms success', async () => {
