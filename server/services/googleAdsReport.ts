@@ -1,183 +1,118 @@
-// server/services/googleAdsReport.ts
-// Google Ads results read through GA4 (requires the Google Ads account to be linked
-// to the GA4 property). No Google Ads API developer token is needed: cost, clicks and
-// impressions are imported by GA4 and exposed as advertiser* metrics.
-
-import { queryReport, type DateRange } from './ga4Client.js';
-
-// ─── Types ──────────────────────────────────────────────────────────────────────
-
-export interface GoogleAdsCampaignRow {
-  campaign: string;
-  impressions: number;
-  clicks: number;
-  cost: number;
-  sessions: number;
-  keyEvents: number;
-}
-
-export interface GoogleAdsDailyPoint {
-  date: string; // YYYYMMDD (GA4 format)
-  cost: number;
-  clicks: number;
-}
-
-export interface ChannelRow {
-  channelGroup: string;
-  sessions: number;
-  keyEvents: number;
-  paid: boolean;
-}
-
-export interface GoogleAdsTotals {
-  impressions: number;
-  clicks: number;
-  cost: number;
-  sessions: number;
-  keyEvents: number;
-}
-
-export interface GoogleAdsReport {
-  currency: string | null;
-  totals: GoogleAdsTotals;
-  campaigns: GoogleAdsCampaignRow[];
-  daily: GoogleAdsDailyPoint[];
-  channels: ChannelRow[];
-  /** Non-fatal problems, e.g. one of the GA4 queries was rejected. */
-  warnings?: string[];
-}
+// GA4 fallback for Google Ads. Account and campaign IDs constrain attribution;
+// website-wide channels are a separate report and never advertising results.
+import { queryReport, getEventDimension, type DateRange, type ReportFilter } from './ga4Client.js';
+import type { AdsCampaign, AdsReport, WebsiteChannelsReport, LeadForm, LeadSignalsReport } from '../../shared/adsAnalytics.js';
 
 type ReportResult = Awaited<ReturnType<typeof queryReport>>;
+const ID = 'sessionGoogleAdsCampaignId';
+const NAME = 'sessionGoogleAdsCampaignName';
+const CUSTOMER = 'sessionGoogleAdsCustomerId';
+const number = (value: string | undefined) => Number(value) || 0;
+export const isRealCampaignId = (value: string | undefined): value is string => !!value && /^\d+$/.test(value) && Number(value) > 0;
+export const isPaidChannel = (name: string) => /^(paid|cross-network|display|audio)/i.test(name.trim());
 
-// ─── Pure helpers (exported for tests) ─────────────────────────────────────────
-
-const CAMPAIGN_DIMENSION = 'sessionGoogleAdsCampaignName';
-
-/** GA4 uses "(not set)" for sessions that did not come from a Google Ads campaign. */
-export function isRealCampaign(name: string | undefined): boolean {
-  if (!name) return false;
-  const n = name.trim();
-  return n !== '' && n !== '(not set)' && n !== '(not provided)' && n !== '(organic)' && n !== '(direct)';
+export function accountFilter(customerId: string): ReportFilter {
+  const id = customerId.replace(/-/g, '');
+  return { filter: { fieldName: CUSTOMER, inListFilter: { values: [id, `${id.slice(0, 3)}-${id.slice(3, 6)}-${id.slice(6)}`] } } };
 }
 
-/** Default channel groups that represent paid traffic. */
-export function isPaidChannel(channelGroup: string): boolean {
-  return /^(paid|cross-network|display|audio)/i.test(channelGroup.trim());
-}
-
-const toInt = (v: string | undefined) => parseInt(v || '0', 10) || 0;
-const toFloat = (v: string | undefined) => parseFloat(v || '0') || 0;
-
-/**
- * Merge the cost query and the engagement query (both grouped by Google Ads campaign)
- * into one row per campaign, sorted by cost desc.
- */
-export function mergeCampaigns(
-  costRows: Record<string, string>[],
-  engagementRows: Record<string, string>[]
-): GoogleAdsCampaignRow[] {
-  const byName = new Map<string, GoogleAdsCampaignRow>();
-  const ensure = (name: string) => {
-    let row = byName.get(name);
-    if (!row) {
-      row = { campaign: name, impressions: 0, clicks: 0, cost: 0, sessions: 0, keyEvents: 0 };
-      byName.set(name, row);
-    }
-    return row;
+export function mergeCampaigns(costRows: Record<string, string>[], engagementRows: Record<string, string>[]): AdsCampaign[] {
+  const byId = new Map<string, AdsCampaign>();
+  const ensure = (row: Record<string, string>) => {
+    const id = row[ID];
+    if (!isRealCampaignId(id)) return;
+    if (!byId.has(id)) byId.set(id, { campaignId: id, campaign: row[NAME] || id, impressions: 0, clicks: 0, cost: 0, results: 0 });
+    return byId.get(id)!;
   };
-
-  for (const r of costRows) {
-    const name = r[CAMPAIGN_DIMENSION];
-    if (!isRealCampaign(name)) continue;
-    const row = ensure(name);
-    row.impressions += toInt(r.advertiserAdImpressions);
-    row.clicks += toInt(r.advertiserAdClicks);
-    row.cost += toFloat(r.advertiserAdCost);
+  for (const row of costRows) {
+    const item = ensure(row);
+    if (item) {
+      item.impressions += number(row.advertiserAdImpressions);
+      item.clicks += number(row.advertiserAdClicks);
+      item.cost += number(row.advertiserAdCost);
+    }
   }
-  for (const r of engagementRows) {
-    const name = r[CAMPAIGN_DIMENSION];
-    if (!isRealCampaign(name)) continue;
-    const row = ensure(name);
-    row.sessions += toInt(r.sessions);
-    row.keyEvents += toFloat(r.keyEvents);
+  for (const row of engagementRows) {
+    const item = ensure(row);
+    if (item) item.results += number(row.keyEvents);
   }
-
-  return Array.from(byName.values()).sort((a, b) => b.cost - a.cost || b.sessions - a.sessions);
+  return Array.from(byId.values()).sort((a, b) => b.cost - a.cost || a.campaign.localeCompare(b.campaign));
 }
 
-export function sumCampaigns(campaigns: GoogleAdsCampaignRow[]): GoogleAdsTotals {
-  return campaigns.reduce<GoogleAdsTotals>(
-    (t, c) => ({
-      impressions: t.impressions + c.impressions,
-      clicks: t.clicks + c.clicks,
-      cost: t.cost + c.cost,
-      sessions: t.sessions + c.sessions,
-      keyEvents: t.keyEvents + c.keyEvents,
-    }),
-    { impressions: 0, clicks: 0, cost: 0, sessions: 0, keyEvents: 0 }
-  );
+export function sumCampaigns(campaigns: AdsCampaign[]) {
+  return campaigns.reduce((sum, row) => ({
+    impressions: sum.impressions + row.impressions, clicks: sum.clicks + row.clicks,
+    cost: sum.cost + row.cost, results: sum.results + row.results,
+  }), { impressions: 0, clicks: 0, cost: 0, results: 0 });
+}
+
+export function aggregateDaily(rows: Record<string, string>[], campaignId?: string) {
+  const byDate = new Map<string, { date: string; cost: number; clicks: number }>();
+  for (const row of rows) {
+    if (!isRealCampaignId(row[ID]) || (campaignId && row[ID] !== campaignId)) continue;
+    if (!/^\d{8}$/.test(row.date)) continue;
+    const point = byDate.get(row.date) || { date: row.date, cost: 0, clicks: 0 };
+    point.cost += number(row.advertiserAdCost);
+    point.clicks += number(row.advertiserAdClicks);
+    byDate.set(row.date, point);
+  }
+  return Array.from(byDate.values()).sort((a, b) => a.date.localeCompare(b.date));
 }
 
 export function buildGoogleAdsReport(results: {
   cost: PromiseSettledResult<ReportResult>;
   engagement: PromiseSettledResult<ReportResult>;
   daily: PromiseSettledResult<ReportResult>;
-  channels: PromiseSettledResult<ReportResult>;
-}): GoogleAdsReport {
+}, accountId: string, campaignId?: string): AdsReport {
   const warnings: string[] = [];
-  const rowsOf = (label: string, r: PromiseSettledResult<ReportResult>) => {
-    if (r.status === 'fulfilled') return r.value.rows;
-    const msg = r.reason instanceof Error ? r.reason.message : String(r.reason);
-    warnings.push(`${label}: ${msg}`);
+  const rows = (label: string, result: PromiseSettledResult<ReportResult>) => {
+    if (result.status === 'fulfilled') return result.value.rows;
+    warnings.push(`${label} unavailable: ${result.reason instanceof Error ? result.reason.message : 'GA4 request failed'}`);
     return [];
   };
-
-  const campaigns = mergeCampaigns(rowsOf('Campaign cost', results.cost), rowsOf('Campaign sessions', results.engagement));
-
-  const daily = rowsOf('Daily cost', results.daily)
-    .map((r) => ({ date: r.date, cost: toFloat(r.advertiserAdCost), clicks: toInt(r.advertiserAdClicks) }))
-    .sort((a, b) => a.date.localeCompare(b.date));
-
-  const channels = rowsOf('Channels', results.channels).map((r) => ({
-    channelGroup: r.sessionDefaultChannelGroup || '(other)',
-    sessions: toInt(r.sessions),
-    keyEvents: toFloat(r.keyEvents),
-    paid: isPaidChannel(r.sessionDefaultChannelGroup || ''),
-  }));
-
-  const currency =
-    (results.cost.status === 'fulfilled' && results.cost.value.currencyCode) ||
-    (results.daily.status === 'fulfilled' && results.daily.value.currencyCode) ||
-    null;
-
-  const report: GoogleAdsReport = { currency, totals: sumCampaigns(campaigns), campaigns, daily, channels };
-  if (warnings.length) report.warnings = warnings;
-  return report;
+  const allCampaigns = mergeCampaigns(rows('Campaign cost', results.cost), rows('Campaign key events', results.engagement));
+  const campaigns = campaignId ? allCampaigns.filter(row => row.campaignId === campaignId) : allCampaigns;
+  return {
+    source: 'ga4', accountId, fetchedAt: new Date().toISOString(),
+    currency: results.cost.status === 'fulfilled' ? results.cost.value.currencyCode || null : null,
+    campaignOptions: allCampaigns.map(({ campaignId, campaign }) => ({ campaignId, campaign })),
+    campaigns, totals: sumCampaigns(campaigns), daily: aggregateDaily(rows('Daily spend', results.daily), campaignId),
+    availability: { cost: results.cost.status === 'fulfilled', results: results.engagement.status === 'fulfilled', daily: results.daily.status === 'fulfilled' },
+    warnings,
+  };
 }
 
-// ─── Query ──────────────────────────────────────────────────────────────────────
-
-/**
- * Google Ads performance for the range. Each GA4 query runs independently so an
- * incompatible metric/dimension combo degrades to a warning instead of failing the tab.
- * Throws only when every query fails (e.g. GA4 not configured).
- */
-export async function getGoogleAdsReport(dateRange: DateRange): Promise<GoogleAdsReport> {
-  const [cost, engagement, daily, channels] = await Promise.allSettled([
-    queryReport([CAMPAIGN_DIMENSION], ['advertiserAdImpressions', 'advertiserAdClicks', 'advertiserAdCost'], dateRange, {
-      limit: 100,
-      orderBy: 'advertiserAdCost',
-      orderDesc: true,
-    }),
-    queryReport([CAMPAIGN_DIMENSION], ['sessions', 'keyEvents'], dateRange, { limit: 100, orderBy: 'sessions', orderDesc: true }),
-    queryReport(['date'], ['advertiserAdCost', 'advertiserAdClicks'], dateRange),
-    queryReport(['sessionDefaultChannelGroup'], ['sessions', 'keyEvents'], dateRange, { orderBy: 'sessions', orderDesc: true }),
+export async function getGoogleAdsReport(dateRange: DateRange, accountId = '5850899991', campaignId?: string): Promise<AdsReport> {
+  const dimensions = ['sessionCampaignName', ID, NAME];
+  const options = { limit: 10000, dimensionFilter: accountFilter(accountId) };
+  const [cost, engagement, daily] = await Promise.allSettled([
+    queryReport(dimensions, ['advertiserAdImpressions', 'advertiserAdClicks', 'advertiserAdCost'], dateRange, options),
+    queryReport([ID, NAME], ['sessions', 'keyEvents'], dateRange, options),
+    // GA4 requires a campaign dimension alongside advertising cost, including in daily reports.
+    queryReport(['date', ...dimensions], ['advertiserAdCost', 'advertiserAdClicks'], dateRange, options),
   ]);
+  if ([cost, engagement, daily].every(result => result.status === 'rejected')) throw new Error('GA4 could not return Google Ads data. Check the account link and property access.');
+  return buildGoogleAdsReport({ cost, engagement, daily }, accountId, campaignId);
+}
 
-  const all = [cost, engagement, daily, channels];
-  if (all.every((r) => r.status === 'rejected')) {
-    throw (cost as PromiseRejectedResult).reason;
-  }
+export async function getWebsiteChannelsReport(dateRange: DateRange): Promise<WebsiteChannelsReport> {
+  const result = await queryReport(['sessionDefaultChannelGroup'], ['sessions', 'keyEvents', 'sessionKeyEventRate'], dateRange, { limit: 100 });
+  return { channels: result.rows.map(row => {
+    const rate = row.sessionKeyEventRate === undefined ? NaN : Number(row.sessionKeyEventRate);
+    return { channelGroup: row.sessionDefaultChannelGroup || '(other)', sessions: number(row.sessions), keyEvents: number(row.keyEvents),
+      sessionKeyEventRate: Number.isFinite(rate) && rate >= 0 && rate <= 1 ? rate : null,
+      paid: isPaidChannel(row.sessionDefaultChannelGroup || '') };
+  }) };
+}
 
-  return buildGoogleAdsReport({ cost, engagement, daily, channels });
+export async function getLeadSignalsReport(dateRange: DateRange, accountId: string, campaignId: string | undefined, form: LeadForm): Promise<LeadSignalsReport> {
+  const formDimension = await getEventDimension('form_id');
+  if (form !== 'all' && !formDimension) return { count: null, form, segmentationAvailable: false,
+    warnings: ['Contact/quiz breakdown is unavailable: form_id is not registered as an event-scoped custom dimension in GA4. Registration does not backfill historical data.'] };
+  const filters: ReportFilter[] = [accountFilter(accountId), { filter: { fieldName: 'eventName', stringFilter: { matchType: 'EXACT', value: 'generate_lead' } } }];
+  if (campaignId) filters.push({ filter: { fieldName: ID, stringFilter: { matchType: 'EXACT', value: campaignId } } });
+  if (form !== 'all') filters.push({ filter: { fieldName: formDimension!, stringFilter: { matchType: 'EXACT', value: form } } });
+  const result = await queryReport([], ['eventCount'], dateRange, { dimensionFilter: { andGroup: { expressions: filters } } });
+  return { count: result.rows.reduce((sum, row) => sum + number(row.eventCount), 0), form,
+    segmentationAvailable: !!formDimension, warnings: formDimension ? [] : ['Contact/quiz breakdown is unavailable until form_id is registered in GA4; historical submissions cannot be reliably separated.'] };
 }

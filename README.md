@@ -604,6 +604,7 @@ Secrets: `VPS_HOST` (`robles.ai`), `VPS_USER` (`roblesai`), `VPS_SSH_KEY`, `VPS_
 | [`DEMOS_PLAN.md`](docs/DEMOS_PLAN.md) | Demos lab roadmap prioritised by wow effect and ROI, with phase status |
 | [`REMOTION_VIDEO_CONTEXT.md`](docs/REMOTION_VIDEO_CONTEXT.md) | Brand context and brief for the Remotion marketing video |
 | [`CONTACT_CONVERSIONS.md`](docs/CONTACT_CONVERSIONS.md) | Contact delivery, lead/click conversion contract and Ads/GTM/Meta setup |
+| `docs/ADS_ANALYTICS.md` | Admin Ads/GA4 sources, campaign and submission filters, direct API setup, and validation |
 | [`DEMO_VIDEO_RELEASE.md`](docs/DEMO_VIDEO_RELEASE.md) + `DEMO_VIDEO_ASSETS.json` | Demo preview videos release notes and asset manifest |
 | [`DEMO_VISUALS.md`](docs/DEMO_VISUALS.md) | Demo catalog images and animations log |
 | [`FIREFLY_CLIPS.md`](docs/FIREFLY_CLIPS.md) | Firefly start/end frame pairs for demo clips |

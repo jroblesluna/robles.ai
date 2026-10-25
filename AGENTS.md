@@ -119,7 +119,7 @@ server/
     dominicalScoring, engagementPhrases, imageGeneration, carouselImageGen, slideCompositor,
     carouselGenerator, carouselTypes, pdfExporter, pdfIcons, dominicalVideoGen, robotFrames,
     quizResultMessage, quizVerificationEmail, quizLeadPdf, chatEngine, chatContext, chatNotifier,
-    conversationStore, ga4Client, googleAdsReport, metaInsights, metaAds, metaGraphApi,
+    conversationStore, ga4Client, googleAdsReport, googleAdsApi, metaInsights, metaAds, metaGraphApi,
     analyticsCache, settingsSecrets, linkedin (re-export)
     platforms/   # types, contentFormatter, linkedinAdapter, instagramAdapter, facebookAdapter, publishingEngine
     backends/    # registry, settingsStore, health
@@ -209,7 +209,7 @@ Configuración externa: el GTM existente tiene una etiqueta GA4 *catch-all* que 
 | Traffic | GA4 | Páginas top, canales, países, dispositivos |
 | Behavior | GA4 | Landing pages, nuevos vs recurrentes |
 | Social | Meta Graph API | Insights de Instagram y de la página de Facebook + publicaciones recientes |
-| Ads | GA4 (`googleAdsReport.ts`) + Meta Marketing API (`metaAds.ts`) | Google Ads: gasto, clics, impresiones, CPC y key events por campaña y por día (requiere cuenta de Ads vinculada a GA4; métricas `advertiserAd*` con dimensión `sessionGoogleAdsCampaignName`), canales pagados vs orgánicos. Meta Ads: gasto, clics, leads por campaña y por día |
+| Ads | Google Ads REST API opcional (`googleAdsApi.ts`), fallback GA4 (`googleAdsReport.ts`) + Meta Marketing API | Filtro por cuenta/campaña y fecha; gasto/clics/conversiones Ads; señales `generate_lead` GA4 separadas por formulario cuando la dimensión está registrada. Canales globales y tasa nativa `sessionKeyEventRate` en Traffic. Configuración y límites en `docs/ADS_ANALYTICS.md`. |
 
 - Caché `analytics_cache`: tiempo real 30 s, rangos que terminan hoy 5 min, históricos 1 h, Meta 30 min; *Refresh* la limpia.
 - GA4 requiere `ga4_property_id` + JSON de service account (`server/data/ga4-service-account.json`, subido desde settings).
@@ -644,6 +644,7 @@ Conecta, monitorea y publica el DNS de los **7 backends** de demos registrados e
 | `docs/DEMOS_PLAN.md` | Roadmap del laboratorio de demos (wow + ROI) con estado por fase |
 | `docs/REMOTION_VIDEO_CONTEXT.md` | Contexto de marca y brief del video de marketing en Remotion |
 | `docs/CONTACT_CONVERSIONS.md` | Contrato de entrega del contacto y de conversiones (lead/click) + configuración de GTM, GA4, Ads y Meta |
+| `docs/ADS_ANALYTICS.md` | Admin Ads/GA4 sources, campaign and submission filters, direct API setup, and validation |
 | `docs/DEMO_VIDEO_RELEASE.md` + `docs/DEMO_VIDEO_ASSETS.json` | Release de videos de preview de demos y manifiesto de assets |
 | `docs/DEMO_VISUALS.md` | Registro de imágenes y animaciones del catálogo de demos |
 | `docs/FIREFLY_CLIPS.md` | Parejas de frames inicio/fin de Firefly para los clips de demos |

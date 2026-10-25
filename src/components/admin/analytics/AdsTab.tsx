@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format, parse } from "date-fns";
 import { Link } from "wouter";
@@ -19,31 +20,7 @@ import type { DateRange } from "./DateRangeSelector";
 
 // --- Types matching /api/admin/analytics/ads/* ---
 
-interface GoogleAdsCampaignRow {
-  campaign: string;
-  impressions: number;
-  clicks: number;
-  cost: number;
-  sessions: number;
-  keyEvents: number;
-}
-
-interface ChannelRow {
-  channelGroup: string;
-  sessions: number;
-  keyEvents: number;
-  paid: boolean;
-}
-
-interface GoogleAdsResponse {
-  currency: string | null;
-  totals: { impressions: number; clicks: number; cost: number; sessions: number; keyEvents: number };
-  campaigns: GoogleAdsCampaignRow[];
-  daily: Array<{ date: string; cost: number; clicks: number }>;
-  channels: ChannelRow[];
-  warnings?: string[];
-  error?: string;
-}
+import type { AdsReport, LeadSignalsReport, LeadForm } from "@shared/adsAnalytics";
 
 interface MetaAdsCampaignRow {
   campaignId: string;
@@ -67,6 +44,7 @@ interface MetaAdsResponse {
 // --- Formatting helpers ---
 
 function formatMoney(value: number, currency: string | null | undefined): string {
+  if (!currency) return value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   try {
     return new Intl.NumberFormat(undefined, {
       style: "currency",
@@ -78,7 +56,7 @@ function formatMoney(value: number, currency: string | null | undefined): string
   }
 }
 
-const formatNumber = (n: number) => Math.round(n).toLocaleString();
+const formatNumber = (n: number) => n.toLocaleString(undefined, { maximumFractionDigits: 2 });
 
 /** Ratio as money, or an em dash when the denominator is zero. */
 function moneyPer(total: number, count: number, currency: string | null | undefined): string {
@@ -146,6 +124,8 @@ interface TableRow {
   impressions: number;
   clicks: number;
   results: number;
+  status?: string;
+  dailyBudget?: number;
 }
 
 function CampaignTable({
@@ -153,14 +133,20 @@ function CampaignTable({
   currency,
   resultsLabel,
   label,
+  costAvailable = true,
+  resultsAvailable = true,
+  emptyText = "No campaigns with activity in this period.",
 }: {
   rows: TableRow[];
   currency: string | null | undefined;
   resultsLabel: string;
   label: string;
+  costAvailable?: boolean;
+  resultsAvailable?: boolean;
+  emptyText?: string;
 }) {
   if (rows.length === 0) {
-    return <p className="py-6 text-center text-sm text-muted-foreground">No campaigns with activity in this period.</p>;
+    return <p className="py-6 text-center text-sm text-muted-foreground">{emptyText}</p>;
   }
   return (
     <div className="overflow-x-auto">
@@ -180,16 +166,16 @@ function CampaignTable({
         <tbody>
           {rows.map((r) => (
             <tr key={r.key} className="border-b last:border-0">
-              <td className="break-anywhere py-2 pr-3">{r.name}</td>
-              <td className="py-2 text-right tabular-nums">{formatMoney(r.spend, currency)}</td>
-              <td className="py-2 text-right tabular-nums">{formatNumber(r.impressions)}</td>
-              <td className="py-2 text-right tabular-nums">{formatNumber(r.clicks)}</td>
+              <td className="break-anywhere py-2 pr-3">{r.name}{r.status && <span className="mt-1 block text-xs text-muted-foreground">{r.status} · Average daily budget {formatMoney(r.dailyBudget || 0, currency)}</span>}</td>
+              <td className="py-2 text-right tabular-nums">{costAvailable ? formatMoney(r.spend, currency) : "—"}</td>
+              <td className="py-2 text-right tabular-nums">{costAvailable ? formatNumber(r.impressions) : "—"}</td>
+              <td className="py-2 text-right tabular-nums">{costAvailable ? formatNumber(r.clicks) : "—"}</td>
               <td className="py-2 text-right tabular-nums">
-                {r.impressions > 0 ? `${((r.clicks / r.impressions) * 100).toFixed(2)}%` : "—"}
+                {costAvailable && r.impressions > 0 ? `${((r.clicks / r.impressions) * 100).toFixed(2)}%` : "—"}
               </td>
-              <td className="py-2 text-right tabular-nums">{moneyPer(r.spend, r.clicks, currency)}</td>
-              <td className="py-2 text-right tabular-nums">{formatNumber(r.results)}</td>
-              <td className="py-2 text-right tabular-nums">{moneyPer(r.spend, r.results, currency)}</td>
+              <td className="py-2 text-right tabular-nums">{costAvailable ? moneyPer(r.spend, r.clicks, currency) : "—"}</td>
+              <td className="py-2 text-right tabular-nums">{resultsAvailable ? formatNumber(r.results) : "—"}</td>
+              <td className="py-2 text-right tabular-nums">{costAvailable && resultsAvailable ? moneyPer(r.spend, r.results, currency) : "—"}</td>
             </tr>
           ))}
         </tbody>
@@ -206,6 +192,8 @@ function KpiRow({
   impressions,
   results,
   resultsLabel,
+  costAvailable = true,
+  resultsAvailable = true,
 }: {
   isLoading: boolean;
   currency: string | null | undefined;
@@ -214,171 +202,89 @@ function KpiRow({
   impressions: number;
   results: number;
   resultsLabel: string;
+  costAvailable?: boolean;
+  resultsAvailable?: boolean;
 }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-      <KpiCard label="Spend" value={formatMoney(spend, currency)} isLoading={isLoading} />
-      <KpiCard label="Impressions" value={impressions} format="number" isLoading={isLoading} />
-      <KpiCard label="Clicks" value={clicks} format="number" isLoading={isLoading} />
-      <KpiCard label="Avg. CPC" value={moneyPer(spend, clicks, currency)} isLoading={isLoading} />
-      <KpiCard label={resultsLabel} value={results} format="number" isLoading={isLoading} />
-      <KpiCard label="Cost / result" value={moneyPer(spend, results, currency)} isLoading={isLoading} />
+      <KpiCard label="Spend" value={costAvailable ? formatMoney(spend, currency) : "—"} isLoading={isLoading} />
+      <KpiCard label="Impressions" value={costAvailable ? impressions : "—"} format={costAvailable ? "number" : undefined} isLoading={isLoading} />
+      <KpiCard label="Clicks" value={costAvailable ? clicks : "—"} format={costAvailable ? "number" : undefined} isLoading={isLoading} />
+      <KpiCard label="Avg. CPC" value={costAvailable ? moneyPer(spend, clicks, currency) : "—"} isLoading={isLoading} />
+      <KpiCard label={resultsLabel} value={resultsAvailable ? formatNumber(results) : "—"} isLoading={isLoading} />
+      <KpiCard label="Cost / result" value={costAvailable && resultsAvailable ? moneyPer(spend, results, currency) : "—"} isLoading={isLoading} />
     </div>
   );
 }
 
 // --- Sections ---
 
-function GoogleAdsSection({ dateRange }: { dateRange: DateRange }) {
-  const { data, isLoading, isError } = useQuery<GoogleAdsResponse>({
-    queryKey: [`/api/admin/analytics/ads/google?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`],
-    staleTime: 5 * 60 * 1000,
+export function GoogleAdsSection({ dateRange }: { dateRange: DateRange }) {
+  const [campaignId, setCampaignId] = useState("all");
+  const params = new URLSearchParams({ startDate: dateRange.startDate, endDate: dateRange.endDate, campaignId });
+  const { data, isLoading, isError } = useQuery<AdsReport & { error?: string }>({
+    queryKey: [`/api/admin/analytics/ads/google?${params}`], staleTime: 5 * 60 * 1000,
   });
-
-  const notConfigured = data?.error === "GA4 not configured";
-  const failed = isError || (!!data?.error && !notConfigured);
-  const currency = data?.currency;
-  const totals = data?.totals;
-  const hasCampaigns = (data?.campaigns?.length ?? 0) > 0;
-
-  const chartData = (data?.daily ?? []).map((d) => ({
-    displayDate: shortDate(d.date, "yyyyMMdd"),
-    spend: d.cost,
-    clicks: d.clicks,
-  }));
-
+  const failed = isError || !!data?.error;
+  const direct = data?.source === "google_ads_api";
+  const costAvailable = !failed && !!data?.availability?.cost;
+  const resultsAvailable = !failed && !!data?.availability?.results;
+  const resultLabel = direct ? "Conversions (Ads)" : "Key events (GA4)";
+  const [lastOptions, setLastOptions] = useState<AdsReport['campaignOptions']>([]);
+  useEffect(() => { if (data?.campaignOptions) setLastOptions(data.campaignOptions); }, [data?.campaignOptions]);
+  const options = data?.campaignOptions || lastOptions;
   return (
     <section className="space-y-4" aria-labelledby="google-ads-heading">
-      <div className="flex flex-wrap items-center gap-2">
-        <h2 id="google-ads-heading" className="text-lg font-semibold">Google Ads</h2>
-        <Badge variant="outline">via GA4</Badge>
-        {currency && <Badge variant="secondary">{currency}</Badge>}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 id="google-ads-heading" className="text-lg font-semibold">Google Ads</h2>
+          {data?.source && <Badge variant="outline">{direct ? "Direct API" : "Imported via GA4"}</Badge>}
+          {data?.accountId && <span className="text-xs text-muted-foreground">Account {data.accountId}</span>}
+          {data?.currency && <Badge variant="secondary">{data.currency}</Badge>}
+          {data?.fetchedAt && <time dateTime={data.fetchedAt} className="text-xs text-muted-foreground">Fetched {new Date(data.fetchedAt).toLocaleString()}</time>}
+        </div>
+        <label className="flex items-center gap-2 text-sm">Campaign
+          <select aria-label="Google Ads campaign" value={campaignId} onChange={e => setCampaignId(e.target.value)} className="h-10 max-w-[280px] rounded-md border bg-background px-3">
+            <option value="all">All campaigns in this account</option>
+            {campaignId !== "all" && !options.some(c => c.campaignId === campaignId) && <option value={campaignId}>Campaign {campaignId}</option>}
+            {options.map(c => <option key={c.campaignId} value={c.campaignId}>{c.campaign}</option>)}
+          </select>
+        </label>
       </div>
-
-      {notConfigured && (
-        <Notice>
-          GA4 is not configured. Set the Property ID and upload the Service Account in{" "}
-          <Link href="/admin/settings" className="underline">Settings</Link>.
-        </Notice>
-      )}
-      {failed && <Notice>Could not load Google Ads data: {String(data?.error ?? "request failed")}</Notice>}
-      {data?.warnings?.length ? (
-        <Notice tone="muted">Some figures are incomplete: {data.warnings.join(" · ")}</Notice>
-      ) : null}
-      {!isLoading && !notConfigured && !failed && !hasCampaigns && (
-        <Notice tone="muted">
-          No Google Ads activity in this period. If campaigns are running, check that the Google Ads account is
-          linked to this GA4 property (GA4 → Admin → Product links → Google Ads). Imported cost can take up to a day to appear.
-        </Notice>
-      )}
-
-      {!notConfigured && (
-        <>
-          <KpiRow
-            isLoading={isLoading}
-            currency={currency}
-            spend={totals?.cost ?? 0}
-            clicks={totals?.clicks ?? 0}
-            impressions={totals?.impressions ?? 0}
-            results={totals?.keyEvents ?? 0}
-            resultsLabel="Key events"
-          />
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Daily spend</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? <Skeleton className="h-[260px] w-full" /> : <SpendChart data={chartData} currency={currency} />}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Campaigns</CardTitle>
-              <CardDescription>Results are GA4 key events (e.g. generate_lead) from sessions of each campaign.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <Skeleton className="h-32 w-full" />
-              ) : (
-                <CampaignTable
-                  label="Google Ads campaigns"
-                  currency={currency}
-                  resultsLabel="Key events"
-                  rows={(data?.campaigns ?? []).map((c) => ({
-                    key: c.campaign,
-                    name: c.campaign,
-                    spend: c.cost,
-                    impressions: c.impressions,
-                    clicks: c.clicks,
-                    results: c.keyEvents,
-                  }))}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </>
-      )}
-
-      <ChannelsCard channels={data?.channels ?? []} isLoading={isLoading} hidden={notConfigured} />
+      {failed && <Notice>Google Ads data unavailable. {data?.error || "The request failed. Try Refresh or check the connection in Settings."}</Notice>}
+      {!failed && !isLoading && !direct && <Notice tone="muted">These figures are imported through GA4 and may lag behind Google Ads. Connect the direct Google Ads API in <Link href="/admin/settings" className="underline">Settings</Link> for campaign spend and conversions. An empty GA4 report does not confirm zero spend.</Notice>}
+      {data?.warnings?.map(warning => <Notice key={warning}>{warning}</Notice>)}
+      {!failed && <>
+        <KpiRow isLoading={isLoading} currency={data?.currency} spend={data?.totals.cost || 0} clicks={data?.totals.clicks || 0} impressions={data?.totals.impressions || 0} results={data?.totals.results || 0} resultsLabel={resultLabel} costAvailable={costAvailable} resultsAvailable={resultsAvailable} />
+        <Card><CardHeader><CardTitle className="text-base">Daily spend · selected campaign filter</CardTitle></CardHeader><CardContent>
+          {isLoading ? <Skeleton className="h-[260px] w-full" /> : !data?.availability.daily ? <p role="status" className="py-8 text-sm text-muted-foreground">Daily spend is unavailable because its data request failed.</p> : <SpendChart currency={data.currency} data={data.daily.map(d => ({ displayDate: shortDate(d.date, direct ? "yyyy-MM-dd" : "yyyyMMdd"), spend: d.cost, clicks: d.clicks }))} />}
+        </CardContent></Card>
+        <Card><CardHeader><CardTitle className="text-base">Campaigns</CardTitle><CardDescription>{direct ? "Conversions are attributed by Google Ads according to the account's configured conversion goals." : "GA4 key events are engagement signals of all configured types; they are not a count of qualified leads."}</CardDescription></CardHeader><CardContent>
+          {isLoading ? <Skeleton className="h-32 w-full" /> : !costAvailable && !resultsAvailable ? <p className="text-sm text-muted-foreground">Campaign metrics are unavailable.</p> : <CampaignTable label="Google Ads campaigns" currency={data?.currency} resultsLabel={resultLabel} costAvailable={costAvailable} resultsAvailable={resultsAvailable} emptyText={direct ? "No campaigns match this filter." : "No campaigns attributed to this Ads account were returned by GA4 for these dates."} rows={(data?.campaigns || []).map(c => ({ key: c.campaignId, name: c.campaign, spend: c.cost, impressions: c.impressions, clicks: c.clicks, results: c.results, status: c.status, dailyBudget: c.dailyBudget }))} />}
+        </CardContent></Card>
+      </>}
+      <LeadSignals dateRange={dateRange} campaignId={campaignId} />
     </section>
   );
 }
 
-function ChannelsCard({ channels, isLoading, hidden }: { channels: ChannelRow[]; isLoading: boolean; hidden: boolean }) {
-  if (hidden) return null;
-  const totalSessions = channels.reduce((s, c) => s + c.sessions, 0);
-  const paid = channels.filter((c) => c.paid);
-  const paidSessions = paid.reduce((s, c) => s + c.sessions, 0);
-  const paidResults = paid.reduce((s, c) => s + c.keyEvents, 0);
-  const allResults = channels.reduce((s, c) => s + c.keyEvents, 0);
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Paid vs. organic (all sources)</CardTitle>
-        <CardDescription>
-          {totalSessions > 0
-            ? `Paid channels: ${formatNumber(paidSessions)} of ${formatNumber(totalSessions)} sessions (${((paidSessions / totalSessions) * 100).toFixed(0)}%), ${formatNumber(paidResults)} of ${formatNumber(allResults)} key events.`
-            : "Sessions and key events by channel, from GA4."}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <Skeleton className="h-32 w-full" />
-        ) : channels.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">No sessions in this period.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm" aria-label="Sessions and key events by channel">
-              <thead>
-                <tr className="border-b">
-                  <th className="py-2 text-left font-medium">Channel</th>
-                  <th className="py-2 text-right font-medium">Sessions</th>
-                  <th className="py-2 text-right font-medium">Key events</th>
-                  <th className="py-2 text-right font-medium">Conv. rate</th>
-                </tr>
-              </thead>
-              <tbody>
-                {channels.map((c) => (
-                  <tr key={c.channelGroup} className="border-b last:border-0">
-                    <td className="py-2">
-                      {c.channelGroup}{" "}
-                      {c.paid && <Badge variant="secondary" className="ml-1">Paid</Badge>}
-                    </td>
-                    <td className="py-2 text-right tabular-nums">{formatNumber(c.sessions)}</td>
-                    <td className="py-2 text-right tabular-nums">{formatNumber(c.keyEvents)}</td>
-                    <td className="py-2 text-right tabular-nums text-muted-foreground">
-                      {c.sessions > 0 ? `${((c.keyEvents / c.sessions) * 100).toFixed(1)}%` : "—"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
+function LeadSignals({ dateRange, campaignId }: { dateRange: DateRange; campaignId: string }) {
+  const [form, setForm] = useState<LeadForm>("all");
+  const params = new URLSearchParams({ startDate: dateRange.startDate, endDate: dateRange.endDate, campaignId, form });
+  const { data, isLoading, isError } = useQuery<LeadSignalsReport & { error?: string }>({ queryKey: [`/api/admin/analytics/ads/leads?${params}`], staleTime: 5 * 60 * 1000 });
+  const unavailable = isError || !!data?.error || data?.count === null;
+  return <Card><CardHeader><CardTitle className="text-base">Website submissions from Google Ads · GA4</CardTitle><CardDescription>Counts generate_lead events attributed in GA4 to the selected Ads account/campaign and dates. Contact means the server accepted the form; quiz registrations can precede email verification. These are not qualified leads.</CardDescription></CardHeader><CardContent className="space-y-3">
+    <label className="flex flex-wrap items-center gap-2 text-sm">Submission type
+      <select aria-label="Lead submission type" value={form} onChange={e => setForm(e.target.value as LeadForm)} className="h-10 max-w-full rounded-md border bg-background px-3">
+        <option value="all">All submissions</option>
+        <option value="contact" disabled={!data?.segmentationAvailable}>Contact forms accepted</option>
+        <option value="quiz" disabled={!data?.segmentationAvailable}>Quiz registrations (email not verified)</option>
+      </select>
+    </label>
+    {isLoading ? <Skeleton className="h-8 w-24" /> : <p className="text-2xl font-semibold">{unavailable ? "Unavailable" : formatNumber(data?.count || 0)}</p>}
+    {(isError || data?.error) && <p role="status" className="text-sm text-muted-foreground">GA4 submission data is unavailable. Check the GA4 connection and event definitions.</p>}
+    {data?.warnings?.map(warning => <p key={warning} className="text-sm text-muted-foreground">{warning}</p>)}
+  </CardContent></Card>;
 }
 
 function MetaAdsSection({ dateRange }: { dateRange: DateRange }) {

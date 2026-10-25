@@ -3,7 +3,9 @@ import { requireAuth } from './auth.js';
 import * as ga4Client from './services/ga4Client.js';
 import * as metaInsights from './services/metaInsights.js';
 import * as analyticsCache from './services/analyticsCache.js';
-import { getGoogleAdsReport } from './services/googleAdsReport.js';
+import { getGoogleAdsReport, getWebsiteChannelsReport, getLeadSignalsReport } from './services/googleAdsReport.js';
+import { getDirectGoogleAdsReport, isGoogleAdsConfigured, getGoogleAdsAccountId } from './services/googleAdsApi.js';
+import type { LeadForm } from '../shared/adsAnalytics.js';
 import * as metaAds from './services/metaAds.js';
 
 const analyticsRouter = Router();
@@ -159,23 +161,91 @@ analyticsRouter.get('/social/facebook', (_req: Request, res: Response) => {
 
 // --- Paid campaigns (Ads tab) ---
 
+function adsDates(req: Request) {
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles' }).format(new Date());
+  const parse = (raw: unknown, fallback: string) => {
+    if (raw !== undefined && typeof raw !== 'string') throw new Error('Invalid date range.');
+    let value = (raw as string | undefined) || fallback;
+    if (value === 'today') value = today;
+    const relative = /^(\d{1,3})daysAgo$/.exec(value);
+    if (relative) {
+      const date = new Date(today + 'T12:00:00Z');
+      date.setUTCDate(date.getUTCDate() - Number(relative[1]));
+      value = date.toISOString().slice(0, 10);
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || !Number.isFinite(Date.parse(value)) || new Date(value).toISOString().slice(0, 10) !== value) throw new Error('Invalid date range.');
+    return value;
+  };
+  const startDate = parse(req.query.startDate, '29daysAgo');
+  const endDate = parse(req.query.endDate, 'today');
+  if (startDate > endDate) throw new Error('Start date must not follow end date.');
+  return { startDate, endDate };
+}
+function adsCampaign(req: Request): string | undefined {
+  const value = req.query.campaignId;
+  if (value === undefined || value === '' || value === 'all') return;
+  if (typeof value !== 'string' || !/^\d{1,20}$/.test(value) || Number(value) === 0) throw new Error('Invalid campaign ID.');
+  return value;
+}
+
 analyticsRouter.get('/ads/google', (req: Request, res: Response) => {
   (async () => {
+    let dateRange: { startDate: string; endDate: string };
+    let campaignId: string | undefined;
+    try { dateRange = adsDates(req); campaignId = adsCampaign(req); }
+    catch (error) { res.status(400).json({ error: (error as Error).message }); return; }
     try {
-      const { startDate, endDate } = parseDateRange(req);
-      const key = cacheKey('ads:google', startDate, endDate);
+      const accountId = getGoogleAdsAccountId();
+      if (!/^\d{10}$/.test(accountId)) throw new Error('Invalid Google Ads customer ID in Settings.');
+      const direct = isGoogleAdsConfigured();
+      const key = cacheKey(`ads:google:v2:${direct ? 'api' : 'ga4'}:${accountId}:${campaignId || 'all'}`, dateRange.startDate, dateRange.endDate);
       const cached = analyticsCache.get(key);
       if (cached) { res.json(cached); return; }
-      const config = ga4Client.isConfigured();
-      if (!config.configured) { res.json({ error: 'GA4 not configured', ...config }); return; }
-      const data = await getGoogleAdsReport({ startDate, endDate });
-      analyticsCache.set(key, data, getTtl(startDate, endDate));
+      if (!direct && !ga4Client.isConfigured().configured) {
+        res.json({ error: 'Google Ads is not configured. Connect the direct API or configure GA4 in Settings.' }); return;
+      }
+      const data = direct ? await getDirectGoogleAdsReport(dateRange, campaignId) : await getGoogleAdsReport(dateRange, accountId, campaignId);
+      // Never cache an error/partial report as a successful zero-activity result.
+      if (Object.values(data.availability).every(Boolean)) analyticsCache.set(key, data, getTtl(dateRange.startDate, dateRange.endDate));
       res.json(data);
-    } catch (error) {
-      console.error('[Analytics] Google Ads error:', error);
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      res.status(500).json({ error: message });
-    }
+    } catch (error) { res.status(502).json({ error: error instanceof Error ? error.message : 'Google Ads data unavailable.' }); }
+  })();
+});
+
+analyticsRouter.get('/channels', (req: Request, res: Response) => {
+  (async () => {
+    let dateRange;
+    try { dateRange = adsDates(req); }
+    catch (error) { res.status(400).json({ error: (error as Error).message }); return; }
+    try {
+      const key = cacheKey('traffic:channels:v2', dateRange.startDate, dateRange.endDate);
+      const cached = analyticsCache.get(key);
+      if (cached) { res.json(cached); return; }
+      const data = await getWebsiteChannelsReport(dateRange);
+      analyticsCache.set(key, data, getTtl(dateRange.startDate, dateRange.endDate));
+      res.json(data);
+    } catch { res.status(502).json({ error: 'Website channel data unavailable. Check the GA4 connection.' }); }
+  })();
+});
+
+analyticsRouter.get('/ads/leads', (req: Request, res: Response) => {
+  (async () => {
+    let dateRange, campaignId;
+    const form = req.query.form || 'all';
+    try {
+      dateRange = adsDates(req); campaignId = adsCampaign(req);
+      if (!['all', 'contact', 'quiz'].includes(form as string)) throw new Error('Invalid lead form filter.');
+    } catch (error) { res.status(400).json({ error: (error as Error).message }); return; }
+    try {
+      const accountId = getGoogleAdsAccountId();
+      if (!/^\d{10}$/.test(accountId)) throw new Error('Invalid account.');
+      const key = cacheKey(`ads:leads:v1:${accountId}:${campaignId || 'all'}:${form}`, dateRange.startDate, dateRange.endDate);
+      const cached = analyticsCache.get(key);
+      if (cached) { res.json(cached); return; }
+      const data = await getLeadSignalsReport(dateRange, accountId, campaignId, form as LeadForm);
+      if (data.count !== null) analyticsCache.set(key, data, getTtl(dateRange.startDate, dateRange.endDate));
+      res.json(data);
+    } catch { res.status(502).json({ error: 'GA4 lead signals unavailable. Check the GA4 connection and event definitions.' }); }
   })();
 });
 

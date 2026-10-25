@@ -1,3 +1,4 @@
+import WebsiteChannels from "./WebsiteChannels";
 import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import {
@@ -138,6 +139,7 @@ export default function TrafficTab({ dateRange }: TrafficTabProps) {
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
+      <div className="md:col-span-2"><WebsiteChannels dateRange={dateRange} /></div>
       {/* Top Pages - Bar Chart */}
       <Card className="md:col-span-2">
         <CardHeader>

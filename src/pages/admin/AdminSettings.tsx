@@ -609,6 +609,21 @@ export default function AdminSettings() {
           </div>
         </CardContent>
       </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Google Ads API (Analytics)</CardTitle>
+          <CardDescription>Direct campaign spend, clicks, status and attributed conversions. The dashboard uses read-only API requests. GA4 remains a separate source for website behavior and submissions.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2"><Label htmlFor="google_ads_customer_id">Google Ads customer ID</Label><Input id="google_ads_customer_id" placeholder="5850899991" value={settings.google_ads_customer_id || "5850899991"} onChange={e => updateSetting("google_ads_customer_id", e.target.value)} /><p className="text-xs text-muted-foreground">Selects the account for direct reports and GA4 attribution filters. Use the 10-digit account ID.</p></div>
+          <div className="space-y-2"><Label htmlFor="google_ads_client_id">OAuth client ID</Label><Input id="google_ads_client_id" value={settings.google_ads_client_id || ""} onChange={e => updateSetting("google_ads_client_id", e.target.value)} /></div>
+          <div className="space-y-2"><Label htmlFor="google_ads_client_secret">OAuth client secret</Label><Input id="google_ads_client_secret" type="password" autoComplete="off" value={settings.google_ads_client_secret || ""} onChange={e => updateSetting("google_ads_client_secret", e.target.value)} /></div>
+          <div className="space-y-2"><Label htmlFor="google_ads_refresh_token">OAuth refresh token</Label><Input id="google_ads_refresh_token" type="password" autoComplete="off" value={settings.google_ads_refresh_token || ""} onChange={e => updateSetting("google_ads_refresh_token", e.target.value)} /><p className="text-xs text-muted-foreground">Use a refresh token from an authorized OAuth flow for this client and Ads account. A temporary access token or service-account JSON is not a refresh token. Saved secrets remain masked.</p></div>
+          <div className="space-y-2"><Label htmlFor="google_ads_login_customer_id">Manager account ID (optional)</Label><Input id="google_ads_login_customer_id" value={settings.google_ads_login_customer_id || ""} onChange={e => updateSetting("google_ads_login_customer_id", e.target.value)} /><p className="text-xs text-muted-foreground">Leave empty when the authorized user accesses the customer account directly.</p></div>
+          <p className="text-sm text-muted-foreground">Save settings, then open Analytics → Ads and use Refresh to verify the connection. With no direct API credentials, reports use the GA4 import and clearly identify that source.</p>
+        </CardContent>
+      </Card>
+
       {/* Calendar booking link — "Book a call" buttons on /get-started */}
       <Card>
         <CardHeader>
@@ -638,8 +653,7 @@ export default function AdminSettings() {
         <CardHeader>
           <CardTitle>Meta Ads (Analytics)</CardTitle>
           <CardDescription>
-            Read-only access to the ad account so Analytics &rarr; Ads can show spend, clicks and leads. Google Ads needs no
-            setup here: link it to the GA4 property instead (GA4 &rarr; Admin &rarr; Product links &rarr; Google Ads).
+            Read-only access to the Meta ad account so Analytics &rarr; Ads can show spend, clicks and leads.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

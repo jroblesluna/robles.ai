@@ -9,7 +9,7 @@ import TrafficTab from "@/components/admin/analytics/TrafficTab";
 import BehaviorTab from "@/components/admin/analytics/BehaviorTab";
 import SocialTab from "@/components/admin/analytics/SocialTab";
 import AdsTab from "@/components/admin/analytics/AdsTab";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 const tabs = [
@@ -38,7 +38,8 @@ export default function AdminAnalytics() {
     setIsRefreshing(true);
     try {
       await apiRequest("POST", "/api/admin/analytics/refresh");
-      toast({ title: "Cache cleared", description: "Dashboard data will refresh shortly." });
+      await queryClient.invalidateQueries({ predicate: query => typeof query.queryKey[0] === "string" && query.queryKey[0].startsWith("/api/admin/analytics/") });
+      toast({ title: "Data refreshed", description: "Analytics reports have been requested again." });
     } catch {
       toast({ title: "Error", description: "Failed to clear cache.", variant: "destructive" });
     } finally {
