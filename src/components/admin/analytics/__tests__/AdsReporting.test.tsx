@@ -18,7 +18,7 @@ const report: AdsReport = {
   availability: { cost: true, results: true, daily: true }, warnings: [],
 };
 function renderWithQuery(ui: React.ReactElement, query: (key: string) => unknown) {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false, queryFn: ({ queryKey }) => query(String(queryKey[0])) } } });
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false, queryFn: ({ queryKey }) => String(queryKey[0]).includes('/ads/google/clicks?') ? { accountId: '5850899991', timeZone: 'America/Los_Angeles', effectiveRange: null, selectedDate: null, days: [], records: [], ads: {}, availability: { clicks: false, locations: true, ads: true }, warnings: [] } : query(String(queryKey[0])) } } });
   return render(<QueryClientProvider client={client}>{ui}</QueryClientProvider>);
 }
 const leads = { count: 0, form: 'all', segmentationAvailable: false, warnings: ['Contact/quiz breakdown unavailable.'] };

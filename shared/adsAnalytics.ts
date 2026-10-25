@@ -63,3 +63,38 @@ export interface AdsInsights {
   genders: AdsSegment[];
   targeting: Array<{ campaignId: string; campaign: string; location: string; excluded: boolean; presence: string; exclusionPresence: string }>;
 }
+
+export interface ClickAdAssets {
+  adId: string;
+  finalUrl: string | null;
+  headlines: string[];
+  descriptions: string[];
+  path: string;
+}
+export interface AdsClickRecord {
+  recordId: string;
+  gclid: string | null;
+  date: string;
+  campaignId: string;
+  campaign: string;
+  adGroup: string;
+  adResource: string | null;
+  keyword: string | null;
+  matchType: string | null;
+  device: string | null;
+  network: string | null;
+  location: { country: string | null; region: string | null; city: string | null };
+  clicks: number;
+}
+export interface AdsClickReport {
+  accountId: string;
+  timeZone: string;
+  fetchedAt: string;
+  effectiveRange: { startDate: string; endDate: string } | null;
+  days: Array<{ date: string; clicks: number }>;
+  selectedDate: string | null;
+  records: AdsClickRecord[];
+  ads: Record<string, ClickAdAssets>;
+  availability: { clicks: boolean; locations: boolean; ads: boolean };
+  warnings: string[];
+}
