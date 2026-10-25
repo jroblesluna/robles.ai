@@ -690,7 +690,7 @@ export default function Landing() {
             <p className="text-slate-300 max-w-2xl mx-auto mb-10">{t("landing.v2.contact.subtitle")}</p>
           </Reveal>
 
-          <Reveal className="max-w-xl mx-auto mb-10">
+          <Reveal className="max-w-3xl mx-auto mb-10">
             <ContactForm
               className="bg-white text-gray-900 p-5 sm:p-8 rounded-xl shadow-lg"
               showNewsletter={false}

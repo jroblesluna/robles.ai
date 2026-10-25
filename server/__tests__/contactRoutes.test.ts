@@ -32,6 +32,15 @@ describe('contact delivery', () => {
       text: expect.stringContaining(inquiry.message),
     }));
   });
+  it('includes an optional visitor phone number in the contact email', async () => {
+    const phone = '+1 408 555 0199';
+    const result = await request(app).post('/api/contact').send({ ...inquiry, phone });
+    expect(result.status).toBe(200);
+    expect(mail.send).toHaveBeenCalledWith(expect.objectContaining({
+      text: expect.stringContaining(`Phone: ${phone}`),
+      html: expect.stringContaining(`<strong>Phone:</strong> ${phone}`),
+    }));
+  });
   it('does not acknowledge success until mail delivery resolves', async () => {
     let complete!: (value: unknown) => void;
     mail.send.mockReturnValue(new Promise(resolve => { complete = resolve; }));

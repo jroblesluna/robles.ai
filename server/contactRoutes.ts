@@ -31,13 +31,14 @@ router.post('/', async (req, res) => {
       replyTo: data.email,
       subject: 'New Contact Form Submission',
       text: [
-        `Name: ${data.name}`, `Email: ${data.email}`, `Company: ${data.company || ''}`,
+        `Name: ${data.name}`, `Email: ${data.email}`, `Phone: ${data.phone || ''}`, `Company: ${data.company || ''}`,
         `Subject: ${data.subject}`, `Subscribed to Newsletter: ${data.newsletter ? 'Yes' : 'No'}`,
         '', data.message,
       ].join('\n'),
       html: `
         <p><strong>Name:</strong> ${escapeHtml(data.name)}</p>
         <p><strong>Email:</strong> ${escapeHtml(data.email)}</p>
+        ${data.phone ? `<p><strong>Phone:</strong> ${escapeHtml(data.phone)}</p>` : ''}
         ${data.company ? `<p><strong>Company:</strong> ${escapeHtml(data.company)}</p>` : ''}
         <p><strong>Subject:</strong> ${escapeHtml(data.subject)}</p>
         <p><strong>Subscribed to Newsletter:</strong> ${data.newsletter ? 'Yes' : 'No'}</p>

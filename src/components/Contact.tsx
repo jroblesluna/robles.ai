@@ -31,6 +31,7 @@ const contactFormSchema = insertContactSchema.extend({
     message: "Please enter a valid email address."
   }),
   company: z.string().optional(),
+  phone: z.string().optional(),
   subject: z.string().default("Website Inquiry"),
   goal: z.string().default(""),
   // Optional when a goal is chosen; see the refinement below.
@@ -87,6 +88,7 @@ export const ContactForm = ({
       name: "",
       email: "",
       company: "",
+      phone: "",
       subject: "Website Inquiry",
       goal: defaultGoal ?? "",
       message: "",
@@ -116,6 +118,7 @@ export const ContactForm = ({
         name: data.name,
         email: data.email,
         company: data.company,
+        phone: data.phone,
         newsletter: showNewsletter ? data.newsletter : false,
         subject: goalLabel ? `Website Inquiry — ${goalLabel}` : data.subject,
         message: goalLabel
@@ -146,7 +149,7 @@ export const ContactForm = ({
       <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6">{t(titleKey)}</h3>
 
       <Form {...form}>
-        <form method="post" action="/api/contact" onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-4 sm:space-y-6 min-w-0">
+        <form method="post" action="/api/contact" onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="grid min-w-0 grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
           <FormField
             control={form.control}
             name="name"
@@ -191,9 +194,23 @@ export const ContactForm = ({
 
           <FormField
             control={form.control}
-            name="goal"
+            name="phone"
             render={({ field }) => (
               <FormItem>
+                <FormLabel className="text-sm">{t("contact.phoneOptional")}</FormLabel>
+                <FormControl>
+                  <Input type="tel" autoComplete="tel" placeholder={t("contact.phonePlaceholder")} className="bg-white" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="goal"
+            render={({ field }) => (
+              <FormItem className="md:col-span-2">
                 <FormLabel className="text-sm">{t("contact.goalLabel")}</FormLabel>
                 <FormControl>
                   <select
@@ -215,7 +232,7 @@ export const ContactForm = ({
             control={form.control}
             name="message"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="md:col-span-2">
                 <FormLabel className="text-sm">{t("contact.messageOptional")}</FormLabel>
                 <FormControl>
                   <Textarea
@@ -238,7 +255,7 @@ export const ContactForm = ({
               control={form.control}
               name="newsletter"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start gap-3 space-y-0 rounded-md border bg-white/60 p-3 sm:p-4">
+                <FormItem className="md:col-span-2 flex flex-row items-start gap-3 space-y-0 rounded-md border bg-white/60 p-3 sm:p-4">
                   <FormControl>
                     <Checkbox className="mt-0.5" checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
@@ -251,17 +268,17 @@ export const ContactForm = ({
             />
           )}
 
-          {!clientReady && <p className="text-sm text-gray-700">{t("contact.javascriptRequired")}</p>}
+          {!clientReady && <p className="text-sm text-gray-700 md:col-span-2">{t("contact.javascriptRequired")}</p>}
           <Button
             type="submit"
-            className={`tap-target w-full ${buttonClassName}`}
+            className={`tap-target w-full md:col-span-2 ${buttonClassName}`}
             disabled={!clientReady || isSubmitting}
           >
             {isSubmitting ? t("contact.sending") : t(submitLabelKey)}
             <Send className="ml-2 h-4 w-4" />
           </Button>
           {showTrustNote && (
-            <p className="text-xs text-gray-600 text-center">
+            <p className="text-xs text-gray-600 text-center md:col-span-2">
               {t("contact.replyNote")} {t("contact.privacyNote")}
             </p>
           )}

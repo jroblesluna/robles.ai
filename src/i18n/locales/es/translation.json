@@ -840,6 +840,8 @@
         "name": "Nombre",
         "emailPlaceholder": "Tu correo electrónico",
         "namePlaceholder": "Tu nombre",
+        "phoneOptional": "Teléfono (opcional)",
+        "phonePlaceholder": "+51 999 999 999",
         "company": "Empresa (Opcional)",
         "companyPlaceholder": "Nombre de tu empresa",
         "message": "Mensaje",

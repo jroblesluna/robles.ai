@@ -840,6 +840,8 @@
         "name": "Name",
         "emailPlaceholder": "Your email",
         "namePlaceholder": "Your name",
+        "phoneOptional": "Phone (optional)",
+        "phonePlaceholder": "+1 555 123 4567",
         "company": "Company (Optional)",
         "companyPlaceholder": "Your company name",
         "message": "Message",
