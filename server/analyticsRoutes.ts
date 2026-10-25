@@ -5,6 +5,7 @@ import * as metaInsights from './services/metaInsights.js';
 import * as analyticsCache from './services/analyticsCache.js';
 import { getGoogleAdsReport, getWebsiteChannelsReport, getLeadSignalsReport } from './services/googleAdsReport.js';
 import { getDirectGoogleAdsReport, isGoogleAdsConfigured, getGoogleAdsAccountId } from './services/googleAdsApi.js';
+import { getGoogleAdsInsights } from './services/googleAdsInsights.js';
 import type { LeadForm } from '../shared/adsAnalytics.js';
 import * as metaAds from './services/metaAds.js';
 
@@ -209,6 +210,24 @@ analyticsRouter.get('/ads/google', (req: Request, res: Response) => {
       if (Object.values(data.availability).every(Boolean)) analyticsCache.set(key, data, getTtl(dateRange.startDate, dateRange.endDate));
       res.json(data);
     } catch (error) { res.status(502).json({ error: error instanceof Error ? error.message : 'Google Ads data unavailable.' }); }
+  })();
+});
+
+analyticsRouter.get('/ads/google/insights', (req: Request, res: Response) => {
+  (async () => {
+    let dateRange, campaignId;
+    try { dateRange = adsDates(req); campaignId = adsCampaign(req); }
+    catch (error) { res.status(400).json({ error: (error as Error).message }); return; }
+    try {
+      if (!isGoogleAdsConfigured()) { res.status(409).json({ error: 'Connect the direct Google Ads API in Settings to view search terms and audience details.' }); return; }
+      const accountId = getGoogleAdsAccountId();
+      const key = cacheKey(`ads:insights:v1:${accountId}:${campaignId || 'all'}`, dateRange.startDate, dateRange.endDate);
+      const cached = analyticsCache.get(key);
+      if (cached) { res.json(cached); return; }
+      const data = await getGoogleAdsInsights(dateRange, campaignId);
+      if (Object.values(data.availability).every(Boolean) && !data.warnings.length) analyticsCache.set(key, data, getTtl(dateRange.startDate, dateRange.endDate));
+      res.json(data);
+    } catch { res.status(502).json({ error: 'Google Ads detail reports unavailable. Check the direct connection and try Refresh.' }); }
   })();
 });
 

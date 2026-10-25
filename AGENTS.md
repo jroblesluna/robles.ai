@@ -119,7 +119,7 @@ server/
     dominicalScoring, engagementPhrases, imageGeneration, carouselImageGen, slideCompositor,
     carouselGenerator, carouselTypes, pdfExporter, pdfIcons, dominicalVideoGen, robotFrames,
     quizResultMessage, quizVerificationEmail, quizLeadPdf, chatEngine, chatContext, chatNotifier,
-    conversationStore, ga4Client, googleAdsReport, googleAdsApi, metaInsights, metaAds, metaGraphApi,
+    conversationStore, ga4Client, googleAdsReport, googleAdsApi, googleAdsInsights, metaInsights, metaAds, metaGraphApi,
     analyticsCache, settingsSecrets, linkedin (re-export)
     platforms/   # types, contentFormatter, linkedinAdapter, instagramAdapter, facebookAdapter, publishingEngine
     backends/    # registry, settingsStore, health

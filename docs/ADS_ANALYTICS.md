@@ -37,3 +37,9 @@ npm run build
 ```
 
 After deploying, check authenticated reports for the account/date range, campaign-specific totals, channel session rates, and explicit missing-custom-dimension states. Check the public API returns 401 without admin authentication. No paid ad clicks or lead submissions are required for these checks.
+
+## Search and audience details
+
+The authenticated `/api/admin/analytics/ads/google/insights` endpoint uses the direct API only. It follows the selected customer, campaign ID and date range for search terms (including impression-only rows), matched keywords, approximate countries/cities of presence, devices, networks and Google-estimated age/gender groups. Queries run independently; errors are marked unavailable, and partial reports are not cached. Successful empty results are distinct from errors. Search terms are subject to privacy thresholds and may not reconcile to campaign totals. Geographic and demographic coverage can be incomplete. These are aggregate reports, not identifiable visitors.
+
+Current included/excluded location criteria and presence/interest rules are shown separately: they reflect current settings, regardless of the historical date range. No campaign configuration is mutated. The report resolves Google geographic identifiers, preserves IDs if lookup fails, and paginates tables without dropping rows. Refresh clears server data and refetches all dashboard queries.
