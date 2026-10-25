@@ -17,10 +17,18 @@ const verifier = randomBytes(48).toString('base64url');
 const state = randomBytes(32).toString('base64url');
 let redirectUri, complete = false, timer;
 async function json(url, options = {}) {
-  const response = await fetch(url, { ...options, signal: AbortSignal.timeout(45000) });
-  const data = await response.json();
-  if (!response.ok) throw new Error(`Request failed (${response.status}) at ${new URL(url).hostname}. No credentials were printed.`);
-  return { response, data };
+  for (let attempt = 0; attempt < 7; attempt++) {
+    const response = await fetch(url, { ...options, signal: AbortSignal.timeout(45000) });
+    // Keep credentials in memory through a short production restart.
+    if ([429, 502, 503, 504].includes(response.status) && attempt < 6) {
+      await response.text();
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      continue;
+    }
+    if (!response.ok) throw new Error(`Request failed (${response.status}) at ${new URL(url).hostname}. No credentials were printed.`);
+    const data = await response.json();
+    return { response, data };
+  }
 }
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, redirectUri);

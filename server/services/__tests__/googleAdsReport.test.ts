@@ -44,11 +44,11 @@ describe('Google Ads attribution and partial results', () => {
     expect(report.campaignOptions).toHaveLength(2);
     expect(report.campaigns.map(c => c.campaignId)).toEqual(['2']);
   });
-  it('requests the campaign dimension required by GA4 daily cost and filters the account', async () => {
+  it('uses compatible Google Ads campaign dimensions for daily cost and filters the account', async () => {
     vi.mocked(queryReport).mockResolvedValue(result([]));
     await getGoogleAdsReport(range);
     const daily = vi.mocked(queryReport).mock.calls.find(call => call[0].includes('date'))!;
-    expect(daily[0]).toContain('sessionCampaignName');
+    expect(daily[0]).toEqual(['date', 'sessionGoogleAdsCampaignId', 'sessionGoogleAdsCampaignName']);
     expect(daily[3]?.dimensionFilter).toMatchObject({ filter: { fieldName: 'sessionGoogleAdsCustomerId', inListFilter: { values: ['5850899991', '585-089-9991'] } } });
   });
   it('fails explicitly if all campaign queries fail', async () => {
