@@ -350,7 +350,64 @@
                 "regularPrice": "$1000",
                 "price": "$800",
                 "buttonBg": "bg-blue-700",
-                "buttonHoverBg": "hover:bg-blue-800"
+                "buttonHoverBg": "hover:bg-blue-800",
+                "id": "pytorch-deep-learning",
+                "modules": [
+                    {
+                        "title": "Tensors, data and working environment",
+                        "description": "Prepare datasets and tensor operations for reproducible experiments.",
+                        "topics": [
+                            "Tensors and operations",
+                            "Datasets and DataLoaders",
+                            "Training and validation splits"
+                        ]
+                    },
+                    {
+                        "title": "Neural networks and learning",
+                        "description": "Build a network and understand how it learns from a loss function.",
+                        "topics": [
+                            "Layers and activations",
+                            "Autograd and backpropagation",
+                            "Loss functions and optimizers"
+                        ]
+                    },
+                    {
+                        "title": "Training and model diagnostics",
+                        "description": "Interpret metrics and address common training problems.",
+                        "topics": [
+                            "Training loops",
+                            "Regularization and overfitting",
+                            "Metrics and error analysis"
+                        ]
+                    },
+                    {
+                        "title": "Architectures for real data",
+                        "description": "Compare architectures and choose an approach for the data you have.",
+                        "topics": [
+                            "Convolutional networks",
+                            "Introduction to sequences",
+                            "Model selection and comparison"
+                        ]
+                    },
+                    {
+                        "title": "Transfer learning and efficiency",
+                        "description": "Adapt pretrained models and measure training and inference costs.",
+                        "topics": [
+                            "Reusing pretrained models",
+                            "Fine-tuning",
+                            "GPU use and performance measurement"
+                        ]
+                    },
+                    {
+                        "title": "Applied project and delivery",
+                        "description": "Complete a practical case with documented evaluation and a final demonstration.",
+                        "topics": [
+                            "Reproducible pipeline",
+                            "Saving and loading models",
+                            "Project evaluation and presentation"
+                        ]
+                    }
+                ]
             },
             {
                 "title": "TensorFlow for Production",
@@ -363,7 +420,64 @@
                 "regularPrice": "US$ 1250",
                 "price": "US$ 1000",
                 "buttonBg": "bg-orange-700",
-                "buttonHoverBg": "hover:bg-orange-800"
+                "buttonHoverBg": "hover:bg-orange-800",
+                "id": "tensorflow-production",
+                "modules": [
+                    {
+                        "title": "Designing a production ML system",
+                        "description": "Define the use case, business metric and system boundaries before deployment.",
+                        "topics": [
+                            "Architecture and requirements",
+                            "Baseline and acceptance criteria",
+                            "Environments and dependencies"
+                        ]
+                    },
+                    {
+                        "title": "Data and reproducible pipelines",
+                        "description": "Build a data workflow that can be validated, repeated and maintained.",
+                        "topics": [
+                            "Data quality and validation",
+                            "Pipelines with tf.data",
+                            "Versioning data and transformations"
+                        ]
+                    },
+                    {
+                        "title": "Training and evaluation",
+                        "description": "Develop Keras models and compare results using consistent criteria.",
+                        "topics": [
+                            "Model construction",
+                            "Experiments and checkpoints",
+                            "Evaluation and error analysis"
+                        ]
+                    },
+                    {
+                        "title": "Deployment and inference",
+                        "description": "Prepare a model to serve predictions and measure its operational behavior.",
+                        "topics": [
+                            "Model export",
+                            "Inference API",
+                            "Latency, concurrency and resources"
+                        ]
+                    },
+                    {
+                        "title": "Operations and maintenance",
+                        "description": "Design signals to detect data changes and service failures.",
+                        "topics": [
+                            "Quality monitoring",
+                            "Drift and retraining",
+                            "Versions and deployment rollback"
+                        ]
+                    },
+                    {
+                        "title": "Production project",
+                        "description": "Integrate data, model and service into a demonstrable, documented delivery.",
+                        "topics": [
+                            "Pipeline tests",
+                            "Documentation and access controls",
+                            "Demonstration and operations plan"
+                        ]
+                    }
+                ]
             },
             {
                 "title": "Hugging Face Transformers",
@@ -376,7 +490,64 @@
                 "regularPrice": "US$ 1185",
                 "price": "US$ 950",
                 "buttonBg": "bg-yellow-700",
-                "buttonHoverBg": "hover:bg-yellow-800"
+                "buttonHoverBg": "hover:bg-yellow-800",
+                "id": "hugging-face-transformers",
+                "modules": [
+                    {
+                        "title": "Transformer foundations",
+                        "description": "Understand the components of a Transformer and when to use a pretrained model.",
+                        "topics": [
+                            "Attention and representations",
+                            "Model families",
+                            "Selection by task and resources"
+                        ]
+                    },
+                    {
+                        "title": "Tokenization and data preparation",
+                        "description": "Prepare language datasets with verifiable transformations.",
+                        "topics": [
+                            "Tokenizers",
+                            "Cleaning and splits",
+                            "Datasets and input formats"
+                        ]
+                    },
+                    {
+                        "title": "NLP pipelines",
+                        "description": "Build classification, extraction and search solutions using existing models.",
+                        "topics": [
+                            "Text classification",
+                            "Entity extraction",
+                            "Embeddings and semantic similarity"
+                        ]
+                    },
+                    {
+                        "title": "Model adaptation",
+                        "description": "Adapt a model to a task and compare it with the baseline.",
+                        "topics": [
+                            "Supervised fine-tuning",
+                            "Training setup",
+                            "Efficient adaptation techniques"
+                        ]
+                    },
+                    {
+                        "title": "Evaluation and limitations",
+                        "description": "Design evaluations that reveal relevant errors and model limitations.",
+                        "topics": [
+                            "Task-specific metrics",
+                            "Bias and common errors",
+                            "Difficult-example analysis"
+                        ]
+                    },
+                    {
+                        "title": "Deployment and final project",
+                        "description": "Package an NLP solution so it can be tested and maintained.",
+                        "topics": [
+                            "Inference service",
+                            "Cost and latency",
+                            "Project presentation and documentation"
+                        ]
+                    }
+                ]
             },
             {
                 "title": "LangChain Development",
@@ -625,7 +796,173 @@
                             ]
                         }
                     ]
-                }
+                },
+                "id": "langchain-development",
+                "modules": [
+                    {
+                        "title": "LLM Fundamentals With LangChain",
+                        "description": "Build the components of a language-model application with verifiable outputs.",
+                        "topics": [
+                            "Getting Set Up with LangChain",
+                            "Using LLMs in LangChain",
+                            "Making LLM Prompts Reusable",
+                            "Getting Specific Formats out of LLMs",
+                            "JSON Output",
+                            "Other Machine-Readable Formats with Output Parsers",
+                            "Assembling the Many Pieces of an LLM Application",
+                            "Using the Runnable Interface",
+                            "Imperative Composition",
+                            "Declarative Composition",
+                            "Summary"
+                        ]
+                    },
+                    {
+                        "title": "RAG Part I: Indexing Your Data",
+                        "description": "Prepare documents, embeddings and indexes to retrieve relevant context.",
+                        "topics": [
+                            "The Goal: Picking Relevant Context for LLMs",
+                            "Embeddings: Converting Text to Numbers",
+                            "Embeddings Before LLMs",
+                            "LLM-Based Embeddings",
+                            "Semantic Embeddings Explained",
+                            "Converting Your Documents into Text",
+                            "Splitting Your Text into Chunks",
+                            "Generating Text Embeddings",
+                            "Storing Embeddings in a Vector Store",
+                            "Getting Set Up with PGVector",
+                            "Working with Vector Stores",
+                            "Tracking Changes to Your Documents",
+                            "Indexing Optimization",
+                            "MultiVectorRetriever",
+                            "RAPTOR: Recursive Abstractive Processing for Tree-Organized Retrieval",
+                            "CoLBERT: Optimizing Embeddings",
+                            "Summary"
+                        ]
+                    },
+                    {
+                        "title": "RAG Part II: Chatting With Your Data",
+                        "description": "Build grounded answers and compare retrieval strategies.",
+                        "topics": [
+                            "Introducing Retrieval-Augmented Generation",
+                            "Retrieving Relevant Documents",
+                            "Generating LLM Predictions Using Relevant Documents",
+                            "Query Transformation",
+                            "Rewrite-Retrieve-Read",
+                            "Multi-Query Retrieval",
+                            "RAG-Fusion",
+                            "Hypothetical Document Embeddings",
+                            "Query Routing",
+                            "Logical Routing",
+                            "Semantic Routing",
+                            "Query Construction",
+                            "Text-to-Metadata Filter",
+                            "Text-to-SQL",
+                            "Summary"
+                        ]
+                    },
+                    {
+                        "title": "Using LangGraph To Add Memory To Your Chatbot",
+                        "description": "Add state and memory to an assistant using execution graphs.",
+                        "topics": [
+                            "Building a Chatbot Memory System",
+                            "Introducing LangGraph",
+                            "Creating a StateGraph",
+                            "Adding Memory to StateGraph",
+                            "Modifying Chat History",
+                            "Trimming Messages",
+                            "Filtering Messages",
+                            "Merging Consecutive Messages",
+                            "Summary"
+                        ]
+                    },
+                    {
+                        "title": "Cognitive Architectures With LangGraph",
+                        "description": "Compare chains, simple calls and routers to select an architecture.",
+                        "topics": [
+                            "Architecture #1: LLM Call",
+                            "Architecture #2: Chain",
+                            "Architecture #3: Router",
+                            "Summary"
+                        ]
+                    },
+                    {
+                        "title": "Agent Architecture",
+                        "description": "Build an agent that uses tools with execution controls.",
+                        "topics": [
+                            "The Plan-Do Loop",
+                            "Building a LangGraph Agent",
+                            "Always Calling a Tool First",
+                            "Dealing with Many Tools",
+                            "Summary"
+                        ]
+                    },
+                    {
+                        "title": "Agents II",
+                        "description": "Organize workflows with subgraphs, reflection and agent coordination.",
+                        "topics": [
+                            "Reflection",
+                            "Subgraphs in LangGraph",
+                            "Calling a Subgraph Directly",
+                            "Calling a Subgraph with a Function",
+                            "Multi-Agent Architectures",
+                            "Supervisor Architecture",
+                            "Summary"
+                        ]
+                    },
+                    {
+                        "title": "Patterns To Make The Most Of LLMs",
+                        "description": "Apply patterns for structured results, streaming and human review.",
+                        "topics": [
+                            "Structured Output",
+                            "Intermediate Output",
+                            "Streaming LLM Output Token-by-Token",
+                            "Human-in-the-Loop Modalities",
+                            "Multitasking LLMs",
+                            "Summary"
+                        ]
+                    },
+                    {
+                        "title": "Deployment: Launching Your AI Application Into Production",
+                        "description": "Prepare application components for deployment and operation.",
+                        "topics": [
+                            "Prerequisites",
+                            "Install Dependencies",
+                            "Large Language Model",
+                            "Vector Store",
+                            "Backend API",
+                            "Create a LangSmith Account",
+                            "Understanding the LangGraph Platform API",
+                            "Data Models",
+                            "Features",
+                            "Deploying Your AI Application on LangGraph Platform",
+                            "Create a LangGraph API Config",
+                            "Test Your LangGraph App Locally",
+                            "Deploy from the LangSmith UI",
+                            "Launch LangGraph Studio",
+                            "Security",
+                            "Summary"
+                        ]
+                    },
+                    {
+                        "title": "Testing: Evaluation, Monitoring, And Continuous Improvement",
+                        "description": "Design evaluations and a monitoring and improvement cycle.",
+                        "topics": [
+                            "Testing Techniques Across the LLM App Development Cycle",
+                            "The Design Stage: Self-Corrective RAG",
+                            "The Preproduction Stage",
+                            "Creating Datasets",
+                            "Defining Your Evaluation Criteria",
+                            "Regression Testing",
+                            "Evaluating an Agent's End-to-End Performance",
+                            "Production",
+                            "Tracing",
+                            "Collect Feedback in Production",
+                            "Classification and Tagging",
+                            "Monitoring and Fixing Errors",
+                            "Summary"
+                        ]
+                    }
+                ]
             },
             {
                 "title": "Generative AI with OpenAI",
@@ -638,7 +975,64 @@
                 "regularPrice": "US$ 1125",
                 "price": "US$ 900",
                 "buttonBg": "bg-violet-700",
-                "buttonHoverBg": "hover:bg-violet-800"
+                "buttonHoverBg": "hover:bg-violet-800",
+                "id": "openai-generative-ai",
+                "modules": [
+                    {
+                        "title": "Foundations and API use",
+                        "description": "Set up a development environment and make controlled API requests.",
+                        "topics": [
+                            "Server-side credentials",
+                            "Requests and responses",
+                            "Limits, errors and cost"
+                        ]
+                    },
+                    {
+                        "title": "Instructions and structured outputs",
+                        "description": "Design instructions and formats for integrating AI responses into an application.",
+                        "topics": [
+                            "Prompt design",
+                            "Schemas and validation",
+                            "Handling incomplete responses"
+                        ]
+                    },
+                    {
+                        "title": "Tools and automation",
+                        "description": "Connect the model to application functions while retaining control over actions.",
+                        "topics": [
+                            "Tool definitions",
+                            "Argument validation",
+                            "Approval of sensitive actions"
+                        ]
+                    },
+                    {
+                        "title": "Answers using your own data",
+                        "description": "Build a retrieval workflow for answering from an organization’s documents.",
+                        "topics": [
+                            "Document preparation",
+                            "Embeddings and retrieval",
+                            "Referenced answers"
+                        ]
+                    },
+                    {
+                        "title": "Multimodal applications",
+                        "description": "Explore text and image use cases and their quality, privacy and cost limits.",
+                        "topics": [
+                            "Image analysis",
+                            "Content generation",
+                            "Selecting capabilities for a use case"
+                        ]
+                    },
+                    {
+                        "title": "Evaluation and final application",
+                        "description": "Deliver a small application with tests, controls and usage documentation.",
+                        "topics": [
+                            "Evaluation dataset",
+                            "Metrics and error logging",
+                            "Project demonstration and delivery"
+                        ]
+                    }
+                ]
             },
             {
                 "title": "Computer Vision with PyTorch",
@@ -651,9 +1045,107 @@
                 "regularPrice": "US$ 1500",
                 "price": "US$ 1200",
                 "buttonBg": "bg-blue-700",
-                "buttonHoverBg": "hover:bg-blue-800"
+                "buttonHoverBg": "hover:bg-blue-800",
+                "id": "pytorch-computer-vision",
+                "modules": [
+                    {
+                        "title": "Images and dataset preparation",
+                        "description": "Build a visual dataset with appropriate splits and transformations.",
+                        "topics": [
+                            "Formats and annotations",
+                            "Cleaning and augmentation",
+                            "Splitting without information leakage"
+                        ]
+                    },
+                    {
+                        "title": "Image classification",
+                        "description": "Train and adapt models to recognize categories in images.",
+                        "topics": [
+                            "Convolutional networks",
+                            "Transfer learning",
+                            "Per-class evaluation"
+                        ]
+                    },
+                    {
+                        "title": "Object detection",
+                        "description": "Prepare annotations and evaluate object localization as well as classification.",
+                        "topics": [
+                            "Boxes and labels",
+                            "Training a detector",
+                            "Precision, recall and difficult cases"
+                        ]
+                    },
+                    {
+                        "title": "Image segmentation",
+                        "description": "Work with pixel-level predictions to separate regions and objects.",
+                        "topics": [
+                            "Masks and annotation",
+                            "Semantic segmentation",
+                            "Metrics and result visualization"
+                        ]
+                    },
+                    {
+                        "title": "Video and performance",
+                        "description": "Extend the solution to sequences and measure its cost under operational conditions.",
+                        "topics": [
+                            "Frame processing",
+                            "Tracking and temporal consistency",
+                            "Latency and resource use"
+                        ]
+                    },
+                    {
+                        "title": "Applied vision project",
+                        "description": "Present a complete case with evaluation evidence and a deployment plan.",
+                        "topics": [
+                            "Inference pipeline",
+                            "Testing on new data",
+                            "Project delivery and documentation"
+                        ]
+                    }
+                ]
             }
-        ]
+        ],
+        "viewCourse": "View course",
+        "modal": {
+            "availability": "Availability and estimated start",
+            "noSeats": "Course full — no seats available",
+            "nextStart": "Next estimated start:",
+            "dateNote": "Planned starts are the first Monday of January, April, July or October, with at least 14 days’ notice. Date and class schedule are subject to confirmation.",
+            "notifyTitle": "Notify me when enrollment opens",
+            "notifyDescription": "Leave your email to hear about enrollment for this course.",
+            "emailPlaceholder": "Your email address",
+            "notifyButton": "Notify me",
+            "sending": "Sending…",
+            "requestReceived": "Request received",
+            "notifySuccess": "Your request was sent to Robles.AI. We will notify you when enrollment opens.",
+            "notifyError": "We could not send your request. Try again or contact info@robles.ai.",
+            "privacy": "We will use your email to respond to this course request. This does not subscribe you to the newsletter.",
+            "close": "Close course details",
+            "durationLabel": "Duration",
+            "weeks": "{{count}} weeks",
+            "weeklyLabel": "Estimated weekly workload",
+            "totalLabel": "Estimated total hours",
+            "hours": "{{count}} h",
+            "modeLabel": "Format",
+            "liveOnline": "Live online",
+            "workloadNote": "Weekly estimate: {{live}} h of live classes + {{practice}} h of practice. Includes {{liveTotal}} live hours across the course.",
+            "modulesTitle": "Course modules",
+            "certificateTitle": "Certificate sample",
+            "training": "Artificial intelligence training",
+            "certificateHeading": "Certificate of participation",
+            "awardedTo": "Awarded to",
+            "participantName": "Participant name",
+            "participation": "for participating in the course",
+            "certificateHours": "{{hours}} hours of learning and practice",
+            "academicTeam": "Academic team",
+            "issueDate": "Issue date",
+            "sampleMark": "Illustrative sample · not valid",
+            "certificateNote": "Illustrative Robles.AI certificate. Personalized on course completion; final hours will be confirmed when enrollment opens.",
+            "methodTitle": "How you will learn",
+            "methodDescription": "Live online instructor-led sessions, guided exercises, individual practice and an applied project. Class times will be confirmed when enrollment opens.",
+            "priceLabel": "Published price",
+            "reference": "Reference material"
+        }
     },
     "testimonials": {
         "title": "What Our Clients Say",
