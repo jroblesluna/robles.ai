@@ -1110,7 +1110,7 @@
             "availability": "Availability and estimated start",
             "noSeats": "Course full — no seats available",
             "nextStart": "Next estimated start:",
-            "dateNote": "Planned starts are the first Monday of January, April, July or October, with at least 14 days’ notice. Date and class schedule are subject to confirmation.",
+            "dateNote": "Start date and class schedule subject to confirmation.",
             "notifyTitle": "Notify me when enrollment opens",
             "notifyDescription": "Leave your email to hear about enrollment for this course.",
             "emailPlaceholder": "Your email address",

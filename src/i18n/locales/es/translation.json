@@ -1110,7 +1110,7 @@
             "availability": "Disponibilidad e inicio previsto",
             "noSeats": "Curso sin cupo",
             "nextStart": "Próximo inicio previsto:",
-            "dateNote": "Inicios previstos el primer lunes de enero, abril, julio u octubre, con al menos 14 días de anticipación. Fecha y horario sujetos a confirmación.",
+            "dateNote": "Fecha y horario de inicio sujetos a confirmación.",
             "notifyTitle": "Avísenme cuando se abran las inscripciones",
             "notifyDescription": "Deja tu correo para recibir un aviso sobre este curso.",
             "emailPlaceholder": "Tu correo electrónico",

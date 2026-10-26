@@ -40,10 +40,10 @@ function CourseInterest({ courseId, startDate, onDateChange }: { courseId: Cours
   return <form onSubmit={submit} className="mt-4 space-y-2" aria-label={t('courses.modal.notifyTitle')}>
     <label htmlFor={id} className="block text-sm font-semibold text-slate-900">{t('courses.modal.notifyTitle')}</label>
     <p className="text-sm text-slate-600">{t('courses.modal.notifyDescription')}</p>
-    <div className="flex flex-col gap-2 sm:flex-row">
-      <input id={id} name="email" type="email" autoComplete="email" required maxLength={254} value={email} onChange={event => setEmail(event.target.value)} disabled={pending || status === 'success'} placeholder={t('courses.modal.emailPlaceholder')} className="min-h-11 min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 text-base text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 disabled:bg-slate-100" aria-describedby={`${id}-feedback ${id}-privacy`} />
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+      <input id={id} name="email" type="email" autoComplete="email" required maxLength={254} value={email} onChange={event => setEmail(event.target.value)} disabled={pending || status === 'success'} placeholder={t('courses.modal.emailPlaceholder')} className="min-h-11 w-full sm:w-72 sm:max-w-xs rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 disabled:bg-slate-100" aria-describedby={`${id}-feedback ${id}-privacy`} />
       <div hidden aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" value={website} onChange={event => setWebsite(event.target.value)} /></label></div>
-      <button type="submit" disabled={pending || status === 'success'} className="tap-target inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-60"><Mail className="h-4 w-4" aria-hidden="true" />{pending ? t('courses.modal.sending') : status === 'success' ? t('courses.modal.requestReceived') : t('courses.modal.notifyButton')}</button>
+      <button type="submit" disabled={pending || status === 'success'} className="tap-target inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-60"><Mail className="h-4 w-4" aria-hidden="true" />{pending ? t('courses.modal.sending') : status === 'success' ? t('courses.modal.requestReceived') : t('courses.modal.notifyButton')}</button>
     </div>
     <div id={`${id}-feedback`} aria-live="polite">{status === 'success' && <p role="status" className="text-sm font-medium text-emerald-800">{t('courses.modal.notifySuccess')}</p>}{status === 'error' && <p role="alert" className="text-sm font-medium text-red-700">{t('courses.modal.notifyError')}</p>}</div>
     <p id={`${id}-privacy`} className="text-xs text-slate-600">{t('courses.modal.privacy')}</p>
@@ -53,20 +53,26 @@ function Certificate({ course, hours }: { course: Course; hours: number }) {
   const { t } = useTranslation();
   return <section aria-label={t('courses.modal.certificateTitle')} className="space-y-3">
     <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-900"><Award className="h-5 w-5 text-blue-700" aria-hidden="true" />{t('courses.modal.certificateTitle')}</h3>
-    <div className="relative isolate overflow-hidden rounded-xl border border-slate-200 bg-[#fffdf7] p-3 shadow-sm">
-      <div className="absolute -right-10 -top-10 h-36 w-36 rotate-45 bg-blue-900" aria-hidden="true" />
-      <div className="relative border border-amber-600/60 px-4 py-7 text-center sm:px-6">
-        <p className="text-lg font-extrabold tracking-tight text-blue-950">Robles<span className="text-blue-700">.AI</span></p>
-        <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-600">{t('courses.modal.training')}</p>
-        <Award className="mx-auto mt-5 h-9 w-9 text-amber-600" aria-hidden="true" />
-        <p className="mt-3 font-serif text-2xl leading-tight text-blue-950">{t('courses.modal.certificateHeading')}</p>
-        <p className="mt-4 text-xs text-slate-600">{t('courses.modal.awardedTo')}</p>
-        <p className="mt-2 border-b border-amber-700/30 pb-2 font-serif text-xl text-slate-900">{t('courses.modal.participantName')}</p>
-        <p className="mt-4 text-xs text-slate-600">{t('courses.modal.participation')}</p>
-        <p className="mt-2 text-base font-semibold leading-snug text-blue-950">{course.title}</p>
-        <p className="mt-2 text-xs text-slate-700">{t('courses.modal.certificateHours', { hours })}</p>
-        <div className="mt-6 grid grid-cols-2 gap-5 text-[10px] text-slate-600"><p className="border-t border-slate-300 pt-2">{t('courses.modal.academicTeam')}<br />Robles.AI</p><p className="border-t border-slate-300 pt-2">{t('courses.modal.issueDate')}</p></div>
-        <p className="mt-5 text-[10px] font-semibold uppercase tracking-widest text-amber-800">{t('courses.modal.sampleMark')}</p>
+    <div className="relative isolate w-full aspect-[1.5/1] min-h-[250px] overflow-hidden rounded-xl border border-slate-200 bg-[#fffdfa] p-2.5 sm:p-3 shadow-md flex flex-col justify-between select-none">
+      <div className="absolute -right-12 -top-12 h-32 w-32 rotate-45 bg-blue-900/10 pointer-events-none" aria-hidden="true" />
+      <div className="relative h-full flex flex-col justify-between rounded-lg border border-amber-600/50 bg-gradient-to-b from-white/90 via-[#fffdf9]/95 to-amber-50/40 p-3 sm:p-4 text-center">
+        <div className="flex items-center justify-between border-b border-amber-700/20 pb-1.5">
+          <p className="text-sm font-extrabold tracking-tight text-blue-950">Robles<span className="text-blue-700">.AI</span></p>
+          <div className="flex items-center gap-1 text-amber-700"><Award className="h-3.5 w-3.5" aria-hidden="true" /><span className="text-[9px] font-semibold uppercase tracking-wider">{t('courses.modal.training')}</span></div>
+        </div>
+        <div className="my-auto py-1">
+          <p className="font-serif text-base sm:text-lg font-bold leading-tight text-blue-950">{t('courses.modal.certificateHeading')}</p>
+          <p className="mt-1 text-[10px] text-slate-500">{t('courses.modal.awardedTo')}</p>
+          <p className="mx-auto max-w-[260px] border-b border-amber-700/30 pb-0.5 font-serif text-sm sm:text-base font-semibold text-slate-900">{t('courses.modal.participantName')}</p>
+          <p className="mt-1 text-[10px] text-slate-500">{t('courses.modal.participation')}</p>
+          <p className="text-xs sm:text-sm font-bold leading-snug text-blue-950">{course.title}</p>
+          <p className="mt-0.5 text-[10px] sm:text-xs text-slate-600">{t('courses.modal.certificateHours', { hours })}</p>
+        </div>
+        <div className="grid grid-cols-3 items-end gap-2 border-t border-amber-700/20 pt-1.5 text-[9px] text-slate-600">
+          <p className="border-t border-slate-300 pt-1 leading-tight">{t('courses.modal.academicTeam')}<br /><span className="text-[8px] text-slate-400">Robles.AI</span></p>
+          <div><span className="inline-block rounded border border-amber-700/30 bg-amber-50 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-amber-800">{t('courses.modal.sampleMark')}</span></div>
+          <p className="border-t border-slate-300 pt-1 leading-tight">{t('courses.modal.issueDate')}</p>
+        </div>
       </div>
     </div>
     <p className="text-xs text-slate-600">{t('courses.modal.certificateNote')}</p>
