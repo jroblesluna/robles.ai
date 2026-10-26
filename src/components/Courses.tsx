@@ -98,12 +98,19 @@ export function CourseDetailsModal({ course, onClose }: { course: Course; onClos
         <button type="button" onClick={onClose} aria-label={t('courses.modal.close')} className="tap-target flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 hover:bg-slate-100"><X className="h-5 w-5" aria-hidden="true" /></button>
       </header>
       <div className="min-h-0 overflow-y-auto overscroll-contain p-5 sm:p-7">
-        <section aria-label={t('courses.modal.availability')} className="rounded-xl border border-amber-200 bg-amber-50/70 p-4 sm:p-5">
-          <p className="flex items-center gap-2 font-bold text-amber-950"><CalendarDays className="h-5 w-5" aria-hidden="true" />{t('courses.modal.noSeats')}</p>
-          <p className="mt-1 text-sm text-amber-950">{t('courses.modal.nextStart')} <time dateTime={startDate} className="font-semibold">{startLabel(startDate, locale)}</time></p>
-          <p className="mt-1 text-xs text-amber-900">{t('courses.modal.dateNote')}</p>
-          <CourseInterest courseId={course.id} startDate={startDate} onDateChange={setStartDate} />
-        </section>
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
+          <section aria-label={t('courses.modal.availability')} className="h-full rounded-xl border border-amber-200 bg-amber-50/70 p-4 sm:p-5 flex flex-col justify-between">
+            <div>
+              <p className="flex items-center gap-2 font-bold text-amber-950"><CalendarDays className="h-5 w-5" aria-hidden="true" />{t('courses.modal.noSeats')}</p>
+              <p className="mt-1 text-sm text-amber-950">{t('courses.modal.nextStart')} <time dateTime={startDate} className="font-semibold">{startLabel(startDate, locale)}</time></p>
+              <p className="mt-1 text-xs text-amber-900">{t('courses.modal.dateNote')}</p>
+            </div>
+            <CourseInterest courseId={course.id} startDate={startDate} onDateChange={setStartDate} />
+          </section>
+          <div>
+            <Certificate course={course} hours={hours.totalHours} />
+          </div>
+        </div>
         <p className="mt-6 leading-relaxed text-slate-600">{course.description}</p>
         <dl className="my-6 grid grid-cols-2 gap-3 lg:grid-cols-4">{[
           [t('courses.modal.durationLabel'), t('courses.modal.weeks', { count: hours.weeks })],
@@ -112,12 +119,12 @@ export function CourseDetailsModal({ course, onClose }: { course: Course; onClos
           [t('courses.modal.modeLabel'), t('courses.modal.liveOnline')],
         ].map(([label, value]) => <div key={label} className="rounded-xl border border-slate-200 bg-slate-50 p-3 sm:p-4"><dt className="text-xs text-slate-600">{label}</dt><dd className="mt-1 text-base font-bold text-slate-900">{value}</dd></div>)}</dl>
         <p className="-mt-3 mb-6 text-sm text-slate-600">{t('courses.modal.workloadNote', { live: hours.liveHoursPerWeek, practice: hours.practiceHoursPerWeek, liveTotal: hours.totalLiveHours })}</p>
-        <div className="grid min-w-0 items-start gap-7 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+        <div className="grid min-w-0 items-start gap-7 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)]">
           <section aria-labelledby={`${id}-modules`} className="min-w-0"><h3 id={`${id}-modules`} className="mb-4 flex items-center gap-2 text-lg font-semibold"><BookOpen className="h-5 w-5 text-blue-700" aria-hidden="true" />{t('courses.modal.modulesTitle')}</h3>
             <div className="space-y-3">{course.modules.map((module, index) => <details key={module.title} className="group overflow-hidden rounded-xl border border-slate-200 bg-white open:border-blue-300 open:bg-blue-50/30"><summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 px-4 py-3 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-600 [&::-webkit-details-marker]:hidden"><span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs text-blue-800">{index + 1}</span><span className="min-w-0 flex-1 text-sm">{module.title}</span><ChevronDown className="h-4 w-4 shrink-0 text-slate-500 transition-transform group-open:rotate-180" aria-hidden="true" /></summary><div className="px-4 pb-4 text-sm leading-relaxed text-slate-700"><p>{module.description}</p><ul className="mt-3 list-disc space-y-1 pl-5">{module.topics.map((topic, topicIndex) => <li key={topicIndex}>{topic}</li>)}</ul></div></details>)}</div>
             {course.details?.book && <p className="mt-4 text-xs leading-relaxed text-slate-600">{t('courses.modal.reference')}: {course.details.book.title} · {course.details.book.author} · {course.details.book.editorial} ({course.details.book.date}).</p>}
           </section>
-          <aside className="min-w-0 space-y-5"><Certificate course={course} hours={hours.totalHours} /><div className="rounded-xl bg-slate-50 p-4"><h3 className="font-semibold">{t('courses.modal.methodTitle')}</h3><p className="mt-2 text-sm leading-relaxed text-slate-600">{t('courses.modal.methodDescription')}</p><p className="mt-3 text-sm text-slate-600">{t('courses.modal.priceLabel')}: <span className="font-semibold text-slate-900">{course.price || course.regularPrice}</span></p></div></aside>
+          <aside className="min-w-0 space-y-5"><div className="rounded-xl border border-slate-200/80 bg-slate-50 p-4"><h3 className="font-semibold text-slate-900">{t('courses.modal.methodTitle')}</h3><p className="mt-2 text-sm leading-relaxed text-slate-600">{t('courses.modal.methodDescription')}</p><p className="mt-3 border-t border-slate-200/60 pt-3 text-sm text-slate-600">{t('courses.modal.priceLabel')}: <span className="font-semibold text-slate-900">{course.price || course.regularPrice}</span></p></div></aside>
         </div>
       </div>
     </div>
