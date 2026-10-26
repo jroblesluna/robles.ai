@@ -51,31 +51,50 @@ function CourseInterest({ courseId, startDate, onDateChange }: { courseId: Cours
 }
 function Certificate({ course, hours }: { course: Course; hours: number }) {
   const { t } = useTranslation();
-  return <section aria-label={t('courses.modal.certificateTitle')} className="space-y-3">
+  return <section aria-label={t('courses.modal.certificateTitle')} className="space-y-2">
     <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-900"><Award className="h-5 w-5 text-blue-700" aria-hidden="true" />{t('courses.modal.certificateTitle')}</h3>
-    <div className="relative isolate w-full aspect-[1.5/1] min-h-[250px] overflow-hidden rounded-xl border border-slate-200 bg-[#fffdfa] p-2.5 sm:p-3 shadow-md flex flex-col justify-between select-none">
-      <div className="absolute -right-12 -top-12 h-32 w-32 rotate-45 bg-blue-900/10 pointer-events-none" aria-hidden="true" />
-      <div className="relative h-full flex flex-col justify-between rounded-lg border border-amber-600/50 bg-gradient-to-b from-white/90 via-[#fffdf9]/95 to-amber-50/40 p-3 sm:p-4 text-center">
-        <div className="flex items-center justify-between border-b border-amber-700/20 pb-1.5">
-          <p className="text-sm font-extrabold tracking-tight text-blue-950">Robles<span className="text-blue-700">.AI</span></p>
-          <div className="flex items-center gap-1 text-amber-700"><Award className="h-3.5 w-3.5" aria-hidden="true" /><span className="text-[9px] font-semibold uppercase tracking-wider">{t('courses.modal.training')}</span></div>
-        </div>
-        <div className="my-auto py-1">
-          <p className="font-serif text-base sm:text-lg font-bold leading-tight text-blue-950">{t('courses.modal.certificateHeading')}</p>
-          <p className="mt-1 text-[10px] text-slate-500">{t('courses.modal.awardedTo')}</p>
-          <p className="mx-auto max-w-[260px] border-b border-amber-700/30 pb-0.5 font-serif text-sm sm:text-base font-semibold text-slate-900">{t('courses.modal.participantName')}</p>
-          <p className="mt-1 text-[10px] text-slate-500">{t('courses.modal.participation')}</p>
-          <p className="text-xs sm:text-sm font-bold leading-snug text-blue-950">{course.title}</p>
-          <p className="mt-0.5 text-[10px] sm:text-xs text-slate-600">{t('courses.modal.certificateHours', { hours })}</p>
-        </div>
-        <div className="grid grid-cols-3 items-end gap-2 border-t border-amber-700/20 pt-1.5 text-[9px] text-slate-600">
-          <p className="border-t border-slate-300 pt-1 leading-tight">{t('courses.modal.academicTeam')}<br /><span className="text-[8px] text-slate-400">Robles.AI</span></p>
-          <div><span className="inline-block rounded border border-amber-700/30 bg-amber-50 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-amber-800">{t('courses.modal.sampleMark')}</span></div>
-          <p className="border-t border-slate-300 pt-1 leading-tight">{t('courses.modal.issueDate')}</p>
-        </div>
-      </div>
+    <div className="w-full overflow-hidden rounded-2xl border border-slate-200/90 bg-[#fdfbf7] shadow-xs">
+      <svg viewBox="0 0 640 400" className="h-auto w-full select-none" role="img" aria-label={t('courses.modal.certificateHeading')}>
+        <rect width="640" height="400" fill="#fdfbf7" />
+        <rect x="16" y="16" width="608" height="368" rx="8" fill="none" stroke="#d97706" strokeWidth="1.5" strokeOpacity="0.45" />
+        <rect x="22" y="22" width="596" height="356" rx="6" fill="none" stroke="#0f172a" strokeWidth="0.75" strokeOpacity="0.15" />
+        <path d="M 28 38 L 28 28 L 38 28" fill="none" stroke="#b45309" strokeWidth="2" />
+        <path d="M 612 38 L 612 28 L 602 28" fill="none" stroke="#b45309" strokeWidth="2" />
+        <path d="M 28 362 L 28 372 L 38 372" fill="none" stroke="#b45309" strokeWidth="2" />
+        <path d="M 612 362 L 612 372 L 602 372" fill="none" stroke="#b45309" strokeWidth="2" />
+        <g transform="translate(320, 205)" opacity="0.04" stroke="#92400e" fill="none" strokeWidth="2">
+          <circle r="75" />
+          <circle r="65" strokeDasharray="4 3" />
+          <path d="M -30 -30 L 30 30 M -30 30 L 30 -30" />
+          <polygon points="0,-45 13,-15 45,-15 19,5 29,35 0,15 -29,35 -19,5 -45,-15 -13,-15" />
+        </g>
+        <text x="44" y="58" fontFamily="system-ui, -apple-system, sans-serif" fontSize="18" fontWeight="800" fill="#0f172a">Robles<tspan fill="#2563eb">.AI</tspan></text>
+        <g transform="translate(350, 46)">
+          <circle cx="10" cy="8" r="6" fill="none" stroke="#b45309" strokeWidth="1.5" />
+          <path d="M 7 13 L 5 22 L 10 19 L 15 22 L 13 13" fill="#b45309" opacity="0.8" />
+          <text x="24" y="12" fontFamily="system-ui, -apple-system, sans-serif" fontSize="10.5" fontWeight="700" letterSpacing="0.8px" fill="#92400e">{String(t('courses.modal.training')).toUpperCase()}</text>
+        </g>
+        <line x1="44" y1="74" x2="596" y2="74" stroke="#d97706" strokeWidth="1" strokeOpacity="0.25" />
+        <text x="320" y="124" textAnchor="middle" fontFamily="Georgia, serif" fontSize="22" fontWeight="700" fill="#0f172a">{t('courses.modal.certificateHeading')}</text>
+        <text x="320" y="152" textAnchor="middle" fontFamily="system-ui, -apple-system, sans-serif" fontSize="11.5" fill="#64748b">{t('courses.modal.awardedTo')}</text>
+        <text x="320" y="185" textAnchor="middle" fontFamily="Georgia, serif" fontSize="20" fontWeight="600" fill="#1e293b">{t('courses.modal.participantName')}</text>
+        <line x1="180" y1="194" x2="460" y2="194" stroke="#b45309" strokeWidth="1" strokeOpacity="0.4" />
+        <text x="320" y="218" textAnchor="middle" fontFamily="system-ui, -apple-system, sans-serif" fontSize="11" fill="#64748b">{t('courses.modal.participation')}</text>
+        <text x="320" y="244" textAnchor="middle" fontFamily="system-ui, -apple-system, sans-serif" fontSize="16" fontWeight="700" fill="#1e3a8a">{course.title}</text>
+        <text x="320" y="266" textAnchor="middle" fontFamily="system-ui, -apple-system, sans-serif" fontSize="12" fill="#475569">{t('courses.modal.certificateHours', { hours })}</text>
+        <line x1="44" y1="298" x2="596" y2="298" stroke="#d97706" strokeWidth="1" strokeOpacity="0.25" />
+        <line x1="60" y1="334" x2="200" y2="334" stroke="#94a3b8" strokeWidth="1" />
+        <text x="130" y="348" textAnchor="middle" fontFamily="system-ui, -apple-system, sans-serif" fontSize="10.5" fontWeight="500" fill="#334155">{t('courses.modal.academicTeam')}</text>
+        <text x="130" y="361" textAnchor="middle" fontFamily="system-ui, -apple-system, sans-serif" fontSize="9.5" fill="#94a3b8">Robles.AI</text>
+        <g transform="translate(235, 324)">
+          <rect x="0" y="0" width="170" height="26" rx="4" fill="#fef3c7" stroke="#b45309" strokeWidth="1" strokeOpacity="0.5" />
+          <text x="85" y="16.5" textAnchor="middle" fontFamily="system-ui, -apple-system, sans-serif" fontSize="8.5" fontWeight="800" letterSpacing="0.6px" fill="#92400e">{t('courses.modal.sampleMark')}</text>
+        </g>
+        <line x1="440" y1="334" x2="580" y2="334" stroke="#94a3b8" strokeWidth="1" />
+        <text x="510" y="348" textAnchor="middle" fontFamily="system-ui, -apple-system, sans-serif" fontSize="10.5" fontWeight="500" fill="#334155">{t('courses.modal.issueDate')}</text>
+      </svg>
     </div>
-    <p className="text-xs text-slate-600">{t('courses.modal.certificateNote')}</p>
+    <p className="text-xs text-slate-500 leading-relaxed">{t('courses.modal.certificateNote')}</p>
   </section>;
 }
 export function CourseDetailsModal({ course, onClose }: { course: Course; onClose: () => void }) {
