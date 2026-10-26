@@ -2,7 +2,7 @@ import { useCallback, useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { X, MessageSquare, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'wouter';
+import { useLocation, useSearch } from 'wouter';
 import type { ChatMessage, ContactData } from '../../../shared/chatTypes.js';
 import type { ConnectionStatus, ConversationStatus } from '../../hooks/useChatSession.js';
 import type { RobotMood } from './ChatbotWidget.js';
@@ -39,13 +39,18 @@ interface ChatPanelProps {
 function useWhatsAppMessage(): string {
   const { t } = useTranslation();
   const [location] = useLocation();
+  const search = useSearch();
+  const normalizedLocation = location.replace(/\/$/, '') || '/';
+  if (normalizedLocation === '/get-started' && new URLSearchParams(search).get('s') === 'chatbots') {
+    return t('whatsappWidget.chatbots.message');
+  }
 
   let contextKey = 'default';
-  if (location === '/get-started') contextKey = 'landing';
-  else if (location === '/') contextKey = 'home';
-  else if (location.startsWith('/blog')) contextKey = 'blog';
-  else if (location === '/careers' || location === '/apply') contextKey = 'careers';
-  else if (location.startsWith('/try-')) contextKey = 'demos';
+  if (normalizedLocation === '/get-started') contextKey = 'landing';
+  else if (normalizedLocation === '/') contextKey = 'home';
+  else if (normalizedLocation.startsWith('/blog')) contextKey = 'blog';
+  else if (normalizedLocation === '/careers' || normalizedLocation === '/apply') contextKey = 'careers';
+  else if (normalizedLocation.startsWith('/try-')) contextKey = 'demos';
 
   return t(`whatsappWidget.${contextKey}.message`);
 }

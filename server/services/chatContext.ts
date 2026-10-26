@@ -20,15 +20,20 @@ const contextCache = new Map<string, string>();
 export async function getPageContext(pagePath: string): Promise<string> {
   // Normalize path (remove trailing slash, query params, hash)
   const normalized = pagePath.split('?')[0].split('#')[0].replace(/\/$/, '') || '/';
+  const search = pagePath.split('?')[1]?.split('#')[0] || '';
+  const isChatbotCampaign = normalized === '/get-started' && new URLSearchParams(search).get('s') === 'chatbots';
+  const cacheKey = isChatbotCampaign ? `${normalized}?s=chatbots` : normalized;
 
   // Check cache first
-  if (contextCache.has(normalized)) {
-    return contextCache.get(normalized)!;
+  if (contextCache.has(cacheKey)) {
+    return contextCache.get(cacheKey)!;
   }
 
   let context: string;
 
-  if (normalized === '/') {
+  if (isChatbotCampaign) {
+    context = `The visitor arrived at the "Get Started with AI" landing page through the chatbot campaign. They may be interested in a chatbot like the live website chatbot demo at /try-chatbot, tailored to their business and potentially integrated with WhatsApp Business so customer conversations can continue there. Explain this naturally in the visitor's language, invite them to continue the conversation, and ask one relevant question about their business or customer-service needs. Do not promise specific integrations, results, pricing, or timelines before understanding their requirements.`;
+  } else if (normalized === '/') {
     context = getHomepageContext();
   } else if (normalized.startsWith('/blog/')) {
     const slug = normalized.replace('/blog/', '');
@@ -40,7 +45,7 @@ export async function getPageContext(pagePath: string): Promise<string> {
   }
 
   // Cache the result
-  contextCache.set(normalized, context);
+  contextCache.set(cacheKey, context);
   return context;
 }
 

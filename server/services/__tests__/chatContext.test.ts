@@ -62,6 +62,20 @@ describe('chatContext — getPageContext', () => {
     expect(context).toContain('AI/ML transformation');
   });
 
+  it('returns chatbot campaign context for /get-started?s=chatbots', async () => {
+    const context = await getPageContext('/get-started?s=chatbots');
+    expect(context).toContain('/try-chatbot');
+    expect(context).toContain('WhatsApp Business');
+    expect(context).toContain('invite them to continue the conversation');
+  });
+
+  it('keeps chatbot campaign context separate from the generic landing context', async () => {
+    const campaign = await getPageContext('/get-started?s=chatbots');
+    const generic = await getPageContext('/get-started');
+    expect(campaign).not.toBe(generic);
+    expect(generic).not.toContain('WhatsApp Business');
+  });
+
   it('returns generic fallback for unknown paths', async () => {
     const context = await getPageContext('/some/unknown/page');
     expect(context).toContain('Robles.AI');

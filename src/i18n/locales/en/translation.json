@@ -3183,7 +3183,10 @@
     },
     "chatbotWidget": {
         "greeting": "👋 Hi! I'm here if you need help with AI solutions or have any questions!",
-        "greetingShort": "👋 Need help with AI?"
+        "greetingShort": "👋 Need help with AI?",
+        "campaignKeywordIntro": "You searched for “{{keywords}}”.",
+        "chatbotCampaignGreeting": "Would you like a chatbot like this for your business? We can help integrate it with WhatsApp so you can stay connected with your customers. Would you like to tell me what you need?",
+        "chatbotCampaignGreetingShort": "Shall we talk about a chatbot for your business and WhatsApp?"
     },
     "chatInput": {
         "mic_start": "Dictate message",
@@ -3207,6 +3210,9 @@
         "landing": {
             "greeting": "Hi! We're here to help you get started with AI.",
             "message": "Hello, I'm interested in an AI Diagnosis"
+        },
+        "chatbots": {
+            "message": "Hello, I'm interested in a chatbot for my business and would like to know how to integrate it with WhatsApp."
         },
         "blog": {
             "greeting": "Hi! Have questions about what you're reading?",

@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { useLocation } from 'wouter';
+import { useLocation, useSearch } from 'wouter';
 import { useTranslation } from 'react-i18next';
 import { useChatSession } from '../../hooks/useChatSession.js';
 import ChatPanel from './ChatPanel.js';
@@ -48,7 +48,28 @@ function TypingDots() {
 
 export default function ChatbotWidget({ hideForMobileMenu = false }: { hideForMobileMenu?: boolean }) {
   const [location] = useLocation();
+  const search = useSearch();
   const { t } = useTranslation();
+  const searchParams = new URLSearchParams(search);
+  const normalizedLocation = location.replace(/\/$/, '') || '/';
+  const isChatbotCampaign = normalizedLocation === '/get-started' && searchParams.get('s') === 'chatbots';
+  const campaignKeywords = isChatbotCampaign
+    ? (searchParams.get('keywords') ?? searchParams.get('keyword') ?? searchParams.get('utm_term') ?? '')
+        .replace(/[\u0000-\u001f\u007f]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 100)
+    : '';
+  const keywordIntro = campaignKeywords
+    ? t('chatbotWidget.campaignKeywordIntro', { keywords: campaignKeywords })
+    : '';
+  const greetingText = isChatbotCampaign
+    ? [keywordIntro, t('chatbotWidget.chatbotCampaignGreeting')].filter(Boolean).join(' ')
+    : t('chatbotWidget.greeting');
+  const shortGreetingText = isChatbotCampaign
+    ? [keywordIntro, t('chatbotWidget.chatbotCampaignGreetingShort')].filter(Boolean).join(' ')
+    : t('chatbotWidget.greetingShort');
+  const chatPagePath = isChatbotCampaign ? `${normalizedLocation}?s=chatbots` : location;
   const [isOpen, setIsOpen] = useState(() => {
     try {
       return localStorage.getItem(CHAT_OPEN_STORAGE_KEY) === '1';
@@ -218,9 +239,6 @@ export default function ChatbotWidget({ hideForMobileMenu = false }: { hideForMo
     setNotificationDismissed(true);
   }, []);
 
-  // Compute the greeting text for the notification
-  const greetingText = t('chatbotWidget.greeting');
-
   // Build messages array with injected greeting if needed
   const effectiveMessages = (() => {
     // If the greeting phase completed and user hasn't chatted yet, inject greeting as first assistant message
@@ -280,7 +298,7 @@ export default function ChatbotWidget({ hideForMobileMenu = false }: { hideForMo
               onCloseSession={closeSession}
               onStartNewSession={startNewSession}
               onUserTyping={handleUserTyping}
-              pagePath={location}
+              pagePath={chatPagePath}
             />
           )}
         </AnimatePresence>
@@ -340,7 +358,7 @@ export default function ChatbotWidget({ hideForMobileMenu = false }: { hideForMo
                 <TypingDots />
               ) : (
                 <p className="text-sm text-gray-800 leading-snug">
-                  <span className="sm:hidden">{t('chatbotWidget.greetingShort')}</span>
+                  <span className="sm:hidden">{shortGreetingText}</span>
                   <span className="hidden sm:inline">{greetingText}</span>
                 </p>
               )}
