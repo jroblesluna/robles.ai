@@ -25,6 +25,7 @@ import publicRouter from './publicRoutes.js';
 import searchRouter from './searchRoutes.js';
 import chatRouter from './chatRoutes.js';
 import contactRouter from './contactRoutes.js';
+import courseInterestRouter from './courseInterestRoutes.js';
 import { generateDominicalReport } from './jobs/generateDominical.js';
 import { autoPublishDominical, shouldRunAutoPublishNow } from './jobs/autoPublishDominical.js';
 import { generateCarousel } from './services/carouselGenerator.js';
@@ -63,6 +64,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/chat', chatRouter);
 
   app.use('/api/contact', contactRouter);
+  app.use('/api/courses', courseInterestRouter);
 
   // 🧠 AI Diagnosis Quiz lead route — persists the lead and requires email verification
   // before the report/PDF unlock (see /api/quiz-lead/verify, /status, /resend, /pdf below).

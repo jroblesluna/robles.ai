@@ -350,7 +350,64 @@
                 "regularPrice": "US$ 1250",
                 "price": "US$ 1000",
                 "buttonBg": "bg-blue-700",
-                "buttonHoverBg": "hover:bg-blue-800"
+                "buttonHoverBg": "hover:bg-blue-800",
+                "id": "pytorch-deep-learning",
+                "modules": [
+                    {
+                        "title": "Tensores, datos y entorno de trabajo",
+                        "description": "Prepararás datos y operaciones con tensores para construir experimentos reproducibles.",
+                        "topics": [
+                            "Tensores y operaciones",
+                            "Datasets y DataLoaders",
+                            "Separación de entrenamiento y validación"
+                        ]
+                    },
+                    {
+                        "title": "Redes neuronales y aprendizaje",
+                        "description": "Construirás una red y entenderás cómo aprende a partir de una función de pérdida.",
+                        "topics": [
+                            "Capas y activaciones",
+                            "Autograd y retropropagación",
+                            "Funciones de pérdida y optimizadores"
+                        ]
+                    },
+                    {
+                        "title": "Entrenamiento y diagnóstico de modelos",
+                        "description": "Aprenderás a interpretar métricas y corregir problemas habituales de entrenamiento.",
+                        "topics": [
+                            "Bucles de entrenamiento",
+                            "Regularización y sobreajuste",
+                            "Métricas y análisis de errores"
+                        ]
+                    },
+                    {
+                        "title": "Arquitecturas para datos reales",
+                        "description": "Compararás arquitecturas y seleccionarás una aproximación según el tipo de datos.",
+                        "topics": [
+                            "Redes convolucionales",
+                            "Introducción a secuencias",
+                            "Selección y comparación de modelos"
+                        ]
+                    },
+                    {
+                        "title": "Transfer learning y eficiencia",
+                        "description": "Adaptarás modelos preentrenados y medirás el costo de entrenamiento e inferencia.",
+                        "topics": [
+                            "Reutilización de modelos",
+                            "Fine-tuning",
+                            "Uso de GPU y medición de rendimiento"
+                        ]
+                    },
+                    {
+                        "title": "Proyecto aplicado y entrega",
+                        "description": "Completarás un caso práctico con una evaluación documentada y una demostración final.",
+                        "topics": [
+                            "Pipeline reproducible",
+                            "Guardado y carga de modelos",
+                            "Evaluación y presentación del proyecto"
+                        ]
+                    }
+                ]
             },
             {
                 "title": "TensorFlow en Producción",
@@ -363,7 +420,64 @@
                 "regularPrice": "US$ 1500",
                 "price": "US$ 1200",
                 "buttonBg": "bg-orange-700",
-                "buttonHoverBg": "hover:bg-orange-800"
+                "buttonHoverBg": "hover:bg-orange-800",
+                "id": "tensorflow-production",
+                "modules": [
+                    {
+                        "title": "Diseño de un sistema de ML en producción",
+                        "description": "Definirás el caso de uso, la métrica de negocio y los límites de la solución antes de desplegar.",
+                        "topics": [
+                            "Arquitectura y requisitos",
+                            "Baseline y criterios de aceptación",
+                            "Entornos y dependencias"
+                        ]
+                    },
+                    {
+                        "title": "Datos y pipelines reproducibles",
+                        "description": "Construirás un flujo de datos que pueda validarse, repetirse y mantenerse.",
+                        "topics": [
+                            "Validación y calidad de datos",
+                            "Pipelines con tf.data",
+                            "Versionado de datos y transformaciones"
+                        ]
+                    },
+                    {
+                        "title": "Entrenamiento y evaluación",
+                        "description": "Desarrollarás modelos con Keras y compararás resultados con criterios consistentes.",
+                        "topics": [
+                            "Construcción de modelos",
+                            "Experimentos y checkpoints",
+                            "Evaluación y análisis de errores"
+                        ]
+                    },
+                    {
+                        "title": "Despliegue e inferencia",
+                        "description": "Prepararás un modelo para servir predicciones y medir su comportamiento operativo.",
+                        "topics": [
+                            "Exportación de modelos",
+                            "API de inferencia",
+                            "Latencia, concurrencia y recursos"
+                        ]
+                    },
+                    {
+                        "title": "Operación y mantenimiento",
+                        "description": "Diseñarás señales para detectar cambios en los datos y fallos del servicio.",
+                        "topics": [
+                            "Monitoreo de calidad",
+                            "Drift y reentrenamiento",
+                            "Versiones y reversión de despliegues"
+                        ]
+                    },
+                    {
+                        "title": "Proyecto de producción",
+                        "description": "Integrarás datos, modelo y servicio en una entrega demostrable y documentada.",
+                        "topics": [
+                            "Pruebas del pipeline",
+                            "Documentación y controles de acceso",
+                            "Demostración y plan operativo"
+                        ]
+                    }
+                ]
             },
             {
                 "title": "Transformers de Hugging Face",
@@ -376,7 +490,64 @@
                 "regularPrice": "US$ 1185",
                 "price": "US$ 950",
                 "buttonBg": "bg-yellow-700",
-                "buttonHoverBg": "hover:bg-yellow-800"
+                "buttonHoverBg": "hover:bg-yellow-800",
+                "id": "hugging-face-transformers",
+                "modules": [
+                    {
+                        "title": "Fundamentos de Transformers",
+                        "description": "Entenderás las piezas de un Transformer y cuándo conviene usar un modelo preentrenado.",
+                        "topics": [
+                            "Atención y representaciones",
+                            "Tipos de modelos",
+                            "Selección según tarea y recursos"
+                        ]
+                    },
+                    {
+                        "title": "Tokenización y preparación de datos",
+                        "description": "Prepararás conjuntos de datos para tareas de lenguaje con transformaciones verificables.",
+                        "topics": [
+                            "Tokenizadores",
+                            "Limpieza y particiones",
+                            "Datasets y formatos de entrada"
+                        ]
+                    },
+                    {
+                        "title": "Pipelines de NLP",
+                        "description": "Construirás soluciones de clasificación, extracción y búsqueda a partir de modelos existentes.",
+                        "topics": [
+                            "Clasificación de texto",
+                            "Extracción de entidades",
+                            "Embeddings y similitud semántica"
+                        ]
+                    },
+                    {
+                        "title": "Adaptación de modelos",
+                        "description": "Ajustarás un modelo a una tarea y compararás el resultado con el baseline.",
+                        "topics": [
+                            "Fine-tuning supervisado",
+                            "Preparación del entrenamiento",
+                            "Técnicas de adaptación eficiente"
+                        ]
+                    },
+                    {
+                        "title": "Evaluación y limitaciones",
+                        "description": "Diseñarás evaluaciones que detecten errores relevantes y limitaciones del modelo.",
+                        "topics": [
+                            "Métricas por tarea",
+                            "Sesgos y errores frecuentes",
+                            "Análisis de ejemplos difíciles"
+                        ]
+                    },
+                    {
+                        "title": "Despliegue y proyecto final",
+                        "description": "Empaquetarás una solución de NLP para que pueda probarse y mantenerse.",
+                        "topics": [
+                            "Servicio de inferencia",
+                            "Costos y latencia",
+                            "Presentación y documentación del proyecto"
+                        ]
+                    }
+                ]
             },
             {
                 "title": "Desarrollo con LangChain",
@@ -625,7 +796,173 @@
                             ]
                         }
                     ]
-                }
+                },
+                "id": "langchain-development",
+                "modules": [
+                    {
+                        "title": "Fundamentos de LLM con LangChain",
+                        "description": "Construirás las piezas de una aplicación con modelos de lenguaje y salidas verificables.",
+                        "topics": [
+                            "Configuración inicial con LangChain",
+                            "Uso de LLMs en LangChain",
+                            "Haciendo reutilizables los prompts de LLM",
+                            "Obteniendo formatos específicos de los LLMs",
+                            "Salida en JSON",
+                            "Otros formatos legibles por máquina con parsers de salida",
+                            "Ensamblando las piezas de una aplicación LLM",
+                            "Usando la Interfaz Runnable",
+                            "Composición Imperativa",
+                            "Composición Declarativa",
+                            "Resumen"
+                        ]
+                    },
+                    {
+                        "title": "RAG Parte I: Indexando tus Datos",
+                        "description": "Prepararás documentos, embeddings e índices para recuperar contexto relevante.",
+                        "topics": [
+                            "El objetivo: Seleccionar contexto relevante para los LLMs",
+                            "Embeddings: Convirtiendo texto en números",
+                            "Embeddings antes de los LLMs",
+                            "Embeddings basados en LLM",
+                            "Explicación de embeddings semánticos",
+                            "Convirtiendo tus documentos en texto",
+                            "Dividiendo tu texto en fragmentos",
+                            "Generando embeddings de texto",
+                            "Almacenando embeddings en un Vector Store",
+                            "Configuración con PGVector",
+                            "Trabajando con Vector Stores",
+                            "Rastreando cambios en tus documentos",
+                            "Optimización del indexado",
+                            "MultiVectorRetriever",
+                            "RAPTOR: Procesamiento Abstractive Recursivo para Recuperación en Árbol",
+                            "CoLBERT: Optimización de Embeddings",
+                            "Resumen"
+                        ]
+                    },
+                    {
+                        "title": "RAG Parte II: Chateando con tus Datos",
+                        "description": "Construirás respuestas fundamentadas en documentos y compararás estrategias de recuperación.",
+                        "topics": [
+                            "Introducción a Retrieval-Augmented Generation",
+                            "Recuperando documentos relevantes",
+                            "Generando predicciones de LLM usando documentos relevantes",
+                            "Transformación de consultas",
+                            "Reescribir-Recuperar-Leer",
+                            "Recuperación con múltiples consultas",
+                            "RAG-Fusion",
+                            "Embeddings de documentos hipotéticos",
+                            "Enrutamiento de consultas",
+                            "Enrutamiento lógico",
+                            "Enrutamiento semántico",
+                            "Construcción de consultas",
+                            "Filtro de texto a metadatos",
+                            "Texto a SQL",
+                            "Resumen"
+                        ]
+                    },
+                    {
+                        "title": "Usando LangGraph para Añadir Memoria a tu Chatbot",
+                        "description": "Añadirás estado y memoria a un asistente usando grafos de ejecución.",
+                        "topics": [
+                            "Construyendo un sistema de memoria de chatbot",
+                            "Introducción a LangGraph",
+                            "Creando un StateGraph",
+                            "Añadiendo memoria al StateGraph",
+                            "Modificando el historial de chat",
+                            "Recortar mensajes",
+                            "Filtrar mensajes",
+                            "Unir mensajes consecutivos",
+                            "Resumen"
+                        ]
+                    },
+                    {
+                        "title": "Arquitecturas Cognitivas con LangGraph",
+                        "description": "Compararás cadenas, llamadas simples y enrutadores para elegir una arquitectura adecuada.",
+                        "topics": [
+                            "Arquitectura #1: Llamada LLM",
+                            "Arquitectura #2: Chain",
+                            "Arquitectura #3: Router",
+                            "Resumen"
+                        ]
+                    },
+                    {
+                        "title": "Arquitectura de Agentes",
+                        "description": "Construirás un agente que use herramientas y controles sobre su ejecución.",
+                        "topics": [
+                            "El ciclo Plan-Do",
+                            "Construyendo un agente con LangGraph",
+                            "Llamando siempre a una herramienta primero",
+                            "Manejando múltiples herramientas",
+                            "Resumen"
+                        ]
+                    },
+                    {
+                        "title": "Agentes II",
+                        "description": "Organizarás flujos con subgrafos, reflexión y coordinación de agentes.",
+                        "topics": [
+                            "Reflexión",
+                            "Subgrafos en LangGraph",
+                            "Llamando a un subgrafo directamente",
+                            "Llamando a un subgrafo con una función",
+                            "Arquitecturas multi-agente",
+                            "Arquitectura Supervisor",
+                            "Resumen"
+                        ]
+                    },
+                    {
+                        "title": "Patrones para Sacar lo Mejor de los LLMs",
+                        "description": "Aplicarás patrones para manejar resultados estructurados, streaming y revisión humana.",
+                        "topics": [
+                            "Salida estructurada",
+                            "Salida intermedia",
+                            "Streaming de salida LLM token por token",
+                            "Modalidades con humano en el loop",
+                            "Multitarea con LLMs",
+                            "Resumen"
+                        ]
+                    },
+                    {
+                        "title": "Despliegue: Lanzando tu Aplicación de IA en Producción",
+                        "description": "Prepararás los componentes de una aplicación para su despliegue y operación.",
+                        "topics": [
+                            "Prerrequisitos",
+                            "Instalar dependencias",
+                            "Modelo de lenguaje",
+                            "Vector Store",
+                            "API Backend",
+                            "Crear cuenta en LangSmith",
+                            "Entendiendo la API de LangGraph Platform",
+                            "Modelos de datos",
+                            "Características",
+                            "Desplegando tu aplicación en LangGraph Platform",
+                            "Crear una configuración de API LangGraph",
+                            "Probar tu aplicación localmente",
+                            "Desplegar desde la UI de LangSmith",
+                            "Lanzar LangGraph Studio",
+                            "Seguridad",
+                            "Resumen"
+                        ]
+                    },
+                    {
+                        "title": "Pruebas: Evaluación, Monitoreo y Mejora Continua",
+                        "description": "Diseñarás evaluaciones y un ciclo de monitoreo y mejora continua.",
+                        "topics": [
+                            "Técnicas de testeo a lo largo del ciclo de desarrollo de apps LLM",
+                            "La etapa de diseño: RAG autocorrectivo",
+                            "La etapa de preproducción",
+                            "Creación de datasets",
+                            "Definición de criterios de evaluación",
+                            "Pruebas de regresión",
+                            "Evaluación del rendimiento de un agente de punta a punta",
+                            "Producción",
+                            "Trazabilidad",
+                            "Recolección de feedback en producción",
+                            "Clasificación y etiquetado",
+                            "Monitoreo y corrección de errores",
+                            "Resumen"
+                        ]
+                    }
+                ]
             },
             {
                 "title": "IA Generativa con OpenAI",
@@ -638,7 +975,64 @@
                 "regularPrice": "US$ 1125",
                 "price": "US$ 900",
                 "buttonBg": "bg-violet-700",
-                "buttonHoverBg": "hover:bg-violet-800"
+                "buttonHoverBg": "hover:bg-violet-800",
+                "id": "openai-generative-ai",
+                "modules": [
+                    {
+                        "title": "Fundamentos y uso de APIs",
+                        "description": "Configurarás el entorno de desarrollo y aprenderás a realizar solicitudes de forma controlada.",
+                        "topics": [
+                            "Credenciales en el servidor",
+                            "Solicitudes y respuestas",
+                            "Límites, errores y costos"
+                        ]
+                    },
+                    {
+                        "title": "Instrucciones y salidas estructuradas",
+                        "description": "Diseñarás instrucciones y formatos para integrar respuestas de IA en una aplicación.",
+                        "topics": [
+                            "Diseño de prompts",
+                            "Esquemas y validación",
+                            "Manejo de respuestas incompletas"
+                        ]
+                    },
+                    {
+                        "title": "Herramientas y automatización",
+                        "description": "Conectarás el modelo con funciones de tu aplicación manteniendo controles sobre las acciones.",
+                        "topics": [
+                            "Definición de herramientas",
+                            "Validación de argumentos",
+                            "Aprobación de acciones sensibles"
+                        ]
+                    },
+                    {
+                        "title": "Respuestas con datos propios",
+                        "description": "Construirás un flujo de recuperación para responder desde documentos de una organización.",
+                        "topics": [
+                            "Preparación de documentos",
+                            "Embeddings y recuperación",
+                            "Respuestas con referencias"
+                        ]
+                    },
+                    {
+                        "title": "Aplicaciones multimodales",
+                        "description": "Explorarás casos de texto e imágenes y sus límites de calidad, privacidad y costo.",
+                        "topics": [
+                            "Análisis de imágenes",
+                            "Generación de contenido",
+                            "Selección de capacidades según el caso"
+                        ]
+                    },
+                    {
+                        "title": "Evaluación y aplicación final",
+                        "description": "Entregarás una aplicación pequeña con pruebas, controles y documentación de uso.",
+                        "topics": [
+                            "Conjunto de evaluación",
+                            "Métricas y registro de errores",
+                            "Demostración y entrega del proyecto"
+                        ]
+                    }
+                ]
             },
             {
                 "title": "Visión por Computadora con PyTorch",
@@ -651,9 +1045,107 @@
                 "regularPrice": "US$ 1500",
                 "price": "US$ 1200",
                 "buttonBg": "bg-blue-700",
-                "buttonHoverBg": "hover:bg-blue-800"
+                "buttonHoverBg": "hover:bg-blue-800",
+                "id": "pytorch-computer-vision",
+                "modules": [
+                    {
+                        "title": "Imágenes y preparación de datasets",
+                        "description": "Construirás un conjunto de datos visuales con particiones y transformaciones adecuadas.",
+                        "topics": [
+                            "Formatos y anotaciones",
+                            "Limpieza y aumento de datos",
+                            "Separación sin fuga de información"
+                        ]
+                    },
+                    {
+                        "title": "Clasificación de imágenes",
+                        "description": "Entrenarás y adaptarás modelos para reconocer categorías en imágenes.",
+                        "topics": [
+                            "Redes convolucionales",
+                            "Transfer learning",
+                            "Evaluación por clase"
+                        ]
+                    },
+                    {
+                        "title": "Detección de objetos",
+                        "description": "Prepararás anotaciones y evaluarás la localización de objetos además de su clasificación.",
+                        "topics": [
+                            "Cajas y etiquetas",
+                            "Entrenamiento de un detector",
+                            "Precisión, recall y casos difíciles"
+                        ]
+                    },
+                    {
+                        "title": "Segmentación de imágenes",
+                        "description": "Trabajarás con predicciones por píxel para separar regiones y objetos.",
+                        "topics": [
+                            "Máscaras y anotación",
+                            "Segmentación semántica",
+                            "Métricas y visualización de resultados"
+                        ]
+                    },
+                    {
+                        "title": "Video y rendimiento",
+                        "description": "Extenderás la solución a secuencias y medirás su costo en condiciones operativas.",
+                        "topics": [
+                            "Procesamiento de frames",
+                            "Seguimiento y consistencia temporal",
+                            "Latencia y uso de recursos"
+                        ]
+                    },
+                    {
+                        "title": "Proyecto aplicado de visión",
+                        "description": "Presentarás un caso completo con evidencias de evaluación y un plan de despliegue.",
+                        "topics": [
+                            "Pipeline de inferencia",
+                            "Pruebas con datos nuevos",
+                            "Entrega y documentación del proyecto"
+                        ]
+                    }
+                ]
             }
-        ]
+        ],
+        "viewCourse": "Ver curso",
+        "modal": {
+            "availability": "Disponibilidad e inicio previsto",
+            "noSeats": "Curso sin cupo",
+            "nextStart": "Próximo inicio previsto:",
+            "dateNote": "Inicios previstos el primer lunes de enero, abril, julio u octubre, con al menos 14 días de anticipación. Fecha y horario sujetos a confirmación.",
+            "notifyTitle": "Avísenme cuando se abran las inscripciones",
+            "notifyDescription": "Deja tu correo para recibir un aviso sobre este curso.",
+            "emailPlaceholder": "Tu correo electrónico",
+            "notifyButton": "Quiero que me avisen",
+            "sending": "Enviando…",
+            "requestReceived": "Solicitud recibida",
+            "notifySuccess": "Tu solicitud fue enviada a Robles.AI. Te avisaremos cuando se abran las inscripciones.",
+            "notifyError": "No pudimos enviar tu solicitud. Inténtalo de nuevo o escríbenos a info@robles.ai.",
+            "privacy": "Usaremos tu correo para responder a esta solicitud sobre el curso. No te suscribimos al boletín.",
+            "close": "Cerrar detalles del curso",
+            "durationLabel": "Duración",
+            "weeks": "{{count}} semanas",
+            "weeklyLabel": "Dedicación semanal estimada",
+            "totalLabel": "Horas totales estimadas",
+            "hours": "{{count}} h",
+            "modeLabel": "Modalidad",
+            "liveOnline": "En vivo · online",
+            "workloadNote": "Estimación semanal: {{live}} h de clases en vivo + {{practice}} h de práctica. Incluye {{liveTotal}} h en vivo durante el curso.",
+            "modulesTitle": "Módulos del curso",
+            "certificateTitle": "Modelo del certificado",
+            "training": "Formación en inteligencia artificial",
+            "certificateHeading": "Certificado de participación",
+            "awardedTo": "Se otorga a",
+            "participantName": "Nombre del participante",
+            "participation": "por su participación en el curso",
+            "certificateHours": "{{hours}} horas de formación y práctica",
+            "academicTeam": "Dirección académica",
+            "issueDate": "Fecha de emisión",
+            "sampleMark": "Modelo ilustrativo · sin validez",
+            "certificateNote": "Modelo orientativo emitido por Robles.AI. Se personalizará al completar el curso; las horas finales se confirmarán con la convocatoria.",
+            "methodTitle": "Cómo aprenderás",
+            "methodDescription": "Clases online en vivo con instructor, ejercicios guiados, práctica individual y un proyecto aplicado. El horario de las sesiones se confirmará al abrir inscripciones.",
+            "priceLabel": "Precio publicado",
+            "reference": "Material de referencia"
+        }
     },
     "testimonials": {
         "title": "Lo que dicen nuestros clientes",
