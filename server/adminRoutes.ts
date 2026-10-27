@@ -4,6 +4,7 @@ import { Router } from 'express';
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import OpenAI from 'openai';
+import nodemailer from 'nodemailer';
 import path from 'path';
 import fs from 'fs';
 import db from './db.js';
@@ -21,6 +22,10 @@ import { InstagramAdapter } from './services/platforms/instagramAdapter.js';
 import { FacebookAdapter } from './services/platforms/facebookAdapter.js';
 import type { PlatformName, PlatformAdapter } from './services/platforms/types.js';
 import { GRAPH_API_BASE } from './services/metaGraphApi.js';
+import { getEmailSettings } from './services/emailSettings.js';
+import { queryReport } from './services/ga4Client.js';
+import { getGoogleAdsReader } from './services/googleAdsApi.js';
+import { queryMetaAds } from './services/metaAds.js';
 import { rebuildListingIndex } from './listing/indexer.js';
 import chatAdminRouter from './chatAdminRoutes.js';
 
@@ -257,6 +262,142 @@ adminRouter.put('/settings', requireAuth, (req, res) => {
   } catch (error) {
     console.error('Error updating settings:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+adminRouter.post('/settings/email/validate', requireAuth, async (_req, res) => {
+  const emailSettings = getEmailSettings();
+  if (!emailSettings) {
+    res.json({ valid: false, message: 'Save the Gmail account, app password, and recipient before validating.' });
+    return;
+  }
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 20000,
+    auth: { user: emailSettings.user, pass: emailSettings.appPassword },
+  });
+  try {
+    await transporter.verify();
+    res.json({ valid: true, message: 'Gmail SMTP authentication succeeded.' });
+  } catch (error) {
+    const code = error && typeof error === 'object' && 'code' in error ? String(error.code) : '';
+    console.error('[admin.settings.email.validate] SMTP verification failed', { code });
+    const message = code === 'EAUTH'
+      ? 'Gmail rejected the credentials. Check the account and Google App Password.'
+      : 'Could not connect to Gmail SMTP. Check the account settings and try again.';
+    res.json({ valid: false, message });
+  }
+});
+
+adminRouter.post('/settings/ga4/validate', requireAuth, async (_req, res) => {
+  try {
+    await queryReport([], ['activeUsers'], { startDate: '7daysAgo', endDate: 'today' });
+    res.json({ valid: true, message: 'GA4 service account can read the configured property.' });
+  } catch (error) {
+    console.error('[admin.settings.ga4.validate] GA4 connection failed', error);
+    const message = error instanceof Error ? error.message : 'GA4 connection failed. Check the service account and property ID.';
+    res.json({ valid: false, message });
+  }
+});
+
+adminRouter.post('/settings/google-ads/validate', requireAuth, async (_req, res) => {
+  try {
+    const reader = await getGoogleAdsReader({ startDate: '2026-01-01', endDate: '2026-01-01' });
+    await reader.search('SELECT customer.id FROM customer LIMIT 1');
+    res.json({ valid: true, message: 'Google Ads credentials can read the configured customer account.' });
+  } catch (error) {
+    console.error('[admin.settings.google-ads.validate] Google Ads connection failed', error);
+    const message = error instanceof Error ? error.message : 'Google Ads connection failed. Check OAuth credentials and account access.';
+    res.json({ valid: false, message });
+  }
+});
+
+adminRouter.post('/settings/meta-ads/validate', requireAuth, async (_req, res) => {
+  const end = new Date();
+  const start = new Date(end);
+  start.setUTCDate(start.getUTCDate() - 6);
+  try {
+    const result = await queryMetaAds({
+      startDate: start.toISOString().slice(0, 10),
+      endDate: end.toISOString().slice(0, 10),
+    });
+    if ('error' in result) {
+      res.json({ valid: false, message: result.message });
+      return;
+    }
+    res.json({ valid: true, message: 'Meta Ads credentials can read the configured ad account.' });
+  } catch (error) {
+    console.error('[admin.settings.meta-ads.validate] Meta Ads connection failed', error);
+    const message = error instanceof Error ? error.message : 'Meta Ads connection failed. Check the token and ad account access.';
+    res.json({ valid: false, message });
+  }
+});
+
+adminRouter.post('/settings/openai/validate', requireAuth, async (_req, res) => {
+  const row = db.prepare('SELECT value FROM settings WHERE key = ?').get('openai_api_key') as
+    | { value: string | null }
+    | undefined;
+  if (!row?.value) {
+    res.json({ valid: false, message: 'Save an OpenAI API key before validating.' });
+    return;
+  }
+
+  try {
+    await new OpenAI({ apiKey: row.value }).models.list();
+    res.json({ valid: true, message: 'OpenAI accepted the API key.' });
+  } catch (error) {
+    const status = error && typeof error === 'object' && 'status' in error ? Number(error.status) : 0;
+    console.error('[admin.settings.openai.validate] OpenAI key validation failed', { status });
+    const message = status === 401
+      ? 'OpenAI rejected the API key. Check that the key is current.'
+      : 'Could not verify the OpenAI API key. Check API access and try again.';
+    res.json({ valid: false, message });
+  }
+});
+
+adminRouter.post('/settings/image-provider/validate', requireAuth, async (_req, res) => {
+  const providerRow = db.prepare('SELECT value FROM settings WHERE key = ?').get('image_provider') as
+    | { value: string | null }
+    | undefined;
+  const provider = providerRow?.value || 'dalle3';
+  if (!['dalle3', 'stability', 'replicate'].includes(provider)) {
+    res.json({ valid: false, message: 'Select a supported image generation provider before validating.' });
+    return;
+  }
+  const keyName = provider === 'stability' ? 'stability_api_key' : provider === 'replicate' ? 'replicate_api_token' : 'openai_api_key';
+  const keyRow = db.prepare('SELECT value FROM settings WHERE key = ?').get(keyName) as
+    | { value: string | null }
+    | undefined;
+  if (!keyRow?.value) {
+    res.json({ valid: false, message: `Save the ${provider === 'dalle3' ? 'OpenAI' : provider} credential before validating.` });
+    return;
+  }
+
+  try {
+    if (provider === 'dalle3') {
+      await new OpenAI({ apiKey: keyRow.value }).models.list();
+    } else {
+      const endpoint = provider === 'stability'
+        ? 'https://api.stability.ai/v1/user/account'
+        : 'https://api.replicate.com/v1/account';
+      const response = await fetch(endpoint, {
+        headers: { Authorization: `Bearer ${keyRow.value}` },
+        signal: AbortSignal.timeout(15000),
+      });
+      if (!response.ok) {
+        console.error('[admin.settings.image-provider.validate] Provider rejected credentials', { provider, status: response.status });
+        res.json({ valid: false, message: `${provider} rejected the saved credential (HTTP ${response.status}).` });
+        return;
+      }
+    }
+    res.json({ valid: true, message: `${provider === 'dalle3' ? 'OpenAI' : provider} accepted the saved credential.` });
+  } catch (error) {
+    const status = error && typeof error === 'object' && 'status' in error ? Number(error.status) : 0;
+    console.error('[admin.settings.image-provider.validate] Provider validation failed', { provider, status });
+    res.json({ valid: false, message: `Could not verify the ${provider} credential. Check it and try again.` });
   }
 });
 

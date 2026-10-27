@@ -12,15 +12,16 @@ it('shows masked saved fingerprints, hides replacement secrets and never resaves
   render(<AdminSettings />);
   await screen.findByLabelText('API Key');
   expect(screen.getByText(/Saved: \*\*\*\*1234/)).toBeInTheDocument();
-  expect(screen.getByText(/Saved: \*\*\*\*5678/)).toBeInTheDocument();
+  expect(screen.getAllByText(/Saved: \*\*\*\*5678/)).toHaveLength(2);
   await waitFor(() => expect(screen.getByLabelText('App Secret')).toHaveAttribute('placeholder', expect.stringContaining('****5678')));
   expect(screen.getByLabelText('App Secret')).toHaveAttribute('type', 'password');
+  fireEvent.change(screen.getByLabelText('Notification Email'), { target: { value: 'changed@example.test' } });
   fireEvent.click(screen.getByRole('button', { name: 'Save Dominical Preferences' }));
   await waitFor(() => expect(saved).toBeDefined());
   expect(saved).not.toHaveProperty('openai_api_key');
   expect(saved).not.toHaveProperty('email_app_password');
   expect(saved).not.toHaveProperty('meta_app_secret');
-  expect(saved.notification_email).toBe('fixture@example.test');
+  expect(saved.notification_email).toBe('changed@example.test');
   expect(saved).not.toHaveProperty('email_to');
   expect(saved).not.toHaveProperty('linkedin_client_id');
   expect(saved).not.toHaveProperty('booking_url');
@@ -47,10 +48,7 @@ it('saves only email delivery settings from the email section button', async () 
   fireEvent.change(email, { target: { value: 'new-sender@example.test' } });
   fireEvent.click(screen.getByRole('button', { name: 'Save Email Delivery' }));
   await waitFor(() => expect(requests).toHaveLength(1));
-  expect(requests[0]).toEqual({
-    email_user: 'new-sender@example.test',
-    email_to: 'team@example.test',
-  });
+  expect(requests[0]).toEqual({ email_user: 'new-sender@example.test' });
 });
 it('saves LinkedIn credentials only from the LinkedIn section and preserves the masked secret', async () => {
   const requests: Array<Record<string, string>> = [];
@@ -70,4 +68,55 @@ it('blocks section saves after settings fail to load', async () => {
   render(<AdminSettings />);
   expect(await screen.findByRole('button', { name: 'Save Email Delivery' })).toBeDisabled();
   expect(screen.getByText(/Settings could not be loaded/)).toBeInTheDocument();
+});
+it('disables section saves until a setting changes and re-disables after reverting it', async () => {
+  vi.stubGlobal('fetch', vi.fn(async (url: string) => ({
+    ok: true,
+    json: async () => url.endsWith('/meta') ? {} : { email_user: 'sender@example.test' },
+  })));
+  render(<AdminSettings />);
+  const save = await screen.findByRole('button', { name: 'Save Email Delivery' });
+  expect(save).toBeDisabled();
+  const email = screen.getByLabelText('Gmail account');
+  fireEvent.change(email, { target: { value: 'other@example.test' } });
+  expect(save).toBeEnabled();
+  fireEvent.change(email, { target: { value: 'sender@example.test' } });
+  expect(save).toBeDisabled();
+});
+it('shows all saved password credentials as blank inputs with a consistent masked fingerprint', async () => {
+  vi.stubGlobal('fetch', vi.fn(async (url: string) => ({
+    ok: true,
+    json: async () => url.endsWith('/meta')
+      ? { meta_app_secret: true, instagram_access_token: true }
+      : {
+          email_app_password: '****5678',
+          linkedin_client_secret: '****AB12',
+          meta_app_secret: '****CDEF',
+          instagram_access_token: '****9012',
+          openai_api_key: '****1234',
+        },
+  })));
+  render(<AdminSettings />);
+  for (const [label, fingerprint] of [
+    ['Gmail app password', '****5678'],
+    ['Client Secret', '****AB12'],
+    ['App Secret', '****CDEF'],
+    ['Access Token', '****9012'],
+    ['API Key', '****1234'],
+  ]) {
+    const input = await screen.findByLabelText(label);
+    expect(input).toHaveValue('');
+    expect(input).toHaveAttribute('type', 'password');
+    expect(input).toHaveAttribute('placeholder', expect.stringContaining(fingerprint));
+  }
+});
+it('validates a saved email configuration without sending a test message', async () => {
+  const requests: Array<{ url: string; method?: string }> = [];
+  vi.stubGlobal('fetch', vi.fn(async (url: string, options?: { method?: string }) => {
+    requests.push({ url, method: options?.method });
+    return { ok: true, json: async () => url.endsWith('/meta') ? {} : { email_user: 'sender@example.test' } };
+  }));
+  render(<AdminSettings />);
+  fireEvent.click(await screen.findByRole('button', { name: 'Validate Email Delivery' }));
+  await waitFor(() => expect(requests.some((request) => request.url.endsWith('/settings/email/validate') && request.method === 'POST')).toBe(true));
 });

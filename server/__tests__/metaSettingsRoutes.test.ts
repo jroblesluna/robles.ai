@@ -18,6 +18,12 @@ const mockGet = vi.fn();
 const mockAll = vi.fn();
 const mockRun = vi.fn();
 const mockTransaction = vi.fn((fn: Function) => fn);
+const mockEmailSettings = vi.fn();
+const mockSmtpVerify = vi.fn();
+const mockQueryReport = vi.fn();
+const mockGoogleAdsSearch = vi.fn();
+const mockMetaAdsQuery = vi.fn();
+const mockOpenAiModelsList = vi.fn();
 const mockPrepare = vi.fn(() => ({
   get: mockGet,
   all: mockAll,
@@ -28,6 +34,27 @@ vi.mock('../db.js', () => ({
   default: {
     prepare: (...args: any[]) => mockPrepare(...args),
     transaction: (fn: Function) => mockTransaction(fn),
+  },
+}));
+
+vi.mock('nodemailer', () => ({
+  default: { createTransport: () => ({ verify: mockSmtpVerify }) },
+}));
+vi.mock('../services/emailSettings.js', () => ({
+  getEmailSettings: () => mockEmailSettings(),
+}));
+vi.mock('../services/ga4Client.js', () => ({
+  queryReport: (...args: any[]) => mockQueryReport(...args),
+}));
+vi.mock('../services/googleAdsApi.js', () => ({
+  getGoogleAdsReader: vi.fn(async () => ({ search: mockGoogleAdsSearch })),
+}));
+vi.mock('../services/metaAds.js', () => ({
+  queryMetaAds: (...args: any[]) => mockMetaAdsQuery(...args),
+}));
+vi.mock('openai', () => ({
+  default: class {
+    models = { list: mockOpenAiModelsList };
   },
 }));
 
@@ -112,6 +139,12 @@ beforeEach(async () => {
   mockGet.mockReturnValue(undefined);
   mockAll.mockReturnValue([]);
   mockRun.mockReturnValue({ changes: 1 });
+  mockEmailSettings.mockReturnValue(null);
+  mockSmtpVerify.mockResolvedValue(undefined);
+  mockQueryReport.mockResolvedValue({ rows: [] });
+  mockGoogleAdsSearch.mockResolvedValue([]);
+  mockMetaAdsQuery.mockResolvedValue({ account: { id: 'act_123' }, totals: {}, campaigns: [], daily: [] });
+  mockOpenAiModelsList.mockResolvedValue({ data: [] });
   // Make transaction return a function that calls the inner fn
   mockTransaction.mockImplementation((fn: Function) => (...args: any[]) => fn(...args));
 
@@ -124,6 +157,58 @@ beforeEach(async () => {
 });
 
 describe('Meta Credential Settings Endpoints', () => {
+  describe('saved credential validation endpoints', () => {
+    it('verifies Gmail SMTP credentials without sending mail', async () => {
+      mockEmailSettings.mockReturnValue({ user: 'sender@example.test', appPassword: 'app-password', recipient: 'team@example.test' });
+      const res = await request(app).post('/api/admin/settings/email/validate');
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({ valid: true, message: 'Gmail SMTP authentication succeeded.' });
+      expect(mockSmtpVerify).toHaveBeenCalledOnce();
+    });
+
+    it('reports a rejected Gmail password without exposing credential data', async () => {
+      mockEmailSettings.mockReturnValue({ user: 'sender@example.test', appPassword: 'never-return-this', recipient: 'team@example.test' });
+      mockSmtpVerify.mockRejectedValue({ code: 'EAUTH' });
+      const res = await request(app).post('/api/admin/settings/email/validate');
+      expect(res.body.valid).toBe(false);
+      expect(res.body.message).toMatch(/Gmail rejected the credentials/);
+      expect(JSON.stringify(res.body)).not.toContain('never-return-this');
+    });
+
+    it('checks access to the configured GA4 property', async () => {
+      const res = await request(app).post('/api/admin/settings/ga4/validate');
+      expect(res.body.valid).toBe(true);
+      expect(mockQueryReport).toHaveBeenCalledWith([], ['activeUsers'], { startDate: '7daysAgo', endDate: 'today' });
+    });
+
+    it('checks Google Ads account access with a read-only query', async () => {
+      const res = await request(app).post('/api/admin/settings/google-ads/validate');
+      expect(res.body.valid).toBe(true);
+      expect(mockGoogleAdsSearch).toHaveBeenCalledWith('SELECT customer.id FROM customer LIMIT 1');
+    });
+
+    it('surfaces Meta Ads permission failures', async () => {
+      mockMetaAdsQuery.mockResolvedValue({ error: true, code: 'TOKEN_EXPIRED', message: 'Token expired.' });
+      const res = await request(app).post('/api/admin/settings/meta-ads/validate');
+      expect(res.body).toEqual({ valid: false, message: 'Token expired.' });
+    });
+
+    it('checks an OpenAI key without returning it', async () => {
+      mockGet.mockReturnValue({ value: 'never-return-this' });
+      const res = await request(app).post('/api/admin/settings/openai/validate');
+      expect(res.body.valid).toBe(true);
+      expect(mockOpenAiModelsList).toHaveBeenCalledOnce();
+      expect(JSON.stringify(res.body)).not.toContain('never-return-this');
+    });
+
+    it('validates the selected image provider using its saved credential', async () => {
+      mockGet.mockReturnValueOnce({ value: 'dalle3' }).mockReturnValueOnce({ value: 'saved-openai-key' });
+      const res = await request(app).post('/api/admin/settings/image-provider/validate');
+      expect(res.body.valid).toBe(true);
+      expect(mockOpenAiModelsList).toHaveBeenCalledOnce();
+    });
+  });
+
   describe('POST /api/admin/settings/meta', () => {
     it('saves provided credentials and returns success', async () => {
       const res = await request(app)
