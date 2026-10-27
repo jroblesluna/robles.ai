@@ -111,6 +111,12 @@ export default function AdminSettings() {
         const data = await res.json();
         savedSettings.current = data;
         setSettings(data);
+        setMetaCredentials((previous) => ({
+          ...previous,
+          meta_app_id: data.meta_app_id || "",
+          instagram_business_account_id: data.instagram_business_account_id || "",
+          facebook_page_id: data.facebook_page_id || "",
+        }));
       } catch {
         setLoadFailed(true);
         toast({
@@ -287,7 +293,7 @@ export default function AdminSettings() {
   const handleSaveMetaCredentials = async () => {
     const updates = Object.fromEntries(
       Object.entries(metaCredentials)
-        .filter(([, value]) => value.trim())
+        .filter(([key, value]) => value.trim() && (isSecretSettingKey(key) || value !== (savedSettings.current[key] || "")))
         .map(([key, value]) => [key, value.trim()]),
     );
     if (Object.keys(updates).length === 0) return;
@@ -311,6 +317,14 @@ export default function AdminSettings() {
         const data = await refreshedSettings.json();
         savedSettings.current = data;
         setSettings(data);
+        setMetaCredentials({
+          meta_app_id: data.meta_app_id || "",
+          meta_app_secret: "",
+          instagram_business_account_id: data.instagram_business_account_id || "",
+          instagram_access_token: "",
+          facebook_page_id: data.facebook_page_id || "",
+          facebook_page_access_token: "",
+        });
       }
 
       // Refresh status
@@ -554,13 +568,10 @@ export default function AdminSettings() {
                 <Input
                   id="meta_app_id"
                   type="text"
-                  placeholder={metaStatus.meta_app_id ? credentialPreview(settings.meta_app_id) : "Enter Meta App ID"}
+                  placeholder="Enter Meta App ID"
                   value={metaCredentials.meta_app_id}
                   onChange={(e) => updateMetaCredential("meta_app_id", e.target.value)}
                 />
-                {metaStatus.meta_app_id && !metaCredentials.meta_app_id && (
-                  <SavedValueStatus label="Saved" />
-                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="meta_app_secret">App Secret</Label>
@@ -585,13 +596,10 @@ export default function AdminSettings() {
                 <Input
                   id="instagram_business_account_id"
                   type="text"
-                  placeholder={metaStatus.instagram_business_account_id ? credentialPreview(settings.instagram_business_account_id) : "Enter Business Account ID"}
+                  placeholder="Enter Business Account ID"
                   value={metaCredentials.instagram_business_account_id}
                   onChange={(e) => updateMetaCredential("instagram_business_account_id", e.target.value)}
                 />
-                {metaStatus.instagram_business_account_id && !metaCredentials.instagram_business_account_id && (
-                  <SavedValueStatus label="Saved" />
-                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="instagram_access_token">Access Token</Label>
@@ -616,13 +624,10 @@ export default function AdminSettings() {
                 <Input
                   id="facebook_page_id"
                   type="text"
-                  placeholder={metaStatus.facebook_page_id ? credentialPreview(settings.facebook_page_id) : "Enter Page ID"}
+                  placeholder="Enter Page ID"
                   value={metaCredentials.facebook_page_id}
                   onChange={(e) => updateMetaCredential("facebook_page_id", e.target.value)}
                 />
-                {metaStatus.facebook_page_id && !metaCredentials.facebook_page_id && (
-                  <SavedValueStatus label="Saved" />
-                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="facebook_page_access_token">Page Access Token</Label>

@@ -111,6 +111,25 @@ it('shows all saved password credentials as blank inputs with a consistent maske
     expect(input).toHaveAttribute('placeholder', expect.stringContaining(fingerprint));
   }
 });
+it('shows saved Meta IDs in full while keeping Meta secrets masked', async () => {
+  vi.stubGlobal('fetch', vi.fn(async (url: string) => ({
+    ok: true,
+    json: async () => url.endsWith('/meta')
+      ? { meta_app_id: true, instagram_business_account_id: true, facebook_page_id: true, meta_app_secret: true }
+      : {
+          meta_app_id: '123456789012345',
+          instagram_business_account_id: '17841400000000000',
+          facebook_page_id: '987654321098765',
+          meta_app_secret: '****CDEF',
+        },
+  })));
+  render(<AdminSettings />);
+  expect(await screen.findByLabelText('Meta App ID')).toHaveValue('123456789012345');
+  expect(screen.getByLabelText('Business Account ID')).toHaveValue('17841400000000000');
+  expect(screen.getByLabelText('Page ID')).toHaveValue('987654321098765');
+  expect(screen.getByLabelText('App Secret')).toHaveValue('');
+  expect(screen.getByLabelText('App Secret')).toHaveAttribute('placeholder', expect.stringContaining('****CDEF'));
+});
 it('validates a saved email configuration without sending a test message', async () => {
   const requests: Array<{ url: string; method?: string }> = [];
   vi.stubGlobal('fetch', vi.fn(async (url: string, options?: { method?: string }) => {
