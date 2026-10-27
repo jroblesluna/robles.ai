@@ -49,7 +49,7 @@ export default function AdminSettings() {
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
   const [metaLoadFailed, setMetaLoadFailed] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [savingSection, setSavingSection] = useState<string | null>(null);
 
   // Meta credentials state
   const [metaCredentials, setMetaCredentials] = useState({
@@ -124,33 +124,57 @@ export default function AdminSettings() {
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSave = async () => {
-    setSaving(true);
+  const handleSaveSection = async (section: string, keys: string[]) => {
+    setSavingSection(section);
     try {
+      const updates = Object.fromEntries(
+        keys.flatMap((key) => {
+          const value = settings[key];
+          return value === undefined || isMaskedCredential(value) ? [] : [[key, value]];
+        }),
+      );
       const res = await fetch("/api/admin/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(Object.fromEntries(Object.entries(settings).filter(([, value]) => !value?.match(/^(?:•{4}|\*{4})/)))),
+        body: JSON.stringify(updates),
       });
 
       if (!res.ok) throw new Error("Failed to save settings");
       const refreshed = await fetch("/api/admin/settings");
-      if (refreshed.ok) setSettings(await refreshed.json());
+      if (!refreshed.ok) throw new Error("Failed to refresh settings");
+      setSettings(await refreshed.json());
 
       toast({
-        title: "Settings saved",
-        description: "Your settings have been updated successfully.",
+        title: `${section} saved`,
+        description: `${section} settings have been updated successfully.`,
       });
     } catch {
       toast({
         title: "Error",
-        description: "Failed to save settings.",
+        description: `Failed to save ${section.toLowerCase()} settings.`,
         variant: "destructive",
       });
     } finally {
-      setSaving(false);
+      setSavingSection(null);
     }
   };
+
+  const sectionSaveButton = (section: string, keys: string[]) => (
+    <div className="flex justify-end border-t pt-4">
+      <Button
+        onClick={() => handleSaveSection(section, keys)}
+        disabled={savingSection !== null || loadFailed}
+        size="sm"
+      >
+        {savingSection === section ? (
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        ) : (
+          <Save className="mr-2 h-4 w-4" />
+        )}
+        {savingSection === section ? "Saving..." : `Save ${section}`}
+      </Button>
+    </div>
+  );
 
   const handleConnectLinkedIn = async () => {
     try {
@@ -302,7 +326,7 @@ export default function AdminSettings() {
               type="password"
               autoComplete="new-password"
               placeholder={settings.email_app_password ? "Saved — enter a new value to replace" : "Enter Gmail app password"}
-              value={settings.email_app_password || ""}
+              value={isMaskedCredential(settings.email_app_password) ? "" : settings.email_app_password || ""}
               onChange={(e) => updateSetting("email_app_password", e.target.value)}
             />
             {settings.email_app_password && <p className="break-words text-xs text-muted-foreground">Saved: {credentialPreview(settings.email_app_password)}. The full value is never returned to the browser.</p>}
@@ -319,6 +343,7 @@ export default function AdminSettings() {
               onChange={(e) => updateSetting("email_to", e.target.value)}
             />
           </div>
+          {sectionSaveButton("Email Delivery", ["email_user", "email_app_password", "email_to"])}
         </CardContent>
       </Card>
       {/* LinkedIn Integration */}
@@ -350,8 +375,9 @@ export default function AdminSettings() {
             <Input
               id="linkedin_client_secret"
               type="password"
-              placeholder="Enter LinkedIn Client Secret"
-              value={settings.linkedin_client_secret || ""}
+              autoComplete="new-password"
+              placeholder={settings.linkedin_client_secret ? `${credentialPreview(settings.linkedin_client_secret)} — saved; paste to replace` : "Enter LinkedIn Client Secret"}
+              value={isMaskedCredential(settings.linkedin_client_secret) ? "" : settings.linkedin_client_secret || ""}
               onChange={(e) =>
                 updateSetting("linkedin_client_secret", e.target.value)
               }
@@ -380,6 +406,7 @@ export default function AdminSettings() {
               Connect LinkedIn
             </Button>
           )}
+          {sectionSaveButton("LinkedIn", ["linkedin_client_id", "linkedin_client_secret"])}
         </CardContent>
       </Card>
 
@@ -622,6 +649,7 @@ export default function AdminSettings() {
               Find it in tagmanager.google.com → your container → Container ID
             </p>
           </div>
+          {sectionSaveButton("Analytics & Tracking", ["ga4_measurement_id", "meta_pixel_id", "gtm_container_id"])}
         </CardContent>
       </Card>
 
@@ -652,6 +680,7 @@ export default function AdminSettings() {
             <Label>Service Account JSON</Label>
             <Ga4ServiceAccountUpload />
           </div>
+          {sectionSaveButton("GA4 Data API", ["ga4_property_id"])}
         </CardContent>
       </Card>
       <Card>
@@ -662,10 +691,11 @@ export default function AdminSettings() {
         <CardContent className="space-y-4">
           <div className="space-y-2"><Label htmlFor="google_ads_customer_id">Google Ads customer ID</Label><Input id="google_ads_customer_id" placeholder="5850899991" value={settings.google_ads_customer_id || "5850899991"} onChange={e => updateSetting("google_ads_customer_id", e.target.value)} /><p className="text-xs text-muted-foreground">Selects the account for direct reports and GA4 attribution filters. Use the 10-digit account ID.</p></div>
           <div className="space-y-2"><Label htmlFor="google_ads_client_id">OAuth client ID</Label><Input id="google_ads_client_id" value={settings.google_ads_client_id || ""} onChange={e => updateSetting("google_ads_client_id", e.target.value)} /></div>
-          <div className="space-y-2"><Label htmlFor="google_ads_client_secret">OAuth client secret</Label><Input id="google_ads_client_secret" type="password" autoComplete="off" value={settings.google_ads_client_secret || ""} onChange={e => updateSetting("google_ads_client_secret", e.target.value)} /></div>
-          <div className="space-y-2"><Label htmlFor="google_ads_refresh_token">OAuth refresh token</Label><Input id="google_ads_refresh_token" type="password" autoComplete="off" value={settings.google_ads_refresh_token || ""} onChange={e => updateSetting("google_ads_refresh_token", e.target.value)} /><p className="text-xs text-muted-foreground">Use a refresh token from an authorized OAuth flow for this client and Ads account. A temporary access token or service-account JSON is not a refresh token. Saved secrets remain masked.</p></div>
+          <div className="space-y-2"><Label htmlFor="google_ads_client_secret">OAuth client secret</Label><Input id="google_ads_client_secret" type="password" autoComplete="new-password" placeholder={settings.google_ads_client_secret ? `${credentialPreview(settings.google_ads_client_secret)} — saved; paste to replace` : ""} value={isMaskedCredential(settings.google_ads_client_secret) ? "" : settings.google_ads_client_secret || ""} onChange={e => updateSetting("google_ads_client_secret", e.target.value)} />{settings.google_ads_client_secret && <p className="text-xs text-muted-foreground">Saved: {credentialPreview(settings.google_ads_client_secret)}. Enter a new value only to replace it.</p>}</div>
+          <div className="space-y-2"><Label htmlFor="google_ads_refresh_token">OAuth refresh token</Label><Input id="google_ads_refresh_token" type="password" autoComplete="new-password" placeholder={settings.google_ads_refresh_token ? `${credentialPreview(settings.google_ads_refresh_token)} — saved; paste to replace` : ""} value={isMaskedCredential(settings.google_ads_refresh_token) ? "" : settings.google_ads_refresh_token || ""} onChange={e => updateSetting("google_ads_refresh_token", e.target.value)} /><p className="text-xs text-muted-foreground">Use a refresh token from an authorized OAuth flow for this client and Ads account. A temporary access token or service-account JSON is not a refresh token. Saved secrets remain masked.</p>{settings.google_ads_refresh_token && <p className="text-xs text-muted-foreground">Saved: {credentialPreview(settings.google_ads_refresh_token)}. Enter a new value only to replace it.</p>}</div>
           <div className="space-y-2"><Label htmlFor="google_ads_login_customer_id">Manager account ID (optional)</Label><Input id="google_ads_login_customer_id" value={settings.google_ads_login_customer_id || ""} onChange={e => updateSetting("google_ads_login_customer_id", e.target.value)} /><p className="text-xs text-muted-foreground">Leave empty when the authorized user accesses the customer account directly.</p></div>
-          <p className="text-sm text-muted-foreground">Save settings, then open Analytics → Ads and use Refresh to verify the connection. With no direct API credentials, reports use the GA4 import and clearly identify that source.</p>
+          <p className="text-sm text-muted-foreground">Save this section, then open Analytics → Ads and use Refresh to verify the connection. With no direct API credentials, reports use the GA4 import and clearly identify that source.</p>
+          {sectionSaveButton("Google Ads API", ["google_ads_customer_id", "google_ads_client_id", "google_ads_client_secret", "google_ads_refresh_token", "google_ads_login_customer_id"])}
         </CardContent>
       </Card>
 
@@ -678,7 +708,7 @@ export default function AdminSettings() {
             &ldquo;Book a 30-minute call&rdquo; buttons and tracks clicks as <code>contact_click</code> (calendar).
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="booking_url">Booking URL</Label>
             <Input
@@ -690,6 +720,7 @@ export default function AdminSettings() {
             />
             <p className="text-xs text-muted-foreground">Must start with https://. Leave empty to use the default (PUBLIC_CONTACT.bookingUrl in shared/publicContent.ts).</p>
           </div>
+          {sectionSaveButton("Calendar Booking", ["booking_url"])}
         </CardContent>
       </Card>
 
@@ -720,8 +751,8 @@ export default function AdminSettings() {
             <Input
               id="meta_ads_access_token"
               type="password"
-              placeholder="EAAB••••••••"
-              value={settings.meta_ads_access_token || ""}
+              placeholder={settings.meta_ads_access_token ? `${credentialPreview(settings.meta_ads_access_token)} — saved; paste to replace` : "EAAB••••••••"}
+              value={isMaskedCredential(settings.meta_ads_access_token) ? "" : settings.meta_ads_access_token || ""}
               onChange={(e) => updateSetting("meta_ads_access_token", e.target.value)}
             />
             {settings.meta_ads_access_token && <p className="break-words text-xs text-muted-foreground">Saved: {credentialPreview(settings.meta_ads_access_token)}. Enter a new value only to replace it.</p>}
@@ -730,6 +761,7 @@ export default function AdminSettings() {
               Instagram tokens above cannot read ad accounts.
             </p>
           </div>
+          {sectionSaveButton("Meta Ads", ["meta_ad_account_id", "meta_ads_access_token"])}
         </CardContent>
       </Card>
 
@@ -748,11 +780,12 @@ export default function AdminSettings() {
               id="openai_api_key"
               type="password"
               placeholder="sk-••••••••"
-              value={settings.openai_api_key || ""}
+              value={isMaskedCredential(settings.openai_api_key) ? "" : settings.openai_api_key || ""}
               onChange={(e) => updateSetting("openai_api_key", e.target.value)}
             />
             {settings.openai_api_key && <p className="break-words text-xs text-muted-foreground">Saved: {credentialPreview(settings.openai_api_key)}. Enter a new value only to replace it.</p>}
           </div>
+          {sectionSaveButton("OpenAI API Key", ["openai_api_key"])}
         </CardContent>
       </Card>
 
@@ -785,8 +818,8 @@ export default function AdminSettings() {
               <Input
                 id="stability_api_key"
                 type="password"
-                placeholder="sk-••••••••"
-                value={settings.stability_api_key || ""}
+                placeholder={settings.stability_api_key ? `${credentialPreview(settings.stability_api_key)} — saved; paste to replace` : "sk-••••••••"}
+                value={isMaskedCredential(settings.stability_api_key) ? "" : settings.stability_api_key || ""}
                 onChange={(e) =>
                   updateSetting("stability_api_key", e.target.value)
                 }
@@ -803,8 +836,8 @@ export default function AdminSettings() {
               <Input
                 id="replicate_api_token"
                 type="password"
-                placeholder="r8_••••••••"
-                value={settings.replicate_api_token || ""}
+                placeholder={settings.replicate_api_token ? `${credentialPreview(settings.replicate_api_token)} — saved; paste to replace` : "r8_••••••••"}
+                value={isMaskedCredential(settings.replicate_api_token) ? "" : settings.replicate_api_token || ""}
                 onChange={(e) =>
                   updateSetting("replicate_api_token", e.target.value)
                 }
@@ -812,6 +845,7 @@ export default function AdminSettings() {
             {settings.replicate_api_token && <p className="break-words text-xs text-muted-foreground">Saved: {credentialPreview(settings.replicate_api_token)}. Enter a new value only to replace it.</p>}
             </div>
           )}
+          {sectionSaveButton("Image Generation", ["image_provider", "stability_api_key", "replicate_api_token"])}
         </CardContent>
       </Card>
 
@@ -909,22 +943,15 @@ export default function AdminSettings() {
               }
             />
           </div>
+          {sectionSaveButton("Dominical Preferences", ["notification_email", "auto_publish", "auto_publish_time", "auto_publish_timezone", "dominical_top_n"])}
         </CardContent>
       </Card>
-
-      {/* Save Button */}
-      <div className="flex justify-end">
-        <Button onClick={handleSave} disabled={saving || loadFailed} size="lg">
-          {saving ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Save className="mr-2 h-4 w-4" />
-          )}
-          {saving ? "Saving..." : "Save Settings"}
-        </Button>
-      </div>
     </div>
   );
+}
+
+function isMaskedCredential(value?: string): boolean {
+  return Boolean(value && /^(?:•{4}|\*{4})/.test(value));
 }
 
 function credentialPreview(value?: string) {
