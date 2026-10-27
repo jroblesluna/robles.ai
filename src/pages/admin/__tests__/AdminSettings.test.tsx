@@ -7,16 +7,18 @@ it('shows masked saved fingerprints, hides replacement secrets and never resaves
   let saved: any;
   vi.stubGlobal('fetch', vi.fn(async (url: string, options?: any) => {
     if (options?.method === 'PUT') { saved = JSON.parse(options.body); return { ok: true, json: async () => ({ success: true }) }; }
-    return { ok: true, json: async () => url.endsWith('/ga4-status') ? { hasCredentials: true } : url.endsWith('/meta') ? { meta_app_secret: true, instagram_access_token: true } : { openai_api_key: '••••••••1234', meta_app_secret: '••••••••5678', instagram_access_token: '••••••••9012', notification_email: 'fixture@example.test' } };
+    return { ok: true, json: async () => url.endsWith('/ga4-status') ? { hasCredentials: true } : url.endsWith('/meta') ? { meta_app_secret: true, instagram_access_token: true } : { openai_api_key: '****1234', email_user: 'sender@example.test', email_app_password: '****5678', email_to: 'team@example.test', meta_app_secret: '****5678', instagram_access_token: '****9012', notification_email: 'fixture@example.test' } };
   }));
   render(<AdminSettings />);
   await screen.findByLabelText('API Key');
-  expect(screen.getByText(/Saved: ••••••••1234/)).toBeInTheDocument();
-  await waitFor(() => expect(screen.getByLabelText('App Secret')).toHaveAttribute('placeholder', expect.stringContaining('••••••••5678')));
+  expect(screen.getByText(/Saved: \*\*\*\*1234/)).toBeInTheDocument();
+  expect(screen.getByText(/Saved: \*\*\*\*5678/)).toBeInTheDocument();
+  await waitFor(() => expect(screen.getByLabelText('App Secret')).toHaveAttribute('placeholder', expect.stringContaining('****5678')));
   expect(screen.getByLabelText('App Secret')).toHaveAttribute('type', 'password');
   fireEvent.click(screen.getByRole('button', { name: 'Save Settings' }));
   await waitFor(() => expect(saved).toBeDefined());
   expect(saved).not.toHaveProperty('openai_api_key');
+  expect(saved).not.toHaveProperty('email_app_password');
   expect(saved).not.toHaveProperty('meta_app_secret');
   expect(saved.notification_email).toBe('fixture@example.test');
 });

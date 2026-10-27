@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { getEmailSettings } from './emailSettings.js';
 import { getMessages, getContact } from './conversationStore.js';
 import type { MessageRow } from './conversationStore.js';
 import type { ContactData } from '../../shared/chatTypes.js';
@@ -87,18 +88,20 @@ export async function sendConversationEmail(conversationId: number): Promise<voi
 
     const subject = buildSubject(contact);
     const html = generateEmailHtml(contact, messages);
+    const emailSettings = getEmailSettings();
+    if (!emailSettings) throw new Error('Email is not configured');
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: emailSettings.user,
+        pass: emailSettings.appPassword,
       },
     });
 
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_TO,
+      from: emailSettings.user,
+      to: emailSettings.recipient,
       subject,
       html,
     });

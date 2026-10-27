@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import nodemailer from 'nodemailer';
 import { z } from 'zod';
 import { COURSE_IDS, courseWorkload, nextCourseStart } from '../shared/courseCatalog.js';
+import { getEmailSettings } from './services/emailSettings.js';
 
 const schema = z.object({ courseId: z.enum(COURSE_IDS), email: z.string().trim().max(254).email(), locale: z.enum(['en', 'es']).default('en'), website: z.string().max(300).optional().default('') });
 const escapeHtml = (value: string) => value.replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]!);
@@ -25,7 +26,8 @@ router.post('/interest', async (req, res) => {
   if (pending.has(key)) { res.status(429).json({ success: false, error: 'Request already in progress.' }); return; }
   pending.add(key);
   try {
-    if (!process.env.EMAIL_TO || !process.env.EMAIL_USER || !process.env.EMAIL_PASS) throw new Error('Mail unavailable');
+    const emailSettings = getEmailSettings();
+    if (!emailSettings) throw new Error('Mail unavailable');
     const course = courseWorkload(data.courseId);
     const startDate = nextCourseStart();
     const fields = [
@@ -33,8 +35,8 @@ router.post('/interest', async (req, res) => {
       ['Next estimated start', startDate], ['Duration', `${course.weeks} weeks`], ['Estimated workload', `${course.weeklyHours} h/week, ${course.totalHours} h total`],
       ['Request', 'Notify me when enrollment opens for this course. This is not an enrollment or a payment.'],
     ];
-    const transporter = nodemailer.createTransport({ service: 'gmail', connectionTimeout: 10000, greetingTimeout: 10000, socketTimeout: 20000, auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS } });
-    const sent = await transporter.sendMail({ from: process.env.EMAIL_USER, to: process.env.EMAIL_TO, replyTo: data.email,
+    const transporter = nodemailer.createTransport({ service: 'gmail', connectionTimeout: 10000, greetingTimeout: 10000, socketTimeout: 20000, auth: { user: emailSettings.user, pass: emailSettings.appPassword } });
+    const sent = await transporter.sendMail({ from: emailSettings.user, to: emailSettings.recipient, replyTo: data.email,
       subject: `Course enrollment notification request — ${course.title}`,
       text: fields.map(([name, value]) => `${name}: ${value}`).join('\n'),
       html: `<h2>Course enrollment notification request</h2>${fields.map(([name, value]) => `<p><strong>${escapeHtml(name)}:</strong> ${escapeHtml(value)}</p>`).join('')}`,

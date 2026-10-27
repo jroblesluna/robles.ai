@@ -341,6 +341,7 @@ describe('Admin persistence regressions', () => {
   it('masks all credential families in general settings and never returns structured private keys', async () => {
     mockAll.mockReturnValue([
       { key: 'meta_app_secret', value: 'meta-secret-1234' },
+      { key: 'email_app_password', value: 'gmail-app-password-8765' },
       { key: 'instagram_access_token', value: 'ig-secret-5678' },
       { key: 'facebook_page_access_token', value: 'fb-secret-9012' },
       { key: 'hostinger_api_key', value: 'host-secret-3456' },
@@ -349,15 +350,28 @@ describe('Admin persistence regressions', () => {
     ]);
     const res = await request(app).get('/api/admin/settings');
     expect(res.status).toBe(200);
-    expect(res.body.meta_app_secret).toBe('••••••••1234');
-    expect(res.body.hostinger_api_key).toBe('••••••••3456');
-    expect(res.body.gcp_sa_key).toBe('••••••••');
-    expect(res.text).not.toMatch(/DO-NOT-RETURN|private@example|meta-secret|ig-secret|fb-secret|host-secret/);
+    expect(res.body.meta_app_secret).toBe('****1234');
+    expect(res.body.email_app_password).toBe('****8765');
+    expect(res.body.hostinger_api_key).toBe('****3456');
+    expect(res.body.gcp_sa_key).toBe('****');
+    expect(res.text).not.toMatch(/DO-NOT-RETURN|private@example|meta-secret|gmail-app-password|ig-secret|fb-secret|host-secret/);
     expect(res.body.linkedin_token_expires_at).toBe('2026-12-01');
   });
   it('does not persist masked placeholders through either credential save endpoint', async () => {
-    await request(app).put('/api/admin/settings').send({ openai_api_key: '••••••••1234', hostinger_api_key: '••••••••5678', gcp_sa_key: '••••••••' });
+    await request(app).put('/api/admin/settings').send({ openai_api_key: '••••••••1234', email_app_password: '****5678', hostinger_api_key: '••••••••5678', gcp_sa_key: '••••••••' });
     await request(app).post('/api/admin/settings/meta').send({ meta_app_secret: '••••••••1234', instagram_access_token: '••••••••5678' });
     expect(mockRun).not.toHaveBeenCalled();
+  });
+  it('accepts email delivery settings without returning the full app password', async () => {
+    const appPassword = 'gmail-app-password-8765';
+    const res = await request(app).put('/api/admin/settings').send({
+      email_user: 'sender@example.test',
+      email_app_password: appPassword,
+      email_to: 'team@example.test',
+    });
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ success: true });
+    expect(res.text).not.toContain(appPassword);
+    expect(mockRun).toHaveBeenCalledWith('email_app_password', appPassword, expect.any(String));
   });
 });

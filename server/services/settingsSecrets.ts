@@ -4,9 +4,9 @@ export function isSecretSetting(key: string): boolean {
 }
 export function maskSettingSecret(value: string | null, key = ''): string | null {
   if (!value) return value;
-  if (value.length <= 4 || /(?:sa_key|private_key|credentials)/i.test(key) || value.trim().startsWith('{')) return '••••••••';
-  return '••••••••' + value.slice(-4);
+  if (value.length <= 4 || /(?:sa_key|private_key|credentials)/i.test(key) || value.trim().startsWith('{')) return '****';
+  return '****' + value.slice(-4);
 }
 export function isMaskedSecret(value: unknown): boolean {
-  return typeof value === 'string' && /(?:•{4}|\*{4})/.test(value);
+  return typeof value === 'string' && /^(?:•{4}|\*{4})/.test(value);
 }

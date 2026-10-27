@@ -2,8 +2,9 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import express from 'express';
 import request from 'supertest';
-const mail = vi.hoisted(() => ({ send: vi.fn() }));
+const mail = vi.hoisted(() => ({ send: vi.fn(), settings: vi.fn() }));
 vi.mock('nodemailer', () => ({ default: { createTransport: () => ({ sendMail: mail.send }) } }));
+vi.mock('../services/emailSettings.js', () => ({ getEmailSettings: mail.settings }));
 import contactRouter from '../contactRoutes.js';
 
 const app = express();
@@ -15,8 +16,7 @@ const inquiry = {
 };
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.stubEnv('EMAIL_USER', 'sender@example.org');
-  vi.stubEnv('EMAIL_TO', 'team@example.org');
+  mail.settings.mockReturnValue({ user: 'sender@example.org', appPassword: 'test-app-password', recipient: 'team@example.org' });
   mail.send.mockResolvedValue({ accepted: ['team@example.org'] });
 });
 afterEach(() => vi.unstubAllEnvs());
@@ -70,8 +70,15 @@ describe('contact delivery', () => {
     const result = await request(app).post('/api/contact').send(inquiry);
     expect(result.status).toBe(500);
     expect(result.body).toEqual({ success: false, error: 'An unexpected error occurred' });
-    expect(logger).toHaveBeenCalledWith('Contact email could not be sent');
+    expect(logger).toHaveBeenCalledWith('Contact email could not be sent', expect.any(Object));
     logger.mockRestore();
+  });
+  it('does not attempt delivery when email settings are missing', async () => {
+    mail.settings.mockReturnValue(null);
+    const result = await request(app).post('/api/contact').send(inquiry);
+    expect(result.status).toBe(503);
+    expect(result.body).toEqual({ success: false, error: 'Contact email is not configured' });
+    expect(mail.send).not.toHaveBeenCalled();
   });
   it('does not expose submissions through GET', async () => {
     expect((await request(app).get('/api/contact')).status).toBe(404);

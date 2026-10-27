@@ -5,6 +5,7 @@ import { LinkedInAdapter } from '../services/platforms/linkedinAdapter.js';
 import { InstagramAdapter } from '../services/platforms/instagramAdapter.js';
 import { FacebookAdapter } from '../services/platforms/facebookAdapter.js';
 import type { PlatformName, PlatformAdapter, PublishResult } from '../services/platforms/types.js';
+import { getEmailSettings } from '../services/emailSettings.js';
 
 interface DominicalReport {
   id: number;
@@ -116,10 +117,8 @@ async function sendResultNotification(
   reportId: number,
   allFailed: boolean
 ): Promise<void> {
-  const emailUser = process.env.EMAIL_USER;
-  const emailPass = process.env.EMAIL_PASS;
-
-  if (!emailUser || !emailPass) {
+  const emailSettings = getEmailSettings();
+  if (!emailSettings) {
     console.warn('⚠️ Email credentials not configured. Cannot send notification.');
     return;
   }
@@ -128,7 +127,7 @@ async function sendResultNotification(
     | { value: string | null }
     | undefined;
 
-  const recipient = notificationRow?.value || process.env.EMAIL_TO;
+  const recipient = notificationRow?.value || emailSettings.recipient;
 
   if (!recipient) {
     console.warn('⚠️ No notification email configured. Cannot send notification.');
@@ -138,8 +137,8 @@ async function sendResultNotification(
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: emailUser,
-      pass: emailPass,
+      user: emailSettings.user,
+      pass: emailSettings.appPassword,
     },
   });
 
@@ -171,7 +170,7 @@ async function sendResultNotification(
     : '<p>La publicación automática ha finalizado. Aquí están los resultados por plataforma:</p>';
 
   await transporter.sendMail({
-    from: emailUser,
+    from: emailSettings.user,
     to: recipient,
     subject,
     html: `
@@ -206,10 +205,8 @@ async function sendResultNotification(
  * Sends an error notification email to the admin when auto-publish fails before reaching platform publishing.
  */
 async function sendErrorNotification(errorMessage: string): Promise<void> {
-  const emailUser = process.env.EMAIL_USER;
-  const emailPass = process.env.EMAIL_PASS;
-
-  if (!emailUser || !emailPass) {
+  const emailSettings = getEmailSettings();
+  if (!emailSettings) {
     console.warn('⚠️ Email credentials not configured. Cannot send error notification.');
     return;
   }
@@ -218,7 +215,7 @@ async function sendErrorNotification(errorMessage: string): Promise<void> {
     | { value: string | null }
     | undefined;
 
-  const recipient = notificationRow?.value || process.env.EMAIL_TO;
+  const recipient = notificationRow?.value || emailSettings.recipient;
 
   if (!recipient) {
     console.warn('⚠️ No notification email configured. Cannot send error notification.');
@@ -228,15 +225,15 @@ async function sendErrorNotification(errorMessage: string): Promise<void> {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: emailUser,
-      pass: emailPass,
+      user: emailSettings.user,
+      pass: emailSettings.appPassword,
     },
   });
 
   const baseUrl = process.env.BASE_URL || 'https://robles.ai';
 
   await transporter.sendMail({
-    from: emailUser,
+    from: emailSettings.user,
     to: recipient,
     subject: '⚠️ Error en la publicación automática del Dominical IA',
     html: `

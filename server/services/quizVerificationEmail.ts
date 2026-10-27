@@ -1,5 +1,6 @@
 import path from "path";
 import nodemailer from "nodemailer";
+import { getEmailSettings } from "./emailSettings.js";
 
 // process.cwd() (project root) instead of __dirname — esbuild bundles all of
 // server/**/*.ts into a single flat dist/index.js in production, so a
@@ -89,18 +90,20 @@ export async function sendQuizVerificationEmail(params: {
   verifyUrl: string;
   locale: "es" | "en";
 }): Promise<void> {
+  const emailSettings = getEmailSettings();
+  if (!emailSettings) throw new Error("Email is not configured");
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
+      user: emailSettings.user,
+      pass: emailSettings.appPassword,
     },
   });
 
   const c = COPY[params.locale] ?? COPY.es;
 
   await transporter.sendMail({
-    from: `"Robles.AI" <${process.env.EMAIL_USER}>`,
+    from: `"Robles.AI" <${emailSettings.user}>`,
     to: params.to,
     subject: c.subject,
     html: buildHtml(params.locale, params.name, params.verifyUrl),

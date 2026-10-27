@@ -11,6 +11,7 @@ import fs from 'fs';
 import crypto from 'crypto';
 import { generateQuizLeadPdf } from './services/quizLeadPdf.js';
 import { sendQuizVerificationEmail } from './services/quizVerificationEmail.js';
+import { getEmailSettings } from './services/emailSettings.js';
 import { readdir, readFile, stat } from 'fs/promises';
 import { fileURLToPath } from 'url';
 import editorsData from './data/editors.json';
@@ -205,16 +206,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Internal notification — sent immediately so the team sees new leads right away.
         try {
+          const emailSettings = getEmailSettings();
+          if (!emailSettings) throw new Error('Email is not configured');
           const transporter = nodemailer.createTransport({
             service: 'gmail',
-            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+            auth: { user: emailSettings.user, pass: emailSettings.appPassword },
           });
           const answersHtml = Object.entries(validatedData.answers)
             .map(([question, answer]) => `<li><strong>${question}:</strong> ${answer}</li>`)
             .join('');
           await transporter.sendMail({
-            from: process.env.EMAIL_USER,
-            to: process.env.EMAIL_TO,
+            from: emailSettings.user,
+            to: emailSettings.recipient,
             subject: `New AI Diagnosis Quiz Lead — score ${validatedData.score}/100 (pending email verification)`,
             html: `
               <p><strong>Name:</strong> ${validatedData.name}</p>
@@ -715,19 +718,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       try {
+        const emailSettings = getEmailSettings();
+        if (!emailSettings) throw new Error('Email is not configured');
         const transporter = nodemailer.createTransport({
           service: 'gmail',
           auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
+            user: emailSettings.user,
+            pass: emailSettings.appPassword,
           },
         });
 
         const resumeContent = fs.readFileSync(resumeFile.filepath);
 
         await transporter.sendMail({
-          from: process.env.EMAIL_USER,
-          to: process.env.EMAIL_TO,
+          from: emailSettings.user,
+          to: emailSettings.recipient,
           subject: `New Application for ${jobTitle}`,
           html: `
             <p><strong>Name:</strong> ${name}</p>

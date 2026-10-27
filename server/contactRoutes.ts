@@ -2,6 +2,7 @@ import { Router } from 'express';
 import nodemailer from 'nodemailer';
 import { insertContactSchema } from '../shared/schema.js';
 import { fromZodError } from 'zod-validation-error';
+import { getEmailSettings } from './services/emailSettings.js';
 
 const router = Router();
 
@@ -19,14 +20,21 @@ router.post('/', async (req, res) => {
   }
 
   const data = parsed.data;
+  const emailSettings = getEmailSettings();
+  if (!emailSettings) {
+    console.error('Contact email is not configured');
+    res.status(503).json({ success: false, error: 'Contact email is not configured' });
+    return;
+  }
+
   try {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
-      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+      auth: { user: emailSettings.user, pass: emailSettings.appPassword },
     });
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_TO,
+      from: emailSettings.user,
+      to: emailSettings.recipient,
       // Keep authenticated From; replies go to the validated visitor address.
       replyTo: data.email,
       subject: 'New Contact Form Submission',
@@ -47,9 +55,16 @@ router.post('/', async (req, res) => {
       `,
     });
     res.status(200).json({ success: true, message: 'Contact form submitted successfully' });
-  } catch {
-    // Do not log SMTP errors that may contain configuration or visitor data.
-    console.error('Contact email could not be sent');
+  } catch (error) {
+    const details = error && typeof error === 'object'
+      ? {
+          name: 'name' in error ? error.name : undefined,
+          code: 'code' in error ? error.code : undefined,
+          responseCode: 'responseCode' in error ? error.responseCode : undefined,
+          command: 'command' in error ? error.command : undefined,
+        }
+      : { name: 'UnknownError' };
+    console.error('Contact email could not be sent', details);
     res.status(500).json({ success: false, error: 'An unexpected error occurred' });
   }
 });

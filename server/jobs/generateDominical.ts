@@ -5,6 +5,7 @@ import nodemailer from 'nodemailer';
 import OpenAI from 'openai';
 import db from '../db.js';
 import { getRecentPosts, scorePostsWithGPT, type PostSummary, type ScoredPost } from '../services/dominicalScoring.js';
+import { getEmailSettings } from '../services/emailSettings.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -201,20 +202,18 @@ Devuelve SOLO el caption, sin explicaciones ni markdown.`;
  * Sends notification email that the Dominical report is ready for review.
  */
 async function sendNotificationEmail(selectedPosts: ScoredPost[]): Promise<void> {
-  const emailUser = process.env.EMAIL_USER;
-  const emailPass = process.env.EMAIL_PASS;
-
-  if (!emailUser || !emailPass) {
+  const emailSettings = getEmailSettings();
+  if (!emailSettings) {
     console.warn('⚠️ Email credentials not configured. Skipping notification.');
     return;
   }
 
-  // Get notification email from settings or fallback to EMAIL_TO env
+  // Prefer the dedicated Dominical recipient over the general email recipient.
   const notificationRow = db.prepare('SELECT value FROM settings WHERE key = ?').get('notification_email') as
     | { value: string | null }
     | undefined;
 
-  const recipient = notificationRow?.value || process.env.EMAIL_TO;
+  const recipient = notificationRow?.value || emailSettings.recipient;
 
   if (!recipient) {
     console.warn('⚠️ No notification email configured. Skipping notification.');
@@ -224,8 +223,8 @@ async function sendNotificationEmail(selectedPosts: ScoredPost[]): Promise<void>
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: emailUser,
-      pass: emailPass,
+      user: emailSettings.user,
+      pass: emailSettings.appPassword,
     },
   });
 
@@ -234,7 +233,7 @@ async function sendNotificationEmail(selectedPosts: ScoredPost[]): Promise<void>
   const baseUrl = process.env.BASE_URL || 'https://robles.ai';
 
   await transporter.sendMail({
-    from: emailUser,
+    from: emailSettings.user,
     to: recipient,
     subject: 'Tu Dominical IA de esta semana está listo para revisión',
     html: `

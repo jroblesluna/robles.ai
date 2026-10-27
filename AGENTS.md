@@ -38,7 +38,7 @@ Sitio y plataforma de **Robles.AI**, consultora/estudio de soluciones de IA (Cup
 | Búsqueda | SQLite FTS5 (BM25) |
 | IA en el navegador | TensorFlow.js + COCO-SSD, `@vladmandic/face-api`, `pdfjs-dist` |
 | Auth | JWT en cookie httpOnly + `bcrypt`; página OTP (`otpauth`) |
-| Email | `nodemailer` (Gmail) |
+| Email | `nodemailer` (Gmail; production credentials in Admin → Settings) |
 | i18n | `i18next` + `react-i18next` (en/es) |
 | Testing | `vitest` + `fast-check` + `supertest` + `@testing-library/react` |
 | Despliegue | VPS + PM2; GitHub Actions → SSH → `pull.sh` |
@@ -343,6 +343,7 @@ Los secretos se enmascaran en `GET /api/admin/settings` (`settingsSecrets.ts`) y
 
 | Área | Claves |
 |------|--------|
+| Email | `email_user`, `email_app_password` (secreto enmascarado), `email_to`; en producción se configuran desde Admin → Settings y nunca se leen del `.env` |
 | OpenAI / imágenes | `openai_api_key`, `image_provider` (por defecto `dalle3`), `replicate_api_token`, `stability_api_key` |
 | Dominical | `dominical_top_n`, `notification_email`, `auto_publish`, `auto_publish_time`, `auto_publish_timezone` |
 | Auth admin | `jwt_secret` (se genera si no hay `ADMIN_JWT_SECRET`) |
@@ -454,7 +455,8 @@ Admin (bajo `/api/admin`, requieren cookie `admin_token` salvo `status`, `setup`
 PORT=5173
 HOST=0.0.0.0
 BASE_URL=https://robles.ai          # URLs absolutas en emails/publicación del Dominical (valor por defecto)
-EMAIL_USER=...                      # Gmail: contacto, postulaciones, quiz, notificaciones
+# Solo fallback de desarrollo local; en producción el correo se configura en /admin/settings.
+EMAIL_USER=...
 EMAIL_PASS=...
 EMAIL_TO=...
 OPENAI_API_KEY=sk-...               # respaldo si no hay openai_api_key en settings

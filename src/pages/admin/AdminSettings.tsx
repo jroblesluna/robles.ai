@@ -130,7 +130,7 @@ export default function AdminSettings() {
       const res = await fetch("/api/admin/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(Object.fromEntries(Object.entries(settings).filter(([, value]) => !value?.includes("••••")))),
+        body: JSON.stringify(Object.fromEntries(Object.entries(settings).filter(([, value]) => !value?.match(/^(?:•{4}|\*{4})/)))),
       });
 
       if (!res.ok) throw new Error("Failed to save settings");
@@ -276,6 +276,51 @@ export default function AdminSettings() {
       </div>
 
       {loadFailed && <p role="alert" className="rounded-md border border-red-200 p-4 text-sm text-red-700">Settings could not be loaded. Reload before editing; saving is disabled to protect existing values.</p>}
+      <Card>
+        <CardHeader>
+          <CardTitle>Email delivery</CardTitle>
+          <CardDescription>
+            Configure the Gmail account used for contact forms, applications, quiz verification, course requests, chat transcripts and Dominical notifications. Production uses these saved settings, not .env.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="email_user">Gmail account</Label>
+            <Input
+              id="email_user"
+              type="email"
+              autoComplete="email"
+              placeholder="sender@example.com"
+              value={settings.email_user || ""}
+              onChange={(e) => updateSetting("email_user", e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="email_app_password">Gmail app password</Label>
+            <Input
+              id="email_app_password"
+              type="password"
+              autoComplete="new-password"
+              placeholder={settings.email_app_password ? "Saved — enter a new value to replace" : "Enter Gmail app password"}
+              value={settings.email_app_password || ""}
+              onChange={(e) => updateSetting("email_app_password", e.target.value)}
+            />
+            {settings.email_app_password && <p className="break-words text-xs text-muted-foreground">Saved: {credentialPreview(settings.email_app_password)}. The full value is never returned to the browser.</p>}
+            <p className="text-xs text-muted-foreground">Use a Google App Password (requires 2-Step Verification), not your normal Google account password.</p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="email_to">Contact and notification recipient</Label>
+            <Input
+              id="email_to"
+              type="email"
+              autoComplete="email"
+              placeholder="team@example.com"
+              value={settings.email_to || ""}
+              onChange={(e) => updateSetting("email_to", e.target.value)}
+            />
+          </div>
+        </CardContent>
+      </Card>
       {/* LinkedIn Integration */}
       <Card>
         <CardHeader>
@@ -883,8 +928,8 @@ export default function AdminSettings() {
 }
 
 function credentialPreview(value?: string) {
-  if (!value) return "••••••••";
-  return value.includes("••••") ? value : "••••••••" + (value.length > 4 ? value.slice(-4) : "");
+  if (!value) return "****";
+  return /^(?:•{4}|\*{4})/.test(value) ? value : "****" + (value.length > 4 ? value.slice(-4) : "");
 }
 
 function Ga4ServiceAccountUpload() {

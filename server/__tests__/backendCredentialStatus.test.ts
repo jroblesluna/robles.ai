@@ -19,8 +19,8 @@ it('returns only masked fingerprints and never service-account contents', async 
   const res = await request(app).get('/backends').set('Authorization', 'Bearer fixture');
   expect(res.status).toBe(200);
   expect(res.headers['cache-control']).toBe('no-store');
-  expect(res.body.hostingerPreview).toBe('••••••••1234');
-  expect(res.body.gcpPreview).toBe('••••••••');
+  expect(res.body.hostingerPreview).toBe('****1234');
+  expect(res.body.gcpPreview).toBe('****');
   expect(res.text).not.toMatch(/never-return|private@example|sample-private-token/);
 });
 it('does not partially save a Hostinger token when the accompanying GCP JSON is invalid', async () => {

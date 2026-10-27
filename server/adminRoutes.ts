@@ -224,7 +224,7 @@ adminRouter.get('/settings', requireAuth, (_req, res) => {
 /**
  * PUT /api/admin/settings
  * Batch update settings. Body: { [key]: value, ... }
- * Skips secret keys if the value still looks masked (contains ••••).
+ * Skips secret keys if the value is still a masked placeholder.
  */
 adminRouter.put('/settings', requireAuth, (req, res) => {
   try {

@@ -209,7 +209,7 @@ PORT=5173
 HOST=0.0.0.0
 BASE_URL=https://robles.ai          # absolute URLs in Dominical emails/publishing (default shown)
 
-# Email (contact form, applications, quiz verification, chatbot + Dominical notifications)
+# Email fallback for local development only. In production, configure these in /admin/settings.
 EMAIL_USER=your_gmail_user
 EMAIL_PASS=your_gmail_app_password
 EMAIL_TO=destination@domain.com
@@ -236,6 +236,8 @@ VITE_CHATBOT_API=   VITE_DOCEXTRACT_API=  VITE_TTS_API=
 ## Admin settings (database)
 
 Configuration lives as key/value rows in the `settings` table. Secrets are masked in `GET /api/admin/settings` (`server/services/settingsSecrets.ts`) and masked values are never written back.
+
+The **Email delivery** card configures the Gmail sender, app password and default recipient for contact forms, applications, quiz verification, course requests, chat transcripts and Dominical notifications. In production, email delivery reads these database settings only; `EMAIL_USER`, `EMAIL_PASS` and `EMAIL_TO` are ignored. The app password is returned to the admin UI only as `****` plus its final four characters and is never sent in full to the browser. Outside production, environment variables remain a fallback for local development.
 
 | Area | Keys |
 |------|------|
