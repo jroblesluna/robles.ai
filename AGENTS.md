@@ -155,7 +155,7 @@ creative/        # material fuente de los visuales de demos (prompts y frames de
 ┌───────▼─────────┐   ┌────────────────▼────────────────────────────────────────┐
 │ SQLite           │   │ OpenAI · LinkedIn · Meta Graph/Marketing · GA4 Data API │
 │ dominical.db     │   │ NewsAPI · Gmail SMTP · Hostinger DNS · GCP (Cloud Run   │
-│ 13 tablas        │   │ Admin, Cloud Monitoring) · APIs de demos en Cloud Run   │
+│ 14 tablas        │   │ Admin, Cloud Monitoring) · APIs de demos en Cloud Run   │
 └──────────────────┘   └─────────────────────────────────────────────────────────┘
 ```
 
@@ -186,7 +186,7 @@ creative/        # material fuente de los visuales de demos (prompts y frames de
 
 **Variantes `?s=`** (`chatbots`, `rag`, `agents`, `docs`, en `landing.v2.variants.*`): cambian titular, subtítulo, tarjeta lateral, CTA, título/botón del formulario, objetivo preseleccionado y mensaje de WhatsApp, para que cada grupo de anuncios aterrice en un mensaje coherente (Quality Score). URLs finales: `/get-started` (EN) o `/get-started?lang=es` (ES) + `s=`.
 
-**Formulario** (`src/components/Contact.tsx` → `ContactForm`, usado en `/` y `/get-started`): campos nombre, email, empresa (opcional), objetivo (`CONTACT_GOALS`: service, documents, knowledge, automation, analytics, unsure) y mensaje (opcional si hay objetivo; si se escribe, ≥ 10 caracteres). La API no cambió: el cliente compone `subject` (`Website Inquiry — <objetivo>`) y `message` (`Interested in: <objetivo>` + texto). `POST /api/contact` valida con `insertContactSchema`, envía el correo (Reply-To = visitante) y responde `{ success: true }` solo si el envío fue aceptado; no se guarda en BD.
+**Formulario** (`src/components/Contact.tsx` → `ContactForm`, usado en `/` y `/get-started`): campos nombre, email, empresa (opcional), objetivo (`CONTACT_GOALS`: service, documents, knowledge, automation, analytics, unsure) y mensaje (opcional si hay objetivo; si se escribe, ≥ 10 caracteres). La API no cambió: el cliente compone `subject` (`Website Inquiry — <objetivo>`) y `message` (`Interested in: <objetivo>` + texto). `POST /api/contact` valida con `insertContactSchema`, registra la consulta en la tabla `contact_submissions` en BD antes de intentar el envío para evitar pérdida de prospectos si falla SMTP, despacha el correo (Reply-To = visitante) y responde `{ success: true }` solo si el envío fue aceptado. Visible en `/admin/contact-submissions`.
 
 **Medición** (`src/lib/analytics.ts`, solo producción y nunca en `/admin`): con `gtm_container_id` configurado **GTM es el único tracker** (eventos al `dataLayer`); si no, GA4 y Meta Pixel directos. `trackConversion()` encola eventos hasta que los trackers cargan y nunca incluye datos del visitante.
 

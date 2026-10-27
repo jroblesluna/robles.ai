@@ -2541,4 +2541,47 @@ adminRouter.get('/quiz-leads', requireAuth, (_req, res) => {
   }
 });
 
+/**
+ * GET /api/admin/contact-submissions
+ * Lists contact form submissions (from / and /get-started), newest first. Protected endpoint.
+ */
+adminRouter.get('/contact-submissions', requireAuth, (_req, res) => {
+  try {
+    const rows = db.prepare('SELECT * FROM contact_submissions ORDER BY created_at DESC').all() as Array<{
+      id: number;
+      name: string;
+      email: string;
+      phone: string | null;
+      company: string | null;
+      subject: string;
+      message: string;
+      newsletter: number;
+      email_status: string;
+      email_error: string | null;
+      created_at: string;
+      updated_at: string | null;
+    }>;
+
+    const submissions = rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      email: row.email,
+      phone: row.phone,
+      company: row.company,
+      subject: row.subject,
+      message: row.message,
+      newsletter: !!row.newsletter,
+      emailStatus: row.email_status,
+      emailError: row.email_error,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    }));
+
+    res.json({ submissions });
+  } catch (error) {
+    console.error('Error listing contact submissions:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default adminRouter;

@@ -117,6 +117,23 @@ db.exec(`
     created_at TEXT NOT NULL,
     FOREIGN KEY (lead_id) REFERENCES quiz_leads(id)
   );
+
+  CREATE TABLE IF NOT EXISTS contact_submissions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    phone TEXT,
+    company TEXT,
+    subject TEXT NOT NULL,
+    message TEXT NOT NULL,
+    newsletter INTEGER NOT NULL DEFAULT 0,
+    email_status TEXT NOT NULL DEFAULT 'pending',
+    email_error TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_contact_submissions_created_at ON contact_submissions(created_at DESC);
 `);
 
 // Add new columns for platform-specific text (safe to call multiple times)

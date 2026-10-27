@@ -3,6 +3,7 @@ import nodemailer from 'nodemailer';
 import { insertContactSchema } from '../shared/schema.js';
 import { fromZodError } from 'zod-validation-error';
 import { getEmailSettings } from './services/emailSettings.js';
+import db from './db.js';
 
 const router = Router();
 
@@ -20,13 +21,48 @@ router.post('/', async (req, res) => {
   }
 
   const data = parsed.data;
+  const now = new Date().toISOString();
+
+  // 1. Persist the contact submission in the database FIRST so the lead is never lost
+  let submissionId: number | bigint | undefined;
+  try {
+    const insertStmt = db.prepare(`
+      INSERT INTO contact_submissions (name, email, phone, company, subject, message, newsletter, email_status, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)
+    `);
+    const insertResult = insertStmt.run(
+      data.name,
+      data.email,
+      data.phone || null,
+      data.company || null,
+      data.subject,
+      data.message,
+      data.newsletter ? 1 : 0,
+      now
+    );
+    submissionId = insertResult.lastInsertRowid;
+  } catch (dbError) {
+    console.error('Failed to save contact submission to database', dbError);
+  }
+
+  // 2. Check email settings
   const emailSettings = getEmailSettings();
   if (!emailSettings) {
+    if (submissionId) {
+      try {
+        db.prepare(
+          "UPDATE contact_submissions SET email_status = 'not_configured', updated_at = ? WHERE id = ?"
+        ).run(new Date().toISOString(), submissionId);
+      } catch (e) {
+        console.error('Failed to update contact submission status', e);
+      }
+    }
     console.error('Contact email is not configured');
     res.status(503).json({ success: false, error: 'Contact email is not configured' });
     return;
   }
 
+  // 3. Attempt email delivery
   try {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -54,6 +90,17 @@ router.post('/', async (req, res) => {
         <p style="white-space:pre-wrap">${escapeHtml(data.message)}</p>
       `,
     });
+
+    if (submissionId) {
+      try {
+        db.prepare(
+          "UPDATE contact_submissions SET email_status = 'sent', updated_at = ? WHERE id = ?"
+        ).run(new Date().toISOString(), submissionId);
+      } catch (e) {
+        console.error('Failed to update contact submission status', e);
+      }
+    }
+
     res.status(200).json({ success: true, message: 'Contact form submitted successfully' });
   } catch (error) {
     const details = error && typeof error === 'object'
@@ -64,6 +111,18 @@ router.post('/', async (req, res) => {
           command: 'command' in error ? error.command : undefined,
         }
       : { name: 'UnknownError' };
+
+    if (submissionId) {
+      try {
+        const errorCode = details.code ? String(details.code) : (details.name ? String(details.name) : 'UnknownError');
+        db.prepare(
+          "UPDATE contact_submissions SET email_status = 'failed', email_error = ?, updated_at = ? WHERE id = ?"
+        ).run(errorCode, new Date().toISOString(), submissionId);
+      } catch (e) {
+        console.error('Failed to update contact submission status', e);
+      }
+    }
+
     console.error('Contact email could not be sent', details);
     res.status(500).json({ success: false, error: 'An unexpected error occurred' });
   }

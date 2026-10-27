@@ -3,6 +3,16 @@ import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import express from 'express';
 import request from 'supertest';
 const mail = vi.hoisted(() => ({ send: vi.fn(), settings: vi.fn() }));
+const dbMock = vi.hoisted(() => {
+  const run = vi.fn().mockReturnValue({ lastInsertRowid: 1 });
+  const prepare = vi.fn().mockReturnValue({ run });
+  return { run, prepare };
+});
+vi.mock('../db.js', () => ({
+  default: {
+    prepare: (...args: any[]) => dbMock.prepare(...args),
+  },
+}));
 vi.mock('nodemailer', () => ({ default: { createTransport: () => ({ sendMail: mail.send }) } }));
 vi.mock('../services/emailSettings.js', () => ({ getEmailSettings: mail.settings }));
 import contactRouter from '../contactRoutes.js';
@@ -16,12 +26,50 @@ const inquiry = {
 };
 beforeEach(() => {
   vi.clearAllMocks();
+  dbMock.run.mockReturnValue({ lastInsertRowid: 1 });
+  dbMock.prepare.mockReturnValue({ run: dbMock.run });
   mail.settings.mockReturnValue({ user: 'sender@example.org', appPassword: 'test-app-password', recipient: 'team@example.org' });
   mail.send.mockResolvedValue({ accepted: ['team@example.org'] });
 });
 afterEach(() => vi.unstubAllEnvs());
 
 describe('contact delivery', () => {
+  it('persists submission to database with pending status before attempting email delivery', async () => {
+    const result = await request(app).post('/api/contact').send(inquiry);
+    expect(result.status).toBe(200);
+    expect(dbMock.prepare).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO contact_submissions'));
+    expect(dbMock.run).toHaveBeenCalledWith(
+      inquiry.name,
+      inquiry.email,
+      null,
+      inquiry.company,
+      inquiry.subject,
+      inquiry.message,
+      0,
+      expect.any(String)
+    );
+  });
+  it('updates database record status to sent upon successful delivery', async () => {
+    await request(app).post('/api/contact').send(inquiry);
+    expect(dbMock.prepare).toHaveBeenCalledWith(expect.stringContaining("UPDATE contact_submissions SET email_status = 'sent'"));
+  });
+  it('updates database record status to failed and records error code when mail delivery fails', async () => {
+    const error = new Error('SMTP failure');
+    (error as any).code = 'EAUTH';
+    mail.send.mockRejectedValue(error);
+    const logger = vi.spyOn(console, 'error').mockImplementation(() => {});
+    await request(app).post('/api/contact').send(inquiry);
+    expect(dbMock.prepare).toHaveBeenCalledWith(expect.stringContaining("UPDATE contact_submissions SET email_status = 'failed'"));
+    expect(dbMock.run).toHaveBeenCalledWith('EAUTH', expect.any(String), 1);
+    logger.mockRestore();
+  });
+  it('updates database record status to not_configured when email settings are missing', async () => {
+    mail.settings.mockReturnValue(null);
+    const logger = vi.spyOn(console, 'error').mockImplementation(() => {});
+    await request(app).post('/api/contact').send(inquiry);
+    expect(dbMock.prepare).toHaveBeenCalledWith(expect.stringContaining("UPDATE contact_submissions SET email_status = 'not_configured'"));
+    logger.mockRestore();
+  });
   it('keeps authenticated From and routes replies to the validated visitor', async () => {
     const result = await request(app).post('/api/contact').send(inquiry);
     expect(result.status).toBe(200);
