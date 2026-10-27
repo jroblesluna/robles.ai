@@ -9,6 +9,8 @@ export const insertContactSchema = z.object({
   subject: z.string().min(1),
   message: z.string().min(5, "Message must be at least 5 characters long"),
   newsletter: z.boolean().optional().default(false),
+  // Validated loosely here; the server re-normalises it with normalizeAttribution().
+  attribution: z.unknown().optional(),
 });
 
 export type InsertContact = z.infer<typeof insertContactSchema>;

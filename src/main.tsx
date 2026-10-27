@@ -2,6 +2,9 @@ import { createRoot, hydrateRoot } from 'react-dom/client';
 import { Root } from './Root';
 import './index.css';
 import i18n, { initI18n } from './i18n';
+import { captureAttribution } from './lib/attribution';
+
+captureAttribution();
 
 async function renderApp() {
   await initI18n();

@@ -21,6 +21,7 @@ import { toast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { insertContactSchema } from "@shared/schema";
 import { trackContactClick, trackContactLead } from "@/lib/analytics";
+import { getAttribution } from "@/lib/attribution";
 import { useTranslation } from "react-i18next";
 
 const contactFormSchema = insertContactSchema.extend({
@@ -133,6 +134,7 @@ export const ContactForm = ({
         message: goalLabel
           ? `${t("contact.interestedIn")}: ${goalLabel}${message ? `\n\n${message}` : ""}`
           : message,
+        attribution: getAttribution(),
       };
       const response = await apiRequest("POST", "/api/contact", payload);
       const result = await response.json();

@@ -4,6 +4,7 @@ import { insertContactSchema } from '../shared/schema.js';
 import { fromZodError } from 'zod-validation-error';
 import { getEmailSettings } from './services/emailSettings.js';
 import db from './db.js';
+import { attributionSource, normalizeAttribution } from '../shared/attribution.js';
 
 const router = Router();
 
@@ -22,13 +23,22 @@ router.post('/', async (req, res) => {
 
   const data = parsed.data;
   const now = new Date().toISOString();
+  const attribution = normalizeAttribution(data.attribution, req.get('host'));
+  const attributionLines = attribution
+    ? [
+        `Source: ${attributionSource(attribution) ?? 'Unknown'}`,
+        ...Object.entries(attribution.params ?? {}).map(([key, value]) => `${key}: ${value}`),
+        ...(attribution.landingPage ? [`Landing page: ${attribution.landingPage}`] : []),
+        ...(attribution.referrer ? [`Referrer: ${attribution.referrer}`] : []),
+      ]
+    : [];
 
   // 1. Persist the contact submission in the database FIRST so the lead is never lost
   let submissionId: number | bigint | undefined;
   try {
     const insertStmt = db.prepare(`
-      INSERT INTO contact_submissions (name, email, phone, company, subject, message, newsletter, email_status, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)
+      INSERT INTO contact_submissions (name, email, phone, company, subject, message, newsletter, attribution, email_status, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)
     `);
     const insertResult = insertStmt.run(
       data.name,
@@ -38,6 +48,7 @@ router.post('/', async (req, res) => {
       data.subject,
       data.message,
       data.newsletter ? 1 : 0,
+      attribution ? JSON.stringify(attribution) : null,
       now
     );
     submissionId = insertResult.lastInsertRowid;
@@ -78,6 +89,7 @@ router.post('/', async (req, res) => {
         `Name: ${data.name}`, `Email: ${data.email}`, `Phone: ${data.phone || ''}`, `Company: ${data.company || ''}`,
         `Subject: ${data.subject}`, `Subscribed to Newsletter: ${data.newsletter ? 'Yes' : 'No'}`,
         '', data.message,
+        ...(attributionLines.length ? ['', 'Attribution:', ...attributionLines] : []),
       ].join('\n'),
       html: `
         <p><strong>Name:</strong> ${escapeHtml(data.name)}</p>
@@ -88,6 +100,7 @@ router.post('/', async (req, res) => {
         <p><strong>Subscribed to Newsletter:</strong> ${data.newsletter ? 'Yes' : 'No'}</p>
         <p><strong>Message:</strong></p>
         <p style="white-space:pre-wrap">${escapeHtml(data.message)}</p>
+        ${attributionLines.length ? `<p><strong>Attribution:</strong><br>${attributionLines.map(escapeHtml).join('<br>')}</p>` : ''}
       `,
     });
 

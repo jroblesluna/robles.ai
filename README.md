@@ -269,8 +269,9 @@ All persistent state lives in `server/data/dominical.db` (gitignored, preserved 
 | `blog_fts` | FTS5 virtual table for blog search |
 | `blog_posts_index` | Listing index for paginated blog queries |
 | `quiz_leads` / `quiz_verification_tokens` | Diagnostic quiz leads and email-verification tokens |
+| `contact_submissions` | Contact-form submissions (saved before the email is sent) with `attribution` and `ads_click` JSON |
 
-Contact-form submissions are **not** stored; they are emailed to `EMAIL_TO` with `Reply-To` set to the visitor.
+Contact submissions carry de-duplicated ad attribution (UTM tags, click IDs, ValueTrack parameters, landing path, external referrer) captured by `src/lib/attribution.ts` and normalised by `shared/attribution.ts`. When a `gclid` is present and the Google Ads API is configured, `/admin/contact-submissions` enriches it from ClickView (campaign, ad group, keyword, ad, device, network and that ad group's search terms for the day).
 
 ---
 
@@ -403,6 +404,8 @@ Source: `src/pages/Landing.tsx`; copy under `landing.v2.*` (plus `landing.cta.*`
 12. **FAQ** — includes implementation cost and *why not build it ourselves*.
 13. **Contact** (`#contacto`) — `ContactForm` (green submit, no newsletter, optional `defaultGoal`) + calendar booking / email / phone (`tel:`) / WhatsApp.
 14. **Sticky mobile CTA** — appears after the hero and hides when the form is visible.
+
+Every link that leaves `/get-started` (demos, quiz, header, footer, Robly, external) opens in a new tab; same-page anchors, language switches, `mailto:` and `tel:` do not.
 
 **Client logos**: `src/components/ClientLogos.tsx` renders `CLIENT_LOGOS` (`shared/publicContent.ts`, files in `public/images/clients/`) in full color on white tiles (`large: true` for logos with built-in padding, e.g. Mibanco); copy `clients.title` / `clients.note`. Used on the landing (dark) and on the home page right after the hero (light). They are enterprise software clients of the team since 2011 (not AI-project clients); add new logos by dropping the file and appending an entry.
 

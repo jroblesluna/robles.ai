@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Inbox, Mail, Phone, Building2, CheckCircle2, AlertCircle, AlertTriangle, Clock } from "lucide-react";
+import { Loader2, Inbox, Mail, Phone, Building2, CheckCircle2, AlertCircle, AlertTriangle, Clock, Megaphone } from "lucide-react";
+import type { Attribution } from "@shared/attribution";
 import { Badge } from "@/components/ui/badge";
 
 interface ContactSubmission {
@@ -11,6 +12,18 @@ interface ContactSubmission {
   subject: string;
   message: string;
   newsletter: boolean;
+  source: string | null;
+  attribution: Attribution | null;
+  adsClick: {
+    campaign?: string;
+    adGroup?: string;
+    keyword?: string | null;
+    matchType?: string | null;
+    device?: string | null;
+    network?: string | null;
+    adId?: string | null;
+    searchTerms?: string[];
+  } | null;
   emailStatus: "pending" | "sent" | "failed" | "not_configured" | string;
   emailError: string | null;
   createdAt: string;
@@ -25,6 +38,69 @@ function formatDate(iso: string): string {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+/** Readable labels for stored URL parameters; anything else shows its raw name. */
+const PARAM_LABELS: Record<string, string> = {
+  utm_source: "Source", utm_medium: "Medium", utm_campaign: "Campaign", utm_term: "Keyword", utm_content: "Content",
+  utm_id: "Campaign ID", campaignid: "Campaign ID", gad_campaignid: "Campaign ID", adgroupid: "Ad group ID",
+  keyword: "Keyword", matchtype: "Match type", creative: "Ad ID", adid: "Ad ID", device: "Device", network: "Network",
+  placement: "Placement", s: "Landing variant", gclid: "gclid", fbclid: "fbclid", msclkid: "msclkid",
+};
+
+/**
+ * Google Ads click data first (resolved names), then URL parameters, then landing/referrer.
+ * A value already shown (case-insensitive) is not repeated under another label.
+ */
+function attributionRows(sub: ContactSubmission): Array<[string, string]> {
+  const rows: Array<[string, string]> = [];
+  const seen = new Set<string>();
+  const add = (label: string, value: string | null | undefined) => {
+    const key = value?.trim().toLowerCase();
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    rows.push([label, value!.trim()]);
+  };
+  const click = sub.adsClick;
+  if (click) {
+    add("Campaign", click.campaign);
+    add("Ad group", click.adGroup);
+    add("Keyword", click.keyword && click.matchType ? `${click.keyword} (${click.matchType.toLowerCase()})` : click.keyword);
+    if (click.keyword) seen.add(click.keyword.toLowerCase());
+    if (click.searchTerms?.length) add("Search terms (ad group, that day)", click.searchTerms.join(", "));
+    add("Ad ID", click.adId);
+    add("Device", click.device?.toLowerCase());
+    add("Network", click.network?.toLowerCase());
+  }
+  for (const [key, value] of Object.entries(sub.attribution?.params ?? {})) {
+    if (key === "gclid" || key === "gbraid" || key === "wbraid" || key === "fbclid") continue;
+    add(PARAM_LABELS[key] ?? key, value);
+  }
+  add("Landing page", sub.attribution?.landingPage);
+  add("Referrer", sub.attribution?.referrer);
+  return rows;
+}
+
+function AttributionDetails({ sub }: { sub: ContactSubmission }) {
+  const rows = attributionRows(sub);
+  if (!sub.source && rows.length === 0) return <span className="text-muted-foreground">Direct / unknown</span>;
+  return (
+    <div className="space-y-1">
+      {sub.source && (
+        <Badge variant="outline" className="gap-1">
+          <Megaphone className="h-3 w-3" />
+          {sub.source}
+        </Badge>
+      )}
+      <dl className="text-xs text-muted-foreground">
+        {rows.map(([label, value]) => (
+          <div key={label} className="break-anywhere">
+            <dt className="inline font-medium text-foreground/80">{label}:</dt> <dd className="inline">{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  );
 }
 
 function StatusBadge({ status, error }: { status: string; error: string | null }) {
@@ -75,7 +151,7 @@ export default function AdminContactSubmissions() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Contact Submissions</h1>
         <p className="text-sm text-muted-foreground sm:text-base">
-          All inquiries sent via the website contact form, stored directly in database for backup.
+          All inquiries sent via the website contact form, stored in the database with their ad / traffic attribution.
         </p>
       </div>
 
@@ -113,6 +189,7 @@ export default function AdminContactSubmissions() {
                   <th className="px-4 py-3 text-left font-medium">Contact</th>
                   <th className="px-4 py-3 text-left font-medium">Company</th>
                   <th className="px-4 py-3 text-left font-medium">Subject & Message</th>
+                  <th className="px-4 py-3 text-left font-medium">Attribution</th>
                   <th className="px-4 py-3 text-left font-medium">Status</th>
                 </tr>
               </thead>
@@ -158,6 +235,9 @@ export default function AdminContactSubmissions() {
                         {sub.message}
                       </div>
                     </td>
+                    <td className="px-4 py-3 max-w-xs align-top">
+                      <AttributionDetails sub={sub} />
+                    </td>
                     <td className="px-4 py-3 align-top">
                       <StatusBadge status={sub.emailStatus} error={sub.emailError} />
                     </td>
@@ -194,6 +274,7 @@ export default function AdminContactSubmissions() {
                   <p className="font-semibold">{sub.subject}</p>
                   <p className="mt-1 whitespace-pre-wrap text-muted-foreground">{sub.message}</p>
                 </div>
+                <AttributionDetails sub={sub} />
                 <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
                   <span>{formatDate(sub.createdAt)}</span>
                   {sub.newsletter && <span>Newsletter: Yes</span>}

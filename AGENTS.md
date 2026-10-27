@@ -187,6 +187,10 @@ creative/        # material fuente de los visuales de demos (prompts y frames de
 
 **Formulario** (`src/components/Contact.tsx` → `ContactForm`, usado en `/` y `/get-started`): campos nombre, email, empresa (opcional), objetivo (`CONTACT_GOALS`: service, documents, knowledge, automation, analytics, unsure) y mensaje (opcional si hay objetivo; si se escribe, ≥ 10 caracteres). La API no cambió: el cliente compone `subject` (`Website Inquiry — <objetivo>`) y `message` (`Interested in: <objetivo>` + texto). `POST /api/contact` valida con `insertContactSchema`, registra la consulta en la tabla `contact_submissions` en BD antes de intentar el envío para evitar pérdida de prospectos si falla SMTP, despacha el correo (Reply-To = visitante) y responde `{ success: true }` solo si el envío fue aceptado. Visible en `/admin/contact-submissions`.
 
+**Atribución de leads** (`shared/attribution.ts`, `src/lib/attribution.ts`): al cargar cualquier página se leen de la URL los UTM, click IDs (`gclid`, `gbraid`, `wbraid`, `fbclid`, `msclkid`…), parámetros ValueTrack (`keyword`, `matchtype`, `campaignid`, `adgroupid`, `creative`, `device`, `network`…) y la variante `s`, más el referrer externo (origen + ruta, sin query). Se guarda en `localStorage` (90 días; una visita etiquetada reemplaza la anterior) y `ContactForm` la envía como `attribution`. El servidor la re-normaliza **sin duplicados** (solo parámetros conocidos, sin placeholders `{...}`, alias con el mismo valor —`utm_term`/`keyword`, `utm_campaign`/`campaignid`, `utm_content`/`creative`— se guardan una vez, landing sin query), la guarda en `contact_submissions.attribution` (JSON) y la añade al email. Si hay `gclid` y la API de Google Ads está configurada, `/admin/contact-submissions` la completa con ClickView (`lookupGoogleAdsClick`: campaña, grupo, keyword + concordancia, anuncio, dispositivo, red y los términos de búsqueda con clics de ese grupo ese día —Google no da el término por clic—) en `contact_submissions.ads_click`; un clic no encontrado en < 48 h se reintenta.
+
+**Enlaces en `/get-started`**: todo enlace que sale de la página (demos, quiz, header, footer, Robly, externos) abre en pestaña nueva; las anclas internas (`#contacto`), el cambio de idioma, `mailto:` y `tel:` no.
+
 **Medición** (`src/lib/analytics.ts`, solo producción y nunca en `/admin`): con `gtm_container_id` configurado **GTM es el único tracker** (eventos al `dataLayer`); si no, GA4 y Meta Pixel directos. `trackConversion()` encola eventos hasta que los trackers cargan y nunca incluye datos del visitante.
 
 | Función | GA4 | Meta | Cuándo |
@@ -335,6 +339,7 @@ Cuatro casos bilingües en `public/case-studies/content.json` y `caseStudies.ite
 | `blog_fts` | Tabla virtual FTS5 |
 | `blog_posts_index` | Índice de listado del blog |
 | `quiz_leads`, `quiz_verification_tokens` | Leads del quiz y tokens de verificación |
+| `contact_submissions` | Formularios de contacto + `attribution` / `ads_click` (JSON) |
 
 ### Claves de la tabla `settings`
 

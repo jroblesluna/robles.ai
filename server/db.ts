@@ -144,6 +144,18 @@ try {
   if (!e.message.includes('duplicate column')) throw e;
 }
 
+// Ad / traffic attribution of contact submissions (JSON; see shared/attribution.ts)
+for (const stmt of [
+  'ALTER TABLE contact_submissions ADD COLUMN attribution TEXT',
+  'ALTER TABLE contact_submissions ADD COLUMN ads_click TEXT',
+]) {
+  try {
+    db.exec(stmt);
+  } catch (e: any) {
+    if (!e.message.includes('duplicate column')) throw e;
+  }
+}
+
 // Add columns for the robot video summary feature (safe to call multiple times)
 for (const stmt of [
   'ALTER TABLE dominical_reports ADD COLUMN video_script TEXT',

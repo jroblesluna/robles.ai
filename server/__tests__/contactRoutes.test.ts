@@ -46,8 +46,29 @@ describe('contact delivery', () => {
       inquiry.subject,
       inquiry.message,
       0,
+      null,
       expect.any(String)
     );
+  });
+  it('stores de-duplicated ad attribution and adds it to the email', async () => {
+    await request(app).post('/api/contact').send({
+      ...inquiry,
+      attribution: {
+        params: { gclid: 'Cj0KCQabc', utm_term: 'ai chatbot', keyword: 'AI Chatbot', campaignid: '{campaignid}', evil: 'x' },
+        landingPage: '/get-started?s=chatbots&gclid=Cj0KCQabc',
+        referrer: 'https://www.google.com/search?q=private',
+        capturedAt: '2026-10-27T12:00:00.000Z',
+      },
+    });
+    const stored = JSON.parse(dbMock.run.mock.calls[0][7]);
+    expect(stored).toEqual({
+      params: { gclid: 'Cj0KCQabc', utm_term: 'ai chatbot' },
+      landingPage: '/get-started',
+      referrer: 'https://www.google.com/search',
+      capturedAt: '2026-10-27T12:00:00.000Z',
+    });
+    expect(mail.send.mock.calls[0][0].text).toContain('Source: Google Ads');
+    expect(mail.send.mock.calls[0][0].text).toContain('utm_term: ai chatbot');
   });
   it('updates database record status to sent upon successful delivery', async () => {
     await request(app).post('/api/contact').send(inquiry);

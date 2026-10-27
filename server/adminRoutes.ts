@@ -24,7 +24,9 @@ import type { PlatformName, PlatformAdapter } from './services/platforms/types.j
 import { GRAPH_API_BASE } from './services/metaGraphApi.js';
 import { getEmailSettings } from './services/emailSettings.js';
 import { queryReport } from './services/ga4Client.js';
-import { getGoogleAdsReader } from './services/googleAdsApi.js';
+import { getGoogleAdsReader, isGoogleAdsConfigured } from './services/googleAdsApi.js';
+import { lookupGoogleAdsClick } from './services/googleAdsClicks.js';
+import { attributionSource, normalizeAttribution } from '../shared/attribution.js';
 import { queryMetaAds } from './services/metaAds.js';
 import { rebuildListingIndex } from './listing/indexer.js';
 import chatAdminRouter from './chatAdminRoutes.js';
@@ -2541,41 +2543,83 @@ adminRouter.get('/quiz-leads', requireAuth, (_req, res) => {
   }
 });
 
+type ContactSubmissionRow = {
+  id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  company: string | null;
+  subject: string;
+  message: string;
+  newsletter: number;
+  attribution: string | null;
+  ads_click: string | null;
+  email_status: string;
+  email_error: string | null;
+  created_at: string;
+  updated_at: string | null;
+};
+
+const parseJson = (value: string | null): any => {
+  if (!value) return null;
+  try { return JSON.parse(value); } catch { return null; }
+};
+
+/**
+ * Fills `ads_click` for leads that arrived with a gclid, using Google Ads ClickView (last 90 days).
+ * A miss on a lead younger than 48 h is not saved, because ClickView can lag; it is retried later.
+ */
+async function enrichGoogleAdsClicks(rows: ContactSubmissionRow[]): Promise<void> {
+  if (!isGoogleAdsConfigured()) return;
+  const now = Date.now();
+  const pending = rows.filter(row => {
+    const age = now - Date.parse(row.created_at);
+    return !row.ads_click && age < 89 * 86400000 && !!parseJson(row.attribution)?.params?.gclid;
+  }).slice(0, 10);
+  const update = db.prepare('UPDATE contact_submissions SET ads_click = ? WHERE id = ?');
+  await Promise.allSettled(pending.map(async row => {
+    const attribution = parseJson(row.attribution);
+    const lookup = await lookupGoogleAdsClick(attribution.params.gclid, attribution.capturedAt || row.created_at);
+    if (!lookup || (lookup.status === 'not_found' && now - Date.parse(row.created_at) < 48 * 3600000)) return;
+    row.ads_click = JSON.stringify(lookup);
+    update.run(row.ads_click, row.id);
+  }));
+}
+
 /**
  * GET /api/admin/contact-submissions
- * Lists contact form submissions (from / and /get-started), newest first. Protected endpoint.
+ * Lists contact form submissions (from / and /get-started), newest first, with ad attribution. Protected endpoint.
  */
-adminRouter.get('/contact-submissions', requireAuth, (_req, res) => {
+adminRouter.get('/contact-submissions', requireAuth, async (_req, res) => {
   try {
-    const rows = db.prepare('SELECT * FROM contact_submissions ORDER BY created_at DESC').all() as Array<{
-      id: number;
-      name: string;
-      email: string;
-      phone: string | null;
-      company: string | null;
-      subject: string;
-      message: string;
-      newsletter: number;
-      email_status: string;
-      email_error: string | null;
-      created_at: string;
-      updated_at: string | null;
-    }>;
+    const rows = db.prepare('SELECT * FROM contact_submissions ORDER BY created_at DESC').all() as ContactSubmissionRow[];
+    try {
+      await enrichGoogleAdsClicks(rows);
+    } catch (error) {
+      console.error('Google Ads click enrichment failed:', error instanceof Error ? error.message : error);
+    }
 
-    const submissions = rows.map((row) => ({
-      id: row.id,
-      name: row.name,
-      email: row.email,
-      phone: row.phone,
-      company: row.company,
-      subject: row.subject,
-      message: row.message,
-      newsletter: !!row.newsletter,
-      emailStatus: row.email_status,
-      emailError: row.email_error,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-    }));
+    const submissions = rows.map((row) => {
+      const attribution = normalizeAttribution(parseJson(row.attribution));
+      const adsClick = parseJson(row.ads_click);
+      return {
+        id: row.id,
+        name: row.name,
+        email: row.email,
+        phone: row.phone,
+        company: row.company,
+        subject: row.subject,
+        message: row.message,
+        newsletter: !!row.newsletter,
+        source: attributionSource(attribution),
+        attribution,
+        adsClick: adsClick?.status === 'found' ? adsClick : null,
+        emailStatus: row.email_status,
+        emailError: row.email_error,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+      };
+    });
 
     res.json({ submissions });
   } catch (error) {

@@ -68,3 +68,55 @@ export async function getGoogleAdsClicks(range: DateRange, campaignId?: string, 
   } catch { report.availability.ads = false; warnings.push('Current ad assets could not be loaded. Click records remain available.'); }
   return report;
 }
+
+/** What Google Ads knows about one click (looked up by gclid for contact-form leads). */
+export interface GoogleAdsClickLookup {
+  status: 'found' | 'not_found';
+  checkedAt: string;
+  date?: string;
+  campaign?: string;
+  adGroup?: string;
+  keyword?: string | null;
+  matchType?: string | null;
+  device?: string | null;
+  network?: string | null;
+  adId?: string | null;
+  /** Search terms with clicks in that ad group on that day: candidates, Google does not report the term per click. */
+  searchTerms?: string[];
+}
+
+const GCLID = /^[A-Za-z0-9_-]{10,250}$/;
+
+/** Looks up a click by gclid on the account-local day it happened (ClickView keeps 90 days). */
+export async function lookupGoogleAdsClick(gclid: string, clickedAt: string): Promise<GoogleAdsClickLookup | null> {
+  if (!GCLID.test(gclid) || !Number.isFinite(Date.parse(clickedAt))) return null;
+  const utcDay = new Date(clickedAt).toISOString().slice(0, 10);
+  const { search: probe } = await getGoogleAdsReader({ startDate: utcDay, endDate: utcDay });
+  const timeZone = (await probe('SELECT customer.time_zone FROM customer LIMIT 1'))[0]?.customer?.timeZone;
+  const date = timeZone ? new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(clickedAt)) : utcDay;
+  const { search } = await getGoogleAdsReader({ startDate: date, endDate: date });
+  const checkedAt = new Date().toISOString();
+  const [row] = await search(`SELECT click_view.gclid, click_view.ad_group_ad, click_view.keyword_info.text, click_view.keyword_info.match_type, campaign.name, ad_group.id, ad_group.name, segments.device, segments.ad_network_type FROM click_view WHERE segments.date = '${date}' AND click_view.gclid = '${gclid}'`);
+  if (!row) return { status: 'not_found', checkedAt, date };
+  const lookup: GoogleAdsClickLookup = {
+    status: 'found', checkedAt, date,
+    campaign: row.campaign?.name || undefined,
+    adGroup: row.adGroup?.name || undefined,
+    keyword: row.clickView?.keywordInfo?.text || null,
+    matchType: row.clickView?.keywordInfo?.matchType || null,
+    device: row.segments?.device || null,
+    network: row.segments?.adNetworkType || null,
+    adId: String(row.clickView?.adGroupAd || '').match(/~(\d+)$/)?.[1] || null,
+  };
+  const adGroupId = String(row.adGroup?.id || '');
+  if (/^\d{1,20}$/.test(adGroupId)) {
+    try {
+      const terms = await search(`SELECT search_term_view.search_term, metrics.clicks FROM search_term_view WHERE segments.date = '${date}' AND ad_group.id = ${adGroupId} AND metrics.clicks > 0 ORDER BY metrics.clicks DESC LIMIT 5`);
+      const unique = Array.from(new Set(terms.map(term => String(term.searchTermView?.searchTerm || '')).filter(Boolean)));
+      if (unique.length) lookup.searchTerms = unique;
+    } catch {
+      // Search terms are optional context; the click itself is still useful.
+    }
+  }
+  return lookup;
+}

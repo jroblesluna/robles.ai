@@ -43,7 +43,7 @@ import {
   Users,
   UtensilsCrossed,
 } from "lucide-react";
-import { Link, useSearch } from "wouter";
+import { useSearch } from "wouter";
 import { ContactForm, CONTACT_GOALS } from "@/components/Contact";
 import { trackContactClick } from "@/lib/analytics";
 import { useBookingUrl } from "@/lib/siteConfig";
@@ -170,6 +170,24 @@ export default function Landing() {
   const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`;
   const bookingUrl = useBookingUrl();
 
+  // Paid traffic stays on the landing: any link that leaves this page (header, footer, Robly…)
+  // opens in a new tab. Same-page anchors (#contacto), language switches, mailto: and tel: are kept.
+  useEffect(() => {
+    const onClick = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const anchor = (event.target as Element | null)?.closest?.("a[href]");
+      if (!(anchor instanceof HTMLAnchorElement) || anchor.target || anchor.hasAttribute("download")) return;
+      const url = new URL(anchor.href, window.location.href);
+      if (!/^https?:$/.test(url.protocol)) return;
+      if (url.origin === window.location.origin && url.pathname === window.location.pathname) return;
+      // Prevented in the capture phase so wouter's <Link> skips its in-app navigation.
+      event.preventDefault();
+      window.open(url.href, "_blank", "noopener,noreferrer");
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, []);
+
   // Sticky mobile CTA: visible after the hero, hidden while the contact form is on screen.
   const [showSticky, setShowSticky] = useState(false);
   useEffect(() => {
@@ -249,10 +267,10 @@ export default function Landing() {
                   {t("landing.v2.booking.cta")}
                 </a>
               )}
-              <Link href={staticPagePath("/diagnostico-ia", lang)} className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 transition-colors">
+              <a href={staticPagePath("/diagnostico-ia", lang)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 transition-colors">
                 <Sparkles className="w-3.5 h-3.5 text-purple-400" aria-hidden="true" />
                 {t("landing.v2.hero.quizLink")}
-              </Link>
+              </a>
             </div>
             <ul className="mt-8 flex flex-wrap justify-center lg:justify-start gap-x-6 gap-y-2 text-sm text-slate-300">
               {list<string>("landing.v2.hero.trust").map((item) => (
@@ -344,12 +362,14 @@ export default function Landing() {
                         <div className="mt-auto pt-4 border-t border-slate-700/60">
                           <p className="text-sm font-medium text-white">{demo.title}</p>
                           {demo.benefit && <p className="text-xs text-emerald-300 mt-1">{demo.benefit}</p>}
-                          <Link
+                          <a
                             href={staticPagePath(demo.href!, lang)}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="tap-target mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-300 group-hover:text-emerald-200 group-hover:translate-x-0.5 transition-all"
                           >
                             {t("landing.v2.build.tryCta")} <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                          </Link>
+                          </a>
                         </div>
                       )}
                     </div>
@@ -359,9 +379,9 @@ export default function Landing() {
             })}
           </div>
           <p className="text-center mt-8">
-            <Link href={staticPagePath("/demos", lang)} className="text-sm text-slate-300 underline underline-offset-4 hover:text-white">
+            <a href={staticPagePath("/demos", lang)} target="_blank" rel="noopener noreferrer" className="text-sm text-slate-300 underline underline-offset-4 hover:text-white">
               {t("landing.v2.build.allDemos")}
-            </Link>
+            </a>
           </p>
         </div>
       </section>
