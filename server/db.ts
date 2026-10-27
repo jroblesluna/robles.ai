@@ -144,10 +144,11 @@ try {
   if (!e.message.includes('duplicate column')) throw e;
 }
 
-// Ad / traffic attribution of contact submissions (JSON; see shared/attribution.ts)
+// Ad / traffic attribution and Clarity recording of contact submissions (JSON; see shared/attribution.ts, shared/clarity.ts)
 for (const stmt of [
   'ALTER TABLE contact_submissions ADD COLUMN attribution TEXT',
   'ALTER TABLE contact_submissions ADD COLUMN ads_click TEXT',
+  'ALTER TABLE contact_submissions ADD COLUMN clarity_session TEXT',
 ]) {
   try {
     db.exec(stmt);

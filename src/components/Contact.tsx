@@ -20,7 +20,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { toast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { insertContactSchema } from "@shared/schema";
-import { trackContactClick, trackContactLead } from "@/lib/analytics";
+import { getClaritySession, tagClarityLead, trackContactClick, trackContactLead } from "@/lib/analytics";
 import { getAttribution } from "@/lib/attribution";
 import { useTranslation } from "react-i18next";
 
@@ -135,11 +135,13 @@ export const ContactForm = ({
           ? `${t("contact.interestedIn")}: ${goalLabel}${message ? `\n\n${message}` : ""}`
           : message,
         attribution: getAttribution(),
+        clarity: getClaritySession(),
       };
       const response = await apiRequest("POST", "/api/contact", payload);
       const result = await response.json();
       if (result.success !== true) throw new Error('Contact was not accepted');
       trackContactLead();
+      tagClarityLead("contact", result.leadId);
       toast({
         title: t("contact.successTitle"),
         description: t("contact.successMessage"),
@@ -160,7 +162,7 @@ export const ContactForm = ({
       <h3 className={`text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 ${isDark ? "text-white" : "text-gray-900"}`}>{t(titleKey)}</h3>
 
       <Form {...form}>
-        <form method="post" action="/api/contact" onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="grid min-w-0 grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
+        <form method="post" action="/api/contact" data-clarity-mask="true" onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="grid min-w-0 grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
           <FormField
             control={form.control}
             name="name"

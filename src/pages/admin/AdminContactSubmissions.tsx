@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Inbox, Mail, Phone, Building2, CheckCircle2, AlertCircle, AlertTriangle, Clock, Megaphone } from "lucide-react";
+import { Loader2, Inbox, Mail, Phone, Building2, CheckCircle2, AlertCircle, AlertTriangle, Clock, Megaphone, PlayCircle } from "lucide-react";
 import type { Attribution } from "@shared/attribution";
 import { Badge } from "@/components/ui/badge";
 
@@ -24,6 +24,7 @@ interface ContactSubmission {
     adId?: string | null;
     searchTerms?: string[];
   } | null;
+  recordingUrl: string | null;
   emailStatus: "pending" | "sent" | "failed" | "not_configured" | string;
   emailError: string | null;
   createdAt: string;
@@ -83,9 +84,28 @@ function attributionRows(sub: ContactSubmission): Array<[string, string]> {
 
 function AttributionDetails({ sub }: { sub: ContactSubmission }) {
   const rows = attributionRows(sub);
-  if (!sub.source && rows.length === 0) return <span className="text-muted-foreground">Direct / unknown</span>;
+  const recording = sub.recordingUrl && (
+    <a
+      href={sub.recordingUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline"
+      title="Session recording in Microsoft Clarity (kept about 30 days)"
+    >
+      <PlayCircle className="h-3.5 w-3.5" /> View recording
+    </a>
+  );
+  if (!sub.source && rows.length === 0) {
+    return (
+      <div className="space-y-1">
+        <span className="block text-muted-foreground">Direct / unknown</span>
+        {recording}
+      </div>
+    );
+  }
   return (
     <div className="space-y-1">
+      {recording}
       {sub.source && (
         <Badge variant="outline" className="gap-1">
           <Megaphone className="h-3 w-3" />

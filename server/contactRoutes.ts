@@ -5,6 +5,7 @@ import { fromZodError } from 'zod-validation-error';
 import { getEmailSettings } from './services/emailSettings.js';
 import db from './db.js';
 import { attributionSource, normalizeAttribution } from '../shared/attribution.js';
+import { normalizeClaritySession } from '../shared/clarity.js';
 
 const router = Router();
 
@@ -24,6 +25,7 @@ router.post('/', async (req, res) => {
   const data = parsed.data;
   const now = new Date().toISOString();
   const attribution = normalizeAttribution(data.attribution, req.get('host'));
+  const claritySession = normalizeClaritySession(data.clarity);
   const attributionLines = attribution
     ? [
         `Source: ${attributionSource(attribution) ?? 'Unknown'}`,
@@ -37,8 +39,8 @@ router.post('/', async (req, res) => {
   let submissionId: number | bigint | undefined;
   try {
     const insertStmt = db.prepare(`
-      INSERT INTO contact_submissions (name, email, phone, company, subject, message, newsletter, attribution, email_status, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)
+      INSERT INTO contact_submissions (name, email, phone, company, subject, message, newsletter, attribution, clarity_session, email_status, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)
     `);
     const insertResult = insertStmt.run(
       data.name,
@@ -49,6 +51,7 @@ router.post('/', async (req, res) => {
       data.message,
       data.newsletter ? 1 : 0,
       attribution ? JSON.stringify(attribution) : null,
+      claritySession ? JSON.stringify(claritySession) : null,
       now
     );
     submissionId = insertResult.lastInsertRowid;
@@ -114,7 +117,11 @@ router.post('/', async (req, res) => {
       }
     }
 
-    res.status(200).json({ success: true, message: 'Contact form submitted successfully' });
+    res.status(200).json({
+      success: true,
+      message: 'Contact form submitted successfully',
+      ...(submissionId ? { leadId: Number(submissionId) } : {}),
+    });
   } catch (error) {
     const details = error && typeof error === 'object'
       ? {

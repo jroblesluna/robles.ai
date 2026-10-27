@@ -47,6 +47,7 @@ describe('contact delivery', () => {
       inquiry.message,
       0,
       null,
+      null,
       expect.any(String)
     );
   });
@@ -69,6 +70,15 @@ describe('contact delivery', () => {
     });
     expect(mail.send.mock.calls[0][0].text).toContain('Source: Google Ads');
     expect(mail.send.mock.calls[0][0].text).toContain('utm_term: ai chatbot');
+  });
+  it('stores a valid Clarity session and returns the lead id', async () => {
+    const result = await request(app).post('/api/contact').send({ ...inquiry, clarity: { userId: 'abc123x', sessionId: 'zz9yy8' } });
+    expect(result.body.leadId).toBe(1);
+    expect(JSON.parse(dbMock.run.mock.calls[0][8])).toEqual({ userId: 'abc123x', sessionId: 'zz9yy8' });
+  });
+  it('ignores a malformed Clarity session', async () => {
+    await request(app).post('/api/contact').send({ ...inquiry, clarity: { userId: '../x', sessionId: 'a b' } });
+    expect(dbMock.run.mock.calls[0][8]).toBeNull();
   });
   it('updates database record status to sent upon successful delivery', async () => {
     await request(app).post('/api/contact').send(inquiry);

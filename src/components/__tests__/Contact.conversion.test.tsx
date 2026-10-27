@@ -4,7 +4,7 @@ import Contact from '../Contact';
 import en from '@/i18n/locales/en/translation.json';
 const mocks = vi.hoisted(() => ({ api: vi.fn(), lead: vi.fn(), toast: vi.fn() }));
 vi.mock('@/lib/queryClient', () => ({ apiRequest: mocks.api }));
-vi.mock('@/lib/analytics', () => ({ trackContactLead: mocks.lead }));
+vi.mock('@/lib/analytics', () => ({ trackContactLead: mocks.lead, trackContactClick: vi.fn(), tagClarityLead: vi.fn(), getClaritySession: () => undefined }));
 vi.mock('@/hooks/use-toast', () => ({ toast: mocks.toast }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({
   t: (key: string) => key.split('.').reduce<any>((value, part) => value?.[part], en) ?? key,

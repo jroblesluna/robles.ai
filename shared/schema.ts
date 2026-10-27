@@ -11,6 +11,8 @@ export const insertContactSchema = z.object({
   newsletter: z.boolean().optional().default(false),
   // Validated loosely here; the server re-normalises it with normalizeAttribution().
   attribution: z.unknown().optional(),
+  // Clarity user/session IDs for the recording link; re-validated with normalizeClaritySession().
+  clarity: z.unknown().optional(),
 });
 
 export type InsertContact = z.infer<typeof insertContactSchema>;

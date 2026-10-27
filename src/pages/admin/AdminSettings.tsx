@@ -739,7 +739,22 @@ export default function AdminSettings() {
               Find it in tagmanager.google.com → your container → Container ID
             </p>
           </div>
-          {sectionSaveButton("Analytics & Tracking", ["ga4_measurement_id", "meta_pixel_id", "gtm_container_id"])}
+          <div className="space-y-2">
+            <Label htmlFor="clarity_project_id">Microsoft Clarity Project ID</Label>
+            <Input
+              id="clarity_project_id"
+              type="text"
+              placeholder="abcd1234ef"
+              value={settings.clarity_project_id || ""}
+              onChange={(e) => updateSetting("clarity_project_id", e.target.value.trim())}
+            />
+            <p className="text-xs text-muted-foreground">
+              Session recordings and heatmaps. Find it in clarity.microsoft.com → your project → Settings → Overview.
+              Loaded by the site itself (with or without GTM) — do not also add a Clarity tag in GTM.
+              Leads in Contact Submissions get a "View recording" link.
+            </p>
+          </div>
+          {sectionSaveButton("Analytics & Tracking", ["ga4_measurement_id", "meta_pixel_id", "gtm_container_id", "clarity_project_id"])}
         </CardContent>
       </Card>
 

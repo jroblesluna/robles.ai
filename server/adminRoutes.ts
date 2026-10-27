@@ -27,6 +27,7 @@ import { queryReport } from './services/ga4Client.js';
 import { getGoogleAdsReader, isGoogleAdsConfigured } from './services/googleAdsApi.js';
 import { lookupGoogleAdsClick } from './services/googleAdsClicks.js';
 import { attributionSource, normalizeAttribution } from '../shared/attribution.js';
+import { clarityRecordingUrl, normalizeClaritySession, validClarityProjectId } from '../shared/clarity.js';
 import { queryMetaAds } from './services/metaAds.js';
 import { rebuildListingIndex } from './listing/indexer.js';
 import chatAdminRouter from './chatAdminRoutes.js';
@@ -2554,6 +2555,7 @@ type ContactSubmissionRow = {
   newsletter: number;
   attribution: string | null;
   ads_click: string | null;
+  clarity_session: string | null;
   email_status: string;
   email_error: string | null;
   created_at: string;
@@ -2599,6 +2601,9 @@ adminRouter.get('/contact-submissions', requireAuth, async (_req, res) => {
       console.error('Google Ads click enrichment failed:', error instanceof Error ? error.message : error);
     }
 
+    const clarityProject = validClarityProjectId(
+      (db.prepare("SELECT value FROM settings WHERE key = 'clarity_project_id'").get() as { value?: string } | undefined)?.value,
+    );
     const submissions = rows.map((row) => {
       const attribution = normalizeAttribution(parseJson(row.attribution));
       const adsClick = parseJson(row.ads_click);
@@ -2614,6 +2619,7 @@ adminRouter.get('/contact-submissions', requireAuth, async (_req, res) => {
         source: attributionSource(attribution),
         attribution,
         adsClick: adsClick?.status === 'found' ? adsClick : null,
+        recordingUrl: clarityRecordingUrl(clarityProject, normalizeClaritySession(parseJson(row.clarity_session))),
         emailStatus: row.email_status,
         emailError: row.email_error,
         createdAt: row.created_at,

@@ -85,3 +85,27 @@ it('sends contact clicks to direct trackers as GA4 contact_click and Meta Contac
   expect(sdk.ga.event).toHaveBeenCalledExactlyOnceWith('contact_click', { contact_method: 'phone', link_location: 'home_contact' });
   expect(sdk.pixel.track).toHaveBeenCalledExactlyOnceWith('Contact', { contact_method: 'phone', link_location: 'home_contact' });
 });
+
+it('loads Clarity alongside GTM and tags leads without personal data', async () => {
+  delete (window as any).clarity;
+  vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ gtm: 'GTM-TEST123', clarity: 'abcd1234ef' }) })));
+  const analytics = await import('../analytics');
+  await analytics.initAnalytics();
+  expect(document.querySelector('script[src="https://www.clarity.ms/tag/abcd1234ef"]')).not.toBeNull();
+  analytics.tagClarityLead('contact', 42);
+  expect((window as any).clarity.q).toEqual(expect.arrayContaining([
+    ['set', 'lead_id', 'contact-42'], ['set', 'lead_type', 'contact'], ['upgrade', 'contact_lead'],
+  ]));
+  document.cookie = '_clck=user123x%7C2%7Cfq1%7C0%7C1; path=/';
+  document.cookie = '_clsk=sess456y%7C1700000000000%7C2%7C1; path=/';
+  expect(analytics.getClaritySession()).toEqual({ userId: 'user123x', sessionId: 'sess456y' });
+});
+it('ignores an invalid Clarity project id', async () => {
+  delete (window as any).clarity;
+  vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ clarity: 'bad"><script>' }) })));
+  const analytics = await import('../analytics');
+  await analytics.initAnalytics();
+  expect(document.querySelector('script[src*="clarity.ms"]')).toBeNull();
+  analytics.tagClarityLead('quiz', 1);
+  expect((window as any).clarity).toBeUndefined();
+});

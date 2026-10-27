@@ -247,7 +247,7 @@ The **Email delivery** card configures the Gmail sender, app password and defaul
 | LinkedIn | `linkedin_client_id`, `linkedin_client_secret`, `linkedin_access_token`, `linkedin_refresh_token`, `linkedin_token_expires_at`, `linkedin_person_id`, `linkedin_oauth_state` (transient) |
 | Meta publishing / insights | `meta_app_id`, `meta_app_secret`, `instagram_business_account_id` (legacy `instagram_user_id`), `instagram_access_token`, `facebook_page_id`, `facebook_page_access_token`, `meta_token_expires_at` |
 | Meta Ads (Ads tab) | `meta_ad_account_id`, `meta_ads_access_token` (System User token with `ads_read`) |
-| Site tracking | `gtm_container_id`, `ga4_measurement_id`, `meta_pixel_id` |
+| Site tracking | `gtm_container_id`, `ga4_measurement_id`, `meta_pixel_id`, `clarity_project_id` (Microsoft Clarity, loaded by the site with or without GTM) |
 | GA4 Data API | `ga4_property_id` (+ service-account JSON stored as `server/data/ga4-service-account.json`) |
 | Backends portal | `hostinger_api_key`, `hostinger_domain` (default `robles.ai`), `gcp_sa_key`, `dns_cname_target` (default `ghs.googlehosted.com.`) |
 
@@ -269,7 +269,7 @@ All persistent state lives in `server/data/dominical.db` (gitignored, preserved 
 | `blog_fts` | FTS5 virtual table for blog search |
 | `blog_posts_index` | Listing index for paginated blog queries |
 | `quiz_leads` / `quiz_verification_tokens` | Diagnostic quiz leads and email-verification tokens |
-| `contact_submissions` | Contact-form submissions (saved before the email is sent) with `attribution` and `ads_click` JSON |
+| `contact_submissions` | Contact-form submissions (saved before the email is sent) with `attribution`, `ads_click` and `clarity_session` JSON |
 
 Contact submissions carry de-duplicated ad attribution (UTM tags, click IDs, ValueTrack parameters, landing path, external referrer) captured by `src/lib/attribution.ts` and normalised by `shared/attribution.ts`. When a `gclid` is present and the Google Ads API is configured, `/admin/contact-submissions` enriches it from ClickView (campaign, ad group, keyword, ad, device, network and that ad group's search terms for the day).
 
@@ -425,6 +425,8 @@ Every link that leaves `/get-started` (demos, quiz, header, footer, Robly, exter
 | `trackQuizLead()` | `generate_lead` (`form_id: quiz`, `method: quiz`) | `Lead` | `POST /api/quiz-lead` returns a `leadId` |
 | `trackContactClick(channel, location)` | `contact_click` (`contact_method`, `link_location`) | `Contact` | WhatsApp / email / phone / calendar link clicks (landing, home contact, Robly) |
 | `trackDemoEvent(event, demoId)` | `demo_start`, `demo_complete`, `roi_calculated`, `demo_cta_click` | custom | Demo funnel |
+
+**Microsoft Clarity** (session recordings and heatmaps): set `clarity_project_id` in Admin → Settings → Analytics & Tracking. The site loads it itself (production only, never on `/admin`), tags sessions with `traffic_source`, `campaign`, `keyword`, `landing_variant` and, once a lead is accepted, `lead_id` (`contact-<id>` / `quiz-<id>`). Contact submissions store the Clarity user/session IDs so `/admin/contact-submissions` links to the recording. Contact and quiz forms are masked (`data-clarity-mask`).
 
 Google Ads (account *Robles.AI*, USD, Pacific time) imports `generate_lead` from GA4 property `492769320` as the primary *Submit lead form* conversion; `contact_click` is meant to be a secondary conversion. Details and external setup: [`docs/CONTACT_CONVERSIONS.md`](docs/CONTACT_CONVERSIONS.md).
 

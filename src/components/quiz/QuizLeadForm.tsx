@@ -52,7 +52,7 @@ const QuizLeadForm = ({ onSubmit, isSubmitting }: QuizLeadFormProps) => {
       <p className="text-gray-600 text-sm mb-6">{t("quiz.leadForm.subtitle")}</p>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-4 min-w-0">
+        <form data-clarity-mask="true" onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-4 min-w-0">
           <FormField
             control={form.control}
             name="name"

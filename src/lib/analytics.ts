@@ -1,3 +1,7 @@
+import { attributionSource } from '@shared/attribution';
+import { getAttribution } from '@/lib/attribution';
+import { normalizeClaritySession, validClarityProjectId, type ClaritySession } from '@shared/clarity';
+
 // Browser-only SDKs are loaded only when the existing configuration needs them.
 let ReactGA: typeof import('react-ga4').default;
 let ReactPixel: typeof import('react-facebook-pixel');
@@ -61,6 +65,50 @@ export function trackContactClick(channel: ContactChannel, location: string): vo
   trackConversion({ ga: 'contact_click', pixel: 'Contact', params: { contact_method: channel, link_location: location } });
 }
 
+type ClarityFn = ((...args: unknown[]) => void) & { q?: unknown[][] };
+let clarityInitialized = false;
+
+/** Official Clarity bootstrap: calls made before the script loads are queued in `clarity.q`. */
+function loadClarity(projectId: string): void {
+  const w = window as unknown as { clarity?: ClarityFn };
+  if (w.clarity) return;
+  const queue: ClarityFn = (...args: unknown[]) => { (queue.q = queue.q || []).push(args); };
+  w.clarity = queue;
+  const script = document.createElement('script');
+  script.async = true;
+  script.src = `https://www.clarity.ms/tag/${projectId}`;
+  document.head.appendChild(script);
+  clarityInitialized = true;
+}
+
+function clarity(...args: unknown[]): void {
+  if (!clarityInitialized) return;
+  try { (window as unknown as { clarity?: ClarityFn }).clarity?.(...args); } catch { /* non-critical */ }
+}
+
+/** Custom tags let the Clarity dashboard filter recordings (e.g. by campaign or lead). Never pass personal data. */
+export function tagClaritySession(tags: Record<string, string | undefined>): void {
+  for (const [key, value] of Object.entries(tags)) if (value) clarity('set', key, value.slice(0, 100));
+}
+
+/**
+ * Marks the current recording as a lead: tags it (`lead_id = contact-42`) and asks Clarity to keep it
+ * even when sampling. Called after the API accepted the submission.
+ */
+export function tagClarityLead(kind: 'contact' | 'quiz', id: number | string | undefined): void {
+  if (id === undefined || id === null || id === '') return;
+  tagClaritySession({ lead_id: `${kind}-${id}`, lead_type: kind });
+  clarity('upgrade', `${kind}_lead`);
+}
+
+/** Clarity user/session IDs from its first-party cookies, to link a lead to its recording. */
+export function getClaritySession(): ClaritySession | undefined {
+  if (!clarityInitialized || typeof document === 'undefined') return undefined;
+  const cookie = (name: string) => document.cookie.split('; ').find((c) => c.startsWith(`${name}=`))?.slice(name.length + 1);
+  const first = (value?: string) => (value ? decodeURIComponent(value).split('|')[0] : undefined);
+  return normalizeClaritySession({ userId: first(cookie('_clck')), sessionId: first(cookie('_clsk')) }) ?? undefined;
+}
+
 /**
  * Initialize Google Analytics and Facebook Pixel.
  * Fetches IDs dynamically from the admin settings API so they can be
@@ -80,6 +128,21 @@ export const initAnalytics = async () => {
     const res = await fetch('/api/public/analytics-config');
     if (!res.ok) return;
     const config = await res.json();
+
+    // Clarity is independent of GTM / GA4: it only records sessions, so it never duplicates conversions.
+    const clarityId = validClarityProjectId(config.clarity);
+    if (clarityId) {
+      loadClarity(clarityId);
+      // Same de-duplicated attribution the contact form stores, so recordings filter by campaign/keyword.
+      const attribution = getAttribution();
+      const params = attribution?.params ?? {};
+      tagClaritySession({
+        traffic_source: attributionSource(attribution) ?? undefined,
+        campaign: params.utm_campaign ?? params.campaignid,
+        keyword: params.utm_term ?? params.keyword,
+        landing_variant: params.s,
+      });
+    }
 
     // If GTM is configured, it handles ALL tracking (GA4, Meta Pixel, etc.)
     // Don't inject individual trackers to avoid duplicate events.
