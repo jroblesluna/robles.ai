@@ -11,10 +11,11 @@ it('shows masked saved fingerprints, hides replacement secrets and never resaves
   }));
   render(<AdminSettings />);
   await screen.findByLabelText('API Key');
-  expect(screen.getByText(/Saved: \*\*\*\*1234/)).toBeInTheDocument();
-  expect(screen.getAllByText(/Saved: \*\*\*\*5678/)).toHaveLength(2);
+  expect(screen.getByLabelText('API Key')).toHaveAttribute('placeholder', expect.stringContaining('****1234'));
+  expect(screen.getAllByText('Saved credential').length).toBeGreaterThan(1);
   await waitFor(() => expect(screen.getByLabelText('App Secret')).toHaveAttribute('placeholder', expect.stringContaining('****5678')));
   expect(screen.getByLabelText('App Secret')).toHaveAttribute('type', 'password');
+  expect(screen.queryByText(/Enter a new value only to replace it/)).not.toBeInTheDocument();
   fireEvent.change(screen.getByLabelText('Notification Email'), { target: { value: 'changed@example.test' } });
   fireEvent.click(screen.getByRole('button', { name: 'Save Dominical Preferences' }));
   await waitFor(() => expect(saved).toBeDefined());
@@ -35,7 +36,7 @@ it('shows LinkedIn client secret fingerprint without pre-filling a secret value'
   const secret = await screen.findByLabelText('Client Secret');
   expect(secret).toHaveValue('');
   expect(secret).toHaveAttribute('placeholder', expect.stringContaining('****AB12'));
-  expect(screen.getByText(/Saved: \*\*\*\*AB12/)).toBeInTheDocument();
+  expect(screen.getByText('Saved credential')).toBeInTheDocument();
 });
 it('saves only email delivery settings from the email section button', async () => {
   const requests: Array<Record<string, string>> = [];
@@ -119,4 +120,21 @@ it('validates a saved email configuration without sending a test message', async
   render(<AdminSettings />);
   fireEvent.click(await screen.findByRole('button', { name: 'Validate Email Delivery' }));
   await waitFor(() => expect(requests.some((request) => request.url.endsWith('/settings/email/validate') && request.method === 'POST')).toBe(true));
+});
+it('loads and saves the configured booking URL in Calendar Booking settings', async () => {
+  const requests: Array<{ url: string; body?: Record<string, string> }> = [];
+  vi.stubGlobal('fetch', vi.fn(async (url: string, options?: { method?: string; body?: string }) => {
+    if (options?.method === 'PUT') requests.push({ url, body: JSON.parse(options.body || '{}') });
+    return {
+      ok: true,
+      json: async () => url.endsWith('/meta') ? {} : { booking_url: 'https://booking.example.test/custom' },
+    };
+  }));
+  render(<AdminSettings />);
+  const booking = await screen.findByLabelText('Booking URL');
+  expect(booking).toHaveValue('https://booking.example.test/custom');
+  fireEvent.change(booking, { target: { value: 'https://booking.example.test/new' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Save Calendar Booking' }));
+  await waitFor(() => expect(requests).toHaveLength(1));
+  expect(requests[0].body).toEqual({ booking_url: 'https://booking.example.test/new' });
 });

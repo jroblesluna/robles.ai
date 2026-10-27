@@ -27,6 +27,7 @@ vi.mock('fs', () => ({
 }));
 
 let app: express.Express;
+const DEFAULT_BOOKING_URL = 'https://calendar.app.google/oR9yeJveKiKpBqF49';
 
 beforeEach(async () => {
   vi.clearAllMocks();
@@ -48,6 +49,27 @@ describe('Public Slides Endpoint', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.error).toBe('Invalid report ID');
+    });
+
+    describe('Public Site Config Endpoint', () => {
+      it('uses the saved booking URL instead of the default and prevents stale caching', async () => {
+        mockGet.mockReturnValue({ value: 'https://booking.example.test/custom' });
+
+        const res = await request(app).get('/api/public/site-config');
+
+        expect(res.status).toBe(200);
+        expect(res.body.bookingUrl).toBe('https://booking.example.test/custom');
+        expect(res.body.bookingUrl).not.toBe(DEFAULT_BOOKING_URL);
+        expect(res.headers['cache-control']).toBe('no-store');
+      });
+
+      it('uses the shared default only when no valid booking URL is saved', async () => {
+        mockGet.mockReturnValue(undefined);
+
+        const res = await request(app).get('/api/public/site-config');
+
+        expect(res.body.bookingUrl).toBe(DEFAULT_BOOKING_URL);
+      });
     });
 
     it('returns 400 for report ID less than 1', async () => {

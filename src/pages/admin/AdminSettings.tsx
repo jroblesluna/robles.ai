@@ -554,12 +554,12 @@ export default function AdminSettings() {
                 <Input
                   id="meta_app_id"
                   type="text"
-                  placeholder={metaStatus.meta_app_id ? `${credentialPreview(settings.meta_app_id)} — saved; paste to replace` : "Enter Meta App ID"}
+                  placeholder={metaStatus.meta_app_id ? credentialPreview(settings.meta_app_id) : "Enter Meta App ID"}
                   value={metaCredentials.meta_app_id}
                   onChange={(e) => updateMetaCredential("meta_app_id", e.target.value)}
                 />
                 {metaStatus.meta_app_id && !metaCredentials.meta_app_id && (
-                  <p className="text-xs text-green-600">✓ Saved. Leave blank to keep current value.</p>
+                  <SavedValueStatus label="Saved" />
                 )}
               </div>
               <div className="space-y-2">
@@ -585,12 +585,12 @@ export default function AdminSettings() {
                 <Input
                   id="instagram_business_account_id"
                   type="text"
-                  placeholder={metaStatus.instagram_business_account_id ? `${credentialPreview(settings.instagram_business_account_id)} — saved; paste to replace` : "Enter Business Account ID"}
+                  placeholder={metaStatus.instagram_business_account_id ? credentialPreview(settings.instagram_business_account_id) : "Enter Business Account ID"}
                   value={metaCredentials.instagram_business_account_id}
                   onChange={(e) => updateMetaCredential("instagram_business_account_id", e.target.value)}
                 />
                 {metaStatus.instagram_business_account_id && !metaCredentials.instagram_business_account_id && (
-                  <p className="text-xs text-green-600">✓ Saved. Leave blank to keep current value.</p>
+                  <SavedValueStatus label="Saved" />
                 )}
               </div>
               <div className="space-y-2">
@@ -616,12 +616,12 @@ export default function AdminSettings() {
                 <Input
                   id="facebook_page_id"
                   type="text"
-                  placeholder={metaStatus.facebook_page_id ? `${credentialPreview(settings.facebook_page_id)} — saved; paste to replace` : "Enter Page ID"}
+                  placeholder={metaStatus.facebook_page_id ? credentialPreview(settings.facebook_page_id) : "Enter Page ID"}
                   value={metaCredentials.facebook_page_id}
                   onChange={(e) => updateMetaCredential("facebook_page_id", e.target.value)}
                 />
                 {metaStatus.facebook_page_id && !metaCredentials.facebook_page_id && (
-                  <p className="text-xs text-green-600">✓ Saved. Leave blank to keep current value.</p>
+                  <SavedValueStatus label="Saved" />
                 )}
               </div>
               <div className="space-y-2">
@@ -1062,17 +1062,24 @@ function SecretCredentialInput({
         id={id}
         type="password"
         autoComplete="new-password"
-        placeholder={hasSavedValue ? `${credentialPreview(savedValue)} — saved; enter a new value to replace it` : emptyPlaceholder}
+        placeholder={hasSavedValue ? credentialPreview(savedValue) : emptyPlaceholder}
         value={isMaskedCredential(value) ? "" : value}
         onChange={(event: ChangeEvent<HTMLInputElement>) => onChange(event.target.value)}
         className={className}
       />
       {hasSavedValue && (
-        <p className="break-words text-xs text-muted-foreground">
-          Saved: {credentialPreview(savedValue)}. Enter a new value only to replace it.
-        </p>
+        <SavedValueStatus label="Saved credential" />
       )}
     </>
+  );
+}
+
+function SavedValueStatus({ label }: { label: string }) {
+  return (
+    <p className="flex items-center gap-1.5 text-xs font-medium text-green-700 dark:text-green-400">
+      <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+      {label}
+    </p>
   );
 }
 

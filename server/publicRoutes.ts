@@ -90,7 +90,7 @@ publicRouter.get('/analytics-config', (_req, res) => {
  */
 publicRouter.get('/site-config', (_req, res) => {
   const row = db.prepare("SELECT value FROM settings WHERE key = 'booking_url'").get() as { value: string | null } | undefined;
-  res.setHeader('Cache-Control', 'public, max-age=300');
+  res.setHeader('Cache-Control', 'no-store');
   res.json({ bookingUrl: safeHttpUrl(row?.value) ?? PUBLIC_CONTACT.bookingUrl });
 });
 

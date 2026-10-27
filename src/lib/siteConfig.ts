@@ -5,16 +5,13 @@ export interface SiteConfig {
   bookingUrl: string | null;
 }
 
-let cached: Promise<SiteConfig> | null = null;
-
 function loadSiteConfig(): Promise<SiteConfig> {
-  cached ??= fetch("/api/public/site-config")
+  return fetch("/api/public/site-config", { cache: "no-store" })
     .then((res) => (res.ok ? res.json() : { bookingUrl: null }))
     .then((data: Partial<SiteConfig>) => ({
       bookingUrl: typeof data.bookingUrl === "string" && /^https?:\/\//i.test(data.bookingUrl) ? data.bookingUrl : null,
     }))
     .catch(() => ({ bookingUrl: null }));
-  return cached;
 }
 
 /** Calendar booking link set in Admin → Settings (`booking_url`), or null while loading / when unset. */
