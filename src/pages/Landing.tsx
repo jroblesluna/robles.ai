@@ -78,11 +78,11 @@ const SECURITY_ICONS = [Lock, KeyRound, UserCheck, Cloud, ScrollText, Archive, S
 const INTEGRATION_ICONS = [Briefcase, Users, MessageCircle, FileText, Database, Cloud];
 
 /** Service → live demo id in demosCatalog.items. */
-const BUILD_ITEMS: Array<{ key: HeroVariant; demoId: string; icon: typeof Bot }> = [
-  { key: "chatbots", demoId: "sitechatbot", icon: MessageSquare },
-  { key: "rag", demoId: "rag", icon: BookOpen },
-  { key: "agents", demoId: "langchain", icon: Bot },
-  { key: "docs", demoId: "docextract", icon: FileText },
+const BUILD_ITEMS: Array<{ key: HeroVariant; demoId: string; icon: typeof Bot; image: string }> = [
+  { key: "chatbots", demoId: "sitechatbot", icon: MessageSquare, image: "/demo-previews/sitechatbot-photo-v1-480.webp" },
+  { key: "rag", demoId: "rag", icon: BookOpen, image: "/demo-previews/rag-photo-v1-480.webp" },
+  { key: "agents", demoId: "langchain", icon: Bot, image: "/demo-previews/langchain-photo-v1-480.webp" },
+  { key: "docs", demoId: "docextract", icon: FileText, image: "/demo-previews/docextract-photo-v1-480.webp" },
 ];
 
 type DemoCatalogItem = { id: string; status: string; href?: string; title: string; benefit?: string };
@@ -232,34 +232,28 @@ export default function Landing() {
               <PrimaryCta>{t(variant ? `landing.v2.variants.${variant}.cta` : "landing.v2.hero.ctaPrimary")}</PrimaryCta>
               <WhatsAppButton href={whatsappHref} location="landing_hero">{t("landing.v2.hero.ctaWhatsapp")}</WhatsAppButton>
             </motion.div>
-            <p className="mt-5 flex flex-wrap justify-center lg:justify-start gap-x-5 gap-y-2 text-sm text-slate-300">
-              <a href="#demos" className="inline-flex items-center gap-1.5 underline underline-offset-4 hover:text-white">
-                <PlayCircle className="w-4 h-4 text-emerald-400" aria-hidden="true" />
+            <div className="mt-5 flex flex-wrap justify-center lg:justify-start items-center gap-x-6 gap-y-2 text-sm text-slate-300">
+              <a href="#demos" className="inline-flex items-center gap-1.5 font-medium text-emerald-300 hover:text-emerald-200 transition-colors">
+                <PlayCircle className="w-4 h-4" aria-hidden="true" />
                 {t("landing.v2.hero.ctaDemo")}
               </a>
-              {!variant && (
-                <a href="#diagnostico" className="inline-flex items-center gap-1.5 underline underline-offset-4 hover:text-white">
-                  <Hammer className="w-4 h-4 text-emerald-400" aria-hidden="true" />
-                  {t("landing.v2.hero.proposalLink")}
-                </a>
-              )}
               {bookingUrl && (
                 <a
                   href={bookingUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => trackContactClick("calendar", "landing_hero")}
-                  className="inline-flex items-center gap-1.5 underline underline-offset-4 hover:text-white"
+                  className="inline-flex items-center gap-1.5 font-medium text-slate-200 hover:text-white transition-colors"
                 >
                   <CalendarDays className="w-4 h-4 text-emerald-400" aria-hidden="true" />
                   {t("landing.v2.booking.cta")}
                 </a>
               )}
-              <Link href={staticPagePath("/diagnostico-ia", lang)} className="inline-flex items-center gap-1.5 underline underline-offset-4 hover:text-white">
-                <Sparkles className="w-4 h-4 text-emerald-400" aria-hidden="true" />
+              <Link href={staticPagePath("/diagnostico-ia", lang)} className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 transition-colors">
+                <Sparkles className="w-3.5 h-3.5 text-purple-400" aria-hidden="true" />
                 {t("landing.v2.hero.quizLink")}
               </Link>
-            </p>
+            </div>
             <ul className="mt-8 flex flex-wrap justify-center lg:justify-start gap-x-6 gap-y-2 text-sm text-slate-300">
               {list<string>("landing.v2.hero.trust").map((item) => (
                 <li key={item} className="inline-flex items-center gap-2">
@@ -274,9 +268,12 @@ export default function Landing() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25 }}
-            className="bg-slate-900/80 border border-emerald-500/30 rounded-2xl p-6 md:p-8 shadow-2xl"
+            className="relative bg-gradient-to-b from-slate-900/95 to-slate-950/95 border border-emerald-500/40 rounded-2xl p-6 md:p-8 shadow-2xl shadow-emerald-950/30 ring-1 ring-emerald-500/20"
             aria-label={t(variant ? `landing.v2.variants.${variant}.card.title` : "landing.v2.offerCard.title")}
           >
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-400/30 px-3 py-1 text-xs font-semibold text-emerald-300 mb-4">
+              <Sparkles className="w-3.5 h-3.5" aria-hidden="true" /> {t("landing.v2.packages.eyebrow")}
+            </div>
             {variant ? (
               <>
                 <h2 className="text-xl font-bold mb-5">{t(`landing.v2.variants.${variant}.card.title`)}</h2>
@@ -288,7 +285,7 @@ export default function Landing() {
                     </li>
                   ))}
                 </ol>
-                <p className="border-t border-slate-700 pt-5 text-sm text-slate-300">{t("contact.replyNote")}</p>
+                <p className="border-t border-slate-700/80 pt-5 text-sm text-slate-300">{t("contact.replyNote")}</p>
               </>
             ) : (
               <>
@@ -301,8 +298,8 @@ export default function Landing() {
                     </li>
                   ))}
                 </ul>
-                <div className="border-t border-slate-700 pt-5">
-                  <div className="text-2xl font-bold">{t("landing.v2.offerCard.price")}</div>
+                <div className="border-t border-slate-700/80 pt-5">
+                  <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight">{t("landing.v2.offerCard.price")}</div>
                   <p className="text-sm text-slate-300 mt-1">{t("landing.v2.offerCard.priceNote")}</p>
                 </div>
               </>
@@ -314,31 +311,48 @@ export default function Landing() {
       {/* Clients — trust right after the offer */}
       <ClientLogos tone="dark" />
 
-      {/* What we build — live demos, no sign-up */}
+      {/* What we build — live demos with visual previews */}
       <section id="demos" className="scroll-mt-20 py-16 md:py-24 bg-slate-900/50">
         <div className="max-w-6xl mx-auto px-6">
           <SectionTitle title={t("landing.v2.build.title")} subtitle={t("landing.v2.build.subtitle")} />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {BUILD_ITEMS.map(({ key, demoId, icon: Icon }, i) => {
+            {BUILD_ITEMS.map(({ key, demoId, icon: Icon, image }, i) => {
               const demo = demos.find((d) => d.id === demoId && d.status === "live" && d.href);
               return (
                 <Reveal key={key} delay={i * 0.05} className="flex">
-                  <div className="flex flex-col w-full bg-slate-800/60 border border-slate-700/60 rounded-xl p-6 hover:border-emerald-500/50 transition-colors">
-                    <Icon className="w-8 h-8 text-purple-300 mb-4" aria-hidden="true" />
-                    <h3 className="text-lg font-semibold mb-2">{t(`landing.v2.build.items.${key}.title`)}</h3>
-                    <p className="text-slate-300 text-sm mb-4">{t(`landing.v2.build.items.${key}.desc`)}</p>
-                    {demo && (
-                      <div className="mt-auto pt-4 border-t border-slate-700/60">
-                        <p className="text-sm font-medium text-white">{demo.title}</p>
-                        {demo.benefit && <p className="text-xs text-emerald-300 mt-1">{demo.benefit}</p>}
-                        <Link
-                          href={staticPagePath(demo.href!, lang)}
-                          className="tap-target mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-300 hover:text-emerald-200"
-                        >
-                          {t("landing.v2.build.tryCta")} <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                        </Link>
-                      </div>
-                    )}
+                  <div className="group flex flex-col w-full bg-slate-800/60 border border-slate-700/60 rounded-xl overflow-hidden hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-950/20 transition-all duration-300">
+                    <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-950 border-b border-slate-700/60">
+                      <img
+                        src={image}
+                        alt={t(`landing.v2.build.items.${key}.title`)}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent pointer-events-none" />
+                      <span className="absolute top-2.5 right-2.5 inline-flex items-center gap-1 rounded-full bg-emerald-500/95 backdrop-blur-sm px-2 py-0.5 text-[10px] font-bold text-slate-950 shadow">
+                        <span className="w-1.5 h-1.5 rounded-full bg-slate-950 animate-pulse" /> LIVE DEMO
+                      </span>
+                      <span className="absolute bottom-2.5 left-2.5 p-1.5 rounded-md bg-slate-900/90 border border-slate-700 text-purple-300">
+                        <Icon className="w-4 h-4" aria-hidden="true" />
+                      </span>
+                    </div>
+                    <div className="flex flex-col flex-1 p-5">
+                      <h3 className="text-lg font-semibold mb-2">{t(`landing.v2.build.items.${key}.title`)}</h3>
+                      <p className="text-slate-300 text-sm mb-4 leading-relaxed">{t(`landing.v2.build.items.${key}.desc`)}</p>
+                      {demo && (
+                        <div className="mt-auto pt-4 border-t border-slate-700/60">
+                          <p className="text-sm font-medium text-white">{demo.title}</p>
+                          {demo.benefit && <p className="text-xs text-emerald-300 mt-1">{demo.benefit}</p>}
+                          <Link
+                            href={staticPagePath(demo.href!, lang)}
+                            className="tap-target mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-300 group-hover:text-emerald-200 group-hover:translate-x-0.5 transition-all"
+                          >
+                            {t("landing.v2.build.tryCta")} <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                          </Link>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </Reveal>
               );
@@ -534,21 +548,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Commitments — the answers buyers otherwise dig for in the FAQ */}
-      <section className="py-12 md:py-16">
-        <div className="max-w-6xl mx-auto px-6">
-          <SectionTitle title={t("landing.v2.commitments.title")} />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {list<Item>("landing.v2.commitments.items").map((item, i) => (
-              <Reveal key={item.title} delay={i * 0.04} className="border-l-2 border-emerald-500 pl-4">
-                <h3 className="font-semibold mb-1">{item.title}</h3>
-                <p className="text-slate-300 text-sm">{item.desc}</p>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Integrations — the systems buyers ask about first */}
       <section className="py-16 md:py-24 bg-slate-900/50">
         <div className="max-w-6xl mx-auto px-6">
@@ -570,7 +569,7 @@ export default function Landing() {
                   </h3>
                   <ul className="flex flex-wrap gap-2">
                     {group.items.map((item) => (
-                      <li key={item} className="rounded-full border border-slate-600/80 bg-slate-900/60 px-3 py-1 text-sm text-slate-200">
+                      <li key={item} className="rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1 text-xs sm:text-sm font-medium text-slate-200 hover:border-emerald-400/40 hover:text-white transition-colors">
                         {item}
                       </li>
                     ))}
@@ -583,21 +582,36 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Security and compliance — for IT, security and compliance reviewers */}
+      {/* Commitments, Security and Compliance — contractual trust & IT assurance */}
       <section className="py-16 md:py-24">
         <div className="max-w-6xl mx-auto px-6">
           <SectionTitle title={t("landing.v2.security.title")} subtitle={t("landing.v2.security.subtitle")} />
+
+          {/* 4 Core Guarantees Banner */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+            {list<Item>("landing.v2.commitments.items").map((item, i) => (
+              <Reveal key={item.title} delay={i * 0.04} className="rounded-xl border border-emerald-500/40 bg-emerald-950/20 p-5">
+                <div className="flex items-center gap-2 text-emerald-400 font-semibold mb-1.5 text-sm">
+                  <ShieldCheck className="w-4 h-4 shrink-0 text-emerald-400" aria-hidden="true" />
+                  <span>{item.title}</span>
+                </div>
+                <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">{item.desc}</p>
+              </Reveal>
+            ))}
+          </div>
+
+          {/* 9 Security & Compliance specifications */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {list<Item>("landing.v2.security.items").map((item, i) => {
               const Icon = SECURITY_ICONS.at(i) ?? ShieldCheck;
               return (
-                <Reveal key={item.title} delay={i * 0.03} className="flex gap-4 bg-slate-800/60 border border-slate-700/60 rounded-xl p-5">
-                  <span className="h-fit rounded-lg bg-emerald-500/10 border border-emerald-400/20 p-2">
+                <Reveal key={item.title} delay={i * 0.03} className="flex gap-4 bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 hover:border-slate-600 transition-colors">
+                  <span className="h-fit rounded-lg bg-emerald-500/10 border border-emerald-400/20 p-2 shrink-0">
                     <Icon className="w-5 h-5 text-emerald-300" aria-hidden="true" />
                   </span>
                   <div>
                     <h3 className="font-semibold mb-1">{item.title}</h3>
-                    <p className="text-slate-300 text-sm">{item.desc}</p>
+                    <p className="text-slate-300 text-sm leading-relaxed">{item.desc}</p>
                   </div>
                 </Reveal>
               );
@@ -700,13 +714,14 @@ export default function Landing() {
 
           <Reveal className="max-w-3xl mx-auto mb-10">
             <ContactForm
-              className="bg-white text-gray-900 p-5 sm:p-8 rounded-xl shadow-lg"
+              className="bg-slate-900/90 border border-slate-700/80 p-6 sm:p-10 rounded-2xl shadow-2xl backdrop-blur-sm"
+              tone="dark"
               showNewsletter={false}
               titleKey="landing.v2.contact.formTitle"
               defaultGoal={variant ? VARIANT_GOAL[variant] : undefined}
               showTrustNote
               submitLabelKey={variant ? `landing.v2.variants.${variant}.submit` : "contact.submitDiagnosis"}
-              buttonClassName="bg-emerald-600 hover:bg-emerald-500 text-white"
+              buttonClassName="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-base sm:text-lg py-3 sm:py-4 shadow-lg shadow-emerald-950/40"
             />
           </Reveal>
 

@@ -172,13 +172,12 @@ creative/        # material fuente de los visuales de demos (prompts y frames de
 5. **Dónde la IA suele dar resultados más rápido**: tres patrones + CTA.
 6. **Cómo trabajamos**: cuatro pasos.
 7. **Precios** (`#diagnostico`): tres paquetes del Diagnóstico IA (`landing.v2.packages.items`) — Esencial *desde USD 1,500* (hasta 2 procesos; beneficio: 30 días de consultas), Avanzado *USD 2,500* (hasta 4; destacado; beneficio: demo funcional del caso prioritario), Integral *USD 3,000* (hasta 6; beneficio: taller ejecutivo de 2 h); entregables comunes arriba y, debajo, el proyecto directo (`landing.v2.paths.project`). Los beneficios son propuestas comerciales: cambiarlos solo en el i18n.
-8. **Compromisos**: hoja de ruta/código/datos del cliente, sin entrenar con sus datos, revisión humana.
-9. **Integraciones** (`landing.v2.integrations.groups`): ERP, CRM, canales, documentos, datos/BI, nube y modelos.
-10. **Seguridad y cumplimiento** (`landing.v2.security.items`, 9 ítems): NDA, cifrado en tránsito y en reposo, SSO y roles, modelos en la nube del cliente, auditoría, retención y borrado, Ley 29733 / privacidad EE. UU., salvaguardas de IA, homologación.
-11. **Con quién trabajarás**: fundador (`team.members[0]`) + **presencia local** (`PUBLIC_OFFICES`, textos en `landing.v2.presence`).
-12. **FAQ**: incluye costo de implementación y "¿por qué no hacerlo nosotros mismos?".
-13. **Contacto** (`#contacto`): `ContactForm` (botón verde, sin newsletter, `defaultGoal` opcional) + agenda / email / teléfono (`tel:`) / WhatsApp.
-14. **CTA fijo en móvil**: aparece tras el hero y se oculta cuando el formulario es visible (deja espacio al botón de Robly).
+8. **Integraciones** (`landing.v2.integrations.groups`): ERP, CRM, canales, documentos, datos/BI, nube y modelos.
+9. **Compromisos, seguridad y cumplimiento**: banner superior con 4 compromisos contractuales (`landing.v2.commitments.items`) + 9 especificaciones técnicas de seguridad y privacidad (`landing.v2.security.items`).
+10. **Con quién trabajarás**: fundador (`team.members[0]`) + **presencia local** (`PUBLIC_OFFICES`, textos en `landing.v2.presence`).
+11. **FAQ**: incluye costo de implementación y "¿por qué no hacerlo nosotros mismos?".
+12. **Contacto** (`#contacto`): `ContactForm` adaptado a tono oscuro (botón verde, sin newsletter, `defaultGoal` opcional) + agenda / email / teléfono (`tel:`) / WhatsApp.
+13. **CTA fijo en móvil**: aparece tras el hero y se oculta cuando el formulario es visible (deja espacio al botón de Robly).
 
 **Logos de clientes**: `src/components/ClientLogos.tsx` muestra `CLIENT_LOGOS` (`shared/publicContent.ts`, archivos en `public/images/clients/`) a color en tarjetas blancas (`large: true` para logos con mucho aire interno, p. ej. Mibanco); textos `clients.title` / `clients.note`. Va en la landing (tono oscuro) y en el home justo después del hero (claro). Son clientes de software empresarial del equipo desde 2011; no presentarlos como clientes de proyectos de IA y no nombrar a la razón social anterior en la web. Para agregar uno: copiar el archivo (SVG con `viewBox` ajustado al logo, o PNG/WebP recortado y con fondo transparente) y añadir la entrada. Orígenes: BCP, Interbank, El Comercio, Banco Falabella, Ripley, Caja Piura y financieras del carrusel de sistemas.com.pe; BBVA (logo actual), Lexmark, Xerox y Scotiabank de logotyp.us; Mibanco y Banco de la Nación de whatthelogo.com; SUNAT de vectorseek.com (fondo eliminado); Chem Supply de chemsupply.com.pe; MasterCook (EE. UU.) de un archivo enviado por Antonio.
 

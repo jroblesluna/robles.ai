@@ -54,6 +54,8 @@ type ContactFormValues = z.infer<typeof contactFormSchema>;
 interface ContactFormProps {
   /** Classes for the card wrapper (background, padding, shadow). */
   className?: string;
+  /** Visual tone: "light" (default) or "dark" for seamless integration with dark pages. */
+  tone?: "light" | "dark";
   /** Show the newsletter opt-in (home). Landing pages hide it to keep the form focused. */
   showNewsletter?: boolean;
   /** i18n key for the submit button (defaults to contact.send). */
@@ -71,6 +73,7 @@ interface ContactFormProps {
 /** The contact form card. Fires generate_lead (via trackContactLead) only after the API accepts it. */
 export const ContactForm = ({
   className = "bg-blue-100 p-5 sm:p-8 rounded-xl shadow-sm",
+  tone = "light",
   showNewsletter = true,
   submitLabelKey = "contact.send",
   buttonClassName = "bg-blue-600 hover:bg-blue-700",
@@ -81,6 +84,12 @@ export const ContactForm = ({
   const { t } = useTranslation();
   const [clientReady, setClientReady] = useState(false);
   useEffect(() => { setClientReady(true); }, []);
+
+  const isDark = tone === "dark";
+  const inputClass = isDark
+    ? "bg-slate-950/80 border-slate-700 text-white placeholder:text-slate-500 focus-visible:border-emerald-400 focus-visible:ring-emerald-400/20"
+    : "bg-white text-gray-900";
+  const labelClass = isDark ? "text-sm text-slate-200" : "text-sm text-gray-900";
 
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
@@ -146,7 +155,7 @@ export const ContactForm = ({
 
   return (
     <div className={`text-left ${className}`}>
-      <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6">{t(titleKey)}</h3>
+      <h3 className={`text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 ${isDark ? "text-white" : "text-gray-900"}`}>{t(titleKey)}</h3>
 
       <Form {...form}>
         <form method="post" action="/api/contact" onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="grid min-w-0 grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
@@ -155,9 +164,9 @@ export const ContactForm = ({
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm">{t("contact.name")}</FormLabel>
+                <FormLabel className={labelClass}>{t("contact.name")}</FormLabel>
                 <FormControl>
-                  <Input placeholder={t("contact.namePlaceholder")} className="bg-white" {...field} />
+                  <Input placeholder={t("contact.namePlaceholder")} className={inputClass} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -169,9 +178,9 @@ export const ContactForm = ({
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm">{t("contact.email")}</FormLabel>
+                <FormLabel className={labelClass}>{t("contact.email")}</FormLabel>
                 <FormControl>
-                  <Input placeholder={t("contact.emailPlaceholder")} className="bg-white" {...field} />
+                  <Input placeholder={t("contact.emailPlaceholder")} className={inputClass} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -183,9 +192,9 @@ export const ContactForm = ({
             name="company"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm">{t("contact.company")}</FormLabel>
+                <FormLabel className={labelClass}>{t("contact.company")}</FormLabel>
                 <FormControl>
-                  <Input placeholder={t("contact.companyPlaceholder")} className="bg-white" {...field} />
+                  <Input placeholder={t("contact.companyPlaceholder")} className={inputClass} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -197,9 +206,9 @@ export const ContactForm = ({
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm">{t("contact.phoneOptional")}</FormLabel>
+                <FormLabel className={labelClass}>{t("contact.phoneOptional")}</FormLabel>
                 <FormControl>
-                  <Input type="tel" autoComplete="tel" placeholder={t("contact.phonePlaceholder")} className="bg-white" {...field} />
+                  <Input type="tel" autoComplete="tel" placeholder={t("contact.phonePlaceholder")} className={inputClass} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -211,15 +220,19 @@ export const ContactForm = ({
             name="goal"
             render={({ field }) => (
               <FormItem className="md:col-span-2">
-                <FormLabel className="text-sm">{t("contact.goalLabel")}</FormLabel>
+                <FormLabel className={labelClass}>{t("contact.goalLabel")}</FormLabel>
                 <FormControl>
                   <select
                     {...field}
-                    className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-base md:text-sm text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className={`flex h-10 w-full rounded-md border px-3 py-2 text-base md:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                      isDark
+                        ? "bg-slate-950/80 border-slate-700 text-white focus-visible:border-emerald-400 focus-visible:ring-emerald-400/20"
+                        : "border-input bg-white text-gray-900"
+                    }`}
                   >
-                    <option value="">{t("contact.goalPlaceholder")}</option>
+                    <option value="" className={isDark ? "bg-slate-900 text-white" : ""}>{t("contact.goalPlaceholder")}</option>
                     {CONTACT_GOALS.map((goal) => (
-                      <option key={goal} value={goal}>{t(`contact.goals.${goal}`)}</option>
+                      <option key={goal} value={goal} className={isDark ? "bg-slate-900 text-white" : ""}>{t(`contact.goals.${goal}`)}</option>
                     ))}
                   </select>
                 </FormControl>
@@ -233,11 +246,11 @@ export const ContactForm = ({
             name="message"
             render={({ field }) => (
               <FormItem className="md:col-span-2">
-                <FormLabel className="text-sm">{t("contact.messageOptional")}</FormLabel>
+                <FormLabel className={labelClass}>{t("contact.messageOptional")}</FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder={t("contact.messagePlaceholder")}
-                    className="min-h-[100px] sm:min-h-[120px] bg-white"
+                    className={`min-h-[100px] sm:min-h-[120px] ${inputClass}`}
                     {...field}
                   />
                 </FormControl>
@@ -255,20 +268,20 @@ export const ContactForm = ({
               control={form.control}
               name="newsletter"
               render={({ field }) => (
-                <FormItem className="md:col-span-2 flex flex-row items-start gap-3 space-y-0 rounded-md border bg-white/60 p-3 sm:p-4">
+                <FormItem className={`md:col-span-2 flex flex-row items-start gap-3 space-y-0 rounded-md border p-3 sm:p-4 ${isDark ? "bg-slate-950/40 border-slate-700" : "bg-white/60"}`}>
                   <FormControl>
                     <Checkbox className="mt-0.5" checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel className="text-sm">{t("contact.subscribe")}</FormLabel>
-                    <p className="text-xs sm:text-sm text-gray-600">{t("contact.subscribeDesc")}</p>
+                    <FormLabel className={labelClass}>{t("contact.subscribe")}</FormLabel>
+                    <p className={`text-xs sm:text-sm ${isDark ? "text-slate-400" : "text-gray-600"}`}>{t("contact.subscribeDesc")}</p>
                   </div>
                 </FormItem>
               )}
             />
           )}
 
-          {!clientReady && <p className="text-sm text-gray-700 md:col-span-2">{t("contact.javascriptRequired")}</p>}
+          {!clientReady && <p className={`text-sm md:col-span-2 ${isDark ? "text-slate-300" : "text-gray-700"}`}>{t("contact.javascriptRequired")}</p>}
           <Button
             type="submit"
             className={`tap-target w-full md:col-span-2 ${buttonClassName}`}
@@ -278,7 +291,7 @@ export const ContactForm = ({
             <Send className="ml-2 h-4 w-4" />
           </Button>
           {showTrustNote && (
-            <p className="text-xs text-gray-600 text-center md:col-span-2">
+            <p className={`text-xs text-center md:col-span-2 ${isDark ? "text-slate-400" : "text-gray-600"}`}>
               {t("contact.replyNote")} {t("contact.privacyNote")}
             </p>
           )}
