@@ -224,7 +224,13 @@ export const trackPageView = (url: string): void => {
 };
 
 /** Funnel events for the AI demos lab (see docs/DEMOS_PLAN.md §2.7). */
-export type DemoEvent = 'demo_start' | 'demo_complete' | 'roi_calculated' | 'demo_cta_click';
+export type DemoEvent =
+  | 'demo_start'
+  | 'demo_complete'
+  | 'roi_calculated'
+  | 'demo_cta_click'
+  | 'tutorial_play'
+  | 'tutorial_complete';
 
 /**
  * Track a demo funnel event with a `demo_id` parameter.

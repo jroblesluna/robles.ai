@@ -21,3 +21,6 @@ server/data/*.db*
 
 # GA4 Service Account credentials
 server/data/ga4-service-account.json
+
+# Briefs, capturas y renders locales de los tutoriales en video de las demos
+docs/demo-tutorials/

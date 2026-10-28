@@ -25,6 +25,7 @@ import { useTranslation } from "react-i18next";
 import { DemoNav } from "@/components/demo/DemoNav";
 import { BusinessCase } from "@/components/demo/BusinessCase";
 import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
+import { DemoTutorial } from "@/components/demo/DemoTutorial";
 import { useDemoTracking } from "@/components/demo/business";
 import { v4 as uuidv4 } from "uuid";
 import * as tf from "@tensorflow/tfjs";
@@ -83,7 +84,7 @@ function roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: num
 }
 
 export default function TryObjectDetection() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { start: trackStart, complete: trackComplete } = useDemoTracking("objectdetection");
   const [modelStatus, setModelStatus] = useState<ModelStatus>("loading");
   const [mode, setMode] = useState<"camera" | "image">("camera");
@@ -110,6 +111,12 @@ export default function TryObjectDetection() {
   const thresholdRef = useRef(threshold);
   const lastRawRef = useRef<{ dets: Detection[]; w: number; h: number } | null>(null);
   const fpsRef = useRef<{ last: number; fps: number; shownAt: number }>({ last: 0, fps: 0, shownAt: 0 });
+
+  // COCO class names stay in English in the data (colors and the raw log use them); only the
+  // labels shown to the visitor are translated. A ref keeps the camera loop on the current language.
+  const classLabel = (cls: string) => t(`try-object.classes.${cls}`, { defaultValue: cls });
+  const classLabelRef = useRef(classLabel);
+  classLabelRef.current = classLabel;
 
   // What each run "sends" to the model, shown as the log's REQUEST block.
   const detectRequest = (source: LogEntry["source"], width: number, height: number) => ({
@@ -169,7 +176,7 @@ export default function TryObjectDetection() {
       ctx.strokeStyle = color;
       ctx.stroke();
 
-      const label = `${d.class} ${Math.round(d.score * 100)}%`;
+      const label = `${classLabelRef.current(d.class)} ${Math.round(d.score * 100)}%`;
       const tw = ctx.measureText(label).width + pad * 2;
       const th = fontSize + pad * 2;
       const lx = Math.min(Math.max(0, x - lineWidth / 2), w - tw);
@@ -195,13 +202,14 @@ export default function TryObjectDetection() {
     return visible;
   };
 
-  // Moving the slider re-filters the last result (and re-draws a still image right away).
+  // Moving the slider (or switching language) re-filters the last result and re-draws a
+  // still image right away.
   useEffect(() => {
     thresholdRef.current = threshold;
     const last = lastRawRef.current;
     if (last && !runningRef.current) showFrame(last.dets, last.w, last.h);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [threshold]);
+  }, [threshold, i18n.language]);
 
   const toDetections = (preds: cocoSsd.DetectedObject[]): Detection[] =>
     preds.map((p) => ({ class: p.class, score: p.score, bbox: p.bbox as [number, number, number, number] }));
@@ -440,9 +448,12 @@ export default function TryObjectDetection() {
               {t("try-object.description")}
             </p>
 
-            <p className="mt-8 text-xs font-semibold uppercase tracking-wider text-gray-500">
-              {t("try-object.how_title")}
-            </p>
+            <div className="mt-8 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                {t("try-object.how_title")}
+              </p>
+              <DemoTutorial demoId="objectdetection" returnToId="object-workspace" />
+            </div>
             <ol className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
               {([1, 2, 3] as const).map((n) => (
                 <li key={n} className="rounded-xl border border-gray-200/80 bg-white/70 p-4">
@@ -475,7 +486,7 @@ export default function TryObjectDetection() {
         </div>
 
         {/* ── Workspace: stage (left) · detections & log (right) ─────────── */}
-        <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <section id="object-workspace" className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
           <input
             ref={fileInputRef}
             id="object-image-input"
@@ -851,7 +862,7 @@ export default function TryObjectDetection() {
                             return (
                               <li key={cls} className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-gray-50">
                                 <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: color }} />
-                                <span className="min-w-0 flex-1 truncate text-sm font-medium capitalize text-gray-900">{cls}</span>
+                                <span className="min-w-0 flex-1 truncate text-sm font-medium capitalize text-gray-900">{classLabel(cls)}</span>
                                 {count > 1 && (
                                   <span className="rounded bg-gray-100 px-1.5 text-[11px] font-semibold tabular-nums text-gray-600">×{count}</span>
                                 )}

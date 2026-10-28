@@ -80,7 +80,7 @@ src/
     BlogSearch, VideoModal, ParticleBackground
     chat/            # ChatbotWidget, ChatPanel, MessageList, MessageInput
     demo/            # ApiCallLog, BusinessCase, SavingsCalculator, business.ts, DemoKit, DemoNav,
-                     # DemoVideoPreview, DemoVisualPreview, EmotionPreview, InfoTip, JsonHighlight, StepCard
+                     # DemoTutorial, DemoVideoPreview, DemoVisualPreview, EmotionPreview, InfoTip, JsonHighlight, StepCard
     quiz/            # QuizIntro, QuizQuestionCard, QuizProgressBar, QuizAnalyzing, QuizResultPreview,
                      # QuizLeadForm, QuizWaitingVerification, QuizResultFull
     admin/           # CarouselPreview, SlideEditor, RegenerateModal, PlatformPublishStatus, VideoGenerator
@@ -315,6 +315,7 @@ Catálogo en `demosCatalog.items` (en/es: `id`, `href`, `status`, `icon`, `title
 - Las APIs escalan a cero: cada página hace warm-up al montar (ping `no-cors` a `/`, `GET /health` en transcription, `POST /rag/warmup` en RAG) y muestra un banner de estado. Overrides de endpoint en dev: `VITE_*_API`.
 - Transcription: el API reenvía PCM `linear16` 16 kHz mono a Deepgram e ignora el `encoding` del frame `start`; por eso se captura con `AudioWorklet` (fallback `ScriptProcessorNode`).
 - Previews de video y visuales del catálogo: `docs/DEMO_VIDEO_RELEASE.md`, `docs/DEMO_VISUALS.md`, `docs/FIREFLY_CLIPS.md`, material fuente en `creative/`.
+- **Tutoriales en video** (`DemoTutorial.tsx`): botón secundario *Ver cómo se usa (45 s)* junto a `how_title` que abre un modal con `<video>` (nunca se reproduce solo); al cerrarlo hace scroll a la demo (`returnToId`). Archivos en `public/videos/tutorials/<ruta>-tutorial-<lang>.mp4` (H.264, `+faststart`) + `-poster-<lang>.jpg`, registrados en `TUTORIALS` por demo e idioma; un idioma sin video oculta el botón. Mide `tutorial_play` / `tutorial_complete` con `trackDemoEvent` (en GTM, añadirlos a la etiqueta GA4 de eventos de demo). Hoy: `/try-object-detection` en inglés y español. Briefs en `docs/demo-tutorials/`.
 - Convenciones de los repos de APIs: un proyecto GCP por API (misma cuenta de facturación), Cloud Run sin `minScale` y facturación por request, Artifact Registry `<servicio>-api-repo` podado a 3 versiones (`prune_registry.sh`), secretos en Secret Manager rotados con `rotate_secret.sh` (destruye versiones viejas), push a `main` → GitHub Actions → Cloud Run.
 
 ---
@@ -650,7 +651,10 @@ Conecta, monitorea y publica el DNS de los **7 backends** de demos registrados e
 | Archivo | Contenido |
 |---------|-----------|
 | `docs/DEMOS_PLAN.md` | Roadmap del laboratorio de demos (wow + ROI) con estado por fase |
-| `docs/REMOTION_VIDEO_CONTEXT.md` | Contexto de marca y brief del video de marketing en Remotion |
+| `docs/REMOTION_VIDEO_CONTEXT.md` | Contexto de marca y brief del video de marketing en Remotion (60 s, anterior) |
+| `docs/REMOTION_SPOT_30S.md` | Prompt del spot de 30 s en Remotion (demos en vivo + Diagnóstico IA) para la web y anuncios; manda sobre el brief de 60 s |
+| `docs/demo-tutorials/try-rag/` | Prompt del tutorial en Remotion de `/try-rag` (45 s + corte de 30 s), capturas de Playwright de la demo y script para regenerarlas |
+| `docs/demo-tutorials/try-object-detection/` | Ídem para `/try-object-detection`: prompt del tutorial, capturas (con cámara simulada), detecciones medidas (`capture-report.json`) y script |
 | `docs/CONTACT_CONVERSIONS.md` | Contrato de entrega del contacto y de conversiones (lead/click) + configuración de GTM, GA4, Ads y Meta |
 | `docs/ADS_ANALYTICS.md` | Admin Ads/GA4 sources, campaign and submission filters, direct API setup, and validation |
 | `docs/DEMO_VIDEO_RELEASE.md` + `docs/DEMO_VIDEO_ASSETS.json` | Release de videos de preview de demos y manifiesto de assets |
