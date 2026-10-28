@@ -73,9 +73,11 @@ export function BlogArticle({
   const compact = size === 'compact';
   // Full page keeps `prose-lg` + larger italic/bold headings; the modal uses a
   // tighter `prose` scale with smaller headings so they fit the dialog.
-  const articleClass = compact ? 'prose max-w-none' : 'prose prose-lg max-w-none';
+  const articleClass = compact
+    ? 'prose prose-slate max-w-none prose-p:text-[1.0625rem] prose-p:leading-[1.8] prose-p:text-slate-700'
+    : 'prose prose-lg max-w-none';
   const headingClass = compact
-    ? 'scroll-mt-20 relative italic mb-2 text-base font-semibold text-gray-800 md:text-lg'
+    ? 'scroll-mt-20 relative mb-3 mt-0 text-lg font-semibold tracking-tight text-slate-900 md:text-xl'
     : 'scroll-mt-20 relative italic mb-2 font-bold text-gray-800';
 
   return (

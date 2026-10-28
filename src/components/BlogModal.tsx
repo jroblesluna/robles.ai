@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, ChevronRight, Copy, ExternalLink, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, ChevronLeft, ChevronRight, Clock, ExternalLink, Link2, X } from 'lucide-react';
 import { BlogArticle, type BlogArticleBlock } from '@/components/BlogArticle';
 import { applyPageMetadata, snapshotPageMetadata } from '@/lib/pageMetadata';
 import { buildBlogMeta, buildBlogJsonLd } from '@shared/seoMetadata';
@@ -109,6 +109,11 @@ export function BlogModal({
   const touchStartXRef = useRef<number | null>(null);
   const touchStartTRef = useRef<number>(0);
 
+  // Reading progress is written straight to the bar's style (no re-render per
+  // scroll event); only the "title in toolbar" threshold is state.
+  const progressRef = useRef<HTMLDivElement>(null);
+  const [scrolledPastHeader, setScrolledPastHeader] = useState(false);
+
   const [copied,    setCopied   ] = useState(false);
   const [copyFailed,setCopyFailed] = useState(false);
   const fallbackInputRef = useRef<HTMLInputElement>(null);
@@ -124,8 +129,10 @@ export function BlogModal({
   const displayFull = full ?? cachedFull;
 
   const listTitle      = post ? (post.translations[lang] ?? post.translations.en).title : '';
+  const listExcerpt    = post ? (post.translations[lang] ?? post.translations.en).excerpt : '';
   const fullTranslation = displayFull ? (displayFull.translations[lang] ?? displayFull.translations.en) : undefined;
   const title    = fullTranslation?.title ?? listTitle;
+  const excerpt  = fullTranslation?.excerpt || listExcerpt;
   const content: BlogArticleBlock[] = fullTranslation?.content ?? [];
 
   // Metadata
@@ -265,6 +272,8 @@ export function BlogModal({
   // Reset scroll + copy state on index change (Req 15.6)
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
+    if (progressRef.current) progressRef.current.style.transform = 'scaleX(0)';
+    setScrolledPastHeader(false);
     setCopied(false);
     setCopyFailed(false);
   }, [index]);
@@ -291,6 +300,17 @@ export function BlogModal({
     return () => window.clearTimeout(id);
   }, [copied]);
 
+  const handleScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const max = el.scrollHeight - el.clientHeight;
+    if (progressRef.current) {
+      progressRef.current.style.transform = `scaleX(${max > 0 ? Math.min(1, el.scrollTop / max) : 0})`;
+    }
+    const past = el.scrollTop > 220;
+    setScrolledPastHeader((prev) => (prev === past ? prev : past));
+  };
+
   // Touch swipe handlers
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartXRef.current = e.touches[0].clientX;
@@ -315,9 +335,9 @@ export function BlogModal({
   const shareHref = displayFull?.slug === post.slug && displayFull.translations[lang]?.slug ? blogPath(displayFull as BlogModalPost, lang) : listPostPath(post, lang);
 
   // Dialog entrance animation
-  const dialogInitial    = reduceMotion ? { opacity: 0 }           : { opacity: 0, scale: 0.95 };
-  const dialogAnimate    = reduceMotion ? { opacity: 1 }           : { opacity: 1, scale: 1    };
-  const dialogExit       = reduceMotion ? { opacity: 0 }           : { opacity: 0, scale: 0.95 };
+  const dialogInitial    = reduceMotion ? { opacity: 0 }           : { opacity: 0, y: 24, scale: 0.98 };
+  const dialogAnimate    = reduceMotion ? { opacity: 1 }           : { opacity: 1, y: 0, scale: 1 };
+  const dialogExit       = reduceMotion ? { opacity: 0 }           : { opacity: 0, y: 24, scale: 0.98 };
   const dialogTransition = reduceMotion ? { duration: 0.12 }       : { type: 'spring' as const, stiffness: 260, damping: 24 };
 
   // Article slide variants: horizontal swipe. Under reduced-motion: crossfade only.
@@ -336,11 +356,18 @@ export function BlogModal({
     ? { opacity: { duration: 0.15 } }
     : { x: { type: 'spring' as const, stiffness: 320, damping: 32 }, opacity: { duration: 0.1 } };
 
+  const nextPost = nextEnabled ? posts[index + 1] : undefined;
+  const nextTitle = nextPost ? (nextPost.translations[lang] ?? nextPost.translations.en).title : '';
+  const navButtonClass =
+    'flex h-9 w-9 items-center justify-center rounded-full text-slate-600 transition hover:bg-white hover:text-slate-900 hover:shadow-sm disabled:pointer-events-none disabled:opacity-35';
+  const toolButtonClass =
+    'tap-target rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-900';
+
   return (
     <AnimatePresence>
       <motion.div
         ref={backdropRef}
-        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4"
+        className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-950/70 backdrop-blur-sm sm:items-center sm:p-6"
         onClick={(e) => { if (e.target === backdropRef.current) onClose(); }}
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       >
@@ -348,71 +375,87 @@ export function BlogModal({
           ref={dialogRef}
           role="dialog" aria-modal="true" aria-labelledby={HEADING_ID}
           tabIndex={-1}
-          className="relative mx-4 flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl outline-none"
+          className="relative flex h-[100dvh] w-full max-w-4xl flex-col overflow-hidden bg-white shadow-2xl shadow-slate-950/40 outline-none sm:h-[min(92vh,1000px)] sm:rounded-2xl"
           initial={dialogInitial} animate={dialogAnimate} exit={dialogExit} transition={dialogTransition}
         >
-          {/* ── Toolbar (prev/next/share/close) — always fixed, no animation ── */}
-          <div className="flex shrink-0 items-center gap-1 border-b border-gray-100 px-3 py-2">
-            <button type="button" onClick={() => navigate(index - 1)} disabled={!prevEnabled}
-              className="tap-target rounded-full text-gray-600 hover:bg-gray-100 disabled:pointer-events-none disabled:opacity-40"
-              aria-label={t('blogModal.prev')}>
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button type="button" onClick={() => navigate(index + 1)} disabled={!nextEnabled}
-              className="tap-target rounded-full text-gray-600 hover:bg-gray-100 disabled:pointer-events-none disabled:opacity-40"
-              aria-label={t('blogModal.next')}>
-              <ChevronRight className="h-5 w-5" />
-            </button>
+          {/* ── Toolbar (prev/next · title on scroll · share/close) — fixed ── */}
+          <div className="relative flex h-14 shrink-0 items-center gap-2 border-b border-slate-200 bg-white px-2 sm:px-4">
+            <div className="flex shrink-0 items-center rounded-full bg-slate-100 p-0.5">
+              <button type="button" onClick={() => navigate(index - 1)} disabled={!prevEnabled}
+                className={navButtonClass}
+                aria-label={t('blogModal.prev')}>
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <span className="hidden min-w-[3.5rem] px-1 text-center text-xs font-medium tabular-nums text-slate-500 sm:inline">
+                {t('blogModal.position', { current: index + 1, total: posts.length })}
+              </span>
+              <button type="button" onClick={() => navigate(index + 1)} disabled={!nextEnabled}
+                className={navButtonClass}
+                aria-label={t('blogModal.next')}>
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
 
-            <div className="ml-auto flex items-center gap-1">
+            {/* Title echo once the article header scrolls away (decorative) */}
+            <p aria-hidden
+              className={`min-w-0 flex-1 truncate px-2 text-sm font-semibold text-slate-900 transition-opacity duration-200 ${scrolledPastHeader ? 'opacity-100' : 'opacity-0'}`}>
+              {title}
+            </p>
+
+            <div className="flex shrink-0 items-center gap-0.5">
               <span className="sr-only" aria-live="polite">{copied ? t('blogModal.copied') : ''}</span>
-              {copied && <span className="mr-1 text-xs font-medium text-green-600">{t('blogModal.copied')}</span>}
+              {copied && (
+                <span className="mr-1 hidden items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 sm:inline-flex">
+                  <Check className="h-3.5 w-3.5" />{t('blogModal.copied')}
+                </span>
+              )}
               <button type="button" onClick={handleCopy}
-                className="tap-target rounded-full text-gray-600 hover:bg-gray-100"
+                className={toolButtonClass}
                 aria-label={t('blogModal.copyLink')}>
-                <Copy className="h-5 w-5" />
+                {copied ? <Check className="h-[18px] w-[18px] text-emerald-600" /> : <Link2 className="h-[18px] w-[18px]" />}
               </button>
               <a href={shareHref} target="_blank" rel="noopener"
-                className="tap-target rounded-full text-gray-600 hover:bg-gray-100"
+                className={toolButtonClass}
                 aria-label={t('blogModal.openInNewTab')}>
-                <ExternalLink className="h-5 w-5" />
+                <ExternalLink className="h-[18px] w-[18px]" />
               </a>
+              <span aria-hidden className="mx-1 h-5 w-px bg-slate-200" />
               <button type="button" onClick={onClose}
-                className="tap-target rounded-full text-gray-600 hover:bg-gray-100"
+                className={toolButtonClass}
                 aria-label={t('blogModal.close')}>
                 <X className="h-5 w-5" />
               </button>
+            </div>
+
+            {/* Reading progress */}
+            <div aria-hidden className="absolute inset-x-0 bottom-0 h-0.5">
+              <div ref={progressRef} className="h-full origin-left bg-blue-600 transition-transform duration-100 ease-out"
+                style={{ transform: 'scaleX(0)' }} />
             </div>
           </div>
 
           {/* Clipboard fallback */}
           {copyFailed && (
-            <div className="shrink-0 border-b border-gray-100 px-4 py-2">
+            <div className="shrink-0 border-b border-slate-200 bg-slate-50 px-4 py-2">
               <input id="blog-modal-copy-fallback" ref={fallbackInputRef}
                 type="text" readOnly value={shareUrl}
                 aria-label={t('blogModal.copyFallbackLabel')}
-                className="w-full break-anywhere rounded border border-gray-200 bg-gray-50 px-2 py-1 text-sm text-gray-700"
+                className="w-full break-anywhere rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700"
                 onFocus={(e) => e.currentTarget.select()} />
             </div>
           )}
-
-          {/* ── Sticky title ── */}
-          <div className="sticky top-0 z-10 shrink-0 border-b border-gray-100 bg-white/90 px-6 py-3 backdrop-blur">
-            <h1 id={HEADING_ID} className="line-clamp-2 text-lg font-semibold text-gray-900 md:text-xl">
-              {title}
-            </h1>
-          </div>
 
           {/* ── Scrollable area with swipe gesture ── */}
           <div
             ref={scrollRef}
             className="scrollbar-thin flex-1 overflow-y-auto overscroll-contain"
+            onScroll={handleScroll}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
-            {/* AnimatePresence wraps ONLY the article content (not the toolbar/title)
-                so the swipe slide is confined to the body region. Key on slug so
-                AnimatePresence detects the swap.  */}
+            {/* AnimatePresence wraps ONLY the article (not the toolbar) so the
+                swipe slide is confined to the reading region. Key on slug so
+                AnimatePresence detects the swap. */}
             <AnimatePresence mode="wait" custom={direction} initial={false}>
               <motion.div
                 key={post.slug}
@@ -422,113 +465,172 @@ export function BlogModal({
                 animate="center"
                 exit="exit"
                 transition={articleTransition}
-                className="px-6 py-5"
               >
-                {/* ── Metadata block — two rows ────────────────────────────── */}
-                {metaReady && (
-                  <div className="mb-6 space-y-3 border-b border-gray-100 pb-5">
-
-                    {/* ROW 1: badges (left) + date/timezone (right) */}
-                    <div className="flex flex-wrap items-start justify-between gap-2">
-                      {/* Badges */}
-                      <div className="flex flex-wrap gap-2">
+                {/* ── Article header ── */}
+                <header className="border-b border-slate-100 bg-gradient-to-b from-slate-50 to-white px-6 pb-8 pt-8 sm:px-12 sm:pt-12">
+                  <div className="mx-auto max-w-[68ch]">
+                    {metaReady && categories.length > 0 && (
+                      <div className="mb-5 flex flex-wrap gap-2">
                         {categories.map((cat, i) => (
-                          <span key={i} className="rounded bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700">
+                          <span key={i} className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-100">
                             {cat}
                           </span>
                         ))}
-                        {categories.length === 0 && <span />}
                       </div>
-                      {/* Date + timezone — kept as one block so they stay aligned */}
-                      {formattedDate && (
-                        <p className="text-right text-xs text-gray-500 tabular-nums">
-                          {formattedDate}
-                        </p>
-                      )}
-                    </div>
+                    )}
 
-                    {/* ROW 2: author + assistant (left) + words/reading-time (right) */}
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      {/* Author + assistant — horizontal, wrap together */}
-                      <div className="flex flex-wrap items-start gap-x-4 gap-y-2">
-                        <div className="flex items-center gap-2">
-                          <img src="/avatars/antonio-robles-headshot.png"
-                            alt={t('blogModal.authorName')}
-                            loading="lazy" decoding="async"
-                            className="h-9 w-9 shrink-0 rounded-full object-cover" />
-                          <div className="min-w-0">
-                            <p className="text-xs font-semibold text-gray-800">✍️ {t('blogModal.publishedBy')}</p>
-                            <p className="text-sm font-semibold text-gray-800">{t('blogModal.authorName')}</p>
-                            <p className="text-xs italic text-gray-600">{t('blogModal.authorTagline')}</p>
+                    <h1 id={HEADING_ID} className="text-[1.75rem] font-bold leading-[1.15] tracking-tight text-slate-900 sm:text-4xl">
+                      {title}
+                    </h1>
+
+                    {excerpt && (
+                      <p className="mt-4 text-lg leading-relaxed text-slate-600">{excerpt}</p>
+                    )}
+
+                    {metaReady && (
+                      <div className="mt-7 flex flex-wrap items-center justify-between gap-4">
+                        <div className="flex min-w-0 items-center gap-3">
+                          <div className="flex shrink-0 -space-x-3">
+                            <img src="/avatars/antonio-robles-headshot.png"
+                              alt={t('blogModal.authorName')}
+                              loading="lazy" decoding="async"
+                              className="h-11 w-11 rounded-full object-cover ring-2 ring-white" />
+                            {editor && (
+                              <img src={`/avatars/${editor.id}-headshot.png`}
+                                alt={editor.name}
+                                loading="lazy" decoding="async"
+                                className="h-11 w-11 rounded-full object-cover ring-2 ring-white" />
+                            )}
+                          </div>
+                          <div className="min-w-0 text-sm leading-snug">
+                            <p className="text-slate-600">
+                              <span className="sr-only">{t('blogModal.publishedBy')} </span>
+                              <span className="font-semibold text-slate-900">{t('blogModal.authorName')}</span>
+                              {editor && (
+                                <>
+                                  {' '}<span>{t('blogModal.with')}</span>{' '}
+                                  <span className="font-semibold text-slate-900">{editor.name}</span>
+                                  <span className="ml-1.5 inline-flex -translate-y-px items-center rounded bg-slate-900 px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide text-white">
+                                    {t('blogModal.aiAssistant')}
+                                  </span>
+                                </>
+                              )}
+                            </p>
+                            {formattedDate && (
+                              <p className="mt-0.5 text-xs text-slate-500 tabular-nums">
+                                <time dateTime={postDate && !Number.isNaN(postDate.getTime()) ? postDate.toISOString() : undefined}>{formattedDate}</time>
+                              </p>
+                            )}
                           </div>
                         </div>
-                        {editor && (
-                          <div className="flex items-center gap-2">
-                            <img src={`/avatars/${editor.id}-headshot.png`}
-                              alt={editor.name}
-                              loading="lazy" decoding="async"
-                              className="h-9 w-9 shrink-0 rounded-full object-cover" />
-                            <div className="min-w-0">
-                              <p className="text-xs font-semibold text-gray-800">🤖 {t('blogModal.aiAssistant')}</p>
-                              <p className="text-sm font-semibold text-gray-800">{editor.name}</p>
-                              <p className="text-xs italic text-gray-600">{editor.signature}</p>
-                            </div>
-                          </div>
+                        {wordCount > 0 && (
+                          <p className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 tabular-nums">
+                            <Clock className="h-3.5 w-3.5 text-slate-400" />
+                            {readingTimeMinutes} {t('blogModal.minRead')}
+                            <span aria-hidden className="text-slate-300">·</span>
+                            {wordCount} {t('blogModal.words')}
+                          </p>
                         )}
                       </div>
-                      {/* Words + reading time */}
-                      {wordCount > 0 && (
-                        <p className="text-xs text-gray-500 tabular-nums self-center sm:text-right">
-                          {wordCount} {t('blogModal.words')} · {readingTimeMinutes} {t('blogModal.minRead')}
-                        </p>
-                      )}
-                    </div>
+                    )}
                   </div>
-                )}
+                </header>
 
-                {/* ── Article body ── */}
-                {content.length > 0 ? (
-                  <div className={loading ? 'opacity-60 transition-opacity' : ''}>
-                    <BlogArticle content={content} size="compact" />
-                  </div>
-                ) : articleError ? (
-                  <p className="py-8 text-center text-sm text-gray-500">{t('state.error')}</p>
-                ) : (
-                  <p className="py-8 text-center text-sm text-gray-400" aria-live="polite">
-                    {t('state.loading')}
-                  </p>
-                )}
+                <div className="px-6 py-10 sm:px-12">
+                  <div className="mx-auto max-w-[68ch]">
+                    {/* ── Article body ── */}
+                    {content.length > 0 ? (
+                      <div className={loading ? 'opacity-60 transition-opacity' : ''}>
+                        <BlogArticle content={content} size="compact" />
+                      </div>
+                    ) : articleError ? (
+                      <p className="py-8 text-center text-sm text-slate-500">{t('state.error')}</p>
+                    ) : (
+                      <div className="space-y-3 py-2" aria-live="polite">
+                        <span className="sr-only">{t('state.loading')}</span>
+                        {[100, 94, 97, 70, 0, 96, 91, 60].map((w, i) => (
+                          <div key={i} aria-hidden
+                            className={`h-3.5 rounded ${w ? 'animate-pulse bg-slate-100' : ''}`}
+                            style={{ width: `${w}%` }} />
+                        ))}
+                      </div>
+                    )}
 
-                {/* ── Keywords (tags) ── */}
-                {keywords.length > 0 && (
-                  <div className="mt-8">
-                    <h3 className="mb-2 text-sm font-semibold text-gray-700">{t('blogModal.keywords')}</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {keywords.map((kw, i) => (
-                        <span key={i} className="text-sm text-blue-500">
-                          #{kw.replace(/\s+/g, '')}
+                    {/* ── Keywords (tags) ── */}
+                    {keywords.length > 0 && (
+                      <div className="mt-10 border-t border-slate-100 pt-6">
+                        <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{t('blogModal.keywords')}</h3>
+                        <div className="flex flex-wrap gap-2">
+                          {keywords.map((kw, i) => (
+                            <span key={i} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                              #{kw.replace(/\s+/g, '')}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ── Sources ── */}
+                    {sources.length > 0 && (
+                      <div className="mt-10">
+                        <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{t('blogModal.sources')}</h3>
+                        <ol className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200">
+                          {sources.map((src, i) => (
+                            <li key={i}>
+                              <a href={src.url} target="_blank" rel="noopener noreferrer"
+                                className="group flex items-start gap-3 px-4 py-3 transition hover:bg-slate-50">
+                                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded bg-slate-100 text-[11px] font-semibold tabular-nums text-slate-500">
+                                  {i + 1}
+                                </span>
+                                <span className="min-w-0 flex-1">
+                                  <span className="block text-sm font-medium leading-snug text-slate-800 break-anywhere group-hover:text-blue-700">{src.title}</span>
+                                  <span className="mt-0.5 block text-xs text-slate-500">{src.source}</span>
+                                </span>
+                                <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-300 group-hover:text-blue-600" />
+                              </a>
+                            </li>
+                          ))}
+                        </ol>
+                      </div>
+                    )}
+
+                    {/* ── Editorial transparency ── */}
+                    {metaReady && (
+                      <aside className="mt-10 flex gap-4 rounded-2xl bg-slate-50 p-5 ring-1 ring-inset ring-slate-200/70">
+                        <img src={editor ? `/avatars/${editor.id}-headshot.png` : '/avatars/antonio-robles-headshot.png'}
+                          alt="" loading="lazy" decoding="async"
+                          className="h-12 w-12 shrink-0 rounded-xl object-cover" />
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{t('blogModal.aboutEditor')}</p>
+                          {editor && (
+                            <q className="mt-1.5 block text-sm font-medium italic text-slate-800">{editor.signature}</q>
+                          )}
+                          <p className="mt-1.5 text-sm leading-relaxed text-slate-600">{t('blogModal.aiDisclosure')}</p>
+                        </div>
+                      </aside>
+                    )}
+
+                    {/* ── Up next ── */}
+                    {nextPost && (
+                      <button type="button" onClick={() => navigate(index + 1)}
+                        className="group mt-6 flex w-full items-center gap-4 rounded-2xl bg-slate-950 p-5 text-left text-white transition hover:bg-blue-950 sm:p-6">
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-xs font-semibold uppercase tracking-[0.14em] text-blue-300">{t('blogModal.upNext')}</span>
+                          <span className="mt-1.5 block text-base font-semibold leading-snug line-clamp-2 sm:text-lg">{nextTitle}</span>
                         </span>
-                      ))}
-                    </div>
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 transition group-hover:translate-x-0.5 group-hover:bg-blue-600">
+                          <ArrowRight className="h-5 w-5" />
+                        </span>
+                      </button>
+                    )}
+                    {!nextPost && prevEnabled && (
+                      <button type="button" onClick={() => navigate(index - 1)}
+                        className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-blue-700">
+                        <ArrowLeft className="h-4 w-4" />{t('blogModal.previousStory')}
+                      </button>
+                    )}
                   </div>
-                )}
-
-                {/* ── Sources ── */}
-                {sources.length > 0 && (
-                  <div className="mt-8 rounded-lg bg-gray-50 p-5">
-                    <h3 className="mb-3 text-base font-bold text-gray-800">{t('blogModal.sources')}</h3>
-                    <ul className="list-disc list-inside space-y-1.5 text-sm">
-                      {sources.map((src, i) => (
-                        <li key={i}>
-                          <a href={src.url} target="_blank" rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline">
-                            {src.title} ({src.source})
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                </div>
               </motion.div>
             </AnimatePresence>
           </div>

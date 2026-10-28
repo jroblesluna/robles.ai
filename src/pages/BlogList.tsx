@@ -1,18 +1,23 @@
-// Enhanced BlogList.tsx with page-based pagination, inline pill filters, and improved card design
+// AI News Hub: newsroom masthead, sticky section bar, front-page layout
+// (lead story + most recent) and a calm latest-news grid.
 
 import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useSearch as useLocationSearch } from 'wouter';
 import { archivePage, normalizeLanguage } from '@shared/seoPolicy';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, Newspaper, X } from 'lucide-react';
 import { listPostPath } from '@/lib/blogModal';
-import BlogSearch from '@/components/BlogSearch';
+import { BlogSearchInput, BlogSearchResults } from '@/components/BlogSearch';
 import BlogModal from '@/components/BlogModal';
 import ErrorState from '@/components/state/ErrorState';
 import { useBlogModalRouting } from '@/hooks/useBlogModalRouting';
+import { useSearch } from '@/hooks/useSearch';
 
-const PAGE_SIZE = 30;
+// Kept small on purpose: page 1 = lead + 5 rail + 6 "more stories".
+const PAGE_SIZE = 12;
 const DAY_FILTERS = [1, 7, 30] as const;
+// Lead story + the "most recent" rail on the front page.
+const FEATURED_COUNT = 6;
 
 interface Post {
   slug: string;
@@ -45,15 +50,30 @@ function extractDateTimeFromSlug(slug: string): Date {
 function formatDate(date: Date, language: 'en' | 'es'): string {
   return new Intl.DateTimeFormat(language === 'es' ? 'es-ES' : 'en-US', {
     year: 'numeric',
-    month: 'long',
+    month: 'short',
     day: 'numeric',
   }).format(date);
 }
 
+/** "3 h ago" for the last week, a short date after that — the newsroom convention. */
+function formatRelative(date: Date, language: 'en' | 'es'): string {
+  const diffMs = date.getTime() - Date.now();
+  if (Number.isNaN(diffMs)) return '';
+  const minutes = Math.round(diffMs / 60000);
+  const rtf = new Intl.RelativeTimeFormat(language === 'es' ? 'es' : 'en', { numeric: 'auto', style: 'short' });
+  if (Math.abs(minutes) < 60) return rtf.format(Math.min(minutes, -1), 'minute');
+  const hours = Math.round(minutes / 60);
+  if (Math.abs(hours) < 24) return rtf.format(hours, 'hour');
+  const days = Math.round(hours / 24);
+  if (Math.abs(days) < 7) return rtf.format(days, 'day');
+  return formatDate(date, language);
+}
+
 export default function BlogList() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const search = useLocationSearch();
   const [, navigate] = useLocation();
+  const blogSearch = useSearch();
   const [posts, setPosts] = useState<Post[]>([]);
   const [total, setTotal] = useState(0);
   const [editors, setEditors] = useState<Editor[]>([]);
@@ -63,8 +83,9 @@ export default function BlogList() {
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
-  const [searchActive, setSearchActive] = useState(false);
   const typeScrollRef = useRef<HTMLDivElement>(null);
+  const contentTopRef = useRef<HTMLDivElement>(null);
+  const searchActive = blogSearch.isSearchActive;
 
   // Blog modal: History-owned routing over the currently-fetched posts.
   const { openIndex, openAt, goToIndex, close } = useBlogModalRouting(posts);
@@ -156,259 +177,515 @@ export default function BlogList() {
   function goToPage(next: number) {
     if (next < 1 || next > totalPages || next === page) return;
     navigate(archiveHref(next));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Bring the toolbar back into view (not the page top: the masthead is tall),
+    // and only when the reader has scrolled past it.
+    const toolbar = contentTopRef.current;
+    if (toolbar) {
+      const offset = toolbar.getBoundingClientRect().top + window.scrollY - 140;
+      if (window.scrollY > offset) window.scrollTo({ top: offset, behavior: 'smooth' });
+    }
+  }
+
+  function onPageLinkClick(event: React.MouseEvent<HTMLAnchorElement>, next: number) {
+    if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
+      event.preventDefault();
+      goToPage(next);
+    }
   }
 
   function scrollTypeFilter(direction: -1 | 1) {
-    typeScrollRef.current?.scrollBy({ left: direction * 160, behavior: 'smooth' });
+    typeScrollRef.current?.scrollBy({ left: direction * 240, behavior: 'smooth' });
   }
 
   const activeEditor = editors.find((e) => e.id === editorFilter);
   const dayFilterLabels: Record<number, string> = {
-    1: lang === 'es' ? '1 día' : '1 day',
-    7: lang === 'es' ? '7 días' : '7 days',
-    30: lang === 'es' ? 'Últimos 30 días' : 'Last 30 days',
+    1: t('blogHub.day'),
+    7: t('blogHub.week'),
+    30: t('blogHub.month'),
   };
 
-  return (
-    <div className="container mx-auto p-6">
-      {/* Page Header */}
-      <div className="mb-6 text-center">
-        <h1 className="text-3xl font-bold text-gray-900">
-          {lang === 'es' ? 'Centro de Noticias IA' : 'AI News Hub'}
-        </h1>
-        <p className="mt-1 text-sm text-gray-500">
-          {lang === 'es'
-            ? 'Últimas noticias sobre inteligencia artificial, generadas por nuestro equipo editorial IA'
-            : 'Latest insights on artificial intelligence, powered by our AI editorial team'}
+  // Front-page layout only on the first page, when there's enough to fill it.
+  const showFeatured = page === 1 && posts.length >= FEATURED_COUNT;
+  const featured = showFeatured ? posts.slice(0, FEATURED_COUNT) : [];
+  const gridStart = showFeatured ? FEATURED_COUNT : 0;
+  const latestUpdate = page === 1 && !editorFilter && !dayFilter && posts[0]
+    ? formatRelative(extractDateTimeFromSlug(posts[0].slug), lang)
+    : '';
+
+  function postView(post: Post) {
+    const translation = post.translations[lang] || post.translations.en;
+    const date = extractDateTimeFromSlug(post.slug);
+    const editor = editors.find((e) => e.id === post.editorId);
+    return { translation, editor, when: formatRelative(date, lang), iso: Number.isNaN(date.getTime()) ? undefined : date.toISOString() };
+  }
+
+  // Every card stays a real anchor so middle/cmd-click opens the full page in
+  // a new tab; plain left-click is intercepted to open the in-page modal
+  // (Req 11.1, 12.1).
+  function cardLinkProps(post: Post, cardIndex: number) {
+    return {
+      href: listPostPath(post, lang),
+      ref: (el: HTMLAnchorElement | null) => {
+        cardRefs.current[cardIndex] = el;
+      },
+      onClick: (e: React.MouseEvent<HTMLAnchorElement>) => handleCardClick(e, cardIndex),
+    };
+  }
+
+  function renderLeadStory(post: Post) {
+    const { translation, editor, when, iso } = postView(post);
+    return (
+      <a
+        {...cardLinkProps(post, 0)}
+        className="group relative flex min-h-[420px] flex-col justify-end overflow-hidden rounded-3xl bg-slate-950 p-7 text-white shadow-2xl shadow-blue-950/20 md:p-10 lg:min-h-[560px]"
+      >
+        {/* Unified navy/blue cover — no per-editor colors */}
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-br from-slate-950 via-blue-950 to-blue-900" />
+        <div
+          aria-hidden
+          className="absolute inset-0 opacity-[0.18] [mask-image:radial-gradient(ellipse_at_top_right,black,transparent_70%)]"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(147,197,253,.35) 1px, transparent 1px), linear-gradient(90deg, rgba(147,197,253,.35) 1px, transparent 1px)',
+            backgroundSize: '44px 44px',
+          }}
+        />
+        <div aria-hidden className="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-blue-500/30 blur-3xl transition-opacity duration-500 group-hover:opacity-80" />
+
+        <div className="relative">
+          <div className="mb-5 flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.14em]">
+            <span className="rounded-full bg-blue-500 px-3 py-1 text-white">{t('blogHub.topStory')}</span>
+            {editor && <span className="text-blue-200">{editor.specialty}</span>}
+          </div>
+          <h2 className="max-w-3xl text-3xl font-bold leading-[1.15] tracking-tight md:text-4xl lg:text-[2.75rem]">
+            {translation.title}
+          </h2>
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-300 line-clamp-3 md:text-lg">
+            {translation.excerpt}
+          </p>
+          <div className="mt-7 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6">
+            <div className="flex items-center gap-3 text-sm text-slate-300">
+              {editor && (
+                <img
+                  src={`/avatars/${editor.id}-headshot.png`}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  className="h-8 w-8 rounded-full object-cover ring-2 ring-white/20"
+                />
+              )}
+              {editor && <span className="font-medium text-white">{editor.name}</span>}
+              {editor && <span aria-hidden className="h-1 w-1 rounded-full bg-slate-500" />}
+              <time dateTime={iso}>{when}</time>
+            </div>
+            <span className="inline-flex items-center gap-2 text-sm font-semibold text-white">
+              {t('blogHub.readStory')}
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </span>
+          </div>
+        </div>
+      </a>
+    );
+  }
+
+  function renderRailStory(post: Post, cardIndex: number, rank: number) {
+    const { translation, editor, when, iso } = postView(post);
+    return (
+      <li key={post.slug} className="border-t border-slate-200 first:border-t-0">
+        <a {...cardLinkProps(post, cardIndex)} className="group flex gap-4 rounded-xl py-5 first:pt-0">
+          <span aria-hidden className="w-7 shrink-0 text-2xl font-bold tabular-nums leading-none text-slate-200 transition-colors group-hover:text-blue-600">
+            {String(rank).padStart(2, '0')}
+          </span>
+          <div className="min-w-0">
+            {editor && (
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-600">{editor.specialty}</p>
+            )}
+            <h3 className="text-base font-semibold leading-snug text-slate-900 line-clamp-3 transition-colors group-hover:text-blue-700">
+              {translation.title}
+            </h3>
+            <time dateTime={iso} className="mt-2 block text-xs text-slate-500">{when}</time>
+          </div>
+        </a>
+      </li>
+    );
+  }
+
+  function renderGridCard(post: Post, cardIndex: number) {
+    const { translation, editor, when, iso } = postView(post);
+    return (
+      <a
+        key={post.slug}
+        {...cardLinkProps(post, cardIndex)}
+        className="group flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-6 transition duration-200 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-950/5"
+      >
+        <div className="mb-4 flex items-center justify-between gap-3 text-[11px] font-semibold uppercase tracking-[0.14em]">
+          <span className="truncate text-blue-600">{editor?.specialty ?? ''}</span>
+          <time dateTime={iso} className="shrink-0 font-medium normal-case tracking-normal text-slate-400">{when}</time>
+        </div>
+        <h2 className="text-lg font-semibold leading-snug text-slate-900 line-clamp-3 transition-colors group-hover:text-blue-700">
+          {translation.title}
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-slate-600 line-clamp-2">
+          {translation.excerpt}
         </p>
-      </div>
+        <div className="mt-auto flex items-center gap-3 pt-6">
+          {editor && (
+            <>
+              <img
+                src={`/avatars/${editor.id}-headshot.png`}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                className="h-7 w-7 rounded-full object-cover ring-2 ring-white"
+              />
+              <span className="truncate text-xs font-medium text-slate-600">{editor.name}</span>
+            </>
+          )}
+          <ArrowUpRight className="ml-auto h-4 w-4 shrink-0 text-slate-300 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-blue-600" />
+        </div>
+      </a>
+    );
+  }
 
-      {/* Search */}
-      <BlogSearch onSearchActive={setSearchActive} />
+  // Compact numbered pagination: 1 … p-1 p p+1 … last
+  const pageNumbers: Array<number | 'gap'> = [];
+  for (let n = 1; n <= totalPages; n++) {
+    if (n === 1 || n === totalPages || Math.abs(n - page) <= 1) pageNumbers.push(n);
+    else if (pageNumbers[pageNumbers.length - 1] !== 'gap') pageNumbers.push('gap');
+  }
 
+  const pagerButtonClass =
+    'tap-target inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 aria-disabled:pointer-events-none aria-disabled:opacity-40';
+
+  function renderPrevLink(showLabel: boolean) {
+    return (
+      <a
+        href={page > 1 ? archiveHref(page - 1) : undefined}
+        aria-disabled={page <= 1}
+        aria-label={showLabel ? undefined : t('blogHub.prev')}
+        tabIndex={page <= 1 ? -1 : undefined}
+        onClick={(e) => onPageLinkClick(e, page - 1)}
+        className={pagerButtonClass}
+      >
+        <ChevronLeft className="h-4 w-4" />
+        {showLabel && <span>{t('blogHub.prev')}</span>}
+      </a>
+    );
+  }
+
+  function renderNextLink(showLabel: boolean) {
+    return (
+      <a
+        href={page < totalPages ? archiveHref(page + 1) : undefined}
+        aria-disabled={page >= totalPages}
+        aria-label={showLabel ? undefined : t('blogHub.next')}
+        tabIndex={page >= totalPages ? -1 : undefined}
+        onClick={(e) => onPageLinkClick(e, page + 1)}
+        className={pagerButtonClass}
+      >
+        {showLabel && <span>{t('blogHub.next')}</span>}
+        <ChevronRight className="h-4 w-4" />
+      </a>
+    );
+  }
+
+  const tabClass = (active: boolean) =>
+    `relative flex h-12 flex-shrink-0 items-center whitespace-nowrap px-3 text-sm font-medium transition-colors after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:rounded-full after:transition-colors ${
+      active ? 'text-slate-900 after:bg-blue-600' : 'text-slate-500 after:bg-transparent hover:text-slate-900'
+    }`;
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      {/* ── Masthead ── */}
+      <section className="relative overflow-hidden bg-slate-950 text-white">
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-br from-slate-950 via-[#0b1a3d] to-blue-950" />
+        <div
+          aria-hidden
+          className="absolute inset-0 opacity-[0.12] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(147,197,253,.4) 1px, transparent 1px), linear-gradient(90deg, rgba(147,197,253,.4) 1px, transparent 1px)',
+            backgroundSize: '48px 48px',
+          }}
+        />
+        <div aria-hidden className="absolute left-1/2 top-0 h-72 w-[42rem] -translate-x-1/2 rounded-full bg-blue-600/25 blur-3xl" />
+
+        <div className="container relative mx-auto px-4 pb-12 pt-12 sm:px-6 md:pb-14 md:pt-16">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-blue-200">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-60 motion-reduce:animate-none" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-400" />
+              </span>
+              {t('blogHub.eyebrow')}
+            </p>
+            <h1 className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">{t('blogHub.title')}</h1>
+            <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-slate-300 md:text-lg">
+              {t('blogHub.subtitle')}
+            </p>
+
+            <BlogSearchInput search={blogSearch} className="mx-auto mt-8 max-w-2xl text-left" />
+
+            <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-400">
+              {total > 0 && !editorFilter && !dayFilter && (
+                <li className="tabular-nums">{t('blogHub.statArticles', { n: total.toLocaleString(lang) })}</li>
+              )}
+              <li>{t('blogHub.statEditors')}</li>
+              <li>{latestUpdate ? t('blogHub.statUpdated', { time: latestUpdate }) : t('blogHub.statHourly')}</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Sticky section bar ── */}
       {!searchActive && (
-        <>
-          {/* Inline Pill Filters — by type/editor */}
-          <div className="relative mb-4 flex items-center gap-1">
+        <nav
+          aria-label={t('blogHub.sectionsLabel')}
+          className="sticky top-[var(--header-h)] z-30 border-b border-slate-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/75"
+        >
+          <div className="container mx-auto flex items-center gap-1 px-4 sm:px-6">
             <button
               onClick={() => scrollTypeFilter(-1)}
-              className="flex-shrink-0 w-7 h-7 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center text-gray-500 hover:bg-gray-50"
-              aria-label={lang === 'es' ? 'Anterior' : 'Previous'}
+              className="hidden h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 md:flex"
+              aria-label={t('blogHub.scrollPrev')}
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="h-4 w-4" />
             </button>
-            <div className="relative flex-1 min-w-0">
+            <div className="relative min-w-0 flex-1">
               <div
                 ref={typeScrollRef}
-                className="flex items-center gap-2 overflow-x-auto pb-2 pr-8 scroll-smooth"
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
+                className="flex items-center overflow-x-auto scroll-smooth pr-10 [&::-webkit-scrollbar]:hidden"
+                style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
               >
                 <button
                   onClick={() => handleEditorFilterChange(null)}
-                  className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                    editorFilter === null
-                      ? 'bg-purple-600 text-white shadow-sm'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
+                  aria-current={editorFilter === null ? 'true' : undefined}
+                  className={tabClass(editorFilter === null)}
                 >
-                  {lang === 'es' ? 'Todos' : 'All'}
+                  {t('blogHub.allSections')}
                 </button>
                 {editors.map((editor) => (
                   <button
                     key={editor.id}
                     onClick={() => handleEditorFilterChange(editor.id)}
-                    className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                      editorFilter === editor.id
-                        ? 'bg-purple-600 text-white shadow-sm'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
+                    aria-current={editorFilter === editor.id ? 'true' : undefined}
+                    className={tabClass(editorFilter === editor.id)}
                   >
-                    <img
-                      src={`/avatars/${editor.id}-headshot.png`}
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                      className="w-5 h-5 rounded-full object-cover"
-                    />
-                    <span>{editor.specialty}</span>
+                    {editor.specialty}
                   </button>
                 ))}
               </div>
-              {/* Fade gradient on right edge to hint at scrollability */}
-              <div className="pointer-events-none absolute right-0 top-0 bottom-2 w-12 bg-gradient-to-l from-white to-transparent" />
+              <div aria-hidden className="pointer-events-none absolute bottom-0 right-0 top-0 w-12 bg-gradient-to-l from-white to-transparent" />
             </div>
             <button
               onClick={() => scrollTypeFilter(1)}
-              className="flex-shrink-0 w-7 h-7 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center text-gray-500 hover:bg-gray-50"
-              aria-label={lang === 'es' ? 'Siguiente' : 'Next'}
+              className="hidden h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 md:flex"
+              aria-label={t('blogHub.scrollNext')}
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="h-4 w-4" />
             </button>
           </div>
+        </nav>
+      )}
 
-          {/* Date range filter pills */}
-          <div className="flex items-center gap-2 mb-4">
-            <button
-              onClick={() => handleDayFilterChange(null)}
-              className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                dayFilter === null
-                  ? 'bg-purple-600 text-white shadow-sm'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              {lang === 'es' ? 'Todas las fechas' : 'All time'}
-            </button>
-            {DAY_FILTERS.map((days) => (
-              <button
-                key={days}
-                onClick={() => handleDayFilterChange(days)}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                  dayFilter === days
-                    ? 'bg-purple-600 text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                {dayFilterLabels[days]}
-              </button>
-            ))}
-          </div>
-
-          {/* Results indicator when filter is active */}
-          {editorFilter !== null && activeEditor && (
-            <div className="mb-4 flex items-center gap-2 text-sm text-gray-600">
-              <span>
-                {lang === 'es' ? `Mostrando posts de ${activeEditor.specialty}` : `Showing ${activeEditor.specialty} posts`}
-              </span>
-              <button
-                onClick={() => handleEditorFilterChange(null)}
-                className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 text-gray-500 hover:bg-red-100 hover:text-red-500 transition-colors text-xs"
-                aria-label={lang === 'es' ? 'Limpiar filtro' : 'Clear filter'}
-              >
-                &times;
-              </button>
+      <div className="container mx-auto px-4 py-10 sm:px-6 md:py-12">
+        {searchActive ? (
+          <BlogSearchResults search={blogSearch} />
+        ) : (
+          <>
+            {/* ── Section header ── */}
+            <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div className="flex min-w-0 items-center gap-4">
+                {activeEditor && (
+                  <img
+                    src={`/avatars/${activeEditor.id}-headshot.png`}
+                    alt=""
+                    className="h-12 w-12 shrink-0 rounded-xl object-cover ring-1 ring-slate-200"
+                  />
+                )}
+                <div className="min-w-0">
+                  <h2 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
+                    {activeEditor ? activeEditor.specialty : t('blogHub.latest')}
+                  </h2>
+                  <p className="mt-1 flex flex-wrap items-center gap-x-2 text-sm text-slate-500">
+                    {activeEditor && <span>{t('blogHub.by', { name: activeEditor.name })}</span>}
+                    {activeEditor && total > 0 && <span aria-hidden>·</span>}
+                    {total > 0 && <span className="tabular-nums">{t('blogHub.storiesCount', { n: total.toLocaleString(lang) })}</span>}
+                    {activeEditor && (
+                      <button
+                        onClick={() => handleEditorFilterChange(null)}
+                        className="ml-1 inline-flex items-center gap-1 rounded-full bg-slate-200/70 px-2.5 py-0.5 text-xs font-medium text-slate-600 transition hover:bg-slate-300/70 hover:text-slate-900"
+                      >
+                        <X className="h-3 w-3" />
+                        {t('blogHub.clearFilter')}
+                      </button>
+                    )}
+                  </p>
+                </div>
+              </div>
             </div>
-          )}
 
-          {/* Fetch error — offer a retry (Req 19.3) */}
-          {!loading && fetchError && (
-            <ErrorState onRetry={() => setReloadKey((k) => k + 1)} />
-          )}
+            {/* ── Toolbar: date range + pagination, above the stories ── */}
+            <div
+              ref={contentTopRef}
+              className="mb-8 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-5"
+            >
+              <div
+                role="group"
+                aria-label={t('blogHub.dateRangeLabel')}
+                className="inline-flex shrink-0 rounded-xl border border-slate-200 bg-white p-1 shadow-sm"
+              >
+                {([null, ...DAY_FILTERS] as Array<number | null>).map((days) => {
+                  const active = dayFilter === days;
+                  return (
+                    <button
+                      key={days ?? 'all'}
+                      onClick={() => handleDayFilterChange(days)}
+                      aria-pressed={active}
+                      className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                        active ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900'
+                      }`}
+                    >
+                      {days === null ? t('blogHub.anyTime') : dayFilterLabels[days]}
+                    </button>
+                  );
+                })}
+              </div>
 
-          {/* Loading skeletons (initial load) */}
-          {posts.length === 0 && loading && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="rounded-lg border border-gray-100 shadow-md bg-white p-4 animate-pulse">
-                  <div className="h-4 w-24 bg-gray-200 rounded mb-3" />
-                  <div className="h-5 w-full bg-gray-200 rounded mb-2" />
-                  <div className="h-5 w-3/4 bg-gray-200 rounded mb-4" />
-                  <div className="h-3 w-full bg-gray-100 rounded mb-1" />
-                  <div className="h-3 w-2/3 bg-gray-100 rounded mb-6" />
-                  <div className="flex items-center gap-3 mt-auto">
-                    <div className="w-8 h-8 bg-gray-200 rounded-full" />
-                    <div>
-                      <div className="h-3 w-24 bg-gray-200 rounded mb-1" />
-                      <div className="h-3 w-16 bg-gray-100 rounded" />
-                    </div>
+              {totalPages > 1 && (
+                <nav aria-label={t('blogHub.pagination')} className="flex items-center gap-1.5">
+                  {renderPrevLink(false)}
+                  {/* Numbered on tablet/desktop, "2 / 67" on phones */}
+                  <span className="px-2 text-sm font-medium tabular-nums text-slate-600 sm:hidden">
+                    {page} / {totalPages}
+                  </span>
+                  {/* Wrapper carries the breakpoint: .tap-target sets its own display */}
+                  <span className="hidden items-center gap-1.5 sm:flex">
+                  {pageNumbers.map((n, i) =>
+                    n === 'gap' ? (
+                      <span key={`gap-${i}`} aria-hidden className="px-1 text-slate-400">…</span>
+                    ) : (
+                      <a
+                        key={n}
+                        href={archiveHref(n)}
+                        aria-current={n === page ? 'page' : undefined}
+                        aria-label={t('blogHub.pageOf', { page: n, total: totalPages })}
+                        onClick={(e) => onPageLinkClick(e, n)}
+                        className={`tap-target min-w-[44px] rounded-xl text-sm font-semibold tabular-nums transition ${
+                          n === page
+                            ? 'bg-slate-900 text-white shadow-sm'
+                            : 'border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                        }`}
+                      >
+                        {n}
+                      </a>
+                    ),
+                  )}
+                  </span>
+                  {renderNextLink(false)}
+                </nav>
+              )}
+            </div>
+
+            {/* Fetch error — offer a retry (Req 19.3) */}
+            {!loading && fetchError && (
+              <ErrorState onRetry={() => setReloadKey((k) => k + 1)} />
+            )}
+
+            {/* Loading skeletons (initial load) */}
+            {posts.length === 0 && loading && (
+              <div aria-hidden>
+                <div className="mb-12 grid gap-8 lg:grid-cols-3">
+                  <div className="h-[420px] animate-pulse rounded-3xl bg-slate-200 lg:col-span-2 lg:h-[560px]" />
+                  <div className="space-y-6">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className="flex animate-pulse gap-4">
+                        <div className="h-6 w-7 rounded bg-slate-200" />
+                        <div className="flex-1 space-y-2">
+                          <div className="h-3 w-20 rounded bg-slate-200" />
+                          <div className="h-4 w-full rounded bg-slate-200" />
+                          <div className="h-4 w-2/3 rounded bg-slate-200" />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-
-          {/* Posts Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {posts.map((post, cardIndex) => {
-              const translation =
-                post.translations[lang] || post.translations.en;
-              const postDate = extractDateTimeFromSlug(post.slug);
-              const formattedDate = formatDate(postDate, lang);
-              const editor = editors.find((e) => e.id === post.editorId);
-              const accentColor = editor?.colorPalette?.[0] ?? '#a855f7';
-
-              return (
-                <div key={post.slug}>
-                  {/* Kept as a real anchor so middle/cmd-click opens the full
-                      page in a new tab; plain left-click is intercepted to open
-                      the in-page modal (Req 11.1, 12.1). */}
-                  <a
-                    href={listPostPath(post, lang)}
-                    ref={(el) => {
-                      cardRefs.current[cardIndex] = el;
-                    }}
-                    onClick={(e) => handleCardClick(e, cardIndex)}
-                    className="h-full block rounded-lg border-l-4 border border-gray-100 hover:border-purple-300 hover:-translate-y-0.5 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden bg-white p-4"
-                    style={{ borderLeftColor: accentColor }}
-                  >
-                    <div className="flex flex-col justify-between h-full">
-                      <div>
-                        <h2 className="text-lg font-bold mb-1 text-gray-800 line-clamp-2">
-                          {translation.title}
-                        </h2>
-                        <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                          {translation.excerpt}
-                        </p>
-                      </div>
-                      {editor && (
-                        <div className="flex items-center gap-2 mt-auto pt-2 border-t border-gray-50">
-                          <img
-                            src={`/avatars/${editor.id}-headshot.png`}
-                            alt={editor.name}
-                            loading="lazy"
-                            decoding="async"
-                            className="w-6 h-6 rounded-full object-cover"
-                          />
-                          <span className="text-xs text-gray-600 font-medium">{editor.name}</span>
-                          <span className="text-xs text-gray-600 ml-auto">{formattedDate}</span>
-                        </div>
-                      )}
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="h-60 animate-pulse rounded-2xl border border-slate-200 bg-white p-6">
+                      <div className="mb-5 h-3 w-24 rounded bg-slate-200" />
+                      <div className="mb-2 h-5 w-full rounded bg-slate-200" />
+                      <div className="mb-5 h-5 w-3/4 rounded bg-slate-200" />
+                      <div className="mb-2 h-3 w-full rounded bg-slate-100" />
+                      <div className="h-3 w-2/3 rounded bg-slate-100" />
                     </div>
-                  </a>
+                  ))}
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            )}
 
-          {/* No results for the current filters */}
-          {!loading && !fetchError && posts.length === 0 && (
-            <div className="text-center py-16">
-              <span className="text-sm text-gray-600">
-                {lang === 'es' ? 'No hay noticias para estos filtros' : 'No news for these filters'}
-              </span>
-            </div>
-          )}
+            {/* ── Front page: lead story + most recent rail ── */}
+            {showFeatured && (
+              <div className={`mb-14 grid gap-8 lg:grid-cols-3 lg:gap-10 ${loading ? 'opacity-60 transition-opacity' : ''}`}>
+                <div className="lg:col-span-2">{renderLeadStory(featured[0])}</div>
+                <aside aria-labelledby="blog-most-recent">
+                  <h2 id="blog-most-recent" className="mb-5 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    <span className="h-px w-6 bg-blue-600" />
+                    {t('blogHub.mustRead')}
+                  </h2>
+                  <ol>
+                    {featured.slice(1).map((post, i) => renderRailStory(post, i + 1, i + 1))}
+                  </ol>
+                </aside>
+              </div>
+            )}
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-4 mt-10">
-              <a
-                href={page > 1 ? archiveHref(page - 1) : undefined}
-                aria-disabled={page <= 1}
-                tabIndex={page <= 1 ? -1 : undefined}
-                onClick={event => { if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); goToPage(page - 1); } }}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 aria-disabled:opacity-40 aria-disabled:cursor-not-allowed transition-colors"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                {lang === 'es' ? 'Anterior' : 'Previous'}
-              </a>
-              <span className="text-sm text-gray-500">
-                {lang === 'es' ? `Página ${page} de ${totalPages}` : `Page ${page} of ${totalPages}`}
-              </span>
-              <a
-                href={page < totalPages ? archiveHref(page + 1) : undefined}
-                aria-disabled={page >= totalPages}
-                tabIndex={page >= totalPages ? -1 : undefined}
-                onClick={event => { if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); goToPage(page + 1); } }}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 aria-disabled:opacity-40 aria-disabled:cursor-not-allowed transition-colors"
-              >
-                {lang === 'es' ? 'Siguiente' : 'Next'}
-                <ChevronRight className="w-4 h-4" />
-              </a>
-            </div>
-          )}
-        </>
-      )}
+            {/* ── Latest grid ── */}
+            {posts.length > gridStart && (
+              <>
+                {showFeatured && (
+                  <h2 className="mb-6 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    <span className="h-px w-6 bg-blue-600" />
+                    {t('blogHub.moreStories')}
+                    <span className="h-px flex-1 bg-slate-200" />
+                  </h2>
+                )}
+                <div className={`grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 ${loading ? 'opacity-60 transition-opacity' : ''}`}>
+                  {posts.slice(gridStart).map((post, i) => renderGridCard(post, gridStart + i))}
+                </div>
+              </>
+            )}
+
+            {/* No results for the current filters */}
+            {!loading && !fetchError && posts.length === 0 && (
+              <div className="rounded-3xl border border-dashed border-slate-300 bg-white py-20 text-center">
+                <Newspaper className="mx-auto mb-4 h-10 w-10 text-slate-300" />
+                <p className="text-sm text-slate-600">{t('blogHub.empty')}</p>
+                {(editorFilter || dayFilter) && (
+                  <a
+                    href="/blog"
+                    onClick={(e) => { e.preventDefault(); navigate(lang === 'es' ? '/blog?lang=es' : '/blog'); }}
+                    className="mt-5 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                  >
+                    {t('blogHub.resetFilters')}
+                  </a>
+                )}
+              </div>
+            )}
+
+            {/* ── Compact pager at the end, so a reader can keep going ── */}
+            {totalPages > 1 && posts.length > 0 && (
+              <nav aria-label={t('blogHub.pagination')} className="mt-12 flex items-center justify-between gap-3 border-t border-slate-200 pt-6">
+                {renderPrevLink(true)}
+                <span className="text-sm tabular-nums text-slate-500">
+                  {t('blogHub.pageOf', { page, total: totalPages })}
+                </span>
+                {renderNextLink(true)}
+              </nav>
+            )}
+          </>
+        )}
+      </div>
 
       {openIndex !== null && (
         <BlogModal
