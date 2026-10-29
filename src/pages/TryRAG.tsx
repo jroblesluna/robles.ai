@@ -17,6 +17,7 @@ import {
   ChevronRight,
   Check,
   ArrowUp,
+  ArrowDown,
   Quote,
   Scissors,
   X,
@@ -186,6 +187,26 @@ function ProgressBar({ label, current, total }: { label: string; current: number
         />
       </div>
     </div>
+  );
+}
+
+/**
+ * Bobbing "do it here" tag pinned to the control for the current step, so the
+ * numbered steps at the top lead to the place where the visitor has to act.
+ */
+function GuideCue({ step, label }: { step: number; label: string }) {
+  return (
+    <motion.span
+      aria-hidden
+      initial={{ opacity: 0, y: -4 }}
+      animate={{ opacity: 1, y: [0, 5, 0] }}
+      transition={{ opacity: { duration: 0.3 }, y: { duration: 1.2, repeat: Infinity, ease: "easeInOut" } }}
+      className={`pointer-events-none absolute -top-3 left-4 z-10 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-br ${ACCENT_GRADIENT} py-0.5 pl-0.5 pr-2.5 text-[11px] font-semibold text-white shadow-md`}
+    >
+      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-white/25 text-[10px]">{step}</span>
+      {label}
+      <ArrowDown className="h-3.5 w-3.5" />
+    </motion.span>
   );
 }
 
@@ -389,6 +410,11 @@ export default function TryRAG() {
 
   const [serviceStatus, setServiceStatus] = useState<"checking" | "warm" | "warming" | "cold">("checking");
   const queryInputRef = useRef<HTMLInputElement | null>(null);
+  const docBarRef = useRef<HTMLDivElement | null>(null);
+  const conversationRef = useRef<HTMLDivElement | null>(null);
+  // Brief highlight on the control a step card sends the visitor to.
+  const [flashStep, setFlashStep] = useState<number | null>(null);
+  const flashTimer = useRef<number | undefined>(undefined);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const anyRunning = STEP_IDS.some((id) => runs[id].status === "running");
@@ -723,6 +749,20 @@ export default function TryRAG() {
 
   // ── Derived view state ─────────────────────────────────────────────────────
   const hasAnswer = !!(gptAnswer || hfAnswer);
+  // Which of the three "how it works" steps the visitor is on.
+  const guideStep = docStatus !== "ready" ? 1 : asked ? 3 : 2;
+
+  // Visitors click the step cards themselves: take them to where that step
+  // happens, or to the earliest step they still have to do.
+  const goToStep = (n: number) => {
+    const at = Math.min(n, guideStep);
+    const target = at === 1 ? docBarRef.current : at === 2 ? queryInputRef.current : conversationRef.current;
+    target?.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (at === 2) queryInputRef.current?.focus({ preventScroll: true });
+    setFlashStep(at);
+    window.clearTimeout(flashTimer.current);
+    flashTimer.current = window.setTimeout(() => setFlashStep(null), 1600);
+  };
   const runningStep = STEP_IDS.find((id) => runs[id].status === "running");
 
   const status: { tone: StatusTone; label: string; spinning?: boolean } =
@@ -992,15 +1032,46 @@ export default function TryRAG() {
               {t("try-rag.how_title")}
             </p>
             <ol className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              {([1, 2, 3] as const).map((n) => (
-                <li key={n} className="rounded-xl border border-gray-200/80 bg-white/70 p-4">
-                  <span className={`flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br ${ACCENT_GRADIENT} text-xs font-bold text-white`}>
-                    {n}
-                  </span>
-                  <p className="mt-3 text-sm font-semibold text-gray-900">{t(`try-rag.how_step${n}_title`)}</p>
-                  <p className="mt-1 text-sm leading-snug text-gray-600">{t(`try-rag.how_step${n}_desc`)}</p>
-                </li>
-              ))}
+              {([1, 2, 3] as const).map((n) => {
+                const current = n === guideStep;
+                const done = n < guideStep;
+                return (
+                  <li key={n}>
+                    <button
+                      type="button"
+                      onClick={() => goToStep(n)}
+                      aria-current={current ? "step" : undefined}
+                      className={`h-full w-full rounded-xl border p-4 text-left transition-all hover:border-cyan-300 hover:bg-white ${
+                        current ? "border-cyan-300 bg-white shadow-sm ring-2 ring-cyan-100" : "border-gray-200/80 bg-white/70"
+                      }`}
+                    >
+                      <span className="flex items-center justify-between gap-2">
+                        <span
+                          className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white ${
+                            done ? "bg-emerald-500" : `bg-gradient-to-br ${ACCENT_GRADIENT}`
+                          }`}
+                        >
+                          {done ? <Check className="h-3.5 w-3.5" /> : n}
+                        </span>
+                        {current && (
+                          <span className={`flex items-center gap-1 text-[11px] font-semibold ${ACCENT_TEXT}`}>
+                            {t(n === 1 ? "try-rag.guide_card_start" : "try-rag.guide_card_next")}
+                            <motion.span
+                              aria-hidden
+                              animate={{ y: [0, 3, 0] }}
+                              transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+                            >
+                              <ArrowDown className="h-3.5 w-3.5" />
+                            </motion.span>
+                          </span>
+                        )}
+                      </span>
+                      <span className="mt-3 block text-sm font-semibold text-gray-900">{t(`try-rag.how_step${n}_title`)}</span>
+                      <span className="mt-1 block text-sm leading-snug text-gray-600">{t(`try-rag.how_step${n}_desc`)}</span>
+                    </button>
+                  </li>
+                );
+              })}
             </ol>
 
             <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
@@ -1077,15 +1148,16 @@ export default function TryRAG() {
               </div>
 
               {/* Document bar */}
-              <div className="border-b border-gray-100 p-4">
+              <div ref={docBarRef} className="scroll-mt-24 border-b border-gray-100 p-4">
                 {!pdfFile ? (
                   <div className="space-y-2.5">
                     <label
                       htmlFor="rag-pdf-input"
-                      className={`group flex cursor-pointer items-center gap-4 rounded-xl border-2 border-dashed p-4 transition-all ${
-                        dragging ? "border-cyan-400 bg-cyan-50/60" : "border-gray-200 hover:border-cyan-400 hover:bg-cyan-50/40"
-                      }`}
+                      className={`group relative flex cursor-pointer items-center gap-4 rounded-xl border-2 border-dashed p-4 transition-all ${
+                        dragging ? "border-cyan-400 bg-cyan-50/60" : "border-cyan-300 hover:border-cyan-400 hover:bg-cyan-50/40"
+                      } ${flashStep === 1 ? "bg-cyan-50/60 ring-4 ring-cyan-200" : ""}`}
                     >
+                      <GuideCue step={1} label={t("try-rag.guide_upload")} />
                       <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${ACCENT_GRADIENT} text-white shadow-sm`}>
                         <Upload className="h-5 w-5" />
                       </span>
@@ -1154,7 +1226,7 @@ export default function TryRAG() {
               </div>
 
               {/* Conversation */}
-              <div className="min-h-[320px] flex-1 overflow-y-auto px-5 py-6 lg:min-h-0">
+              <div ref={conversationRef} className="min-h-[320px] flex-1 overflow-y-auto px-5 py-6 lg:min-h-0">
                 {!asked ? (
                   <div className="flex h-full flex-col items-center justify-center text-center">
                     <span className={`flex h-12 w-12 items-center justify-center rounded-2xl ${BADGE_BG}`}>
@@ -1275,7 +1347,12 @@ export default function TryRAG() {
                 }}
                 className="border-t border-gray-100 p-4"
               >
-                <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white p-1.5 pl-4 shadow-sm focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-100">
+                <div
+                  className={`relative flex items-center gap-2 rounded-xl border bg-white p-1.5 pl-4 shadow-sm focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-100 ${
+                    guideStep === 2 ? "border-cyan-300" : "border-gray-200"
+                  } ${flashStep === 2 ? "ring-4 ring-cyan-200" : ""}`}
+                >
+                  {guideStep === 2 && !query && <GuideCue step={2} label={t("try-rag.guide_ask")} />}
                   <input
                     ref={queryInputRef}
                     value={query}
