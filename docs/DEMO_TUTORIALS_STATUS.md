@@ -15,9 +15,9 @@ video oculta el botón. Briefs y capturas en `docs/demo-tutorials/<ruta>/`.
 | Demo (`id`) | Ruta | Video ES | Video EN |
 |-------------|------|:--------:|:--------:|
 | `objectdetection` | `/try-object-detection` | ✅ (45 s) | ✅ (45 s) |
-| `emotion` | `/try-emotion` | ✅ (56 s) | ⬜ |
+| `emotion` | `/try-emotion` | ✅ (56 s) | ✅ (59 s) |
 | `rag` | `/try-rag` | ⬜ | ⬜ |
-| `sitechatbot` | `/try-chatbot` | ⬜ | ⬜ |
+| `sitechatbot` | `/try-chatbot` | ✅ (59 s) | ✅ (58 s) |
 | `identity` | `/try-identity` | ⬜ | ⬜ |
 | `speech` | `/try-transcription` | ⬜ | ⬜ |
 | `langchain` | `/try-langchain` | ⬜ | ⬜ |
@@ -26,16 +26,16 @@ video oculta el botón. Briefs y capturas en `docs/demo-tutorials/<ruta>/`.
 | `forecast` | `/try-forecast` | ⬜ | ⬜ |
 | `voiceagent`, `anomaly`, `imagegen` | — (soon) | — | — |
 
-**Avance**: 3 de 20 videos (10 demos live × 2 idiomas) · 1 demo completa en ambos idiomas.
+**Avance**: 6 de 20 videos (10 demos live × 2 idiomas) · 3 demos completas en ambos idiomas.
 
 ## Detalle por etapa
 
 | Demo | Capturas | Brief Remotion | Video ES | Video EN | En `TUTORIALS` | Botón en la página |
 |------|:--------:|:--------------:|:--------:|:--------:|:--------------:|:------------------:|
 | `objectdetection` | ✅ | ✅ | ✅ | ✅ | ✅ ES + EN | ✅ |
-| `emotion` | ✅ | ✅ | ✅ | ⬜ | 🟡 solo ES | ✅ |
+| `emotion` | ✅ | ✅ | ✅ | ✅ | ✅ ES + EN | ✅ |
 | `rag` | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ |
-| `sitechatbot` | ✅ | ✅ (EN bloqueado, §0) | ⬜ | ⬜ | ⬜ | ⬜ |
+| `sitechatbot` | ✅ | ✅ | ✅ | ✅ | ✅ ES + EN | ✅ (botón en el hero + tarjeta destacada) |
 | `identity` | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
 | `speech` | ✅ (llamada de ejemplo en `audio/`) | ✅ | ⬜ | ⬜ | ⬜ | ⬜ |
 | `langchain` | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
@@ -43,13 +43,28 @@ video oculta el botón. Briefs y capturas en `docs/demo-tutorials/<ruta>/`.
 | `tts` | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
 | `forecast` | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
 
+## Notas por demo
+
+| Demo | Estado (2026-10-29) |
+|------|---------------------|
+| `objectdetection` | Publicado en ES y EN (45 s cada uno) |
+| `emotion` | EN (59 s) listo y registrado en `TUTORIALS`; el MP4 y el póster EN aún sin commit (`git status`) |
+| `rag` | Brief y capturas listos (sin `capture-report.json`); falta producir los videos |
+| `sitechatbot` | Publicado en ES (59 s) y EN (58 s). Es la demo estrella, así que además del botón en el hero lleva una tarjeta grande con póster (`variant="featured"`) justo después del hero. Los MP4 y pósters ES/EN aún sin commit (`git status`). Pendiente aparte: que el bot responda en el idioma de la pregunta (§0 del prompt) |
+| `speech` | Capturas, llamada de ejemplo (`audio/`), `capture-report.json` y brief listos; carpeta empaquetada en zip con un prompt corto para el agente de Remotion. ES y EN se pueden producir ya. La demo tiene bugs en la transcripción en vivo (§0 del prompt) que el video recrea corregidos |
+| resto | Sin empezar |
+
 ## Próximos pasos sugeridos
 
-1. `emotion`: producir la versión en inglés y registrarla en `TUTORIALS.emotion.en`.
-2. `rag`: ya tiene brief y capturas; falta renderizar ES y EN, registrar y montar `<DemoTutorial demoId="rag">`.
-3. `sitechatbot`: renderizar ES; EN espera a que el bot responda en el idioma de la pregunta.
-4. `speech`: renderizar ES y EN (se puede ya); en paralelo, corregir en `TryTranscription.tsx` las
-   líneas provisionales que no se borran y el orden de los turnos (§0 del prompt) y recapturar.
+1. Commitear juntos los tutoriales pendientes: `try-emotion-tutorial-en.mp4` + póster EN, y
+   `try-chatbot-tutorial-{es,en}.mp4` + pósters, con los cambios de `DemoTutorial.tsx`,
+   `TryChatbot.tsx` y los `translation.json`.
+2. `speech`: producir ES y EN con el zip; al recibirlos, registrar `TUTORIALS.speech` y montar
+   `<DemoTutorial demoId="speech" returnToId="transcription-workspace">` (§13 del prompt). En
+   paralelo, corregir en `TryTranscription.tsx` las líneas provisionales que no se borran y el orden
+   de los turnos, y recapturar.
+3. `rag`: renderizar ES y EN, registrar y montar `<DemoTutorial demoId="rag">`.
+4. Siguiente brief: `docextract`, `tts` o `identity` (mismo flujo: capturas → brief → zip).
 
 ## Checklist para publicar un tutorial
 
@@ -57,5 +72,5 @@ video oculta el botón. Briefs y capturas en `docs/demo-tutorials/<ruta>/`.
 - [ ] `REMOTION_TUTORIAL_PROMPT.md` (duración, locución, reglas de claims)
 - [ ] MP4 H.264 con `+faststart` y póster JPG por idioma en `public/videos/tutorials/`
 - [ ] Entrada en `TUTORIALS` (`src`, `poster`, `seconds`) por idioma
-- [ ] `<DemoTutorial demoId="…" returnToId="…">` en la página de la demo
+- [ ] `<DemoTutorial demoId="…" returnToId="…">` en la página de la demo (`variant="featured"` para una tarjeta grande con póster)
 - [ ] Actualizar este tracker, AGENTS.md §11 y README (*Tutorial videos*)

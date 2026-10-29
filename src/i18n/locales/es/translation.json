@@ -1890,6 +1890,7 @@
         "log_error_generic": "No se pudo analizar la imagen. Prueba con otra foto."
     },
     "try-chatbot": {
+        "tutorial_text": "Antes de probarlo, mira el recorrido completo: pegas tu web, la IA la lee y responde a tus clientes con tu propio contenido.",
         "badge": "Demo en vivo",
         "title": "Tu chatbot en 60 segundos",
         "description": "Pega la URL de tu web y obtén un asistente entrenado con tu propio contenido, listo para atender visitantes y vender las 24 horas.",
@@ -4219,7 +4220,10 @@
     "demoTutorial": {
         "cta": "Ver cómo se usa ({{seconds}} s)",
         "dialogLabel": "Tutorial en video",
-        "close": "Cerrar video"
+        "close": "Cerrar video",
+        "featuredBadge": "Video tutorial",
+        "featuredTitle": "Mira cómo funciona en {{seconds}} segundos",
+        "featuredCta": "Ver el video"
     },
     "state": {
         "loading": "Cargando…",

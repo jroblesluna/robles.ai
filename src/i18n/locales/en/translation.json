@@ -1890,6 +1890,7 @@
         "log_error_generic": "Couldn't analyze the image. Try another photo."
     },
     "try-chatbot": {
+        "tutorial_text": "Before you try it, watch the full walkthrough: paste your site, the AI reads it and answers your customers with your own content.",
         "badge": "Live demo",
         "title": "Your chatbot in 60 seconds",
         "description": "Paste your website URL and get an assistant trained on your own content, ready to answer visitors and sell around the clock.",
@@ -4219,7 +4220,10 @@
     "demoTutorial": {
         "cta": "Watch how it works ({{seconds}} s)",
         "dialogLabel": "Video tutorial",
-        "close": "Close video"
+        "close": "Close video",
+        "featuredBadge": "Video tutorial",
+        "featuredTitle": "See how it works in {{seconds}} seconds",
+        "featuredCta": "Watch the video"
     },
     "state": {
         "loading": "Loading…",

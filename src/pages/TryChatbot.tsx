@@ -30,6 +30,7 @@ import { BusinessCase } from "@/components/demo/BusinessCase";
 import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
 import { useDemoTracking } from "@/components/demo/business";
 import { ApiCallLog, type ApiCallEntry } from "@/components/demo/ApiCallLog";
+import { DemoTutorial } from "@/components/demo/DemoTutorial";
 import { HowItWorks, StatusPill, TechCard } from "@/components/demo/DemoKit";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
@@ -607,7 +608,7 @@ export default function TryChatbot() {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.3 }}
             >
-              <section className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
+              <section id="chatbot-start" className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-100 px-3 py-1.5 text-xs font-semibold text-violet-700 ring-1 ring-violet-200">
@@ -693,6 +694,8 @@ export default function TryChatbot() {
                     </button>
                   </p>
 
+                  <DemoTutorial demoId="sitechatbot" returnToId="chatbot-start" className="mt-4" />
+
                   <ul className="mt-8 grid grid-cols-1 gap-3 text-sm text-gray-600 sm:grid-cols-3">
                     {[
                       { icon: Zap, key: "trust_fast" },
@@ -710,6 +713,16 @@ export default function TryChatbot() {
                 </div>
 
                 <ChatPreview />
+              </section>
+
+              {/* Tutorial en video */}
+              <section className="mt-16">
+                <DemoTutorial
+                  demoId="sitechatbot"
+                  variant="featured"
+                  returnToId="chatbot-start"
+                  description={t("try-chatbot.tutorial_text")}
+                />
               </section>
 
               {/* Tres pasos */}
