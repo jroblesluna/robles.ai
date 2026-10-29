@@ -24,3 +24,6 @@ server/data/ga4-service-account.json
 
 # Briefs, capturas y renders locales de los tutoriales en video de las demos
 docs/demo-tutorials/
+
+# Masters sin comprimir de los videos (spot, etc.); en public/videos/ van las versiones web
+videos-creados/

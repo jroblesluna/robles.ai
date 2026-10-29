@@ -12,6 +12,11 @@ import { trackDemoEvent } from "@/lib/analytics";
 type SpotMedia = { webm: string; mp4: string; poster: string };
 
 const SPOTS: Partial<Record<"en" | "es", SpotMedia>> = {
+  en: {
+    webm: "/videos/robles-ai-spot-en.webm",
+    mp4: "/videos/robles-ai-spot-en.mp4",
+    poster: "/videos/robles-ai-spot-poster-en.jpg",
+  },
   es: {
     webm: "/videos/robles-ai-spot-es.webm",
     mp4: "/videos/robles-ai-spot-es.mp4",

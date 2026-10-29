@@ -218,9 +218,8 @@ export default function Landing() {
           <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-purple-500 blur-[128px]" />
           <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-emerald-500 blur-[128px]" />
         </div>
-        {/* Fades the purple into the next section's bg-slate-900/50 (over slate-950) so there is no hard edge. */}
+        {/* Fades the purple into the page background so there is no hard edge with the next section. */}
         <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-b from-transparent to-slate-950" aria-hidden="true" />
-        <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-b from-transparent to-slate-900/50" aria-hidden="true" />
         <div className="relative max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-10 lg:gap-14 items-center">
           <div className="text-center lg:text-left">
             <motion.p
@@ -335,7 +334,7 @@ export default function Landing() {
 
       {/* 30-second spot — the whole pitch (demos + diagnosis) for visitors who scroll past the offer */}
       {hasSpot && (
-        <section aria-labelledby="spot-title" className="py-14 md:py-20 bg-slate-900/50 border-b border-slate-800">
+        <section aria-labelledby="spot-title" className="py-14 md:py-20 bg-gradient-to-b from-transparent via-slate-900/50 to-transparent">
           <div className="max-w-5xl mx-auto px-6">
             <Reveal className="text-center mb-8 md:mb-10">
               <p className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-emerald-300 mb-3">{t("landing.v2.spot.eyebrow")}</p>
@@ -358,7 +357,7 @@ export default function Landing() {
       <ClientLogos tone="dark" />
 
       {/* What we build — live demos with visual previews */}
-      <section id="demos" className="scroll-mt-20 py-16 md:py-24 bg-slate-900/50">
+      <section id="demos" className="scroll-mt-20 py-16 md:py-24 bg-gradient-to-b from-transparent via-slate-900/50 to-transparent">
         <div className="max-w-6xl mx-auto px-6">
           <SectionTitle title={t("landing.v2.build.title")} subtitle={t("landing.v2.build.subtitle")} />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -436,7 +435,7 @@ export default function Landing() {
       </section>
 
       {/* Insight — useful on its own, memorable */}
-      <section className="py-16 md:py-24 bg-slate-900/50">
+      <section className="py-16 md:py-24 bg-gradient-to-b from-transparent via-slate-900/50 to-transparent">
         <div className="max-w-6xl mx-auto px-6">
           <SectionTitle title={t("landing.v2.insight.title")} subtitle={t("landing.v2.insight.subtitle")} />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -489,7 +488,7 @@ export default function Landing() {
       </section>
 
       {/* Pricing — three fixed-fee AI Assessment packages + the direct-project option */}
-      <section id="diagnostico" className="scroll-mt-20 py-16 md:py-24 bg-slate-900/50">
+      <section id="diagnostico" className="scroll-mt-20 py-16 md:py-24 bg-gradient-to-b from-transparent via-slate-900/50 to-transparent">
         <div className="max-w-6xl mx-auto px-6">
           <Reveal className="text-center mb-10 md:mb-14">
             <p className="text-xs font-semibold uppercase tracking-wider text-emerald-300 mb-3">{t("landing.v2.packages.eyebrow")}</p>
@@ -597,7 +596,7 @@ export default function Landing() {
       </section>
 
       {/* Integrations — the systems buyers ask about first */}
-      <section className="py-16 md:py-24 bg-slate-900/50">
+      <section className="py-16 md:py-24 bg-gradient-to-b from-transparent via-slate-900/50 to-transparent">
         <div className="max-w-6xl mx-auto px-6">
           <Reveal className="text-center mb-10 md:mb-12">
             <p className="text-xs font-semibold uppercase tracking-wider text-emerald-300 mb-3">{t("landing.v2.integrations.eyebrow")}</p>
@@ -670,7 +669,7 @@ export default function Landing() {
 
       {/* Who you'll work with */}
       {founder && (
-        <section className="py-16 md:py-24 bg-slate-900/50">
+        <section className="py-16 md:py-24 bg-gradient-to-b from-transparent via-slate-900/50 to-transparent">
           <Reveal className="max-w-4xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-[180px_1fr] gap-8 items-center">
             <img
               src={`/images/${founder.image}`}
@@ -753,7 +752,7 @@ export default function Landing() {
       </section>
 
       {/* Contact — form first, direct channels second */}
-      <section id="contacto" className="scroll-mt-20 py-16 md:py-24 bg-slate-900/50">
+      <section id="contacto" className="scroll-mt-20 py-16 md:py-24 bg-gradient-to-b from-transparent via-slate-900/50 to-gray-900">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <Reveal>
             <h2 className="text-2xl md:text-4xl font-bold mb-4">{t(variant ? `landing.v2.variants.${variant}.contactTitle` : "landing.cta.title")}</h2>
