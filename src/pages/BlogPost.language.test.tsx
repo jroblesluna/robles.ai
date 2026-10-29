@@ -40,5 +40,6 @@ it('keeps the server article immediately available without a redundant article A
   render(<BlogPost />);
   expect(screen.getByRole('heading', { level: 1, name: 'Initial English article' })).toBeInTheDocument();
   expect(screen.getByText('Immediately available content')).toBeInTheDocument();
-  expect(fetcher.mock.calls.every(([url]) => url === '/api/editors')).toBe(true);
+  // Related-reading requests are fine; the article itself must not be refetched.
+  expect(fetcher.mock.calls.some(([url]) => url === `/api/blog/${fixture.slug}`)).toBe(false);
 });

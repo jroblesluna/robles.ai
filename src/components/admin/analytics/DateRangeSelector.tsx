@@ -91,7 +91,7 @@ export default function DateRangeSelector({ value, onChange }: DateRangeSelector
           />
           {/* Dropdown */}
           <div
-            className="absolute left-0 top-full z-50 mt-2 w-[min(18rem,calc(100vw-2rem))] rounded-lg border bg-card p-4 shadow-lg"
+            className="absolute left-0 top-full z-50 mt-2 w-[min(18rem,calc(100vw-2rem))] sm:left-auto sm:right-0 rounded-lg border bg-card p-4 shadow-lg"
             role="dialog"
             aria-label="Date range"
           >

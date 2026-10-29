@@ -151,6 +151,9 @@ html,
 body {
   max-width: 100%;
   overflow-x: hidden;
+  /* clip (not hidden) keeps body from becoming a scroll container, so
+     position: sticky still follows the window (blog TOC, section bars). */
+  overflow-x: clip;
 }
 
 /* Long unbreakable strings (URLs, tokens, hashes) never force overflow (Req 2.3). */
@@ -171,6 +174,13 @@ body {
 }
 [id] {
   scroll-margin-top: calc(var(--header-h) + 16px);
+}
+/* Padded page sections (py-16 and up) already carry their own top space, so
+   a #hash jump lands with ~40px under the header instead of ~80-110px.
+   ponytail: keyed on the `py-` class; a section with less than 24px of top
+   padding should not use py-* or it would tuck under the header. */
+section[id][class*="py-"] {
+  scroll-margin-top: calc(var(--header-h) - 24px);
 }
 
 /* 1b. Shared tap-target utility: icon-only controls reach the 44×44 minimum

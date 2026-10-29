@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Menu, X, ChevronDown, FlaskConical } from 'lucide-react';
+import { Menu, X, ChevronDown, FlaskConical, ClipboardCheck, Newspaper } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { normalizeLanguage, staticPagePath } from '@shared/seoPolicy';
 
@@ -61,11 +61,11 @@ export default function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: Header
     ] },
   ];
   const close = () => { setOpenMenu(null); setIsMobileMenuOpen(false); };
-  const linkClass = 'tap-target rounded-md text-gray-700 hover:bg-blue-50 hover:text-blue-700 px-3 py-2';
+  const linkClass = 'tap-target !justify-start rounded-md text-gray-700 hover:bg-blue-50 hover:text-blue-700 px-3 py-2';
   const links = (group: typeof groups[number]) => group.links.map(link => (
     <a key={link.label} href={group.id === 'language' ? link.href : href(link.href)}
       hrefLang={'lang' in link ? link.lang : undefined} onClick={close}
-      className={`${linkClass} flex w-full justify-start`}>{link.label}</a>
+      className={`${linkClass} flex w-full`}>{link.label}</a>
   ));
   return (
     <header ref={rootRef} className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm"
@@ -80,7 +80,7 @@ export default function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: Header
           <img src="/favicon.svg" alt="" className="w-10 h-10" width="40" height="40" />
           <span className="text-xl font-bold text-gray-900">Robles<span className="text-blue-500">.AI</span></span>
         </a>
-        <nav aria-label={t('nav.primaryLabel')} className="hidden xl:flex items-center gap-4">
+        <nav aria-label={t('nav.primaryLabel')} className="hidden xl:flex items-center gap-2.5">
           {groups.map(group => (
             <div key={group.id} className="relative" onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setOpenMenu(current => current === group.id ? null : current); }}>
               <button id={`nav-toggle-${group.id}`} type="button" aria-expanded={openMenu === group.id}
@@ -89,12 +89,13 @@ export default function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: Header
                 {group.label}<ChevronDown aria-hidden="true" className="w-4 h-4" />
               </button>
               <div id={`nav-panel-${group.id}`} hidden={openMenu !== group.id}
-                className="absolute top-full left-0 w-48 bg-white border rounded-md shadow-lg p-1">{links(group)}</div>
+                className="absolute top-full right-0 w-48 bg-white border rounded-md shadow-lg p-1">{links(group)}</div>
             </div>
           ))}
-          <a href={href('/demos')} onClick={close} className="tap-target gap-2 px-3 rounded-md text-gray-700 hover:bg-gray-100 whitespace-nowrap"><FlaskConical aria-hidden="true" className="h-4 w-4" />{t('nav.demos')}</a>
-          <a href={href('/diagnostico-ia')} onClick={close} className="tap-target gap-2 px-3 rounded-md text-gray-700 hover:bg-gray-100"><span>{t("nav.quiz_1")}</span></a>
-          <a href={href('/#contact')} onClick={close} className="tap-target px-4 rounded-md bg-blue-600 text-white whitespace-nowrap">{t('nav.contact')}</a>
+          <a href={href('/demos')} onClick={close} className="tap-target gap-1.5 px-3 rounded-md text-gray-700 hover:bg-gray-100 whitespace-nowrap"><FlaskConical aria-hidden="true" className="h-4 w-4" />{t('nav.demos')}</a>
+          <a href={href('/blog')} onClick={close} className="tap-target gap-1.5 px-3 rounded-md text-gray-700 hover:bg-gray-100 whitespace-nowrap"><Newspaper aria-hidden="true" className="h-4 w-4" />{t('nav.blogShort')}</a>
+          <a href={href('/diagnostico-ia')} onClick={close} className="tap-target gap-1.5 px-3 rounded-md text-gray-700 hover:bg-gray-100"><ClipboardCheck aria-hidden="true" className="h-4 w-4" /><span>{t("nav.quiz_1")}</span></a>
+          <a href={href('/#contact')} onClick={close} className="tap-target ml-3 px-4 rounded-md bg-blue-600 text-white whitespace-nowrap">{t('nav.contact')}</a>
         </nav>
         <button ref={mobileToggle} type="button" aria-label={t('nav.toggleMenu')} aria-expanded={isMobileMenuOpen}
           aria-controls="mobile-navigation" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="tap-target xl:hidden">
@@ -105,6 +106,7 @@ export default function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: Header
         style={{ top: 'var(--header-h)', maxHeight: 'calc(100dvh - var(--header-h))' }}>
         {groups.map(group => <div key={group.id} className="rounded-xl border p-3"><h2 className="font-semibold mb-2">{group.label}</h2>{links(group)}</div>)}
         <a href={href('/demos')} onClick={close} className={`${linkClass} flex`}>{t('nav.demos')}</a>
+        <a href={href('/blog')} onClick={close} className={`${linkClass} flex`}>{t('nav.blogShort')}</a>
         <a href={href('/diagnostico-ia')} onClick={close} className={`${linkClass} flex`}>{t("nav.quiz_1")}</a>
         <a href={href('/#contact')} onClick={close} className="tap-target w-full bg-blue-600 text-white rounded-md">{t('nav.contact')}</a>
       </nav>}

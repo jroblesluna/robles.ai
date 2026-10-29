@@ -63,7 +63,9 @@ export async function setupVite(app: Express, server: Server) {
     mode: 'development',
     distPath,
     sourcePath,
-    viteTransform: (url: string, html: string) => vite.transformIndexHtml(url, html),
+    // Link the CSS in <head> so SSR HTML isn't unstyled until main.tsx injects it (dev-only FOUC)
+    viteTransform: (url: string, html: string) =>
+      vite.transformIndexHtml(url, html.replace('</head>', '<link rel="stylesheet" href="/src/index.css" />\n</head>')),
     renderHome: async (url, translations) => (await vite.ssrLoadModule('/src/entry-server.tsx')).renderHome(url, translations),
   });
   _slugIndex = slugIndex;

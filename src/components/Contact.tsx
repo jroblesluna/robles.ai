@@ -6,6 +6,7 @@ import {
   Phone,
   Mail,
   MapPin,
+  Clock,
   Send
 } from "lucide-react";
 import { fadeIn, staggerContainer } from "@/utils/animations";
@@ -335,53 +336,61 @@ const Contact = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          <motion.div variants={fadeIn} custom={0.2} className="space-y-8">
+          <motion.div variants={fadeIn} custom={0.2}>
             <h3 className="text-2xl font-semibold text-gray-900 mb-6">{t("contact.infoTitle")}</h3>
 
-            <div className="space-y-6">
-              <div className="flex items-start">
-                <div className="bg-blue-100 rounded-full p-3 mr-4">
-                  <Phone className="h-6 w-6 text-blue-600" />
-                </div>
-                <div>
-                  <h4 className="text-lg font-medium text-gray-900">{t("contact.phone")}</h4>
-                  <a className="text-gray-600 hover:underline" href={PUBLIC_CONTACT.phoneHref} onClick={() => trackContactClick("phone", "home_contact")}>{PUBLIC_CONTACT.phone}</a>
-                </div>
-              </div>
+            {/* 2×2 cards: phone · email, then one card per office, hours across the bottom */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <a
+                href={PUBLIC_CONTACT.phoneHref}
+                onClick={() => trackContactClick("phone", "home_contact")}
+                className="group flex items-start gap-4 rounded-2xl border border-gray-200 bg-white p-5 transition hover:border-blue-200 hover:shadow-md"
+              >
+                <span className="shrink-0 rounded-xl bg-blue-50 p-2.5 text-blue-600"><Phone aria-hidden className="h-5 w-5" /></span>
+                <span className="min-w-0">
+                  <span className="block text-xs font-semibold uppercase tracking-[0.12em] text-gray-500">{t("contact.phone")}</span>
+                  <span className="mt-1 block font-medium text-gray-900 group-hover:text-blue-700">{PUBLIC_CONTACT.phone}</span>
+                </span>
+              </a>
 
-              <div className="flex items-start">
-                <div className="bg-blue-100 rounded-full p-3 mr-4">
-                  <Mail className="h-6 w-6 text-blue-600" />
-                </div>
-                <div>
-                  <h4 className="text-lg font-medium text-gray-900">{t("contact.email")}</h4>
-                  <a className="text-gray-600 hover:underline" href={`mailto:${PUBLIC_CONTACT.email}`} onClick={() => trackContactClick("email", "home_contact")}>{PUBLIC_CONTACT.email}</a>
-                </div>
-              </div>
+              <a
+                href={`mailto:${PUBLIC_CONTACT.email}`}
+                onClick={() => trackContactClick("email", "home_contact")}
+                className="group flex items-start gap-4 rounded-2xl border border-gray-200 bg-white p-5 transition hover:border-blue-200 hover:shadow-md"
+              >
+                <span className="shrink-0 rounded-xl bg-blue-50 p-2.5 text-blue-600"><Mail aria-hidden className="h-5 w-5" /></span>
+                <span className="min-w-0">
+                  <span className="block text-xs font-semibold uppercase tracking-[0.12em] text-gray-500">{t("contact.email")}</span>
+                  <span className="mt-1 block break-anywhere font-medium text-gray-900 group-hover:text-blue-700">{PUBLIC_CONTACT.email}</span>
+                </span>
+              </a>
 
-              <div className="flex items-start">
-                <div className="bg-blue-100 rounded-full p-3 mr-4">
-                  <MapPin className="h-6 w-6 text-blue-600" />
-                </div>
-                <div>
-                  <h4 className="text-lg font-medium text-gray-900">{t("contact.address")}</h4>
-                  {PUBLIC_OFFICES.map((office) => (
-                    <p key={office.id} className="text-gray-600 mb-2 last:mb-0">
-                      <span className="font-medium text-gray-800">{t(`landing.v2.presence.offices.${office.id}.country`)}</span>
-                      <br />
+              {PUBLIC_OFFICES.map((office) => (
+                <div key={office.id} className="flex items-start gap-4 rounded-2xl border border-gray-200 bg-white p-5">
+                  <span className="shrink-0 rounded-xl bg-blue-50 p-2.5 text-blue-600"><MapPin aria-hidden className="h-5 w-5" /></span>
+                  <div className="min-w-0">
+                    <h4 className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-500">
+                      {t(`landing.v2.presence.offices.${office.id}.country`)}
+                    </h4>
+                    <p className="mt-1 text-sm leading-relaxed text-gray-700">
                       {office.street}
                       <br />
                       {office.city}
                     </p>
-                  ))}
+                  </div>
+                </div>
+              ))}
+
+              <div className="flex items-start gap-4 rounded-2xl border border-gray-200 bg-white p-5 sm:col-span-2">
+                <span className="shrink-0 rounded-xl bg-blue-50 p-2.5 text-blue-600"><Clock aria-hidden className="h-5 w-5" /></span>
+                <div className="min-w-0">
+                  <h4 className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-500">{t("contact.hoursTitle")}</h4>
+                  <p className="mt-1 flex flex-col gap-x-6 text-sm text-gray-700 sm:flex-row sm:flex-wrap">
+                    <span>{t("contact.hoursWeek")}</span>
+                    <span className="text-gray-500">{t("contact.hoursWeekend")}</span>
+                  </p>
                 </div>
               </div>
-            </div>
-
-            <div className="pt-6">
-              <h4 className="text-lg font-medium text-gray-900 mb-4">{t("contact.hoursTitle")}</h4>
-              <p className="text-gray-600">{t("contact.hoursWeek")}</p>
-              <p className="text-gray-600">{t("contact.hoursWeekend")}</p>
             </div>
           </motion.div>
 
