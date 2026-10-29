@@ -2866,6 +2866,12 @@
                 "price": "Desde USD 1,500",
                 "priceNote": "Tarifa fija · 3 paquetes según cuántos procesos revisamos"
             },
+            "spot": {
+                "eyebrow": "En 30 segundos",
+                "title": "Mira lo que construimos y por dónde empezar",
+                "subtitle": "Cuatro demos en vivo que puedes probar hoy y el Diagnóstico IA de 2 semanas que define tu primer caso.",
+                "demosLink": "Probar las demos"
+            },
             "build": {
                 "title": "Lo que construimos — pruébalo tú mismo",
                 "subtitle": "Cada demo funciona en vivo y sin registro. Es la forma más rápida de ver lo que la IA podría hacer con tu propio contenido.",
@@ -4151,6 +4157,13 @@
     "videoModal": {
         "dialogLabel": "Reproductor de video",
         "close": "Cerrar video"
+    },
+    "brandSpot": {
+        "ariaLabel": "Video de 30 segundos de Robles.AI: demos en vivo y Diagnóstico IA",
+        "play": "Reproducir el video de Robles.AI (30 s)",
+        "soundOn": "Ver con sonido",
+        "soundOff": "Silenciar",
+        "homeCaption": "Robles.AI en 30 segundos: cuatro demos en vivo y por dónde empezar."
     },
     "demoTutorial": {
         "cta": "Ver cómo se usa ({{seconds}} s)",

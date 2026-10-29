@@ -230,7 +230,9 @@ export type DemoEvent =
   | 'roi_calculated'
   | 'demo_cta_click'
   | 'tutorial_play'
-  | 'tutorial_complete';
+  | 'tutorial_complete'
+  | 'spot_sound_on'
+  | 'spot_complete';
 
 /**
  * Track a demo funnel event with a `demo_id` parameter.

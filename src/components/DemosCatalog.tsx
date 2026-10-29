@@ -1,6 +1,7 @@
 import { normalizeLanguage, staticPagePath } from '@shared/seoPolicy';
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { DemoVideoPreview } from "@/components/demo/DemoVideoPreview";
+import { BrandSpot, useHasBrandSpot } from "@/components/BrandSpot";
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
@@ -144,6 +145,7 @@ export default function DemosCatalog({
   const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
   const allItems = (t("demosCatalog.items", { returnObjects: true }) as DemoItem[]) || [];
   const compact = variant === "home";
+  const hasSpot = useHasBrandSpot();
 
   const [category, setCategory] = useState<Category>("all");
   const [query, setQuery] = useState("");
@@ -196,6 +198,13 @@ export default function DemosCatalog({
               {t("demosCatalog.subtitle")}
             </motion.p>
           </div>
+
+          {hasSpot && (
+            <div className="mx-auto mt-12 max-w-4xl">
+              <BrandSpot placement="home_demos" />
+              <p className="mt-4 text-center text-sm text-gray-500">{t("brandSpot.homeCaption")}</p>
+            </div>
+          )}
 
           <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {cards.map((item, i) => <DemoCard key={item.id} item={item} index={i} reducedMotion={reducedMotion} />)}

@@ -239,7 +239,11 @@ it.each(['en', 'es'] as const)('shares %s posters and on-demand videos across ho
   const posters = Array.from(home.container.querySelectorAll('img')).map(img => img.getAttribute('src'));
   expect(posters).toHaveLength(copy.demosCatalog.items.filter(item => item.status === 'live').length);
   expect(screen.getAllByText(copy.demosCatalog.videoPreview.play)).toHaveLength(posters.length);
-  expect(document.querySelector('video[src], source, [role="dialog"]')).toBeNull();
+  // Demo cards load media only on interaction; the brand spot (Spanish only) loads near the viewport.
+  expect(document.querySelectorAll(':not([data-brand-spot]) > video[src], :not([data-brand-spot]) > video > source, [role="dialog"]')).toHaveLength(0);
+  const spots = home.container.querySelectorAll('[data-brand-spot] video');
+  expect(spots).toHaveLength(language === 'es' ? 1 : 0);
+  if (language === 'es') expect(spots[0]).toHaveAttribute('poster', '/videos/robles-ai-spot-poster-es.jpg');
   home.unmount();
   const lab = render(<DemosCatalog />);
   const liveLabPosters = Array.from(lab.container.querySelectorAll('[data-preview-id]')).filter(card => !card.querySelector('[data-demo-status="soon"]')).map(card => card.querySelector('img')!.getAttribute('src'));

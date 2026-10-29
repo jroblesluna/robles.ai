@@ -2866,6 +2866,12 @@
                 "price": "From USD 1,500",
                 "priceNote": "Fixed fee · 3 packages by how many processes we review"
             },
+            "spot": {
+                "eyebrow": "In 30 seconds",
+                "title": "See what we build and where to start",
+                "subtitle": "Four live demos you can try today and the 2-week AI Diagnosis that defines your first use case.",
+                "demosLink": "Try the demos"
+            },
             "build": {
                 "title": "What we build — try it yourself",
                 "subtitle": "Every demo runs live, with no sign-up. It's the fastest way to see what AI could do with your own content.",
@@ -4151,6 +4157,13 @@
     "videoModal": {
         "dialogLabel": "Video player",
         "close": "Close video"
+    },
+    "brandSpot": {
+        "ariaLabel": "30-second Robles.AI video: live demos and the AI Diagnosis",
+        "play": "Play the Robles.AI video (30 s)",
+        "soundOn": "Watch with sound",
+        "soundOff": "Mute",
+        "homeCaption": "Robles.AI in 30 seconds: four live demos and where to start."
     },
     "demoTutorial": {
         "cta": "Watch how it works ({{seconds}} s)",

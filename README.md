@@ -405,6 +405,8 @@ Source: `src/pages/Landing.tsx`; copy under `landing.v2.*` (plus `landing.cta.*`
 13. **Contact** (`#contacto`) — `ContactForm` (green submit, no newsletter, optional `defaultGoal`) + calendar booking / email / phone (`tel:`) / WhatsApp.
 14. **Sticky mobile CTA** — appears after the hero and hides when the form is visible.
 
+**30-second spot** (`src/components/BrandSpot.tsx`, brief in [`docs/REMOTION_SPOT_30S.md`](docs/REMOTION_SPOT_30S.md) §13): a band right after the `/get-started` hero (`landing.v2.spot.*` + diagnosis CTA + `#demos` link) and inside the home demos section, between the heading and the cards. Muted loop, loaded only near the viewport and paused off screen; with reduced motion it shows the poster with a play button; *Watch with sound* restarts it once with audio. Files: `public/videos/robles-ai-spot-es.{webm,mp4}` + `robles-ai-spot-poster-es.jpg`, registered per language in `SPOTS`. **Spanish only for now**: languages without a video hide the section. Tracked as `spot_sound_on` / `spot_complete` (`demo_id: brand_spot`, `placement`).
+
 Every link that leaves `/get-started` (demos, quiz, header, footer, Robly, external) opens in a new tab; same-page anchors, language switches, `mailto:` and `tel:` do not.
 
 **Client logos**: `src/components/ClientLogos.tsx` renders `CLIENT_LOGOS` (`shared/publicContent.ts`, files in `public/images/clients/`) in full color on white tiles (`large: true` for logos with built-in padding, e.g. Mibanco); copy `clients.title` / `clients.note`. Used on the landing (dark) and on the home page right after the hero (light). They are enterprise software clients of the team since 2011 (not AI-project clients); add new logos by dropping the file and appending an entry.

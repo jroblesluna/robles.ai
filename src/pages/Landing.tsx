@@ -48,12 +48,14 @@ import { ContactForm, CONTACT_GOALS } from "@/components/Contact";
 import { trackContactClick } from "@/lib/analytics";
 import { useBookingUrl } from "@/lib/siteConfig";
 import ClientLogos from "@/components/ClientLogos";
+import { BrandSpot, useHasBrandSpot } from "@/components/BrandSpot";
 
 /**
  * /get-started — paid-traffic landing page.
  *
  * Structure (CRO + buyer-persona review, 2026-10): outcome-led hero (diagnosis CTA, WhatsApp,
- * links to demos / proposal / 2-minute test) with the offer card; client logos; live demos; industry starting
+ * links to demos / proposal / 2-minute test) with the offer card; 30-second spot (languages with a
+ * video only, see BrandSpot); client logos; live demos; industry starting
  * points (examples, not results); "where AI pays back first"; one merged process; three fixed-fee
  * AI Assessment packages (up to 2/4/6 processes, each with a bonus) plus the direct-project
  * option; commitments; integrations; security & compliance; founder + local presence (US/Peru);
@@ -169,6 +171,7 @@ export default function Landing() {
   const whatsappMessage = encodeURIComponent(t(variant ? `landing.v2.variants.${variant}.whatsapp` : "landing.whatsapp.message"));
   const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`;
   const bookingUrl = useBookingUrl();
+  const hasSpot = useHasBrandSpot();
 
   // Paid traffic stays on the landing: any link that leaves this page (header, footer, Robly…)
   // opens in a new tab. Same-page anchors (#contacto), language switches, mailto: and tel: are kept.
@@ -325,6 +328,27 @@ export default function Landing() {
           </motion.aside>
         </div>
       </section>
+
+      {/* 30-second spot — the whole pitch (demos + diagnosis) for visitors who scroll past the offer */}
+      {hasSpot && (
+        <section aria-labelledby="spot-title" className="py-14 md:py-20 bg-slate-900/50 border-y border-slate-800">
+          <div className="max-w-5xl mx-auto px-6">
+            <Reveal className="text-center mb-8 md:mb-10">
+              <p className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-emerald-300 mb-3">{t("landing.v2.spot.eyebrow")}</p>
+              <h2 id="spot-title" className="text-2xl md:text-4xl font-bold mb-4">{t("landing.v2.spot.title")}</h2>
+              <p className="text-slate-300 max-w-3xl mx-auto">{t("landing.v2.spot.subtitle")}</p>
+            </Reveal>
+            <BrandSpot placement="landing" />
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <PrimaryCta>{t(variant ? `landing.v2.variants.${variant}.cta` : "landing.v2.hero.ctaPrimary")}</PrimaryCta>
+              <a href="#demos" className="tap-target inline-flex items-center gap-1.5 font-medium text-emerald-300 hover:text-emerald-200 transition-colors">
+                <PlayCircle className="w-4 h-4" aria-hidden="true" />
+                {t("landing.v2.spot.demosLink")}
+              </a>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Clients — trust right after the offer */}
       <ClientLogos tone="dark" />
