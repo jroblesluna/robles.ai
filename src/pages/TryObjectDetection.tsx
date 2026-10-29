@@ -28,8 +28,7 @@ import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
 import { DemoTutorial } from "@/components/demo/DemoTutorial";
 import { useDemoTracking } from "@/components/demo/business";
 import { v4 as uuidv4 } from "uuid";
-import * as tf from "@tensorflow/tfjs";
-import * as cocoSsd from "@tensorflow-models/coco-ssd";
+import { loadObjectDetector, type DetectedObject, type ObjectDetector } from "@/lib/objectDetector";
 import { ApiCallLog, type ApiCallEntry } from "@/components/demo/ApiCallLog";
 import { InfoTip } from "@/components/demo/InfoTip";
 import { StatusPill, type StatusTone } from "@/components/demo/DemoKit";
@@ -100,7 +99,7 @@ export default function TryObjectDetection() {
   const [captureKey, setCaptureKey] = useState(0);
   const [showTech, setShowTech] = useState(false);
 
-  const modelRef = useRef<cocoSsd.ObjectDetection | null>(null);
+  const modelRef = useRef<ObjectDetector | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
@@ -131,24 +130,27 @@ export default function TryObjectDetection() {
   const pushLogError = (source: LogEntry["source"], error: string, request?: any) =>
     setLog((prev) => [{ key: uuidv4(), source, at: Date.now(), ok: false, request, error }, ...prev].slice(0, 12));
 
-  // Load the COCO-SSD model once on mount (weights fetched from Google's CDN).
+  // Load the COCO-SSD model once on mount (weights fetched from Google's CDN). It lives in a
+  // Web Worker so loading and inference never block clicks or scrolling on the page.
   useEffect(() => {
     let cancelled = false;
-    (async () => {
-      try {
-        await tf.ready();
-        const model = await cocoSsd.load({ base: "lite_mobilenet_v2" });
+    const detector = loadObjectDetector();
+    detector.ready.then(
+      (model) => {
         if (cancelled) return;
         modelRef.current = model;
         setModelStatus("ready");
-      } catch (e) {
+      },
+      (e) => {
         console.error("COCO-SSD load error:", e);
         if (!cancelled) setModelStatus("error");
-      }
-    })();
+      },
+    );
     return () => {
       cancelled = true;
       stopCamera();
+      modelRef.current = null;
+      detector.dispose();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -211,7 +213,7 @@ export default function TryObjectDetection() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [threshold, i18n.language]);
 
-  const toDetections = (preds: cocoSsd.DetectedObject[]): Detection[] =>
+  const toDetections = (preds: DetectedObject[]): Detection[] =>
     preds.map((p) => ({ class: p.class, score: p.score, bbox: p.bbox as [number, number, number, number] }));
 
   // ── Camera mode ────────────────────────────────────────────────────────────
@@ -267,7 +269,8 @@ export default function TryObjectDetection() {
     if (video.readyState >= 2) {
       try {
         const started = performance.now();
-        const raw = toDetections(await model.detect(video, MAX_BOXES, MODEL_MIN_SCORE));
+        const frame = await createImageBitmap(video);
+        const raw = toDetections(await model.detect(frame, MAX_BOXES, MODEL_MIN_SCORE));
         const now = performance.now();
         if (!runningRef.current) return;
         const visible = showFrame(raw, video.videoWidth, video.videoHeight);
@@ -305,12 +308,20 @@ export default function TryObjectDetection() {
       img.src = src;
       await img.decode();
       setHasImage(true);
-      // tf.js reads an <img> at its rendered size (img.width), not its natural size, so a
-      // visible image yields boxes in on-screen pixels; rescale them to natural pixels.
-      const sx = img.naturalWidth / (img.width || img.naturalWidth);
-      const sy = img.naturalHeight / (img.height || img.naturalHeight);
+      // The model sees the image drawn at its rendered size, exactly as tf.js reads an <img>
+      // (createImageBitmap's own resize filters differently and changes the detections);
+      // rescale the boxes to natural pixels.
+      const rw = img.width || img.naturalWidth;
+      const rh = img.height || img.naturalHeight;
+      const sx = img.naturalWidth / rw;
+      const sy = img.naturalHeight / rh;
       const started = performance.now();
-      const raw = toDetections(await model.detect(img, MAX_BOXES, MODEL_MIN_SCORE)).map((d) => ({
+      const scaled = document.createElement("canvas");
+      scaled.width = rw;
+      scaled.height = rh;
+      scaled.getContext("2d")!.drawImage(img, 0, 0, rw, rh);
+      const frame = await createImageBitmap(scaled);
+      const raw = toDetections(await model.detect(frame, MAX_BOXES, MODEL_MIN_SCORE)).map((d) => ({
         ...d,
         bbox: [d.bbox[0] * sx, d.bbox[1] * sy, d.bbox[2] * sx, d.bbox[3] * sy] as Detection["bbox"],
       }));
