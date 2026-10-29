@@ -86,6 +86,7 @@
         "caseStudies": "Case Studies",
         "courses": "Courses",
         "blog": "AI News Center",
+        "blogShort": "Blog",
         "language": "Language",
         "demos": "Demos Lab",
         "contact": "Contact Us",
@@ -1395,6 +1396,9 @@
         "tagline": "Robles.AI - Robust Artificial Intelligence Solutions",
         "social": {
             "twitter": "Robles.AI on Twitter",
+            "whatsapp": "Chat with Robles.AI on WhatsApp",
+            "facebook": "Robles.AI on Facebook",
+            "instagram": "Robles.AI on Instagram",
             "linkedin": "Robles.AI on LinkedIn",
             "github": "Robles.AI on GitHub"
         }
@@ -4166,6 +4170,16 @@
         "resultsFor": "Results for “{{query}}”",
         "noResults": "No results found. Try a different keyword.",
         "noMoreResults": "You have reached the end of the results."
+    },
+    "blogPost": {
+        "breadcrumb": "Breadcrumb",
+        "home": "Home",
+        "toc": "On this page",
+        "progress": "Reading progress",
+        "cta": "Book your AI Diagnosis",
+        "related": "More reading you might enjoy",
+        "moreFromAuthor": "More from {{name}}",
+        "backToTop": "Back to top"
     },
     "blogModal": {
         "close": "Close",

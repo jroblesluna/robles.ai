@@ -491,12 +491,12 @@ export function BlogModal({
                       <div className="mt-7 flex flex-wrap items-center justify-between gap-4">
                         <div className="flex min-w-0 items-center gap-3">
                           <div className="flex shrink-0 -space-x-3">
-                            <img src="/avatars/antonio-robles-headshot.png"
+                            <img src="/avatars/antonio-robles-headshot.webp"
                               alt={t('blogModal.authorName')}
                               loading="lazy" decoding="async"
                               className="h-11 w-11 rounded-full object-cover ring-2 ring-white" />
                             {editor && (
-                              <img src={`/avatars/${editor.id}-headshot.png`}
+                              <img src={`/avatars/${editor.id}-headshot.webp`}
                                 alt={editor.name}
                                 loading="lazy" decoding="async"
                                 className="h-11 w-11 rounded-full object-cover ring-2 ring-white" />
@@ -541,7 +541,7 @@ export function BlogModal({
                     {/* ── Article body ── */}
                     {content.length > 0 ? (
                       <div className={loading ? 'opacity-60 transition-opacity' : ''}>
-                        <BlogArticle content={content} size="compact" />
+                        <BlogArticle content={content} keywords={keywords} size="compact" />
                       </div>
                     ) : articleError ? (
                       <p className="py-8 text-center text-sm text-slate-500">{t('state.error')}</p>
@@ -597,7 +597,7 @@ export function BlogModal({
                     {/* ── Editorial transparency ── */}
                     {metaReady && (
                       <aside className="mt-10 flex gap-4 rounded-2xl bg-slate-50 p-5 ring-1 ring-inset ring-slate-200/70">
-                        <img src={editor ? `/avatars/${editor.id}-headshot.png` : '/avatars/antonio-robles-headshot.png'}
+                        <img src={editor ? `/avatars/${editor.id}-headshot.webp` : '/avatars/antonio-robles-headshot.webp'}
                           alt="" loading="lazy" decoding="async"
                           className="h-12 w-12 shrink-0 rounded-xl object-cover" />
                         <div className="min-w-0">

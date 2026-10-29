@@ -12,6 +12,7 @@ import BlogModal from '@/components/BlogModal';
 import ErrorState from '@/components/state/ErrorState';
 import { useBlogModalRouting } from '@/hooks/useBlogModalRouting';
 import { useSearch } from '@/hooks/useSearch';
+import { recordVisit } from '@/lib/historyTrail';
 
 // Kept small on purpose: page 1 = lead + 5 rail + 6 "more stories".
 const PAGE_SIZE = 12;
@@ -101,6 +102,7 @@ export default function BlogList() {
   useEffect(() => {
     // A modal's article URL must not reset the archive state it overlays.
     if (window.location.pathname !== '/blog') return;
+    recordVisit(t('blogHub.title'));
     const query = new URLSearchParams(search);
     setPage(archivePage(query.get('page')));
     setEditorFilter(Number(query.get('editorId')) || null);
@@ -267,7 +269,7 @@ export default function BlogList() {
             <div className="flex items-center gap-3 text-sm text-slate-300">
               {editor && (
                 <img
-                  src={`/avatars/${editor.id}-headshot.png`}
+                  src={`/avatars/${editor.id}-headshot.webp`}
                   alt=""
                   loading="lazy"
                   decoding="async"
@@ -332,7 +334,7 @@ export default function BlogList() {
           {editor && (
             <>
               <img
-                src={`/avatars/${editor.id}-headshot.png`}
+                src={`/avatars/${editor.id}-headshot.webp`}
                 alt=""
                 loading="lazy"
                 decoding="async"
@@ -498,7 +500,7 @@ export default function BlogList() {
               <div className="flex min-w-0 items-center gap-4">
                 {activeEditor && (
                   <img
-                    src={`/avatars/${activeEditor.id}-headshot.png`}
+                    src={`/avatars/${activeEditor.id}-headshot.webp`}
                     alt=""
                     className="h-12 w-12 shrink-0 rounded-xl object-cover ring-1 ring-slate-200"
                   />
