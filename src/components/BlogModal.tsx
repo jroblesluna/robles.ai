@@ -541,7 +541,7 @@ export function BlogModal({
                     {/* ── Article body ── */}
                     {content.length > 0 ? (
                       <div className={loading ? 'opacity-60 transition-opacity' : ''}>
-                        <BlogArticle content={content} size="compact" />
+                        <BlogArticle content={content} keywords={keywords} size="compact" />
                       </div>
                     ) : articleError ? (
                       <p className="py-8 text-center text-sm text-slate-500">{t('state.error')}</p>

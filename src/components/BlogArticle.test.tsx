@@ -10,7 +10,7 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-import { BlogArticle, splitIntoParagraphs } from './BlogArticle';
+import { BlogArticle, asQuestion, splitIntoParagraphs } from './BlogArticle';
 
 const sampleContent = [
   { heading: 'First Section', body: 'Alpha paragraph one.\n\nAlpha paragraph two.' },
@@ -56,10 +56,10 @@ describe('BlogArticle — Validates: Requirements 11.3', () => {
     expect(articles[0].className).toContain('prose');
   });
 
-  it('uses prose-lg + larger headings by default, tighter prose when compact', () => {
+  it('uses bold headings by default, tighter prose when compact', () => {
     const { container: def } = render(<BlogArticle content={sampleContent} />);
     const defaultArticle = def.querySelector('article') as HTMLElement;
-    expect(defaultArticle.className).toContain('prose-lg');
+    expect(defaultArticle.className).toContain('prose');
     expect((def.querySelector('h2') as HTMLElement).className).toContain('font-bold');
 
     cleanup();
@@ -82,5 +82,38 @@ describe('splitIntoParagraphs', () => {
 
   it('returns the whole text when there is a single short sentence', () => {
     expect(splitIntoParagraphs('Just one.')).toEqual(['Just one.']);
+  });
+});
+
+describe('BlogArticle emphasis heuristics', () => {
+  const body =
+    "Revenue hit $1.9 billion, up 42% year over year. According to Yanko Design, 'LegoGPT acts as a co-creator, capable of generating custom Lego set ideas from simple prompts.' The LegoGPT team said LegoGPT is open.";
+
+  it('bolds figures, italicises quotes and bolds a keyword only on first mention', () => {
+    const { container } = render(<BlogArticle content={[{ heading: 'H', body }]} keywords={['LegoGPT']} />);
+    const strong = Array.from(container.querySelectorAll('article p strong')).map((n) => n.textContent);
+    expect(strong).toEqual(['$1.9 billion', '42%', 'LegoGPT']);
+    expect(container.querySelector('article p em')?.textContent).toMatch(/^'LegoGPT acts as a co-creator/);
+    // Long quote is repeated as a decorative pull quote, hidden from screen readers.
+    expect(container.querySelector('blockquote[aria-hidden]')?.textContent).toContain('LegoGPT acts as a co-creator');
+  });
+
+  it('keeps apostrophes and plain numbers as text', () => {
+    const { container } = render(<BlogArticle content={[{ heading: 'H', body: "It's the AI's 3rd release in 2025." }]} />);
+    expect(container.querySelector('article p strong, article p em')).toBeNull();
+  });
+
+  it('renders **marked** text without the asterisks', () => {
+    const { container } = render(<BlogArticle content={[{ heading: 'H', body: 'A **key idea** here.' }]} />);
+    expect(container.querySelector('article p strong')?.textContent).toBe('key idea');
+  });
+});
+
+describe('asQuestion', () => {
+  it('adds one mark in English and both in Spanish, without doubling', () => {
+    expect(asQuestion('What We Do in Robles.AI', 'en')).toBe('What We Do in Robles.AI?');
+    expect(asQuestion('Qué hacemos en Robles.AI', 'es')).toBe('¿Qué hacemos en Robles.AI?');
+    expect(asQuestion('¿Dónde encaja Robles.AI?', 'es')).toBe('¿Dónde encaja Robles.AI?');
+    expect(asQuestion('Where Robles.AI Fits?', 'en')).toBe('Where Robles.AI Fits?');
   });
 });

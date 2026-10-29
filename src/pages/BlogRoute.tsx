@@ -44,19 +44,26 @@ export default function BlogRoute() {
   const params = useParams<{ slug?: string }>();
   const slug = params.slug;
 
-  // Freeze the cold-load decision on the first render only. A ref initializer
-  // runs once per mount and is never recomputed, so later URL changes (opening
-  // the modal, closing it, prev/next) cannot flip us into `BlogPost` and tear
-  // down the mounted `BlogList`.
+  // Decide on the first render, then only flip on unambiguous history moves
+  // (see below), so modal URL changes (opening, closing, prev/next) never
+  // flip us into `BlogPost` and tear down the mounted `BlogList`.
   const isColdLoadFullPostRef = useRef<boolean | null>(null);
+  const state =
+    typeof window !== 'undefined'
+      ? (window.history.state as (BlogModalHistoryState & { blogPost?: boolean }) | null)
+      : null;
   if (isColdLoadFullPostRef.current === null) {
-    const state =
-      typeof window !== 'undefined'
-        ? (window.history.state as BlogModalHistoryState | null)
-        : null;
     // Cold load of a shareable/deep `/blog/:slug` only when the very first
     // render has a slug and was NOT produced by the in-page modal.
     isColdLoadFullPostRef.current = Boolean(slug) && !state?.blogModal;
+  } else if (isColdLoadFullPostRef.current && !slug) {
+    // Full post → `/blog` (breadcrumb or browser back): show the list.
+    isColdLoadFullPostRef.current = false;
+  } else if (!isColdLoadFullPostRef.current && slug && state?.blogPost) {
+    // List → an entry the full `BlogPost` page marked (`recordVisit`), e.g.
+    // browser forward or a breadcrumb. Modal entries never carry `blogPost`,
+    // so the modal-close tick described above still keeps the list mounted.
+    isColdLoadFullPostRef.current = true;
   }
 
   if (isColdLoadFullPostRef.current) {

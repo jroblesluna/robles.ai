@@ -12,6 +12,7 @@ import BlogModal from '@/components/BlogModal';
 import ErrorState from '@/components/state/ErrorState';
 import { useBlogModalRouting } from '@/hooks/useBlogModalRouting';
 import { useSearch } from '@/hooks/useSearch';
+import { recordVisit } from '@/lib/historyTrail';
 
 // Kept small on purpose: page 1 = lead + 5 rail + 6 "more stories".
 const PAGE_SIZE = 12;
@@ -101,6 +102,7 @@ export default function BlogList() {
   useEffect(() => {
     // A modal's article URL must not reset the archive state it overlays.
     if (window.location.pathname !== '/blog') return;
+    recordVisit(t('blogHub.title'));
     const query = new URLSearchParams(search);
     setPage(archivePage(query.get('page')));
     setEditorFilter(Number(query.get('editorId')) || null);
