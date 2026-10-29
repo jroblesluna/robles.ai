@@ -1362,7 +1362,10 @@
         "interestedIn": "Interested in",
         "replyNote": "We reply within 1 business day.",
         "privacyNote": "We only use your details to answer you. No spam.",
-        "submitDiagnosis": "Request my diagnosis"
+        "submitDiagnosis": "Request my diagnosis",
+        "infoSentTitle": "Done! Check your inbox.",
+        "infoSentBody": "We sent the packages, pricing and next steps to {{email}}. If you don't see it in a few minutes, check spam or promotions.",
+        "goalRequired": "Choose what you want to improve."
     },
     "footer": {
         "titles": {
@@ -3312,6 +3315,11 @@
                 "cta": "Book a 30-minute call",
                 "title": "Book a call",
                 "desc": "Pick a day and time on the calendar"
+            },
+            "quickForm": {
+                "title": "Get the packages and pricing by email",
+                "submit": "Send it to me",
+                "note": "It arrives in a minute. No spam: we only use your email to reply."
             }
         }
     },

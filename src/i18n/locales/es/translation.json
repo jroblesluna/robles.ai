@@ -1362,7 +1362,10 @@
         "interestedIn": "Interesado en",
         "replyNote": "Respondemos en 1 día hábil.",
         "privacyNote": "Solo usamos tus datos para responderte. Sin spam.",
-        "submitDiagnosis": "Solicitar mi diagnóstico"
+        "submitDiagnosis": "Solicitar mi diagnóstico",
+        "infoSentTitle": "¡Listo! Revisa tu correo.",
+        "infoSentBody": "Te enviamos los paquetes, precios y próximos pasos a {{email}}. Si no lo ves en unos minutos, revisa spam o promociones.",
+        "goalRequired": "Elige qué quieres mejorar."
     },
     "footer": {
         "titles": {
@@ -3312,6 +3315,11 @@
                 "cta": "Agenda una llamada de 30 min",
                 "title": "Agenda una llamada",
                 "desc": "Elige día y hora en el calendario"
+            },
+            "quickForm": {
+                "title": "Recibe los paquetes y precios en tu correo",
+                "submit": "Enviármelo ahora",
+                "note": "Te llega en un minuto. Sin spam: solo usamos tu correo para responderte."
             }
         }
     },

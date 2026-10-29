@@ -165,7 +165,7 @@ creative/        # material fuente de los visuales de demos (prompts y frames de
 
 **Página**: `src/pages/Landing.tsx`; copy en `landing.v2.*` (+ `landing.cta.*`, `landing.whatsapp.*`, `landing.diagnostico.*`, `landing.howWeWork.quote`). Secciones en orden:
 
-1. **Hero**: titular orientado a resultado, CTA *Agenda tu Diagnóstico IA* (`#contacto`), botón de WhatsApp, enlaces a demos (`#demos`), *solicitar propuesta* (`#diagnostico`) test de 2 minutos y, si hay `booking_url`, *Agenda una llamada de 30 min*; fila de confianza (incluye oficinas EE. UU./Perú); tarjeta lateral *Lo que recibes en 2 semanas* + *Desde USD 1,500*.
+1. **Hero**: titular orientado a resultado, CTA *Agenda tu Diagnóstico IA* (`#contacto`), botón de WhatsApp, enlaces a demos (`#demos`), *solicitar propuesta* (`#diagnostico`) test de 2 minutos y, si hay `booking_url`, *Agenda una llamada de 30 min*; fila de confianza (incluye oficinas EE. UU./Perú); tarjeta lateral *Lo que recibes en 2 semanas* + *Desde USD 1,500* + **formulario rápido** (`#info-form`: `ContactForm` con `compact` y `sendInfo`; nombre, email y objetivo) que además envía al visitante un correo con los 3 paquetes, la agenda y WhatsApp (`server/services/contactInfoEmail.ts`, copy de `landing.v2.packages`; máx. 1 por dirección al día y 5 por IP por hora).
 2. **Logos de clientes** (`#clients`): `ClientLogos` (ver abajo).
 3. **Lo que construimos — pruébalo** (`#demos`): chatbots, asistentes de conocimiento, agentes e IA documental, cada uno enlazado a su demo (`demosCatalog.items`).
 4. **Dónde encaja en tu negocio**: puntos de partida por industria, rotulados como ejemplos, no resultados de clientes.
@@ -177,7 +177,8 @@ creative/        # material fuente de los visuales de demos (prompts y frames de
 10. **Con quién trabajarás**: fundador (`team.members[0]`) + **presencia local** (`PUBLIC_OFFICES`, textos en `landing.v2.presence`).
 11. **FAQ**: incluye costo de implementación y "¿por qué no hacerlo nosotros mismos?".
 12. **Contacto** (`#contacto`): `ContactForm` adaptado a tono oscuro (botón verde, sin newsletter, `defaultGoal` opcional) + agenda / email / teléfono (`tel:`) / WhatsApp.
-13. **CTA fijo en móvil**: aparece tras el hero y se oculta cuando el formulario es visible (deja espacio al botón de Robly).
+13. **CTA fijo en móvil**: aparece tras el hero y se oculta cuando el formulario es visible (deja espacio a la burbuja de WhatsApp y a Robly).
+14. **Burbuja flotante de WhatsApp**: siempre visible, a la izquierda de Robly, con animación suave (`contact_click`, `link_location=landing_floating`).
 
 **Spot de 30 s** (`src/components/BrandSpot.tsx`, brief en `docs/REMOTION_SPOT_30S.md` §13): banda justo después del hero de `/get-started` (título `landing.v2.spot.*` + CTA de diagnóstico + enlace a `#demos`) y dentro de la sección de demos del home, entre el título y las tarjetas. Silenciado, en bucle, carga solo cerca del viewport y se pausa fuera de pantalla; con `prefers-reduced-motion` muestra el póster con *play*. *Ver con sonido* lo reinicia con audio una vez. Archivos `public/videos/robles-ai-spot-{es,en}.{webm,mp4}` + `robles-ai-spot-poster-{es,en}.jpg`, registrados en `SPOTS` por idioma (español e inglés); un idioma sin video oculta la sección entera. Los masters 16:9 sin comprimir (`videos-creados/`) están en `.gitignore`. Mide `spot_sound_on` / `spot_complete` con `trackDemoEvent` (`demo_id: brand_spot`, `placement`).
 

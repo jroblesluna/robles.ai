@@ -6,6 +6,10 @@ import { getEmailSettings } from './services/emailSettings.js';
 import db from './db.js';
 import { attributionSource, normalizeAttribution } from '../shared/attribution.js';
 import { normalizeClaritySession } from '../shared/clarity.js';
+import { PUBLIC_CONTACT } from '../shared/publicContent.js';
+import { allowContactInfoEmail, sendContactInfoEmail } from './services/contactInfoEmail.js';
+import enLocale from '../src/i18n/locales/en/translation.json';
+import esLocale from '../src/i18n/locales/es/translation.json';
 
 const router = Router();
 
@@ -114,6 +118,24 @@ router.post('/', async (req, res) => {
         ).run(new Date().toISOString(), submissionId);
       } catch (e) {
         console.error('Failed to update contact submission status', e);
+      }
+    }
+
+    // The lead is already delivered; the visitor's copy is best-effort and never blocks the reply.
+    if (data.sendInfo && allowContactInfoEmail(data.email, req.ip ?? 'unknown')) {
+      try {
+        const locale = data.locale ?? 'es';
+        const goals: Record<string, string> = (locale === 'en' ? enLocale : esLocale).contact.goals;
+        const booking = db.prepare("SELECT value FROM settings WHERE key = 'booking_url'").get() as { value: string | null } | undefined;
+        void sendContactInfoEmail({
+          to: data.email,
+          name: data.name,
+          goal: data.goal ? goals[data.goal] : undefined,
+          locale,
+          bookingUrl: booking?.value && /^https?:\/\//i.test(booking.value) ? booking.value : PUBLIC_CONTACT.bookingUrl,
+        }).catch(error => console.error('Contact info email could not be sent', error?.code ?? error?.name ?? error));
+      } catch (error) {
+        console.error('Contact info email could not be prepared', error);
       }
     }
 

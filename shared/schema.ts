@@ -13,6 +13,10 @@ export const insertContactSchema = z.object({
   attribution: z.unknown().optional(),
   // Clarity user/session IDs for the recording link; re-validated with normalizeClaritySession().
   clarity: z.unknown().optional(),
+  // Landing quick form: also email the visitor the packages and next steps, in their language.
+  sendInfo: z.boolean().optional(),
+  locale: z.enum(["es", "en"]).optional(),
+  goal: z.enum(["service", "documents", "knowledge", "automation", "analytics", "unsure"]).optional(),
 });
 
 export type InsertContact = z.infer<typeof insertContactSchema>;

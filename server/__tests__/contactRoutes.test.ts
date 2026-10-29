@@ -159,6 +159,28 @@ describe('contact delivery', () => {
     expect(result.body).toEqual({ success: false, error: 'Contact email is not configured' });
     expect(mail.send).not.toHaveBeenCalled();
   });
+  it('emails the visitor the packages only when sendInfo is set, once per address', async () => {
+    dbMock.prepare.mockReturnValue({ run: dbMock.run, get: () => ({ value: 'https://cal.example.org/book' }) });
+    await request(app).post('/api/contact').send(inquiry);
+    expect(mail.send).toHaveBeenCalledTimes(1);
+
+    const quick = { ...inquiry, email: 'quick@example.org', sendInfo: true, locale: 'es', goal: 'documents' };
+    const result = await request(app).post('/api/contact').send(quick);
+    expect(result.status).toBe(200);
+    await vi.waitFor(() => expect(mail.send).toHaveBeenCalledTimes(3));
+    const copy = mail.send.mock.calls[2][0];
+    expect(copy.to).toBe('quick@example.org');
+    expect(copy.replyTo).toBe('team@example.org');
+    expect(copy.html).toContain('Desde USD 1,500');
+    expect(copy.html).toContain('Documentos e ingreso de datos');
+    expect(copy.html).toContain('https://cal.example.org/book');
+
+    await request(app).post('/api/contact').send(quick);
+    expect(mail.send).toHaveBeenCalledTimes(4);
+  });
+  it('rejects a goal outside the known list', async () => {
+    expect((await request(app).post('/api/contact').send({ ...inquiry, goal: 'buy pills' })).status).toBe(400);
+  });
   it('does not expose submissions through GET', async () => {
     expect((await request(app).get('/api/contact')).status).toBe(404);
   });

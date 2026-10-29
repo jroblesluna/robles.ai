@@ -390,7 +390,7 @@ Auth: admin JWT in httpOnly cookie `admin_token` (7 days); Robly uses httpOnly c
 
 Source: `src/pages/Landing.tsx`; copy under `landing.v2.*` (plus `landing.cta.*`, `landing.whatsapp.*`, `landing.diagnostico.*`, `landing.howWeWork.quote`) in both locales. Sections, top to bottom:
 
-1. **Hero** — outcome headline, *Book your AI Diagnosis* (`#contacto`), WhatsApp button, links to live demos (`#demos`), *request a proposal* (`#diagnostico`) the 2-minute test and, when `booking_url` is set, *Book a 30-minute call*; trust row (incl. US/Peru offices); side card with *What you get in 2 weeks* and *From USD 1,500*.
+1. **Hero** — outcome headline, *Book your AI Diagnosis* (`#contacto`), WhatsApp button, links to live demos (`#demos`), *request a proposal* (`#diagnostico`) the 2-minute test and, when `booking_url` is set, *Book a 30-minute call*; trust row (incl. US/Peru offices); side card with *What you get in 2 weeks*, *From USD 1,500* and a **quick form** (`#info-form`: compact `ContactForm` with `sendInfo`; name, email, goal) that also emails the visitor the three packages, the booking link and WhatsApp (`server/services/contactInfoEmail.ts`; at most 1 per address per day and 5 per IP per hour).
 2. **Client logos** (`#clients`) — `ClientLogos` (see below).
 3. **What we build — try it yourself** (`#demos`) — chatbots, knowledge assistants, agents and document AI, each linked to its live demo (`demosCatalog.items`).
 4. **Where it fits in your business** — industry starting points, explicitly labelled as examples, not client results.
@@ -404,6 +404,7 @@ Source: `src/pages/Landing.tsx`; copy under `landing.v2.*` (plus `landing.cta.*`
 12. **FAQ** — includes implementation cost and *why not build it ourselves*.
 13. **Contact** (`#contacto`) — `ContactForm` (green submit, no newsletter, optional `defaultGoal`) + calendar booking / email / phone (`tel:`) / WhatsApp.
 14. **Sticky mobile CTA** — appears after the hero and hides when the form is visible.
+15. **Floating WhatsApp bubble** — always on screen, left of Robly, gently bobbing (`contact_click`, `link_location=landing_floating`).
 
 **30-second spot** (`src/components/BrandSpot.tsx`, brief in [`docs/REMOTION_SPOT_30S.md`](docs/REMOTION_SPOT_30S.md) §13): a band right after the `/get-started` hero (`landing.v2.spot.*` + diagnosis CTA + `#demos` link) and inside the home demos section, between the heading and the cards. Muted loop, loaded only near the viewport and paused off screen; with reduced motion it shows the poster with a play button; *Watch with sound* restarts it once with audio. Files: `public/videos/robles-ai-spot-{es,en}.{webm,mp4}` + `robles-ai-spot-poster-{es,en}.jpg`, registered per language in `SPOTS` (Spanish and English); a language without a video hides the section. Uncompressed 16:9 masters (`videos-creados/`) are gitignored. Tracked as `spot_sound_on` / `spot_complete` (`demo_id: brand_spot`, `placement`).
 

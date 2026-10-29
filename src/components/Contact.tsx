@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PUBLIC_CONTACT, PUBLIC_OFFICES } from '@shared/publicContent';
 // i18n version of Contact.tsx
 import { motion } from "framer-motion";
@@ -70,6 +70,10 @@ interface ContactFormProps {
   titleKey?: string;
   /** Pre-selects "What do you want to improve?" (e.g. from the ad's ?s= variant). */
   defaultGoal?: (typeof CONTACT_GOALS)[number];
+  /** Short form (name, email, goal) for the landing hero. */
+  compact?: boolean;
+  /** Also email the visitor the packages and next steps (server: sendInfo). */
+  sendInfo?: boolean;
 }
 
 /** The contact form card. Fires generate_lead (via trackContactLead) only after the API accepts it. */
@@ -82,8 +86,12 @@ export const ContactForm = ({
   showTrustNote = false,
   titleKey = "contact.formTitle",
   defaultGoal,
+  compact = false,
+  sendInfo = false,
 }: ContactFormProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [sentTo, setSentTo] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement | null>(null);
   const [clientReady, setClientReady] = useState(false);
   useEffect(() => { setClientReady(true); }, []);
 
@@ -113,7 +121,8 @@ export const ContactForm = ({
   const onInvalid = (errors: Record<string, unknown>) => {
     const firstKey = Object.keys(errors)[0];
     if (!firstKey) return;
-    const el = document.querySelector(`[name="${firstKey}"]`);
+    // Scoped to this form: the landing renders two forms with the same field names.
+    const el = formRef.current?.querySelector(`[name="${firstKey}"]`);
     if (el instanceof HTMLElement) {
       el.scrollIntoView({ behavior: "smooth", block: "center" });
       el.focus({ preventScroll: true });
@@ -137,12 +146,15 @@ export const ContactForm = ({
           : message,
         attribution: getAttribution(),
         clarity: getClaritySession(),
+        goal: data.goal || undefined,
+        ...(sendInfo ? { sendInfo: true, locale: i18n.resolvedLanguage?.startsWith("en") ? "en" : "es" } : {}),
       };
       const response = await apiRequest("POST", "/api/contact", payload);
       const result = await response.json();
       if (result.success !== true) throw new Error('Contact was not accepted');
       trackContactLead();
       tagClarityLead("contact", result.leadId);
+      if (sendInfo) setSentTo(data.email);
       toast({
         title: t("contact.successTitle"),
         description: t("contact.successMessage"),
@@ -160,10 +172,16 @@ export const ContactForm = ({
 
   return (
     <div className={`text-left ${className}`}>
-      <h3 className={`text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 ${isDark ? "text-white" : "text-gray-900"}`}>{t(titleKey)}</h3>
+      <h3 className={`${compact ? "text-xl mb-4" : "text-xl sm:text-2xl mb-4 sm:mb-6"} font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{t(titleKey)}</h3>
 
+      {sentTo ? (
+        <div role="status" className={`rounded-lg border p-4 text-sm ${isDark ? "border-emerald-400/40 bg-emerald-500/10 text-emerald-100" : "border-emerald-200 bg-emerald-50 text-emerald-900"}`}>
+          <p className="font-semibold">{t("contact.infoSentTitle")}</p>
+          <p className="mt-1">{t("contact.infoSentBody", { email: sentTo })}</p>
+        </div>
+      ) : (
       <Form {...form}>
-        <form method="post" action="/api/contact" data-clarity-mask="true" onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="grid min-w-0 grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
+        <form ref={formRef} method="post" action="/api/contact" data-clarity-mask="true" onSubmit={form.handleSubmit(onSubmit, onInvalid)} className={`grid min-w-0 grid-cols-1 ${compact ? "gap-3" : "gap-4 sm:gap-6 md:grid-cols-2"}`}>
           <FormField
             control={form.control}
             name="name"
@@ -192,6 +210,7 @@ export const ContactForm = ({
             )}
           />
 
+          {!compact && (<>
           <FormField
             control={form.control}
             name="company"
@@ -219,6 +238,7 @@ export const ContactForm = ({
               </FormItem>
             )}
           />
+          </>)}
 
           <FormField
             control={form.control}
@@ -242,10 +262,14 @@ export const ContactForm = ({
                   </select>
                 </FormControl>
                 <FormMessage />
+                {compact && form.formState.errors.message?.message === "goalOrMessage" && (
+                  <p className="text-sm font-medium text-destructive">{t("contact.goalRequired")}</p>
+                )}
               </FormItem>
             )}
           />
 
+          {!compact && (
           <FormField
             control={form.control}
             name="message"
@@ -267,8 +291,9 @@ export const ContactForm = ({
               </FormItem>
             )}
           />
+          )}
 
-          {showNewsletter && (
+          {showNewsletter && !compact && (
           <FormField
               control={form.control}
               name="newsletter"
@@ -302,6 +327,7 @@ export const ContactForm = ({
           )}
         </form>
       </Form>
+      )}
     </div>
   );
 };

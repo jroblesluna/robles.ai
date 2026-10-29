@@ -328,6 +328,22 @@ export default function Landing() {
                 </div>
               </>
             )}
+
+            {/* Quick form: the lowest-effort way to leave contact details without scrolling to #contacto */}
+            <div id="info-form" className="mt-6 border-t border-slate-700/80 pt-6 scroll-mt-24">
+              <ContactForm
+                compact
+                sendInfo
+                tone="dark"
+                showNewsletter={false}
+                className=""
+                titleKey="landing.v2.quickForm.title"
+                defaultGoal={variant ? VARIANT_GOAL[variant] : undefined}
+                submitLabelKey="landing.v2.quickForm.submit"
+                buttonClassName="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 shadow-lg shadow-emerald-950/40"
+              />
+              <p className="mt-3 text-xs text-slate-400">{t("landing.v2.quickForm.note")}</p>
+            </div>
           </motion.aside>
         </div>
       </section>
