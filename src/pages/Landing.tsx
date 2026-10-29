@@ -828,9 +828,27 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Sticky mobile CTA — leaves room on the right for the Robly chat button */}
+      {/* Floating WhatsApp bubble, always on screen, just left of the Robly chat button */}
+      <motion.a
+        href={whatsappHref}
+        onClick={() => trackContactClick("whatsapp", "landing_floating")}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={t("landing.v2.sticky.whatsapp")}
+        title={t("landing.v2.sticky.whatsapp")}
+        animate={{ y: [0, -6, 0] }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        className="fixed bottom-7 right-[104px] sm:bottom-11 sm:right-[132px] md:bottom-14 md:right-[156px] z-40 print:hidden"
+      >
+        <span className="absolute inset-0 rounded-full bg-[#25D366] opacity-60 animate-ping" aria-hidden="true" />
+        <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg shadow-emerald-900/40 ring-4 ring-white/20 transition-transform hover:scale-110 [&_svg]:h-8 [&_svg]:w-8">
+          <WhatsAppMark />
+        </span>
+      </motion.a>
+
+      {/* Sticky mobile CTA — leaves room on the right for the WhatsApp bubble and Robly */}
       <div
-        className={`md:hidden fixed bottom-3 left-3 right-24 z-40 flex gap-2 transition-all duration-300 ${
+        className={`md:hidden fixed bottom-3 left-3 right-[172px] z-40 flex gap-2 transition-all duration-300 ${
           showSticky ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-6 opacity-0"
         }`}
         aria-hidden={!showSticky}
@@ -841,16 +859,6 @@ export default function Landing() {
           className="tap-target flex-1 inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-lg"
         >
           {t("landing.v2.sticky.book")}
-        </a>
-        <a
-          href={whatsappHref}
-          tabIndex={showSticky ? 0 : -1}
-          onClick={() => trackContactClick("whatsapp", "landing_sticky")}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="tap-target inline-flex items-center justify-center rounded-lg bg-slate-800 border border-slate-600 px-4 py-3 text-sm font-semibold text-white shadow-lg"
-        >
-          {t("landing.v2.sticky.whatsapp")}
         </a>
       </div>
     </div>
