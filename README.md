@@ -470,7 +470,7 @@ Catalog data: `demosCatalog.items` in both translation files (`id`, `href`, `sta
 - **Transcription audio**: the API forwards raw PCM `linear16` 16 kHz mono to Deepgram, so `TryTranscription` captures PCM with an `AudioWorklet` (ScriptProcessor fallback).
 - **Demo API conventions** (sibling repos): one GCP project per API, scale to zero with request-based billing, Artifact Registry `<service>-api-repo` pruned to 3 versions, secrets in Secret Manager rotated with `rotate_secret.sh`, push to `main` deploys via GitHub Actions.
 - Preview videos and visuals: [`docs/DEMO_VIDEO_RELEASE.md`](docs/DEMO_VIDEO_RELEASE.md), [`docs/DEMO_VISUALS.md`](docs/DEMO_VISUALS.md), [`docs/FIREFLY_CLIPS.md`](docs/FIREFLY_CLIPS.md).
-- **Tutorial videos** (`DemoTutorial.tsx`): a secondary *Watch how it works (45 s)* button next to the "how it works" heading opens a modal `<video>` (never autoplays on the page) and scrolls to the demo on close. Files live in `public/videos/tutorials/<route>-tutorial-<lang>.mp4` (H.264, `+faststart`) plus a `-poster-<lang>.jpg`, registered per demo and language in `TUTORIALS`; a language without a video hides the button. Tracked as `tutorial_play` / `tutorial_complete`. Currently: `/try-object-detection` in English and Spanish. Briefs in `docs/demo-tutorials/`.
+- **Tutorial videos** (`DemoTutorial.tsx`): a secondary *Watch how it works (45 s)* button next to the "how it works" heading opens a modal `<video>` (never autoplays on the page) and scrolls to the demo on close. Files live in `public/videos/tutorials/<route>-tutorial-<lang>.mp4` (H.264, `+faststart`) plus a `-poster-<lang>.jpg`, registered per demo and language in `TUTORIALS`; a language without a video hides the button. Tracked as `tutorial_play` / `tutorial_complete`. Currently: `/try-object-detection` in English and Spanish, and `/try-emotion` in Spanish (56 s). Briefs in `docs/demo-tutorials/`.
 
 ---
 
@@ -616,6 +616,7 @@ Secrets: `VPS_HOST` (`robles.ai`), `VPS_USER` (`roblesai`), `VPS_SSH_KEY`, `VPS_
 | [`REMOTION_SPOT_30S.md`](docs/REMOTION_SPOT_30S.md) | Prompt for the 30-second Remotion spot (live demos + AI Diagnosis) for the site and ads; supersedes the 60 s brief |
 | [`demo-tutorials/try-rag/`](docs/demo-tutorials/try-rag/REMOTION_TUTORIAL_PROMPT.md) | Remotion tutorial prompt for `/try-rag` (45 s + 30 s cut), Playwright screenshots of the demo and the script to regenerate them |
 | [`demo-tutorials/try-object-detection/`](docs/demo-tutorials/try-object-detection/REMOTION_TUTORIAL_PROMPT.md) | Same for `/try-object-detection`: tutorial prompt, screenshots (with a simulated webcam), measured detections (`capture-report.json`) and script |
+| [`demo-tutorials/try-emotion/`](docs/demo-tutorials/try-emotion/REMOTION_TUTORIAL_PROMPT.md) | Same for `/try-emotion`, with a **free 30–60 s length computed from the voice-over** and responsible-use rules (aggregated and anonymous, never for evaluating employees or students) |
 | [`CONTACT_CONVERSIONS.md`](docs/CONTACT_CONVERSIONS.md) | Contact delivery, lead/click conversion contract and Ads/GTM/Meta setup |
 | `docs/ADS_ANALYTICS.md` | Admin Ads/GA4 sources, campaign and submission filters, direct API setup, and validation |
 | [`DEMO_VIDEO_RELEASE.md`](docs/DEMO_VIDEO_RELEASE.md) + `DEMO_VIDEO_ASSETS.json` | Demo preview videos release notes and asset manifest |

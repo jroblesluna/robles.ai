@@ -32,6 +32,7 @@ import * as faceapi from "@vladmandic/face-api";
 import { ApiCallLog, type ApiCallEntry } from "@/components/demo/ApiCallLog";
 import { InfoTip } from "@/components/demo/InfoTip";
 import { StatusPill, type StatusTone } from "@/components/demo/DemoKit";
+import { DemoTutorial } from "@/components/demo/DemoTutorial";
 
 // Brand accent (rose/pink) for the emotion demo.
 const ACCENT_GRADIENT = "from-rose-500 to-pink-600";
@@ -447,9 +448,12 @@ export default function TryEmotion() {
               {t("try-emotion.description")}
             </p>
 
-            <p className="mt-8 text-xs font-semibold uppercase tracking-wider text-gray-500">
-              {t("try-emotion.how_title")}
-            </p>
+            <div className="mt-8 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                {t("try-emotion.how_title")}
+              </p>
+              <DemoTutorial demoId="emotion" returnToId="emotion-workspace" />
+            </div>
             <ol className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
               {([1, 2, 3] as const).map((n) => (
                 <li key={n} className="rounded-xl border border-gray-200/80 bg-white/70 p-4">
@@ -482,7 +486,7 @@ export default function TryEmotion() {
         </div>
 
         {/* ── Workspace: stage (left) · expressions & log (right) ────────── */}
-        <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <section id="emotion-workspace" className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
           <input
             ref={fileInputRef}
             id="emotion-image-input"

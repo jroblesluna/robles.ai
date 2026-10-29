@@ -24,6 +24,13 @@ const TUTORIALS: Record<string, Partial<Record<"en" | "es", TutorialMedia>>> = {
       seconds: 45,
     },
   },
+  emotion: {
+    es: {
+      src: "/videos/tutorials/try-emotion-tutorial-es.mp4",
+      poster: "/videos/tutorials/try-emotion-tutorial-poster-es.jpg",
+      seconds: 56,
+    },
+  },
 };
 
 type Props = {
