@@ -4196,6 +4196,9 @@
         "backToTop": "Volver arriba"
     },
     "blogModal": {
+        "continueTitle": "Sigue leyendo la noticia completa",
+        "continueHint": "El resto del artículo, su índice y otras lecturas relacionadas están en la página del artículo.",
+        "continueReading": "Leer el artículo completo",
         "close": "Cerrar",
         "prev": "Artículo anterior",
         "next": "Artículo siguiente",

@@ -350,12 +350,16 @@ export default function BlogList() {
     );
   }
 
-  // Compact numbered pagination: 1 … p-1 p p+1 … last
-  const pageNumbers: Array<number | 'gap'> = [];
-  for (let n = 1; n <= totalPages; n++) {
-    if (n === 1 || n === totalPages || Math.abs(n - page) <= 1) pageNumbers.push(n);
-    else if (pageNumbers[pageNumbers.length - 1] !== 'gap') pageNumbers.push('gap');
-  }
+  // Fixed-size pagination (always 5 items): 1 2 3 … 68 at the start,
+  // 1 … p … 68 in the middle, 1 … 66 67 68 at the end.
+  const pageNumbers: Array<number | 'gap'> =
+    totalPages <= 5
+      ? Array.from({ length: totalPages }, (_, i) => i + 1)
+      : page <= 2
+        ? [1, 2, 3, 'gap', totalPages]
+        : page >= totalPages - 1
+          ? [1, 'gap', totalPages - 2, totalPages - 1, totalPages]
+          : [1, 'gap', page, 'gap', totalPages];
 
   const pagerButtonClass =
     'tap-target inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 aria-disabled:pointer-events-none aria-disabled:opacity-40';
