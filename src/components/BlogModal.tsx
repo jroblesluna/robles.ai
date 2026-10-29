@@ -332,6 +332,8 @@ export function BlogModal({
   if (!post) return null;
 
   const shareUrl  = displayFull?.slug === post.slug && displayFull.translations[lang]?.slug ? absoluteUrl(displayFull as BlogModalPost, lang) : listPostAbsoluteUrl(post, undefined, lang);
+  // ponytail: half the sections, rounded up; one-section posts show in full.
+  const previewCount = content.length > 1 ? Math.ceil(content.length / 2) : content.length;
   const shareHref = displayFull?.slug === post.slug && displayFull.translations[lang]?.slug ? blogPath(displayFull as BlogModalPost, lang) : listPostPath(post, lang);
 
   // Dialog entrance animation
@@ -375,7 +377,7 @@ export function BlogModal({
           ref={dialogRef}
           role="dialog" aria-modal="true" aria-labelledby={HEADING_ID}
           tabIndex={-1}
-          className="relative flex h-[100dvh] w-full max-w-4xl flex-col overflow-hidden bg-white shadow-2xl shadow-slate-950/40 outline-none sm:h-[min(92vh,1000px)] sm:rounded-2xl"
+          className="relative flex h-[100dvh] w-full max-w-[960px] flex-col overflow-hidden bg-white shadow-2xl shadow-slate-950/40 outline-none sm:h-[min(92vh,1000px)] sm:rounded-2xl"
           initial={dialogInitial} animate={dialogAnimate} exit={dialogExit} transition={dialogTransition}
         >
           {/* ── Toolbar (prev/next · title on scroll · share/close) — fixed ── */}
@@ -468,7 +470,7 @@ export function BlogModal({
               >
                 {/* ── Article header ── */}
                 <header className="border-b border-slate-100 bg-gradient-to-b from-slate-50 to-white px-6 pb-8 pt-8 sm:px-12 sm:pt-12">
-                  <div className="mx-auto max-w-[68ch]">
+                  <div className="mx-auto max-w-[80ch]">
                     {metaReady && categories.length > 0 && (
                       <div className="mb-5 flex flex-wrap gap-2">
                         {categories.map((cat, i) => (
@@ -537,11 +539,39 @@ export function BlogModal({
                 </header>
 
                 <div className="px-6 py-10 sm:px-12">
-                  <div className="mx-auto max-w-[68ch]">
+                  <div className="mx-auto max-w-[80ch]">
                     {/* ── Article body ── */}
                     {content.length > 0 ? (
                       <div className={loading ? 'opacity-60 transition-opacity' : ''}>
-                        <BlogArticle content={content} keywords={keywords} size="compact" />
+                        {/* Preview: first half here, the rest lives on the full post page
+                            (TOC, related reads, CTA) so readers land on the real URL. */}
+                        <BlogArticle content={content.slice(0, previewCount)} keywords={keywords} size="compact" />
+                        {previewCount < content.length && (
+                          <div className="relative mt-6">
+                            <div aria-hidden className="pointer-events-none max-h-72 select-none overflow-hidden blur-[5px]">
+                              <BlogArticle content={content.slice(previewCount)} size="compact" />
+                            </div>
+                            <div className="absolute inset-0 flex items-end justify-center bg-gradient-to-b from-white/10 via-white/70 to-white pb-4">
+                              <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white/95 p-6 text-center shadow-xl shadow-slate-900/10 backdrop-blur">
+                                <p className="text-base font-semibold text-slate-900">{t('blogModal.continueTitle')}</p>
+                                <p className="mt-1.5 text-sm leading-relaxed text-slate-600">{t('blogModal.continueHint')}</p>
+                                <a href={shareHref}
+                                  onClick={(e) => {
+                                    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                                    // The modal already put this URL in the bar, so the browser treats the
+                                    // click as a reload and keeps the `blogModal` state, which reopens the
+                                    // list. Drop the state, then load the full page for real.
+                                    e.preventDefault();
+                                    window.history.replaceState(null, '', shareHref);
+                                    window.location.assign(shareHref);
+                                  }}
+                                  className="tap-target mt-4 inline-flex items-center gap-2 rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-800">
+                                  {t('blogModal.continueReading')}<ArrowRight className="h-4 w-4" aria-hidden />
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ) : articleError ? (
                       <p className="py-8 text-center text-sm text-slate-500">{t('state.error')}</p>

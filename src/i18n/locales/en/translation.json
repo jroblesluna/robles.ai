@@ -4139,6 +4139,9 @@
         "backToTop": "Back to top"
     },
     "blogModal": {
+        "continueTitle": "Keep reading the full story",
+        "continueHint": "The rest of the article, its table of contents and related reads are on the article page.",
+        "continueReading": "Read the full article",
         "close": "Close",
         "prev": "Previous article",
         "next": "Next article",
