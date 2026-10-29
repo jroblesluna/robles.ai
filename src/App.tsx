@@ -14,6 +14,10 @@ import ChatbotWidget from '@/components/chat/ChatbotWidget';
 import { useSEO } from '@/hooks/useSEO';
 import { STATIC_PAGES, explicitLanguage } from '@shared/seoPolicy';
 import { useScrollRestoration } from '@/hooks/useScrollRestoration';
+import DemosSkeleton from '@/components/DemosSkeleton';
+import QuizSkeleton from '@/components/quiz/QuizSkeleton';
+import CareersSkeleton from '@/components/CareersSkeleton';
+import { BlogListSkeleton, BlogPostSkeleton } from '@/components/BlogSkeleton';
 
 // Lazy-loaded routes (code-split into separate chunks)
 const BlogRoute = lazy(() => import('@/pages/BlogRoute'));
@@ -137,8 +141,8 @@ function App({ client = queryClient }: { client?: QueryClient } = {}) {
           <Suspense fallback={<div className="flex items-center justify-center min-h-[50vh]"><div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>}>
             <Switch>
               <Route path="/" component={Home} />
-              <Route path="/demos" component={Demos} />
-              <Route path="/careers" component={Careers} />
+              <Route path="/demos">{() => <Suspense fallback={<DemosSkeleton />}><Demos /></Suspense>}</Route>
+              <Route path="/careers">{() => <Suspense fallback={<CareersSkeleton />}><Careers /></Suspense>}</Route>
               <Route path="/apply" component={Apply} />
               <Route path="/try-identity" component={TryIdentity} />
               <Route path="/try-langchain" component={TryLangChain} />
@@ -152,12 +156,12 @@ function App({ client = queryClient }: { client?: QueryClient } = {}) {
               <Route path="/try-forecast" component={TryForecast} />
               <Route path="/try-tts" component={TryTTS} />
               <Route path="/get-started" component={Landing} />
-              <Route path="/diagnostico-ia" component={Quiz} />
+              <Route path="/diagnostico-ia">{() => <Suspense fallback={<QuizSkeleton />}><Quiz /></Suspense>}</Route>
               <Route path="/otp" component={OTP} />
               {/* Single route for /blog and /blog/:slug so BlogList stays
                   mounted while the in-page modal pushes a /blog/:slug URL.
                   BlogRoute decides list+modal vs. the full cold-load post. */}
-              <Route path="/blog/:slug?" component={BlogRoute} />
+              <Route path="/blog/:slug?">{(params) => <Suspense fallback={params.slug ? <BlogPostSkeleton /> : <BlogListSkeleton />}><BlogRoute /></Suspense>}</Route>
               <Route component={NotFound} />
             </Switch>
           </Suspense>

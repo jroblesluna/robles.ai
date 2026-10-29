@@ -9,7 +9,7 @@ import { useParams, useSearch } from 'wouter';
 import { BlogArticle, asQuestion, isRoblesSection } from '@/components/BlogArticle';
 import ErrorState from '@/components/state/ErrorState';
 import NotFound from '@/pages/not-found';
-import LoadingState from '@/components/state/LoadingState';
+import { BlogPostSkeleton } from '@/components/BlogSkeleton';
 import { initialPublicPost } from '@/lib/publicPost';
 import { recordVisit, type Trail } from '@/lib/historyTrail';
 import { listPostPath, type BlogListPost } from '@/lib/blogModal';
@@ -230,7 +230,7 @@ export default function BlogPost() {
     );
   }
 
-  if (!post) return <LoadingState className="min-h-[40vh]" />;
+  if (!post) return <BlogPostSkeleton />;
 
   const pageLanguage = explicitLanguage(new URLSearchParams(search).get('lang'))
     ?? (post.translations.es.slug === slug ? 'es' : 'en');

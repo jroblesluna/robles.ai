@@ -10,6 +10,7 @@ import { listPostPath } from '@/lib/blogModal';
 import { BlogSearchInput, BlogSearchResults } from '@/components/BlogSearch';
 import BlogModal from '@/components/BlogModal';
 import ErrorState from '@/components/state/ErrorState';
+import { BlogListContentSkeleton } from '@/components/BlogSkeleton';
 import { useBlogModalRouting } from '@/hooks/useBlogModalRouting';
 import { useSearch } from '@/hooks/useSearch';
 import { recordVisit } from '@/lib/historyTrail';
@@ -535,7 +536,7 @@ export default function BlogList() {
               <div
                 role="group"
                 aria-label={t('blogHub.dateRangeLabel')}
-                className="inline-flex shrink-0 rounded-xl border border-slate-200 bg-white p-1 shadow-sm"
+                className="inline-flex min-h-[44px] shrink-0 rounded-xl border border-slate-200 bg-white p-1 shadow-sm"
               >
                 {([null, ...DAY_FILTERS] as Array<number | null>).map((days) => {
                   const active = dayFilter === days;
@@ -595,36 +596,7 @@ export default function BlogList() {
             )}
 
             {/* Loading skeletons (initial load) */}
-            {posts.length === 0 && loading && (
-              <div aria-hidden>
-                <div className="mb-12 grid gap-8 lg:grid-cols-3">
-                  <div className="h-[420px] animate-pulse rounded-3xl bg-slate-200 lg:col-span-2 lg:h-[560px]" />
-                  <div className="space-y-6">
-                    {Array.from({ length: 4 }).map((_, i) => (
-                      <div key={i} className="flex animate-pulse gap-4">
-                        <div className="h-6 w-7 rounded bg-slate-200" />
-                        <div className="flex-1 space-y-2">
-                          <div className="h-3 w-20 rounded bg-slate-200" />
-                          <div className="h-4 w-full rounded bg-slate-200" />
-                          <div className="h-4 w-2/3 rounded bg-slate-200" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="h-60 animate-pulse rounded-2xl border border-slate-200 bg-white p-6">
-                      <div className="mb-5 h-3 w-24 rounded bg-slate-200" />
-                      <div className="mb-2 h-5 w-full rounded bg-slate-200" />
-                      <div className="mb-5 h-5 w-3/4 rounded bg-slate-200" />
-                      <div className="mb-2 h-3 w-full rounded bg-slate-100" />
-                      <div className="h-3 w-2/3 rounded bg-slate-100" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            {posts.length === 0 && loading && <BlogListContentSkeleton />}
 
             {/* ── Front page: lead story + most recent rail ── */}
             {showFeatured && (

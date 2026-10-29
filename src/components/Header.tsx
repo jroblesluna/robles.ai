@@ -49,7 +49,7 @@ export default function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: Header
   const groups = [
     { id: 'company', label: t('nav.company'), links: [
       { label: t('nav.features'), href: '/#features' }, { label: t('nav.about'), href: '/#about' },
-      { label: t('nav.solutions'), href: '/#solutions' }, { label: t('nav.customers'), href: '/#case-studies' },
+      { label: t('nav.solutions'), href: '/#solutions' }, { label: t('nav.customers'), href: '/#clients' },
       { label: t('nav.careers'), href: '/careers' },
     ] },
     { id: 'resources', label: t('nav.resources'), links: [

@@ -176,11 +176,11 @@ body {
   scroll-margin-top: calc(var(--header-h) + 16px);
 }
 /* Padded page sections (py-16 and up) already carry their own top space, so
-   a #hash jump lands with ~40px under the header instead of ~80-110px.
-   ponytail: keyed on the `py-` class; a section with less than 24px of top
+   a #hash jump lands with ~28px under the header instead of ~80-110px.
+   ponytail: keyed on the `py-` class; a section with less than 36px of top
    padding should not use py-* or it would tuck under the header. */
 section[id][class*="py-"] {
-  scroll-margin-top: calc(var(--header-h) - 24px);
+  scroll-margin-top: calc(var(--header-h) - 36px);
 }
 
 /* 1b. Shared tap-target utility: icon-only controls reach the 44×44 minimum
