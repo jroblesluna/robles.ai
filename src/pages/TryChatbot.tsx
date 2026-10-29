@@ -594,7 +594,7 @@ export default function TryChatbot() {
       <span aria-hidden className="pointer-events-none absolute -top-24 left-1/4 h-72 w-72 rounded-full bg-violet-200/40 blur-3xl" />
       <span aria-hidden className="pointer-events-none absolute right-0 top-40 h-72 w-72 rounded-full bg-indigo-200/30 blur-3xl" />
 
-      <div className="container relative mx-auto min-w-0 max-w-[max(64rem,64vw)] px-6">
+      <div className="relative mx-auto w-full min-w-0 px-4 sm:w-[85%] sm:px-0">
         <DemoNav tone="violet" className="mb-8" />
 
         <AnimatePresence mode="wait">

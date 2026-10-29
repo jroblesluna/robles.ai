@@ -114,7 +114,7 @@ function PrimaryCta({ children, className = "" }: { children: ReactNode; classNa
   return (
     <a
       href="#contacto"
-      className={`tap-target inline-flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-emerald-400/50 text-white font-semibold px-7 py-4 rounded-lg text-lg transition-colors ${className}`}
+      className={`tap-target inline-flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-emerald-400/50 text-white font-semibold sm:whitespace-nowrap px-5 py-3.5 rounded-lg text-base transition-colors ${className}`}
     >
       {children} <ArrowRight className="w-5 h-5 text-emerald-400" aria-hidden="true" />
     </a>
@@ -136,7 +136,7 @@ function WhatsAppButton({ href, children, location }: { href: string; children: 
       onClick={() => trackContactClick("whatsapp", location)}
       target="_blank"
       rel="noopener noreferrer"
-      className="tap-target inline-flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1EBE5D] border border-[#25D366] text-white font-semibold px-7 py-4 rounded-lg text-lg transition-colors"
+      className="tap-target inline-flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1EBE5D] border border-[#25D366] text-white font-semibold sm:whitespace-nowrap px-5 py-3.5 rounded-lg text-base transition-colors"
     >
       <WhatsAppMark />
       {children}
@@ -252,7 +252,7 @@ export default function Landing() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-col sm:flex-row items-center lg:items-start gap-4"
+              className="flex flex-col sm:flex-row sm:flex-wrap items-center justify-center lg:justify-start gap-4"
             >
               <PrimaryCta>{t(variant ? `landing.v2.variants.${variant}.cta` : "landing.v2.hero.ctaPrimary")}</PrimaryCta>
               <WhatsAppButton href={whatsappHref} location="landing_hero">{t("landing.v2.hero.ctaWhatsapp")}</WhatsAppButton>
