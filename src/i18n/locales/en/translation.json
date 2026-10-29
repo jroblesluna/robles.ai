@@ -3906,6 +3906,7 @@
         }
     },
     "try-transcription": {
+        "tutorial_text": "Watch a sample call from start to finish: you record, the AI writes it live and tells each speaker apart, and when you stop it hands you the summary, the roles and the key terms.",
         "title": "Speech-to-Text & Diarization",
         "description": "Record audio and watch it transcribe in real time — with speaker separation, timestamps and an AI analysis of the conversation.",
         "badge": "Live WebSocket demo",

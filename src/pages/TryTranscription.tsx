@@ -33,6 +33,7 @@ import { useDemoTracking } from "@/components/demo/business";
 import { v4 as uuidv4 } from "uuid";
 import { ApiCallLog, type ApiCallEntry } from "@/components/demo/ApiCallLog";
 import { InfoTip } from "@/components/demo/InfoTip";
+import { DemoTutorial } from "@/components/demo/DemoTutorial";
 import { Button } from "@/components/ui/button";
 
 // ── Brand accent (teal/emerald) ──────────────────────────────────────────────
@@ -758,9 +759,12 @@ export default function TryTranscription() {
             </p>
 
             {/* How it works (8.3) */}
-            <p className="mt-8 text-xs font-semibold uppercase tracking-wider text-gray-500">
-              {t("try-transcription.how_title")}
-            </p>
+            <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                {t("try-transcription.how_title")}
+              </p>
+              <DemoTutorial demoId="speech" returnToId="transcription-workspace" />
+            </div>
             <ol className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
               {([1, 2, 3] as const).map((n) => (
                 <li key={n} className="rounded-xl border border-gray-200/80 bg-white/70 p-4">
@@ -792,8 +796,18 @@ export default function TryTranscription() {
           </div>
         </div>
 
+        {/* Tutorial en video, antes de pedir el micrófono */}
+        <section className="mb-10">
+          <DemoTutorial
+            demoId="speech"
+            variant="featured"
+            returnToId="transcription-workspace"
+            description={t("try-transcription.tutorial_text")}
+          />
+        </section>
+
         {/* ── Workspace: toolbar · transcript stage · analysis/log panel ── */}
-        <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <section id="transcription-workspace" className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
 
           {/* Toolbar: configuration + live status */}
           <div className="flex flex-col gap-4 border-b border-gray-100 bg-gray-50/70 px-5 py-4 md:flex-row md:items-end md:justify-between">

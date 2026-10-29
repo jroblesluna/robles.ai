@@ -3906,6 +3906,7 @@
         }
     },
     "try-transcription": {
+        "tutorial_text": "Mira una llamada de ejemplo de principio a fin: grabas, la IA escribe en vivo separando a cada persona y al terminar te entrega el resumen, los roles y los términos clave.",
         "title": "Voz a Texto y Diarización",
         "description": "Graba audio y mira la transcripción en tiempo real — con separación de hablantes y un análisis de IA que detecta industria, roles, términos clave y un resumen de la conversación.",
         "badge": "Demo WebSocket en vivo",

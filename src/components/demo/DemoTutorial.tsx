@@ -36,6 +36,18 @@ const TUTORIALS: Record<string, Partial<Record<"en" | "es", TutorialMedia>>> = {
       seconds: 45,
     },
   },
+  speech: {
+    en: {
+      src: "/videos/tutorials/try-transcription-tutorial-en.mp4",
+      poster: "/videos/tutorials/try-transcription-tutorial-poster-en.jpg",
+      seconds: 57,
+    },
+    es: {
+      src: "/videos/tutorials/try-transcription-tutorial-es.mp4",
+      poster: "/videos/tutorials/try-transcription-tutorial-poster-es.jpg",
+      seconds: 60,
+    },
+  },
   emotion: {
     en: {
       src: "/videos/tutorials/try-emotion-tutorial-en.mp4",
