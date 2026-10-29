@@ -76,7 +76,7 @@ export default function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: Header
         }
       }}>
       <div className="container mx-auto px-6 py-3 flex justify-between items-center gap-4">
-        <a href={href('/')} onClick={close} className="shrink-0 flex items-center gap-3 rounded-md">
+        <a href={href('/')} onClick={close} data-same-tab className="shrink-0 flex items-center gap-3 rounded-md">
           <img src="/favicon.svg" alt="" className="w-10 h-10" width="40" height="40" />
           <span className="text-xl font-bold text-gray-900">Robles<span className="text-blue-500">.AI</span></span>
         </a>

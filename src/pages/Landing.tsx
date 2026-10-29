@@ -174,12 +174,13 @@ export default function Landing() {
   const hasSpot = useHasBrandSpot();
 
   // Paid traffic stays on the landing: any link that leaves this page (header, footer, Robly…)
-  // opens in a new tab. Same-page anchors (#contacto), language switches, mailto: and tel: are kept.
+  // opens in a new tab. Same-page anchors (#contacto), language switches, mailto: and tel: are kept,
+  // and so are links marked `data-same-tab` (the header logo goes home in the same tab).
   useEffect(() => {
     const onClick = (event: MouseEvent) => {
       if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       const anchor = (event.target as Element | null)?.closest?.("a[href]");
-      if (!(anchor instanceof HTMLAnchorElement) || anchor.target || anchor.hasAttribute("download")) return;
+      if (!(anchor instanceof HTMLAnchorElement) || anchor.target || anchor.hasAttribute("download") || anchor.hasAttribute("data-same-tab")) return;
       const url = new URL(anchor.href, window.location.href);
       if (!/^https?:$/.test(url.protocol)) return;
       if (url.origin === window.location.origin && url.pathname === window.location.pathname) return;
@@ -217,6 +218,9 @@ export default function Landing() {
           <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-purple-500 blur-[128px]" />
           <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-emerald-500 blur-[128px]" />
         </div>
+        {/* Fades the purple into the next section's bg-slate-900/50 (over slate-950) so there is no hard edge. */}
+        <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-b from-transparent to-slate-950" aria-hidden="true" />
+        <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-b from-transparent to-slate-900/50" aria-hidden="true" />
         <div className="relative max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-10 lg:gap-14 items-center">
           <div className="text-center lg:text-left">
             <motion.p
@@ -331,7 +335,7 @@ export default function Landing() {
 
       {/* 30-second spot — the whole pitch (demos + diagnosis) for visitors who scroll past the offer */}
       {hasSpot && (
-        <section aria-labelledby="spot-title" className="py-14 md:py-20 bg-slate-900/50 border-y border-slate-800">
+        <section aria-labelledby="spot-title" className="py-14 md:py-20 bg-slate-900/50 border-b border-slate-800">
           <div className="max-w-5xl mx-auto px-6">
             <Reveal className="text-center mb-8 md:mb-10">
               <p className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-emerald-300 mb-3">{t("landing.v2.spot.eyebrow")}</p>
