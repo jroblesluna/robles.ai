@@ -269,7 +269,7 @@ export default function BlogList() {
             <div className="flex items-center gap-3 text-sm text-slate-300">
               {editor && (
                 <img
-                  src={`/avatars/${editor.id}-headshot.png`}
+                  src={`/avatars/${editor.id}-headshot.webp`}
                   alt=""
                   loading="lazy"
                   decoding="async"
@@ -334,7 +334,7 @@ export default function BlogList() {
           {editor && (
             <>
               <img
-                src={`/avatars/${editor.id}-headshot.png`}
+                src={`/avatars/${editor.id}-headshot.webp`}
                 alt=""
                 loading="lazy"
                 decoding="async"
@@ -500,7 +500,7 @@ export default function BlogList() {
               <div className="flex min-w-0 items-center gap-4">
                 {activeEditor && (
                   <img
-                    src={`/avatars/${activeEditor.id}-headshot.png`}
+                    src={`/avatars/${activeEditor.id}-headshot.webp`}
                     alt=""
                     className="h-12 w-12 shrink-0 rounded-xl object-cover ring-1 ring-slate-200"
                   />

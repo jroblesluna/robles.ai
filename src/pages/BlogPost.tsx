@@ -393,7 +393,7 @@ export default function BlogPost() {
               <div className="flex flex-wrap gap-x-8 gap-y-4 lg:flex-col">
                 <div className="flex items-center gap-3">
                   <img
-                    src="/avatars/antonio-robles-headshot.png"
+                    src="/avatars/antonio-robles-headshot.webp"
                     alt=""
                     loading="lazy"
                     decoding="async"
@@ -407,7 +407,7 @@ export default function BlogPost() {
                 {editor && (
                   <div className="flex items-center gap-3">
                     <img
-                      src={`/avatars/${editor.id}-headshot.png`}
+                      src={`/avatars/${editor.id}-headshot.webp`}
                       alt=""
                       loading="lazy"
                       decoding="async"
@@ -532,7 +532,7 @@ export default function BlogPost() {
               {/* ── Editorial transparency ── */}
               <aside className="mt-10 flex gap-4 rounded-2xl bg-slate-50 p-5 ring-1 ring-inset ring-slate-200/70">
                 <img
-                  src={editor ? `/avatars/${editor.id}-headshot.png` : '/avatars/antonio-robles-headshot.png'}
+                  src={editor ? `/avatars/${editor.id}-headshot.webp` : '/avatars/antonio-robles-headshot.webp'}
                   alt=""
                   loading="lazy"
                   decoding="async"
@@ -611,7 +611,7 @@ export default function BlogPost() {
                             {itemEditor && (
                               <>
                                 <img
-                                  src={`/avatars/${itemEditor.id}-headshot.png`}
+                                  src={`/avatars/${itemEditor.id}-headshot.webp`}
                                   alt=""
                                   loading="lazy"
                                   decoding="async"
