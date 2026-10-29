@@ -85,6 +85,15 @@ if $need_build; then
     echo "▶ Building app (vite + esbuild)…"
     pm2 stop all || true
     npm run build
+    # Vite empties dist/ on every build, which deletes the previous hashed
+    # assets. Keep them for 45 days (Clarity keeps recordings ~30): replays
+    # fetch the CSS of the build they were recorded on, and tabs opened before
+    # the deploy still lazy-load chunks by their old names.
+    ASSET_ARCHIVE="$HOME/robles-ai-assets-archive"
+    mkdir -p "$ASSET_ARCHIVE"
+    find dist/assets -maxdepth 1 -type f -exec cp -n {} "$ASSET_ARCHIVE"/ \;
+    find "$ASSET_ARCHIVE" -type f -mtime +45 -delete
+    find "$ASSET_ARCHIVE" -type f -exec cp -n {} dist/assets/ \;
     need_restart=true
 elif $need_data; then
     echo "▶ Only blog data changed → syncing data into dist/"
