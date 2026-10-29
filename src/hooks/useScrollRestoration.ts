@@ -3,7 +3,7 @@ import { useEffect, useLayoutEffect, useRef } from 'react';
 /**
  * Scroll behaviour matching Next.js / classic browser navigation
  * (Vercel, Stripe, GitHub):
- *  - New navigation (link click, setLocation) → scroll to top.
+ *  - New navigation (link click, setLocation) → scroll to top, or to `#hash`.
  *  - Back / forward (popstate)                → restore the saved position.
  *  - Reload                                   → restore the saved position.
  *
@@ -49,10 +49,10 @@ function scrollTop(y: number) {
 
 /**
  * Lazy-loaded pages start short, so a single scrollTo would be clamped.
- * Keep retrying each frame until the target is reached, the timeout expires,
+ * Keep retrying each frame until `step` reports done, the timeout expires,
  * or the user scrolls on their own.
  */
-function restoreScroll(y: number): () => void {
+function pinScroll(step: () => boolean): () => void {
   const start = performance.now();
   let frame = 0;
   let cancelled = false;
@@ -70,8 +70,7 @@ function restoreScroll(y: number): () => void {
 
   const tick = () => {
     if (cancelled) return;
-    scrollTop(y);
-    if (Math.abs(window.scrollY - y) < 2 || performance.now() - start > RESTORE_TIMEOUT_MS) {
+    if (step() || performance.now() - start > RESTORE_TIMEOUT_MS) {
       cancel();
       return;
     }
@@ -80,6 +79,56 @@ function restoreScroll(y: number): () => void {
   tick();
 
   return cancel;
+}
+
+function restoreScroll(y: number): () => void {
+  return pinScroll(() => {
+    scrollTop(y);
+    return Math.abs(window.scrollY - y) < 2;
+  });
+}
+
+const HASH_SETTLE_FRAMES = 5;
+const HASH_MAX_WAIT_MS = 1000;
+
+/**
+ * Links like `/#case-studies` from another page are full loads (or SPA
+ * navigations) that land before the section exists or while content above it
+ * is still growing. Wait until the section stops moving, then glide to it once
+ * (scrollIntoView honours the CSS scroll-margin for the fixed header); if the
+ * layout still shifted during the glide, ease into the corrected spot.
+ */
+function scrollToHash(hash: string): () => void {
+  let id = hash.slice(1);
+  try { id = decodeURIComponent(id); } catch { /* keep raw */ }
+  const behavior: ScrollBehavior = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'instant' as ScrollBehavior : 'smooth';
+  const start = performance.now();
+  let lastTop = NaN;
+  let stableFrames = 0;
+  let cancelled = false;
+
+  const cancelPin = pinScroll(() => {
+    const el = document.getElementById(id);
+    if (!el) return false;
+    const top = el.getBoundingClientRect().top + window.scrollY;
+    stableFrames = Math.abs(top - lastTop) < 1 ? stableFrames + 1 : 0;
+    lastTop = top;
+    if (stableFrames < HASH_SETTLE_FRAMES && performance.now() - start < HASH_MAX_WAIT_MS) return false;
+
+    el.scrollIntoView({ block: 'start', behavior });
+    // One gentle correction if something above resized mid-glide.
+    window.addEventListener('scrollend', () => {
+      if (cancelled) return;
+      const offBy = el.getBoundingClientRect().top - parseFloat(getComputedStyle(el).scrollMarginTop || '0');
+      if (Math.abs(offBy) > 4) el.scrollIntoView({ block: 'start', behavior });
+    }, { once: true });
+    return true;
+  });
+
+  return () => {
+    cancelled = true;
+    cancelPin();
+  };
 }
 
 export function useScrollRestoration(location: string) {
@@ -123,6 +172,7 @@ export function useScrollRestoration(location: string) {
 
     const saved = positions.current[key];
     if (shouldRestore && saved) return restoreScroll(saved);
+    if (window.location.hash.length > 1) return scrollToHash(window.location.hash);
 
     scrollTop(0);
   }, [location]);
