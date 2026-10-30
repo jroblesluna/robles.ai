@@ -104,7 +104,7 @@ src/
                         # DemoNav, DemoTutorial, DemoVideoPreview, DemoVisualPreview, EmotionPreview,
                         # InfoTip, JsonHighlight, StepCard
     quiz/               # Intro, QuestionCard, ProgressBar, Analyzing, ResultPreview,
-                        # LeadForm, WaitingVerification, ResultFull
+                        # LeadForm, WaitingVerification, ResultFull, ScoreRing
     admin/              # CarouselPreview, SlideEditor, RegenerateModal,
                         # PlatformPublishStatus, VideoGenerator
     admin/analytics/    # OverviewTab, TrafficTab, BehaviorTab, SocialTab, AdsTab,
@@ -620,6 +620,7 @@ Secrets: `VPS_HOST` (`robles.ai`), `VPS_USER` (`roblesai`), `VPS_SSH_KEY`, `VPS_
 | [`demo-tutorials/try-emotion/`](docs/demo-tutorials/try-emotion/REMOTION_TUTORIAL_PROMPT.md) | Same for `/try-emotion`, with a **free 30–60 s length computed from the voice-over** and responsible-use rules (aggregated and anonymous, never for evaluating employees or students) |
 | [`demo-tutorials/try-chatbot/`](docs/demo-tutorials/try-chatbot/REMOTION_TUTORIAL_PROMPT.md) | Same for `/try-chatbot` (free 30–60 s length), with the pages read and the bot's real answers when trained on `robles.ai` (`capture-report.json`). **The EN video is blocked**: the bot always answers in Spanish (§0 of the prompt) |
 | [`demo-tutorials/try-transcription/`](docs/demo-tutorials/try-transcription/REMOTION_TUTORIAL_PROMPT.md) | Same for `/try-transcription` (free 30–60 s length), with a sample call to a fictional dental clinic (two TTS voices, `audio/` + `make-conversation-audio.mjs`) fed to the fake microphone, and the real transcript and analyses (`capture-report.json`). §0 lists the live-transcript bugs (interim lines that never clear, out-of-order turns) |
+| [`demo-tutorials/try-langchain/`](docs/demo-tutorials/try-langchain/REMOTION_TUTORIAL_PROMPT.md) | Same for `/try-langchain` (free 30–60 s length): sample document → RAG → Agent → JSON, with the real answers of the three modes (`capture-report.json`). **The EN video is blocked**: `/agent` fails in English and JSON/citations come back in Spanish (§0 of the prompt) |
 | [`DEMO_TUTORIALS_STATUS.md`](docs/DEMO_TUTORIALS_STATUS.md) | Tracker of demo tutorial videos per demo and language (ES/EN): done vs. pending |
 | [`CONTACT_CONVERSIONS.md`](docs/CONTACT_CONVERSIONS.md) | Contact delivery, lead/click conversion contract and Ads/GTM/Meta setup |
 | `docs/ADS_ANALYTICS.md` | Admin Ads/GA4 sources, campaign and submission filters, direct API setup, and validation |

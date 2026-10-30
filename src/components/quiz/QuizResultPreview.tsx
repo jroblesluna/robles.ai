@@ -2,82 +2,78 @@ import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Lock, ArrowRight } from "lucide-react";
 import type { QuizResult } from "@/lib/quizData";
+import { QuizProfileScale, QuizScoreRing, SERVICE_ICONS } from "@/components/quiz/QuizScoreRing";
 
 interface QuizResultPreviewProps {
   result: QuizResult;
   onUnlock: () => void;
 }
 
-const RADIUS = 60;
-const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
-
 const QuizResultPreview = ({ result, onUnlock }: QuizResultPreviewProps) => {
   const { t } = useTranslation();
   const primaryService = result.recommendedServices[0];
+  const PrimaryIcon = SERVICE_ICONS[primaryService];
+  const lockedItems = t("quiz.results.lockedItems", { returnObjects: true }) as string[];
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="max-w-xl mx-auto text-center"
+      className="mx-auto grid max-w-5xl grid-cols-1 overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-2xl shadow-slate-900/10 lg:grid-cols-2"
     >
-      <p className="text-sm uppercase tracking-wide text-gray-400 mb-3">
-        {t("quiz.results.scoreLabel")}
-      </p>
-
-      <div className="relative w-40 h-40 mx-auto mb-6">
-        <svg viewBox="0 0 140 140" className="w-full h-full -rotate-90">
-          <circle cx="70" cy="70" r={RADIUS} fill="none" stroke="#e5e7eb" strokeWidth="10" />
-          <motion.circle
-            cx="70"
-            cy="70"
-            r={RADIUS}
-            fill="none"
-            stroke="#2563eb"
-            strokeWidth="10"
-            strokeLinecap="round"
-            strokeDasharray={CIRCUMFERENCE}
-            initial={{ strokeDashoffset: CIRCUMFERENCE }}
-            animate={{ strokeDashoffset: CIRCUMFERENCE * (1 - result.score / 100) }}
-            transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
-          />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-3xl font-bold text-gray-900">{result.score}</span>
-          <span className="text-xs text-gray-500">/100</span>
+      {/* Score */}
+      <div className="flex flex-col justify-center bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 p-7 text-center sm:p-10 lg:text-left">
+        <p className="text-xs font-semibold uppercase tracking-wider text-blue-200">{t("quiz.results.scoreLabel")}</p>
+        <div className="mt-6 flex flex-col items-center gap-6 lg:flex-row lg:items-center">
+          <QuizScoreRing score={result.score} tone="dark" className="h-36 w-36" />
+          <h2 className="text-2xl font-bold leading-tight text-white md:text-[1.7rem]">
+            {t(`quiz.results.profiles.${result.profile}.title`)}
+          </h2>
+        </div>
+        <p className="mt-6 leading-relaxed text-blue-100/80">{t(`quiz.results.profiles.${result.profile}.desc`)}</p>
+        <div className="mt-8">
+          <QuizProfileScale profile={result.profile} tone="dark" />
         </div>
       </div>
 
-      <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-        {t(`quiz.results.profiles.${result.profile}.title`)}
-      </h2>
-      <p className="text-gray-600 mb-8 max-w-md mx-auto">
-        {t(`quiz.results.profiles.${result.profile}.desc`)}
-      </p>
+      {/* Recommendation + what unlocks */}
+      <div className="flex flex-col p-7 sm:p-10">
+        <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">{t("quiz.results.previewLabel")}</p>
+        <div className="mt-4 flex items-start gap-4 rounded-2xl border border-blue-100 bg-blue-50/60 p-5">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white">
+            <PrimaryIcon className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-lg font-semibold text-gray-900">{t(`quiz.services.${primaryService}.title`)}</p>
+            <p className="mt-1 text-sm leading-snug text-gray-600">{t(`quiz.services.${primaryService}.why`)}</p>
+          </div>
+        </div>
 
-      <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-8 relative overflow-hidden">
-        <p className="text-sm uppercase tracking-wide text-gray-400 mb-2">
-          {t("quiz.results.previewLabel")}
-        </p>
-        <p className="text-lg font-semibold text-gray-900 mb-1">
-          {t(`quiz.services.${primaryService}.title`)}
-        </p>
-        <div className="mt-3 backdrop-blur-sm bg-white/60 rounded-lg p-3 text-sm text-gray-500 flex items-center justify-center gap-2">
-          <Lock className="h-4 w-4" />
-          {t("quiz.results.lockedHint")}
+        <p className="mt-8 text-xs font-semibold uppercase tracking-wider text-gray-500">{t("quiz.results.lockedTitle")}</p>
+        <ul className="mt-3 space-y-2.5">
+          {lockedItems.map((item) => (
+            <li key={item} className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 bg-gray-50/70 px-4 py-3 text-sm text-gray-600">
+              <Lock className="h-4 w-4 shrink-0 text-gray-400" aria-hidden="true" />
+              {item}
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-auto pt-8">
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={onUnlock}
+            className="tap-target inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 text-base font-semibold text-white shadow-lg shadow-blue-600/25 sm:text-lg"
+          >
+            {t("quiz.results.unlockCta")}
+            <ArrowRight className="h-5 w-5" />
+          </motion.button>
+          <p className="mt-3 text-center text-xs text-gray-500">{t("quiz.results.unlockNote")}</p>
         </div>
       </div>
-
-      <motion.button
-        whileHover={{ scale: 1.03 }}
-        whileTap={{ scale: 0.98 }}
-        onClick={onUnlock}
-        className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-lg text-lg shadow-md transition-colors"
-      >
-        {t("quiz.results.unlockCta")}
-        <ArrowRight className="h-5 w-5" />
-      </motion.button>
     </motion.div>
   );
 };

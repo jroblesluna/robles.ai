@@ -44,38 +44,50 @@ const QuizQuestionCard = ({ question, selected, onSelect, direction }: QuizQuest
         initial={{ opacity: 0, x: direction * 40 }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: direction * -40 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-        className="w-full max-w-xl mx-auto"
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        className="w-full"
       >
-        <div className="flex items-center gap-3 mb-6">
-          <div className="bg-blue-100 rounded-full p-3 flex-shrink-0">
-            <Icon className="h-6 w-6 text-blue-600" />
+        <div className="mb-7 flex items-start gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/20">
+            <Icon className="h-6 w-6" aria-hidden="true" />
           </div>
-          <h2 className="text-xl md:text-2xl font-semibold text-gray-900">
+          <h2 className="pt-1.5 text-xl font-semibold leading-snug text-gray-900 md:text-2xl">
             {t(`quiz.questions.${question.id}.title`)}
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {question.options.map((option) => {
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2" role="group" aria-label={t(`quiz.questions.${question.id}.title`)}>
+          {question.options.map((option, i) => {
             const isSelected = selected === option.id;
             return (
               <button
                 key={option.id}
                 type="button"
+                data-quiz-option
+                aria-pressed={isSelected}
                 onClick={() => onSelect(option.id)}
-                className={`text-left p-4 rounded-xl border-2 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md flex items-center justify-between gap-2 ${
+                className={`group flex min-h-[64px] items-center gap-3 rounded-xl border p-4 text-left transition-all duration-150 ${
                   isSelected
-                    ? "border-blue-600 bg-blue-50 shadow-md"
-                    : "border-gray-200 bg-white hover:border-blue-300"
+                    ? "border-blue-600 bg-blue-50 shadow-sm ring-1 ring-blue-600"
+                    : "border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50/40 hover:shadow-sm"
                 }`}
               >
-                <span className={`font-medium ${isSelected ? "text-blue-700" : "text-gray-700"}`}>
+                <kbd
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border font-sans text-xs font-semibold transition-colors ${
+                    isSelected
+                      ? "border-blue-600 bg-blue-600 text-white"
+                      : "border-gray-200 bg-gray-50 text-gray-500 group-hover:border-blue-200 group-hover:text-blue-700"
+                  }`}
+                  aria-hidden="true"
+                >
+                  {i + 1}
+                </kbd>
+                <span className={`flex-1 font-medium leading-snug ${isSelected ? "text-blue-800" : "text-gray-700"}`}>
                   {t(`quiz.questions.${question.id}.options.${option.id}`)}
                 </span>
                 {isSelected && (
-                  <span className="flex-shrink-0 bg-blue-600 rounded-full p-1">
-                    <Check className="h-3.5 w-3.5 text-white" />
+                  <span className="shrink-0 rounded-full bg-blue-600 p-1">
+                    <Check className="h-3.5 w-3.5 text-white" aria-hidden="true" />
                   </span>
                 )}
               </button>

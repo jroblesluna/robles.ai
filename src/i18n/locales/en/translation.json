@@ -2268,8 +2268,8 @@
         "suggest_rag_2": "What deadlines or dates does it mention?",
         "suggest_rag_3": "What obligations or rules does it set?",
         "suggest_tools_1": "What is 17% of 2,350?",
-        "suggest_tools_2": "If I save $450 a month for 3 years at 5% annual interest, how much will I have?",
-        "suggest_tools_3": "A team handles 1,200 tickets a month at 6 minutes each. How many hours is that per year?",
+        "suggest_tools_2": "We sell 380 units a month at $27 each. What is the yearly revenue?",
+        "suggest_tools_3": "How many hours a year does a team spend on 1,200 tickets a month at 6 minutes each?",
         "suggest_json_1": "Benefits of automating customer support with AI",
         "suggest_json_2": "Key risks of adopting generative AI in a bank",
         "suggest_json_3": "Pros and cons of electric vans for a delivery fleet",
@@ -3376,11 +3376,37 @@
             "subtitle": "Answer 8 quick questions and we'll tell you exactly which Robles.AI services fit your business, with a personalized score.",
             "duration": "Takes less than 2 minutes",
             "cta": "Start the test",
-            "disclaimer": "No commitment. You'll see your result before deciding if you want the full report."
+            "disclaimer": "No commitment. You'll see your result before deciding if you want the full report.",
+            "stats": {
+                "questions": "8 questions",
+                "cost": "Free, no commitment"
+            },
+            "previewTitle": "What your result looks like",
+            "sampleLabel": "Example",
+            "deliverables": [
+                {
+                    "title": "Readiness score",
+                    "desc": "How ready your company is to start with AI, from 0 to 100."
+                },
+                {
+                    "title": "Recommended services",
+                    "desc": "The solutions that best fit your industry, your pain points and your priorities."
+                },
+                {
+                    "title": "PDF report",
+                    "desc": "Your diagnosis with a personalized read-out, ready to share with your team."
+                }
+            ],
+            "steps": [
+                "Answer 8 questions about your business",
+                "See your score instantly",
+                "Unlock the full report with your email"
+            ]
         },
         "progress": {
             "question": "Question {{current}} of {{total}}",
-            "back": "← Back to previous question"
+            "back": "Previous question",
+            "keyboardHint": "Shortcut: use keys 1–{{max}}"
         },
         "questions": {
             "industry": {
@@ -3516,7 +3542,6 @@
             },
             "scoreLabel": "Your readiness to get started",
             "previewLabel": "Top recommended service",
-            "lockedHint": "Unlock 2 more services and your full score",
             "unlockCta": "Unlock my full report",
             "fullTitle": "{{name}}, here's what you can achieve",
             "servicesHeading": "The services that best fit your case",
@@ -3525,7 +3550,23 @@
             "emailCta": "Send an email",
             "learnMore": "See how we work in more depth",
             "whatsappMessage": "Hi, I just completed the AI Diagnosis Quiz. My profile is \"{{profile}}\" and I was recommended: {{services}}. I'd like to talk about next steps.",
-            "downloadPdf": "Download PDF report"
+            "downloadPdf": "Download PDF report",
+            "scale": {
+                "starting": "Exploring",
+                "promising": "Promising",
+                "ready": "Ready",
+                "priority": "Priority"
+            },
+            "lockedTitle": "Included in your full report",
+            "lockedItems": [
+                "The services recommended for your case",
+                "A personalized read-out of your answers",
+                "Your downloadable PDF report"
+            ],
+            "unlockNote": "Free. We only ask you to confirm your email.",
+            "reportLabel": "Your AI Diagnosis",
+            "messageLabel": "Our read on your case",
+            "nextStepTitle": "Let's review your result together"
         },
         "waiting": {
             "title": "Check your inbox",
@@ -3534,7 +3575,13 @@
             "expiredSubtitle": "Links last 30 minutes. Ask us to send you a new one.",
             "resend": "Resend email",
             "resending": "Sending...",
-            "resent": "Resent! Check your inbox."
+            "resent": "Resent! Check your inbox.",
+            "steps": [
+                "Details received",
+                "Confirm from your inbox",
+                "Your report opens here"
+            ],
+            "spamHint": "Didn't get it? Check your spam or promotions folders."
         },
         "leadForm": {
             "title": "Unlock your full report",
@@ -3552,7 +3599,11 @@
             "privacy": "Your data is safe and only used for your report.",
             "dontClose": "Don't close this tab, we're processing your request...",
             "errorTitle": "Error",
-            "errorMessage": "There was a problem sending your details. Please try again."
+            "errorMessage": "There was a problem sending your details. Please try again.",
+            "nameError": "Enter your name (at least 2 characters).",
+            "emailError": "Enter a valid email address.",
+            "summaryTitle": "Your full report includes",
+            "verifyNote": "We'll email you a link to confirm your address and unlock the report."
         }
     },
     "quizPromo": {

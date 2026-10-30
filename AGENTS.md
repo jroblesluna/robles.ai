@@ -82,7 +82,7 @@ src/
     demo/            # ApiCallLog, BusinessCase, SavingsCalculator, business.ts, DemoKit, DemoNav,
                      # DemoTutorial, DemoVideoPreview, DemoVisualPreview, EmotionPreview, InfoTip, JsonHighlight, StepCard
     quiz/            # QuizIntro, QuizQuestionCard, QuizProgressBar, QuizAnalyzing, QuizResultPreview,
-                     # QuizLeadForm, QuizWaitingVerification, QuizResultFull
+                     # QuizLeadForm, QuizWaitingVerification, QuizResultFull, QuizScoreRing
     admin/           # CarouselPreview, SlideEditor, RegenerateModal, PlatformPublishStatus, VideoGenerator
     admin/analytics/ # OverviewTab, TrafficTab, BehaviorTab, SocialTab, AdsTab, KpiCard, DateRangeSelector
     state/           # LoadingState, EmptyState, ErrorState
@@ -661,6 +661,7 @@ Conecta, monitorea y publica el DNS de los **7 backends** de demos registrados e
 | `docs/demo-tutorials/try-emotion/` | Ídem para `/try-emotion`, con **duración libre (30–60 s) calculada desde la locución** y reglas de uso responsable (agregado y anónimo, nunca evaluar empleados ni estudiantes) |
 | `docs/demo-tutorials/try-chatbot/` | Ídem para `/try-chatbot` (duración libre 30–60 s), con las páginas leídas y las respuestas reales del bot entrenado con `robles.ai` (`capture-report.json`). **El video EN está bloqueado**: el bot responde siempre en español (§0 del prompt) |
 | `docs/demo-tutorials/try-transcription/` | Ídem para `/try-transcription` (duración libre 30–60 s), con una llamada de ejemplo a una clínica dental ficticia (dos voces TTS, `audio/` + `make-conversation-audio.mjs`) que alimenta el micrófono falso, y la transcripción y los análisis reales (`capture-report.json`). §0 lista los bugs de la transcripción en vivo (líneas provisionales que no se borran, turnos fuera de orden) |
+| `docs/demo-tutorials/try-langchain/` | Ídem para `/try-langchain` (duración libre 30–60 s): documento de ejemplo → RAG → Agente → JSON, con las respuestas reales de los tres modos (`capture-report.json`). **El video EN está bloqueado**: `/agent` falla en inglés y JSON/citas salen en español (§0 del prompt) |
 | `docs/DEMO_TUTORIALS_STATUS.md` | Tracker de los tutoriales en video por demo e idioma (ES/EN): qué está hecho y qué falta |
 | `docs/CONTACT_CONVERSIONS.md` | Contrato de entrega del contacto y de conversiones (lead/click) + configuración de GTM, GA4, Ads y Meta |
 | `docs/ADS_ANALYTICS.md` | Admin Ads/GA4 sources, campaign and submission filters, direct API setup, and validation |
