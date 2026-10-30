@@ -1641,6 +1641,7 @@
         "samples_hint": "Un par ficticio de demo — el mismo rostro en ambas, para que la coincidencia funcione de verdad."
     },
     "try-object": {
+        "tutorial_text": "Mira el recorrido completo: apuntas la cámara o subes una foto, la IA encuentra y etiqueta cada objeto de la escena y te entrega el conteo y los datos de cada detección.",
         "badge": "Corre en tu navegador",
         "title": "Detección de Objetos",
         "description": "Detecta y etiqueta objetos en tiempo real — desde tu cámara o una imagen que subas. El modelo corre íntegramente en tu navegador.",
@@ -1803,6 +1804,7 @@
         }
     },
     "try-emotion": {
+        "tutorial_text": "Mira el recorrido completo: enciendes la cámara o subes una foto, la IA lee las expresiones de cada rostro y las resume en una vista agregada y anónima.",
         "badge": "Corre en tu navegador",
         "title": "Reconocimiento de Emociones",
         "description": "Detecta rostros y lee expresiones faciales en tiempo real — 7 emociones, desde tu cámara o una foto que subas. Corre íntegramente en tu navegador.",
@@ -2241,6 +2243,7 @@
         "trust_private": "Documentos aislados a tu sesión",
         "trust_realtime": "Registro de solicitudes en vivo",
         "trust_modes": "Tres modos de razonamiento",
+        "tutorial_text": "Mira el recorrido completo: subes un documento y la IA responde citando de dónde lo sacó, resuelve tareas paso a paso y te entrega datos ordenados listos para tus sistemas.",
         "workspace_title": "LangChain Playground",
         "mode_rag_desc": "Responde solo con la información de los documentos que agregues.",
         "mode_tools_desc": "Razona paso a paso y usa herramientas para resolver la tarea.",

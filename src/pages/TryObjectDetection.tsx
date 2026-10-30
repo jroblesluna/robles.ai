@@ -496,6 +496,16 @@ export default function TryObjectDetection() {
           </div>
         </div>
 
+        {/* Tutorial en video, antes de pedir la cámara */}
+        <section className="mb-10">
+          <DemoTutorial
+            demoId="objectdetection"
+            variant="featured"
+            returnToId="object-workspace"
+            description={t("try-object.tutorial_text")}
+          />
+        </section>
+
         {/* ── Workspace: stage (left) · detections & log (right) ─────────── */}
         <section id="object-workspace" className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
           <input

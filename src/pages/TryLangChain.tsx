@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { DemoNav } from "@/components/demo/DemoNav";
+import { DemoTutorial } from "@/components/demo/DemoTutorial";
 import { v4 as uuidv4 } from "uuid";
 import { BusinessCase } from "@/components/demo/BusinessCase";
 import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
@@ -512,9 +513,12 @@ export default function TryLangChain() {
               {t("try-langchain.description")}
             </p>
 
-            <p className="mt-8 text-xs font-semibold uppercase tracking-wider text-gray-500">
-              {t("try-langchain.how_title")}
-            </p>
+            <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                {t("try-langchain.how_title")}
+              </p>
+              <DemoTutorial demoId="langchain" returnToId="langchain-workspace" />
+            </div>
             <ol className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
               {([1, 2, 3] as const).map((n) => (
                 <li key={n} className="rounded-xl border border-gray-200/80 bg-white/70 p-4">
@@ -546,8 +550,18 @@ export default function TryLangChain() {
           </div>
         </div>
 
+        {/* Tutorial en video, antes del playground */}
+        <section className="mb-10">
+          <DemoTutorial
+            demoId="langchain"
+            variant="featured"
+            returnToId="langchain-workspace"
+            description={t("try-langchain.tutorial_text")}
+          />
+        </section>
+
         {/* ── Workspace: playground (left) · API inspector (right) ─────────── */}
-        <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <section id="langchain-workspace" className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
 
           {/* Toolbar: title + session + status */}
           <div className="flex flex-col gap-3 border-b border-gray-100 bg-gray-50/70 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
