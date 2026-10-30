@@ -99,7 +99,8 @@ export const ContactForm = ({
   const inputClass = isDark
     ? "bg-slate-950/80 border-slate-700 text-white placeholder:text-slate-500 focus-visible:border-emerald-400 focus-visible:ring-emerald-400/20"
     : "bg-white text-gray-900";
-  const labelClass = isDark ? "text-sm text-slate-200" : "text-sm text-gray-900";
+  // Compact form: placeholders carry the prompt, labels stay for screen readers.
+  const labelClass = compact ? "sr-only" : isDark ? "text-sm text-slate-200" : "text-sm text-gray-900";
 
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
@@ -255,7 +256,7 @@ export const ContactForm = ({
                         : "border-input bg-white text-gray-900"
                     }`}
                   >
-                    <option value="" className={isDark ? "bg-slate-900 text-white" : ""}>{t("contact.goalPlaceholder")}</option>
+                    <option value="" className={isDark ? "bg-slate-900 text-white" : ""}>{t(compact ? "contact.goalLabel" : "contact.goalPlaceholder")}</option>
                     {CONTACT_GOALS.map((goal) => (
                       <option key={goal} value={goal} className={isDark ? "bg-slate-900 text-white" : ""}>{t(`contact.goals.${goal}`)}</option>
                     ))}
