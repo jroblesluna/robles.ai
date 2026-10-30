@@ -7,9 +7,15 @@ interface ClientLogosProps {
   className?: string;
 }
 
+const half = Math.ceil(CLIENT_LOGOS.length / 2);
+const ROWS = [CLIENT_LOGOS.slice(0, half), CLIENT_LOGOS.slice(half)];
+
 /**
- * Client logo wall. Logos sit on white tiles so every brand keeps its own colors on both
- * light and dark backgrounds. Flex rows (2 / 4 / 6 per row) keep an incomplete last row centered. `large` gives logos with a lot of built-in padding a taller box.
+ * Client logo marquee: two rows drifting in opposite directions (`.logo-marquee` in index.css).
+ * Each row renders twice so the loop is seamless; the copy is hidden from assistive tech, and with
+ * reduced motion it is removed and the rows wrap as a static wall. Logos sit on white tiles so every
+ * brand keeps its own colors on both light and dark backgrounds. `large` gives logos with a lot of
+ * built-in padding a taller box.
  */
 export default function ClientLogos({ tone = "light", className = "" }: ClientLogosProps) {
   const { t } = useTranslation();
@@ -26,25 +32,34 @@ export default function ClientLogos({ tone = "light", className = "" }: ClientLo
           {t("clients.title")}
         </h2>
         <p className={`text-center text-sm mb-8 ${dark ? "text-slate-300" : "text-gray-600"}`}>{t("clients.note")}</p>
-        <ul className="flex flex-wrap justify-center gap-3">
-          {CLIENT_LOGOS.map(({ name, file, large }) => (
-            <li
-              key={name}
-              className={`group flex basis-[calc((100%-0.75rem)/2)] sm:basis-[calc((100%-2.25rem)/4)] lg:basis-[calc((100%-3.75rem)/6)] h-14 sm:h-16 md:h-20 items-center justify-center rounded-lg md:rounded-xl bg-white px-2 md:px-4 ${
-                dark ? "" : "border border-gray-200"
-              }`}
-            >
-              <img
-                src={`/images/clients/${file}`}
-                alt={name}
-                title={name}
-                loading="lazy"
-                decoding="async"
-                className={`${large ? "max-h-10 sm:max-h-12 md:max-h-16" : "max-h-7 sm:max-h-8 md:max-h-10"} max-w-full object-contain transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none`}
-              />
-            </li>
+        <div className="space-y-3">
+          {ROWS.map((row, rowIndex) => (
+            <div key={rowIndex} className="logo-marquee" data-reverse={rowIndex === 1 || undefined}>
+              <div className="logo-marquee-track">
+                {[false, true].map(copy => (
+                  <ul key={String(copy)} aria-hidden={copy || undefined} data-copy={copy || undefined}>
+                    {row.map(({ name, file, large }) => (
+                      <li
+                        key={name}
+                        className={`group flex w-32 sm:w-36 md:w-44 h-14 sm:h-16 md:h-20 shrink-0 items-center justify-center rounded-lg md:rounded-xl bg-white px-2 md:px-4 ${
+                          dark ? "" : "border border-gray-200"
+                        }`}
+                      >
+                        <img
+                          src={`/images/clients/${file}`}
+                          alt={copy ? "" : name}
+                          title={copy ? undefined : name}
+                          decoding="async"
+                          className={`${large ? "max-h-10 sm:max-h-12 md:max-h-16" : "max-h-7 sm:max-h-8 md:max-h-10"} max-w-full object-contain transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none`}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                ))}
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
     </section>
   );

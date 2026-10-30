@@ -25,12 +25,12 @@ type EntrancePhase = 'hidden' | 'bubble' | 'blinking' | 'typing' | 'greeting';
 export type RobotMood = 'idle' | 'listening' | 'thinking' | 'speaking';
 
 /** Robly avatar — switches SVG based on mood */
-function RobotAvatar({ mood }: { mood: RobotMood }) {
+function RobotAvatar({ mood, docked }: { mood: RobotMood; docked: boolean }) {
   return (
     <img
       src={`/robly-avatar/robly-${mood}.svg`}
       alt="Robly AI assistant"
-      className="w-20 h-20 sm:w-24 sm:h-24 md:w-[120px] md:h-[120px]"
+      className={docked ? 'w-14 h-14 md:w-[120px] md:h-[120px]' : 'w-20 h-20 sm:w-24 sm:h-24 md:w-[120px] md:h-[120px]'}
     />
   );
 }
@@ -52,7 +52,9 @@ export default function ChatbotWidget({ hideForMobileMenu = false }: { hideForMo
   const { t } = useTranslation();
   const searchParams = new URLSearchParams(search);
   const normalizedLocation = location.replace(/\/$/, '') || '/';
-  const isChatbotCampaign = normalizedLocation === '/get-started' && searchParams.get('s') === 'chatbots';
+  // /get-started docks Robly in its phone bottom bar (.landing-dock): smaller, and no balloon over the text
+  const isLanding = normalizedLocation === '/get-started';
+  const isChatbotCampaign = isLanding && searchParams.get('s') === 'chatbots';
   const campaignKeywords = isChatbotCampaign
     ? (searchParams.get('keywords') ?? searchParams.get('keyword') ?? searchParams.get('utm_term') ?? '')
         .replace(/[\u0000-\u001f\u007f]/g, ' ')
@@ -282,7 +284,7 @@ export default function ChatbotWidget({ hideForMobileMenu = false }: { hideForMo
         }
       `}</style>
 
-      <div className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex-col items-end gap-3 print:hidden ${hideForMobileMenu ? "hidden md:flex" : "flex"}`}>
+      <div className={`fixed ${isLanding ? "bottom-[calc(0.25rem+env(safe-area-inset-bottom))] right-2 md:bottom-6 md:right-6" : "bottom-4 right-4 sm:bottom-6 sm:right-6"} z-50 flex-col items-end gap-3 print:hidden ${hideForMobileMenu ? "hidden md:flex" : "flex"}`}>
         {/* Chat panel — mascot lives in its header, animated, in-flow with the conversation */}
         <AnimatePresence>
           {isOpen && (
@@ -340,7 +342,7 @@ export default function ChatbotWidget({ hideForMobileMenu = false }: { hideForMo
                     }
               }
               onClick={handleNotificationClick}
-              className="relative bg-white rounded-xl shadow-lg px-3 py-2 sm:px-4 sm:py-3 max-w-[200px] sm:max-w-[250px] cursor-pointer"
+              className={`${isLanding ? "hidden md:block" : ""} relative bg-white rounded-xl shadow-lg px-3 py-2 sm:px-4 sm:py-3 max-w-[200px] sm:max-w-[250px] cursor-pointer`}
               role="status"
               aria-live="polite"
             >
@@ -381,7 +383,7 @@ export default function ChatbotWidget({ hideForMobileMenu = false }: { hideForMo
               className="flex items-center justify-center hover:scale-105 transition-transform cursor-pointer"
               aria-label="Open chat"
             >
-              <RobotAvatar mood={currentMood} />
+              <RobotAvatar mood={currentMood} docked={isLanding} />
             </motion.button>
           )}
         </AnimatePresence>

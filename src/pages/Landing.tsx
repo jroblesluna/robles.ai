@@ -844,7 +844,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Floating WhatsApp bubble, always on screen, just left of the Robly chat button */}
+      {/* Floating WhatsApp bubble (desktop, bottom left; Robly holds the right). Phones use the dock below. */}
       <motion.a
         href={whatsappHref}
         onClick={() => trackContactClick("whatsapp", "landing_floating")}
@@ -854,7 +854,7 @@ export default function Landing() {
         title={t("landing.v2.sticky.whatsapp")}
         animate={{ y: [0, -6, 0] }}
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        className="fixed bottom-7 right-[104px] sm:bottom-11 sm:right-[132px] md:bottom-14 md:right-[156px] z-40 print:hidden"
+        className="hidden md:block fixed bottom-14 left-12 lg:left-20 z-40 print:hidden"
       >
         <span className="absolute inset-0 rounded-full bg-[#25D366] opacity-60 animate-ping" aria-hidden="true" />
         <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg shadow-emerald-900/40 ring-4 ring-white/20 transition-transform hover:scale-110 [&_svg]:h-8 [&_svg]:w-8">
@@ -862,20 +862,27 @@ export default function Landing() {
         </span>
       </motion.a>
 
-      {/* Sticky mobile CTA — leaves room on the right for the WhatsApp bubble and Robly */}
-      <div
-        className={`md:hidden fixed bottom-3 left-3 right-[172px] z-40 flex gap-2 transition-all duration-300 ${
-          showSticky ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-6 opacity-0"
-        }`}
-        aria-hidden={!showSticky}
-      >
+      {/* Phone dock: an opaque bar so nothing floats over the text. Robly sits in the space kept on the right; index.css pads the page by its height. */}
+      <div className="landing-dock md:hidden fixed inset-x-0 bottom-0 z-40 flex items-center gap-2 border-t border-white/10 bg-slate-950 pt-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] pl-3 pr-[76px] print:hidden">
         <a
-          href="#contacto"
-          tabIndex={showSticky ? 0 : -1}
-          className="tap-target flex-1 inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-lg"
+          href={whatsappHref}
+          onClick={() => trackContactClick("whatsapp", "landing_floating")}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={t("landing.v2.sticky.whatsapp")}
+          className={`tap-target gap-2 rounded-lg bg-[#25D366] px-3 text-sm font-semibold text-slate-950 [&_svg]:h-6 [&_svg]:w-6 ${showSticky ? "shrink-0" : "flex-1"}`}
         >
-          {t("landing.v2.sticky.book")}
+          <WhatsAppMark />
+          {!showSticky && "WhatsApp"}
         </a>
+        {showSticky && (
+          <a
+            href="#contacto"
+            className="tap-target flex-1 rounded-lg bg-emerald-600 px-3 text-sm font-semibold text-white"
+          >
+            {t("landing.v2.sticky.book")}
+          </a>
+        )}
       </div>
     </div>
   );

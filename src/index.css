@@ -263,3 +263,31 @@ section[id][class*="py-"] {
   .demo-photo-preview * { animation: none !important; }
   .demo-photo-preview .demo-scan { display: none; }
 }
+
+/* The footer lives outside the landing page, so the room for its phone dock is kept on body. */
+@media (max-width: 767px) {
+  body:has(.landing-dock) { padding-bottom: calc(65px + env(safe-area-inset-bottom)); }
+}
+
+/* Client logo marquee: the track holds the row twice, so -50% lands on an identical frame. */
+.logo-marquee {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+}
+.logo-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: logo-marquee 60s linear infinite;
+}
+.logo-marquee[data-reverse] .logo-marquee-track { animation-direction: reverse; }
+.logo-marquee ul { display: flex; flex-shrink: 0; gap: 0.75rem; padding-right: 0.75rem; }
+@media (hover: hover) {
+  .logo-marquee:hover .logo-marquee-track { animation-play-state: paused; }
+}
+@keyframes logo-marquee { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .logo-marquee { mask-image: none; }
+  .logo-marquee-track { animation: none !important; width: auto; }
+  .logo-marquee ul { flex: 1; flex-wrap: wrap; justify-content: center; padding-right: 0; }
+  .logo-marquee ul[data-copy] { display: none; }
+}
