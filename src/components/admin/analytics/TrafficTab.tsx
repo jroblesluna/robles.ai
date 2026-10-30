@@ -1,13 +1,13 @@
+import { useState } from "react";
 import WebsiteChannels from "./WebsiteChannels";
 import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import {
-  BarChart, Bar, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+  BarChart, Bar,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
-import type { PieLabelRenderProps } from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Globe, Loader2 } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Globe, Loader2, Monitor, Smartphone, Tablet, Tv, type LucideIcon } from "lucide-react";
 import type { DateRange } from "./DateRangeSelector";
 
 // --- Types matching backend response ---
@@ -52,9 +52,187 @@ const CHART_COLORS = [
   "hsl(var(--chart-5, 340 75% 55%))",
 ];
 
-const PIE_COLORS = ["#6366f1", "#22c55e", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#ec4899"];
+// Bar color for the ranked channel list (one hue: it encodes magnitude, not identity)
+const SOURCE_BAR_COLOR = "#2a78d6";
+
+// Fixed color per device so a filter never repaints the survivors
+const DEVICE_STYLES: Record<string, { label: string; color: string; icon: LucideIcon }> = {
+  desktop: { label: "Desktop", color: "#2a78d6", icon: Monitor },
+  mobile: { label: "Mobile", color: "#eb6834", icon: Smartphone },
+  tablet: { label: "Tablet", color: "#1baf7a", icon: Tablet },
+};
+const DEVICE_FALLBACK = { color: "#6250d6", icon: Tv };
 
 // --- Helpers ---
+
+function formatPercent(part: number, total: number): string {
+  if (total <= 0) return "0%";
+  const pct = (part / total) * 100;
+  if (pct > 0 && pct < 1) return "<1%";
+  return `${pct.toFixed(pct < 10 ? 1 : 0)}%`;
+}
+
+function deviceStyle(category: string) {
+  const known = DEVICE_STYLES[category.toLowerCase()];
+  if (known) return known;
+  return { ...DEVICE_FALLBACK, label: category.charAt(0).toUpperCase() + category.slice(1) };
+}
+
+// --- Traffic sources: ranked bar list ---
+
+function TrafficSourcesCard({ sources }: { sources: TrafficSourceData[] }) {
+  const rows = [...sources].sort((a, b) => b.sessions - a.sessions);
+  const totalSessions = rows.reduce((sum, s) => sum + s.sessions, 0);
+  const totalUsers = rows.reduce((sum, s) => sum + s.activeUsers, 0);
+  const max = rows[0]?.sessions || 1;
+
+  return (
+    <Card className="flex flex-col">
+      <CardHeader className="pb-4">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <CardTitle className="text-base">Traffic Sources</CardTitle>
+            <CardDescription>Sessions by default channel group</CardDescription>
+          </div>
+          {rows.length > 0 && (
+            <div className="text-right">
+              <p className="text-2xl font-semibold tabular-nums leading-none">{formatNumber(totalSessions)}</p>
+              <p className="mt-1 text-xs text-muted-foreground">sessions · {formatNumber(totalUsers)} users</p>
+            </div>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent className="flex-1">
+        {rows.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-8">No source data available.</p>
+        ) : (
+          <div role="table" aria-label="Sessions by traffic source" className="text-sm">
+            <div role="row" className="grid grid-cols-[minmax(0,1fr)_4.5rem_3.5rem] gap-3 border-b pb-2 text-xs font-medium text-muted-foreground">
+              <span role="columnheader">Channel</span>
+              <span role="columnheader" className="text-right">Sessions</span>
+              <span role="columnheader" className="text-right">Share</span>
+            </div>
+            <ul className="divide-y">
+              {rows.map((s) => (
+                <li
+                  key={s.channelGroup}
+                  role="row"
+                  title={`${s.channelGroup}: ${s.sessions.toLocaleString()} sessions, ${s.activeUsers.toLocaleString()} users`}
+                  className="group grid grid-cols-[minmax(0,1fr)_4.5rem_3.5rem] items-center gap-3 rounded-sm py-2.5 transition-colors hover:bg-muted/60"
+                >
+                  <div role="cell" className="min-w-0">
+                    <p className="truncate font-medium">{s.channelGroup}</p>
+                    <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                      <div
+                        className="h-full rounded-full opacity-80 transition-opacity group-hover:opacity-100"
+                        style={{ width: `${Math.max((s.sessions / max) * 100, 1.5)}%`, backgroundColor: SOURCE_BAR_COLOR }}
+                      />
+                    </div>
+                  </div>
+                  <span role="cell" className="text-right tabular-nums">{formatNumber(s.sessions)}</span>
+                  <span role="cell" className="text-right tabular-nums text-muted-foreground">
+                    {formatPercent(s.sessions, totalSessions)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// --- Devices: segmented share bar + per-device tiles ---
+
+function DeviceDistributionCard({ devices }: { devices: DeviceData[] }) {
+  const [active, setActive] = useState<string | null>(null);
+  const rows = [...devices].sort((a, b) => b.activeUsers - a.activeUsers);
+  const total = rows.reduce((sum, d) => sum + d.activeUsers, 0);
+  const visible = rows.filter((d) => d.activeUsers > 0);
+
+  return (
+    <Card className="flex flex-col">
+      <CardHeader className="pb-4">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <CardTitle className="text-base">Device Distribution</CardTitle>
+            <CardDescription>Active users by device category</CardDescription>
+          </div>
+          {rows.length > 0 && (
+            <div className="text-right">
+              <p className="text-2xl font-semibold tabular-nums leading-none">{formatNumber(total)}</p>
+              <p className="mt-1 text-xs text-muted-foreground">active users</p>
+            </div>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent className="flex-1">
+        {rows.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-8">No device data available.</p>
+        ) : (
+          <div className="space-y-6">
+            <div
+              className="flex h-3 w-full gap-0.5 overflow-hidden rounded-full bg-muted"
+              role="img"
+              aria-label={rows.map((d) => `${deviceStyle(d.deviceCategory).label} ${formatPercent(d.activeUsers, total)}`).join(", ")}
+              onMouseLeave={() => setActive(null)}
+            >
+              {visible.map((d) => {
+                const style = deviceStyle(d.deviceCategory);
+                const dimmed = active !== null && active !== d.deviceCategory;
+                return (
+                  <div
+                    key={d.deviceCategory}
+                    title={`${style.label}: ${d.activeUsers.toLocaleString()} users (${formatPercent(d.activeUsers, total)})`}
+                    onMouseEnter={() => setActive(d.deviceCategory)}
+                    className="h-full transition-opacity first:rounded-l-full last:rounded-r-full"
+                    style={{
+                      width: `${(d.activeUsers / total) * 100}%`,
+                      minWidth: 4,
+                      backgroundColor: style.color,
+                      opacity: dimmed ? 0.35 : 1,
+                    }}
+                  />
+                );
+              })}
+            </div>
+
+            <ul className="grid gap-3 sm:grid-cols-3">
+              {rows.map((d) => {
+                const style = deviceStyle(d.deviceCategory);
+                const Icon = style.icon;
+                const isActive = active === d.deviceCategory;
+                return (
+                  <li
+                    key={d.deviceCategory}
+                    onMouseEnter={() => setActive(d.deviceCategory)}
+                    onMouseLeave={() => setActive(null)}
+                    className={`rounded-lg border p-3 transition-colors ${isActive ? "bg-muted/60" : ""}`}
+                  >
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: style.color }} aria-hidden="true" />
+                      <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                      <span className="truncate">{style.label}</span>
+                    </div>
+                    <p className="mt-2 text-2xl font-semibold tabular-nums leading-none">
+                      {formatPercent(d.activeUsers, total)}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground tabular-nums">
+                      {d.activeUsers.toLocaleString()} users
+                    </p>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// --- Formatting helpers ---
 
 function truncatePath(path: string, maxLen = 30): string {
   if (path.length <= maxLen) return path;
@@ -171,79 +349,8 @@ export default function TrafficTab({ dateRange }: TrafficTabProps) {
         </CardContent>
       </Card>
 
-      {/* Traffic Sources - Pie Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Traffic Sources</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {sources.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">No source data available.</p>
-          ) : (
-            <ResponsiveContainer width="100%" height={280}>
-              <PieChart>
-                <Pie
-                  data={sources}
-                  dataKey="sessions"
-                  nameKey="channelGroup"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={90}
-                  label={(props: PieLabelRenderProps) => {
-                    const name = String(props.name || "");
-                    const pct = typeof props.percent === "number" ? (props.percent * 100).toFixed(0) : "0";
-                    return `${name} (${pct}%)`;
-                  }}
-                  labelLine={false}
-                >
-                  {sources.map((_, index) => (
-                    <Cell key={index} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value) => [formatNumber(Number(value)), "Sessions"]} />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Device Distribution - Pie Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Device Distribution</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {devices.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">No device data available.</p>
-          ) : (
-            <ResponsiveContainer width="100%" height={280}>
-              <PieChart>
-                <Pie
-                  data={devices}
-                  dataKey="activeUsers"
-                  nameKey="deviceCategory"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={90}
-                  label={(props: PieLabelRenderProps) => {
-                    const name = String(props.name || "");
-                    const pct = typeof props.percent === "number" ? (props.percent * 100).toFixed(0) : "0";
-                    return `${name} (${pct}%)`;
-                  }}
-                  labelLine={false}
-                >
-                  {devices.map((_, index) => (
-                    <Cell key={index} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value) => [formatNumber(Number(value)), "Users"]} />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          )}
-        </CardContent>
-      </Card>
+      <TrafficSourcesCard sources={sources} />
+      <DeviceDistributionCard devices={devices} />
 
       {/* Top Countries - Table */}
       <Card>
