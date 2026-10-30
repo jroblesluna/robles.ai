@@ -4,6 +4,7 @@ import { Router } from 'express';
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import OpenAI from 'openai';
+import { OPENAI_IMAGE_MODEL } from './services/imageGeneration.js';
 import nodemailer from 'nodemailer';
 import path from 'path';
 import fs from 'fs';
@@ -1364,14 +1365,14 @@ adminRouter.post('/dominical/:id/generate-image', requireAuth, async (req, res) 
     const prompt = `Professional LinkedIn cover image representing: ${themes}. Modern, clean, corporate style. Blue and purple tones. No text.`;
 
     const imageResponse = await openai.images.generate({
-      model: 'gpt-image-1',
+      model: OPENAI_IMAGE_MODEL,
       prompt,
       n: 1,
       size: '1536x1024',
       quality: 'medium',
     });
 
-    // gpt-image-1 returns b64_json, not a URL
+    // GPT Image models return b64_json, not a URL
     const b64Data = imageResponse.data?.[0]?.b64_json;
     const urlData = imageResponse.data?.[0]?.url;
     

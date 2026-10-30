@@ -11,6 +11,7 @@ import { getArticleContentSummary } from '../jobs/generateDominical.js';
 import type { ScoredPost } from './dominicalScoring.js';
 import { computeRobotPose, renderRobotFrameSvg, VARIANT_NATIVE_SIZE, type RobotVariant } from './robotFrames.js';
 import { buildCaptionOverlaySvg, buildWhiteboardCaptionSvg, VIDEO_CAPTION_BAND_HEIGHT } from './slideCompositor.js';
+import { OPENAI_IMAGE_MODEL } from './imageGeneration.js';
 
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 ffmpeg.setFfprobePath(ffprobeInstaller.path);
@@ -44,7 +45,7 @@ function getFrameDimensions(variant: RobotVariant): { width: number; height: num
 
 /**
  * Generates a themed AI background for the video (one image per generation,
- * reused across every frame) via gpt-image-1 — same model already used for
+ * reused across every frame) via OPENAI_IMAGE_MODEL — same model already used for
  * carousel slide backgrounds (see carouselImageGen.ts). Kept soft/blurred and
  * low-contrast on purpose so the robot and whiteboard composited on top stay
  * readable without needing any extra scrim layer.
@@ -67,7 +68,7 @@ async function generateVideoBackground(
 
   const openai = new OpenAI({ apiKey });
   const response = await openai.images.generate({
-    model: 'gpt-image-1',
+    model: OPENAI_IMAGE_MODEL,
     prompt,
     n: 1,
     size: '1536x1024',
@@ -83,7 +84,7 @@ async function generateVideoBackground(
     if (!fetchResponse.ok) throw new Error(`Failed to download generated background: ${fetchResponse.status}`);
     imageBuffer = Buffer.from(await fetchResponse.arrayBuffer());
   } else {
-    throw new Error('gpt-image-1 returned no background image data');
+    throw new Error(`${OPENAI_IMAGE_MODEL} returned no background image data`);
   }
 
   return sharp(imageBuffer).resize(frameWidth, frameHeight, { fit: 'cover' }).png().toBuffer();

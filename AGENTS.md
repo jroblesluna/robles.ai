@@ -31,7 +31,7 @@ Sitio y plataforma de **Robles.AI**, consultora/estudio de soluciones de IA (Cup
 | Frontend | React 19 + Vite 6 + TypeScript + Tailwind + shadcn/ui (Radix) + framer-motion + recharts + wouter + TanStack Query |
 | Backend | Express 4 + Node ≥ 20 (producción v22.14.0) · `tsx watch` en dev · esbuild en prod |
 | Base de datos | SQLite vía `better-sqlite3` (`server/data/dominical.db`) |
-| IA | OpenAI — GPT-4o, GPT-4o-mini, `gpt-image-1`; proveedores de imagen opcionales (Replicate, Stability) |
+| IA | OpenAI — GPT-4o, GPT-4o-mini, `gpt-image-2.5-flare`; proveedores de imagen opcionales (Replicate, Stability) |
 | APIs sociales / ads | LinkedIn UGC Posts + OAuth 2.0; Meta Graph API (Instagram, Facebook, Marketing API) |
 | Analítica | GA4 Data API, Meta Graph Insights; en el sitio GTM o GA4 + Meta Pixel directos |
 | Medios | `sharp`, `pdfkit`, `fluent-ffmpeg` (+ `@ffmpeg-installer`, `@ffprobe-installer`) |
@@ -230,7 +230,7 @@ Configuración externa: el GTM existente tiene una etiqueta GA4 *catch-all* que 
 ## 8. El Dominical IA (newsletter automatizado)
 
 - **Sábado 12:00 (America/Lima)** — `generateDominicalReport`: lee los posts de los últimos 7 días, los puntúa con GPT-4o (novedad, impacto en personas, impacto económico, potencial narrativo), toma el top N (`dominical_top_n`, por defecto 5), redacta textos para LinkedIn e Instagram, guarda el reporte como `pending_review`, notifica a `notification_email` y genera el carrusel (paleta `natural`, estilo `cinematic-scene`).
-- **Revisión** (`/admin/dominical/:id`): edición y regeneración de textos; carrusel 1080×1080 (portada + artículos + CTA; fondos `gpt-image-1`, overlay SVG con sharp, regeneración/edición por slide, PDF con pdfkit); **video narrado** con Robly (`dominicalVideoGen.ts`, `robotFrames.ts`, `VideoGenerator.tsx`; fluent-ffmpeg, subtítulos); estado de publicación por plataforma; publicación manual o cancelación.
+- **Revisión** (`/admin/dominical/:id`): edición y regeneración de textos; carrusel 1080×1080 (portada + artículos + CTA; fondos `gpt-image-2.5-flare`, overlay SVG con sharp, regeneración/edición por slide, PDF con pdfkit); **video narrado** con Robly (`dominicalVideoGen.ts`, `robotFrames.ts`, `VideoGenerator.tsx`; fluent-ffmpeg, subtítulos); estado de publicación por plataforma; publicación manual o cancelación.
 - **Auto-publicación**: un cron cada 30 min llama a `shouldRunAutoPublishNow()` y publica solo el **domingo** a `auto_publish_time` (por defecto `18:00`) en `auto_publish_timezone` (por defecto `America/Lima`), salvo que `auto_publish` sea `false`/`0`. Publica en las plataformas con credenciales válidas y estado `not_published`, con 5 s entre intentos y aislamiento de fallos, y envía un email resumen.
 
 ### Publicación multi-plataforma
