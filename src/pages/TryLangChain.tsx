@@ -122,6 +122,29 @@ const MODE_META: Record<Mode, { icon: LucideIcon; endpoints: string[] }> = {
 
 const EMPTY_THREADS: Record<Mode, Message[]> = { rag: [], tools: [], json: [] };
 
+// Workarounds for the API until langchain-api fixes them: /agent and /json answer in
+// Spanish whatever the question's language, and the agent's calculator crashes (HTTP 500)
+// on `^`, which the model writes for powers. Appended to what is sent, never to the thread.
+const AGENT_HINT = {
+  es: "\n\n(En los cálculos, escribe las potencias con ** en lugar de ^.)",
+  en: "\n\n(Answer in English. In calculations, write powers with ** instead of ^.)",
+};
+const JSON_HINT_EN = "\n\nAnswer in English.";
+
+/**
+ * /json fills `citations` with made-up links on reserved example domains (example.com…)
+ * instead of real sources. Drop those, and the field when nothing real is left, until
+ * langchain-api stops inventing them; real citations still come through.
+ */
+function withoutPlaceholderCitations(json: any): any {
+  if (!Array.isArray(json?.citations)) return json;
+  const real = json.citations.filter(
+    (c: unknown) => !(typeof c === "string" && /^https?:\/\/([^/]+\.)?example\.(com|org|net)\b/i.test(c)),
+  );
+  const { citations: _dropped, ...rest } = json;
+  return real.length ? { ...rest, citations: real } : rest;
+}
+
 function errorMessage(json: any, status: number | undefined, fallback: string): string {
   if (json?.error?.message) return json.error.message;
   if (typeof json?.error === "string") return json.error;
@@ -256,6 +279,7 @@ export default function TryLangChain() {
       });
       status = res.status;
       json = await res.json().catch(() => null);
+      if (path === "/json") json = withoutPlaceholderCitations(json);
       return { ok: res.ok && !json?.error, status, json };
     } catch {
       json = { error: t("try-langchain.network_error") };
@@ -416,7 +440,11 @@ export default function TryLangChain() {
       }
       const path = m === "rag" ? "/chat" : m === "tools" ? "/agent" : "/json";
       const body =
-        m === "rag" ? { session_id: sessionId, question: q } : m === "tools" ? { mode: "tools", input: q } : { query: q };
+        m === "rag"
+          ? { session_id: sessionId, question: q }
+          : m === "tools"
+            ? { mode: "tools", input: q.replace(/\^/g, "**") + AGENT_HINT[isEs ? "es" : "en"] }
+            : { query: isEs ? q : q + JSON_HINT_EN };
       const { ok, status, json } = await callApi(path, { json: body });
       if (!ok) {
         patchMessage(m, answerId, {
@@ -426,9 +454,11 @@ export default function TryLangChain() {
         });
         return;
       }
+      // RAG cites "(Fuente: file)" in every language; show "Source" on the English page.
+      const answer: string = json?.answer ?? "";
       patchMessage(m, answerId, {
         state: "done",
-        text: m === "json" ? json?.summary ?? "" : json?.answer ?? "",
+        text: m === "json" ? json?.summary ?? "" : isEs ? answer : answer.replace(/\bFuente:/g, "Source:"),
         data: json,
       });
       trackComplete({ mode: m });

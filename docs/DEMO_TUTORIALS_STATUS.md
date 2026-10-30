@@ -52,7 +52,7 @@ video oculta el botón. Briefs y capturas en `docs/demo-tutorials/<ruta>/`.
 | `rag` | Brief y capturas listos (sin `capture-report.json`); falta producir los videos |
 | `sitechatbot` | Publicado en ES (59 s) y EN (58 s). Es la demo estrella, así que además del botón en el hero lleva una tarjeta grande con póster (`variant="featured"`) justo después del hero. Pendiente aparte: que el bot responda en el idioma de la pregunta (§0 del prompt) |
 | `speech` | Publicado en ES (60 s) y EN (57 s): botón junto a *Cómo funciona* y tarjeta destacada entre la cabecera y el espacio de trabajo (se ve antes de pedir el micrófono); al cerrar, la página queda en `#transcription-workspace`. Sin subtítulos `.vtt` (§13.1 del prompt, opcional). Sigue pendiente corregir en la demo los bugs de la transcripción en vivo (§0 del prompt) |
-| `langchain` | Brief y capturas listos (29 oct 2026, con `capture-report.json`). El video ES se puede producir ya. **El EN está bloqueado**: `/agent` devuelve 500 con 2 de las 3 sugerencias en inglés, el modo JSON responde en español y las citas RAG dicen *Fuente* (§0 del prompt) |
+| `langchain` | Brief y capturas listos (recapturado el 30 oct 2026, con `capture-report.json` y las sugerencias nuevas del modo Agente). El video ES se puede producir ya. **El EN está bloqueado**: el agente y el JSON responden en español y las citas RAG dicen *Fuente* (§0 del prompt, hallazgos 3 y 4). El 500 del agente con preguntas de interés compuesto sigue en el backend, pero ya no afecta a las sugerencias |
 | resto | Sin empezar |
 
 ## Próximos pasos sugeridos
@@ -60,8 +60,9 @@ video oculta el botón. Briefs y capturas en `docs/demo-tutorials/<ruta>/`.
 1. `speech`: corregir en `TryTranscription.tsx` las líneas provisionales que no se borran y el
    orden de los turnos (§0 del prompt); el video ya los muestra corregidos.
 2. `rag`: renderizar ES y EN, registrar y montar `<DemoTutorial demoId="rag">`.
-3. `langchain`: renderizar ES; corregir en `robles.ai-langchain-api` los hallazgos 1–5 de §0 del
-   prompt, recapturar con `LANGS=en` y renderizar EN.
+3. `langchain`: renderizar ES; corregir en `robles.ai-langchain-api` el idioma de `/agent`,
+   `/json` y las citas (hallazgos 3 y 4 de §0 del prompt), recapturar con `LANGS=en` y renderizar EN.
+   Aparte, arreglar el 500 de la calculadora del agente (hallazgo 1).
 4. Siguiente brief: `docextract`, `tts` o `identity` (mismo flujo: capturas → brief → zip).
 
 ## Checklist para publicar un tutorial

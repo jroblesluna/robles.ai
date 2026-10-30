@@ -2217,7 +2217,7 @@
         "upload_error": "Upload failed. Please try again.",
         "upload_no_text": "We couldn't read any text from this file. Scanned PDFs (pages that are just images) need OCR, which this demo doesn't run — try a file with a real text layer.",
         "request_error": "The request failed. The service may be waking up — try again.",
-        "network_error": "Couldn't reach the service. It may be waking up (cold start) or offline — try again in a moment.",
+        "network_error": "We couldn't complete the request. Please try again in a moment.",
         "placeholder_rag": "Ask a question about your uploaded documents…",
         "placeholder_tools": "Ask the agent to compute or look something up…",
         "placeholder_json": "Describe what you want summarized as structured JSON…",
