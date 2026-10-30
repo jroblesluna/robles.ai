@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowRight, ArrowUp, ChevronRight, Clock, ExternalLink, Home, ListTree } from 'lucide-react';
 import { navigate } from 'wouter/use-browser-location';
@@ -100,6 +100,8 @@ export default function BlogPost() {
   const [fetchError, setFetchError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const search = useSearch();
+  const postRef = useRef(post);
+  postRef.current = post;
   useEffect(() => {
     if (!post || !slug) return;
     const language = explicitLanguage(new URLSearchParams(search).get('lang'))
@@ -117,7 +119,10 @@ export default function BlogPost() {
     if (slug) {
       setFetchError(false);
       setNotFound(false);
-      const initial = initialPublicPost<Post>(slug);
+      // A language switch only swaps the slug: the loaded post already holds both translations.
+      const current = postRef.current;
+      const sameArticle = reloadKey === 0 && current && [current.translations.en.slug, current.translations.es.slug].includes(slug);
+      const initial = sameArticle ? current : initialPublicPost<Post>(slug);
       setPost(initial);
       if (!initial || reloadKey > 0) fetch(`/api/blog/${encodeURIComponent(slug)}`, { signal: controller.signal })
         .then((res) => {

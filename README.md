@@ -49,7 +49,7 @@ The platform plays three roles:
 
 - **SPA** with Vite + React 19 and **wouter** routing; Express serves static assets and integrates Vite middleware in development.
 - **Readable first response**: `server/seo/publicContent.ts` renders a plain-HTML version of every public page from the same i18n files (progressive enhancement, replaced by React on startup), plus server-side meta tags, hreflang, canonical and JSON-LD.
-- **i18n** (en/es) with i18next; `?lang=es` selects Spanish on any public route.
+- **i18n** (en/es) with i18next; `?lang=es` selects Spanish on any public route. The header switcher changes language without a reload (`switchLanguage`); with the blog modal open it does a full navigation.
 - **Paid-traffic landing** (`/get-started`): outcome-led hero, three fixed-fee AI Assessment packages (from USD 1,500 / 2,500 / 3,000 for up to 2 / 4 / 6 processes, each with a bonus) or a direct project, live demos, industries, commitments, integrations, security & compliance, founder and US/Peru offices, FAQ, calendar booking link, contact form, sticky mobile CTA, and `?s=chatbots|rag|agents|docs` variants per ad group.
 - **Contact form** with a *"What do you want to improve?"* selector, optional message, reply-time/privacy notes; delivered by email (nodemailer) and tracked as `generate_lead` only after the server accepts it.
 - **AI Diagnostic Quiz** (`/diagnostico-ia`): scored quiz → GPT result message → email verification → PDF report; leads stored in SQLite and listed in `/admin/quiz-leads`.

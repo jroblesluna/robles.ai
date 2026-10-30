@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { Menu, X, ChevronDown, ChevronRight, FlaskConical, ClipboardCheck, Newspaper, Sparkles, Users, Lightbulb, Building2, Briefcase, FileText, GraduationCap, type LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'wouter';
 import { AnimatePresence, motion } from 'framer-motion';
 import { normalizeLanguage, staticPagePath } from '@shared/seoPolicy';
 
@@ -27,6 +28,7 @@ const FLAGS = {
 interface HeaderProps { isMobileMenuOpen: boolean; setIsMobileMenuOpen: (open: boolean) => void }
 export default function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) {
   const { i18n, t } = useTranslation();
+  const [, navigate] = useLocation();
   const [clientReady, setClientReady] = useState(false);
   useEffect(() => { setClientReady(true); }, []);
   const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
@@ -89,10 +91,19 @@ export default function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: Header
     ] },
   ];
   const close = () => { setOpenMenu(null); setIsMobileMenuOpen(false); };
+  // Soft switch: the URL still declares the language, so the App/useSEO effects pick it up without a reload.
+  // ponytail: an open blog modal keeps the full navigation; closing it goes back to the old-language list URL.
+  const switchLanguage = (event: MouseEvent<HTMLAnchorElement>, next: 'en' | 'es') => {
+    setOpenMenu(null);
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || window.history.state?.blogModal) { setIsMobileMenuOpen(false); return; }
+    event.preventDefault(); // the mobile menu stays open so the new language shows in place
+    navigate(languageHref(next));
+    void i18n.changeLanguage(next);
+  };
   const linkClass = 'tap-target !justify-start rounded-md text-gray-700 hover:bg-blue-50 hover:text-blue-700 px-3 py-2';
   const links = (group: typeof groups[number]) => group.links.map(link => (
     <a key={link.label} href={group.id === 'language' ? link.href : href(link.href)}
-      hrefLang={'lang' in link ? link.lang : undefined} onClick={close}
+      hrefLang={'lang' in link ? link.lang : undefined} onClick={'lang' in link ? event => switchLanguage(event, link.lang) : close}
       className={`${linkClass} flex w-full gap-2`}>{'lang' in link && FLAGS[link.lang]}{link.label}</a>
   ));
   return (
@@ -167,7 +178,7 @@ export default function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: Header
         <motion.div variants={mobileMenuItem} className="shrink-0 border-t p-4 pb-[max(1rem,env(safe-area-inset-bottom))] space-y-3">
           <div role="group" aria-label={t('nav.language')} className="grid grid-cols-2 gap-1 rounded-lg bg-gray-100 p-1">
             {([['en', 'English'], ['es', 'Español']] as const).map(([code, label]) => (
-              <a key={code} href={languageHref(code)} hrefLang={code} onClick={close} aria-current={lang === code ? 'true' : undefined}
+              <a key={code} href={languageHref(code)} hrefLang={code} onClick={event => switchLanguage(event, code)} aria-current={lang === code ? 'true' : undefined}
                 className={`tap-target gap-2 rounded-md text-sm ${lang === code ? 'bg-white font-medium text-gray-900 shadow-sm' : 'text-gray-600'}`}>{FLAGS[code]}{label}</a>
             ))}
           </div>
