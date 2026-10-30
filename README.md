@@ -470,6 +470,7 @@ Catalog data: `demosCatalog.items` in both translation files (`id`, `href`, `sta
 | `voiceagent`, `anomaly`, `imagegen` | — | — | soon |
 
 - **Cold starts**: Cloud Run APIs scale to zero; each page warms its API on mount and shows a status banner.
+- **Document AI samples**: `/try-docextract` offers three one-click fictional samples (invoice, receipt, contract; en/es) in `public/demo-samples/docextract-*`, rendered by `node scripts/renderDocExtractSamples.mjs`.
 - **Transcription audio**: the API forwards raw PCM `linear16` 16 kHz mono to Deepgram, so `TryTranscription` captures PCM with an `AudioWorklet` (ScriptProcessor fallback).
 - **Demo API conventions** (sibling repos): one GCP project per API, scale to zero with request-based billing, Artifact Registry `<service>-api-repo` pruned to 3 versions, secrets in Secret Manager rotated with `rotate_secret.sh`, push to `main` deploys via GitHub Actions.
 - Preview videos and visuals: [`docs/DEMO_VIDEO_RELEASE.md`](docs/DEMO_VIDEO_RELEASE.md), [`docs/DEMO_VISUALS.md`](docs/DEMO_VISUALS.md), [`docs/FIREFLY_CLIPS.md`](docs/FIREFLY_CLIPS.md).

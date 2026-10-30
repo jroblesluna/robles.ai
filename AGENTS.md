@@ -315,6 +315,7 @@ Catálogo en `demosCatalog.items` (en/es: `id`, `href`, `status`, `icon`, `title
 | `voiceagent`, `anomaly`, `imagegen` | — | — | soon |
 
 - `/try-medical` existe como página "próximamente", sin backend y fuera del catálogo; no sube nada.
+- `/try-docextract` ofrece tres ejemplos ficticios de un clic (factura, boleta/recibo y contrato, en/es) en `public/demo-samples/docextract-*-{en,es}.jpg` + `.thumb.webp`, generados con `node scripts/renderDocExtractSamples.mjs`. Los PDFs se previsualizan con la página 1 (pdfjs cargado bajo demanda) y solo se dibujan cajas si el PDF tiene una página.
 - Las APIs escalan a cero: cada página hace warm-up al montar (ping `no-cors` a `/`, `GET /health` en transcription, `POST /rag/warmup` en RAG) y muestra un banner de estado. Overrides de endpoint en dev: `VITE_*_API`.
 - Transcription: el API reenvía PCM `linear16` 16 kHz mono a Deepgram e ignora el `encoding` del frame `start`; por eso se captura con `AudioWorklet` (fallback `ScriptProcessorNode`).
 - Previews de video y visuales del catálogo: `docs/DEMO_VIDEO_RELEASE.md`, `docs/DEMO_VISUALS.md`, `docs/FIREFLY_CLIPS.md`, material fuente en `creative/`.
