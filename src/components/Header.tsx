@@ -85,7 +85,7 @@ export default function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: Header
       { label: t('nav.blog'), href: '/blog' },
     ] },
     { id: 'language', label: t('nav.language'), links: [
-      { label: '🇺🇸 English', href: languageHref('en'), lang: 'en' }, { label: '🇪🇸 Español', href: languageHref('es'), lang: 'es' },
+      { label: 'English', href: languageHref('en'), lang: 'en' as const }, { label: 'Español', href: languageHref('es'), lang: 'es' as const },
     ] },
   ];
   const close = () => { setOpenMenu(null); setIsMobileMenuOpen(false); };
@@ -93,7 +93,7 @@ export default function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: Header
   const links = (group: typeof groups[number]) => group.links.map(link => (
     <a key={link.label} href={group.id === 'language' ? link.href : href(link.href)}
       hrefLang={'lang' in link ? link.lang : undefined} onClick={close}
-      className={`${linkClass} flex w-full`}>{link.label}</a>
+      className={`${linkClass} flex w-full gap-2`}>{'lang' in link && FLAGS[link.lang]}{link.label}</a>
   ));
   return (
     <header ref={rootRef} className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm"

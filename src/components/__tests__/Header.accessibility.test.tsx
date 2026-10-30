@@ -19,7 +19,7 @@ it('opens disclosures on keyboard activation, removes closed links from focus, a
 it('uses actual link destinations and preserves static pagination during language switching', () => {
   render(<Header isMobileMenuOpen={false} setIsMobileMenuOpen={vi.fn()} />);
   fireEvent.click(screen.getByRole('button', { name: 'nav.language' }));
-  expect(screen.getByRole('link', { name: '🇪🇸 Español' })).toHaveAttribute('href', '/blog?page=2&lang=es');
+  expect(screen.getByRole('link', { name: 'Español' })).toHaveAttribute('href', '/blog?page=2&lang=es');
   expect(screen.getByRole('link', { name: 'nav.demos' })).toHaveAttribute('href', '/demos');
   expect(screen.getByRole('button', { name: 'nav.toggleMenu' })).toHaveAttribute('aria-controls', 'mobile-navigation');
 });
@@ -36,9 +36,9 @@ it('updates language links after modal metadata changes and restores them on clo
     { hreflang: 'en', href: 'https://robles.ai/blog/shared-slug?lang=en' },
     { hreflang: 'es', href: 'https://robles.ai/blog/shared-slug' },
   ] });
-  await waitFor(() => expect(screen.getByRole('link', { name: '🇺🇸 English' })).toHaveAttribute('href', '/blog/shared-slug?lang=en'));
-  expect(screen.getByRole('link', { name: '🇪🇸 Español' })).toHaveAttribute('href', '/blog/shared-slug');
+  await waitFor(() => expect(screen.getByRole('link', { name: 'English' })).toHaveAttribute('href', '/blog/shared-slug?lang=en'));
+  expect(screen.getByRole('link', { name: 'Español' })).toHaveAttribute('href', '/blog/shared-slug');
   window.history.replaceState(null, '', '/blog?page=2');
   restore();
-  await waitFor(() => expect(screen.getByRole('link', { name: '🇪🇸 Español' })).toHaveAttribute('href', '/blog?page=2&lang=es'));
+  await waitFor(() => expect(screen.getByRole('link', { name: 'Español' })).toHaveAttribute('href', '/blog?page=2&lang=es'));
 });

@@ -212,7 +212,7 @@ export default function Landing() {
   return (
     <div className="bg-slate-950 text-white">
       {/* Hero — outcome-led headline + the offer above the fold */}
-      <section className="relative overflow-hidden py-16 md:py-24">
+      <section className="relative overflow-hidden py-12 md:py-16 xl:py-20">
         <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900" />
         <div className="absolute inset-0 opacity-20" aria-hidden="true">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-purple-500 blur-[128px]" />
@@ -220,7 +220,7 @@ export default function Landing() {
         </div>
         {/* Fades the purple into the page background so there is no hard edge with the next section. */}
         <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-b from-transparent to-slate-950" aria-hidden="true" />
-        <div className="relative max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-10 lg:gap-14 items-center">
+        <div className="relative max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,29rem)] gap-10 lg:gap-12 xl:gap-20 items-center">
           <div className="text-center lg:text-left">
             <motion.p
               initial={{ opacity: 0, y: 12 }}
@@ -234,7 +234,7 @@ export default function Landing() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-3xl md:text-5xl font-bold leading-tight mb-6"
+              className="text-3xl md:text-5xl xl:text-6xl font-bold leading-[1.1] tracking-tight text-balance mb-6"
             >
               {t(`${heroKey}.title`)}{" "}
               <span className="text-emerald-400">{t(`${heroKey}.titleHighlight`)}</span>
@@ -243,7 +243,7 @@ export default function Landing() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.15 }}
-              className="text-lg text-slate-300 max-w-xl mx-auto lg:mx-0 mb-8"
+              className="text-lg xl:text-xl leading-relaxed text-slate-300 max-w-2xl mx-auto lg:mx-0 mb-8"
             >
               {t(variant ? `landing.v2.variants.${variant}.subtitle` : "landing.v2.hero.subtitle")}
             </motion.p>
@@ -273,15 +273,15 @@ export default function Landing() {
                   {t("landing.v2.booking.cta")}
                 </a>
               )}
-              <a href={staticPagePath("/diagnostico-ia", lang)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 transition-colors">
+              <a href={staticPagePath("/diagnostico-ia", lang)} target="_blank" rel="noopener noreferrer" className="basis-full inline-flex items-center justify-center lg:justify-start gap-1.5 text-xs text-slate-400 hover:text-slate-200 transition-colors">
                 <Sparkles className="w-3.5 h-3.5 text-purple-400" aria-hidden="true" />
                 {t("landing.v2.hero.quizLink")}
               </a>
             </div>
-            <ul className="mt-8 flex flex-wrap justify-center lg:justify-start gap-x-6 gap-y-2 text-sm text-slate-300">
+            <ul className="mt-8 border-t border-white/10 pt-6 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5 text-left text-sm text-slate-300">
               {list<string>("landing.v2.hero.trust").map((item) => (
-                <li key={item} className="inline-flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" aria-hidden="true" />
+                <li key={item} className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0 text-emerald-400" aria-hidden="true" />
                   {item}
                 </li>
               ))}
@@ -292,7 +292,7 @@ export default function Landing() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25 }}
-            className="relative bg-gradient-to-b from-slate-900/95 to-slate-950/95 border border-emerald-500/40 rounded-2xl p-6 md:p-8 shadow-2xl shadow-emerald-950/30 ring-1 ring-emerald-500/20"
+            className="relative bg-gradient-to-b from-slate-900/95 to-slate-950/95 border border-emerald-500/40 rounded-2xl p-6 shadow-2xl shadow-emerald-950/30 ring-1 ring-emerald-500/20"
             aria-label={t(variant ? `landing.v2.variants.${variant}.card.title` : "landing.v2.offerCard.title")}
           >
             <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-400/30 px-3 py-1 text-xs font-semibold text-emerald-300 mb-4">
@@ -313,16 +313,16 @@ export default function Landing() {
               </>
             ) : (
               <>
-                <h2 className="text-xl font-bold mb-5">{t("landing.v2.offerCard.title")}</h2>
-                <ul className="space-y-3 mb-6">
+                <h2 className="text-xl font-bold mb-4">{t("landing.v2.offerCard.title")}</h2>
+                <ul className="space-y-2 mb-5">
                   {list<string>("landing.v2.offerCard.items").map((item) => (
-                    <li key={item} className="flex items-start gap-3 text-slate-200">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 mt-0.5 shrink-0" aria-hidden="true" />
+                    <li key={item} className="flex items-start gap-2.5 text-sm text-slate-200">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" aria-hidden="true" />
                       <span>{item}</span>
                     </li>
                   ))}
                 </ul>
-                <div className="border-t border-slate-700/80 pt-5">
+                <div className="border-t border-slate-700/80 pt-4">
                   <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight">{t("landing.v2.offerCard.price")}</div>
                   <p className="text-sm text-slate-300 mt-1">{t("landing.v2.offerCard.priceNote")}</p>
                 </div>
@@ -330,7 +330,7 @@ export default function Landing() {
             )}
 
             {/* Quick form: the lowest-effort way to leave contact details without scrolling to #contacto */}
-            <div id="info-form" className="mt-6 border-t border-slate-700/80 pt-6 scroll-mt-24">
+            <div id="info-form" className="mt-5 border-t border-slate-700/80 pt-5 scroll-mt-24">
               <ContactForm
                 compact
                 sendInfo
@@ -374,7 +374,7 @@ export default function Landing() {
 
       {/* What we build — live demos with visual previews */}
       <section id="demos" className="scroll-mt-20 py-16 md:py-24 bg-gradient-to-b from-transparent via-slate-900/50 to-transparent">
-        <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-[max(80rem,70vw)] mx-auto px-6">
           <SectionTitle title={t("landing.v2.build.title")} subtitle={t("landing.v2.build.subtitle")} />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {BUILD_ITEMS.map(({ key, demoId, icon: Icon, image }, i) => {
@@ -431,7 +431,7 @@ export default function Landing() {
 
       {/* Where it fits — industry starting points (examples, not results) */}
       <section className="py-16 md:py-24">
-        <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-[max(80rem,70vw)] mx-auto px-6">
           <SectionTitle title={t("landing.v2.industries.title")} subtitle={t("landing.v2.industries.subtitle")} />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {list<Item>("landing.v2.industries.items").map((item, i) => {
@@ -452,7 +452,7 @@ export default function Landing() {
 
       {/* Insight — useful on its own, memorable */}
       <section className="py-16 md:py-24 bg-gradient-to-b from-transparent via-slate-900/50 to-transparent">
-        <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-[max(80rem,70vw)] mx-auto px-6">
           <SectionTitle title={t("landing.v2.insight.title")} subtitle={t("landing.v2.insight.subtitle")} />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {list<Pattern>("landing.v2.insight.patterns").map((p, i) => (
@@ -472,7 +472,7 @@ export default function Landing() {
 
       {/* How we work — one merged process */}
       <section className="py-16 md:py-24">
-        <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-[max(80rem,70vw)] mx-auto px-6">
           <SectionTitle title={t("landing.v2.process.title")} subtitle={t("landing.v2.process.subtitle")} />
           <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {list<Step>("landing.v2.process.steps").map((step, i) => (
@@ -505,7 +505,7 @@ export default function Landing() {
 
       {/* Pricing — three fixed-fee AI Assessment packages + the direct-project option */}
       <section id="diagnostico" className="scroll-mt-20 py-16 md:py-24 bg-gradient-to-b from-transparent via-slate-900/50 to-transparent">
-        <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-[max(80rem,70vw)] mx-auto px-6">
           <Reveal className="text-center mb-10 md:mb-14">
             <p className="text-xs font-semibold uppercase tracking-wider text-emerald-300 mb-3">{t("landing.v2.packages.eyebrow")}</p>
             <h2 className="text-2xl md:text-4xl font-bold mb-4">{t("landing.v2.packages.title")}</h2>
@@ -613,7 +613,7 @@ export default function Landing() {
 
       {/* Integrations — the systems buyers ask about first */}
       <section className="py-16 md:py-24 bg-gradient-to-b from-transparent via-slate-900/50 to-transparent">
-        <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-[max(80rem,70vw)] mx-auto px-6">
           <Reveal className="text-center mb-10 md:mb-12">
             <p className="text-xs font-semibold uppercase tracking-wider text-emerald-300 mb-3">{t("landing.v2.integrations.eyebrow")}</p>
             <h2 className="text-2xl md:text-4xl font-bold mb-4">{t("landing.v2.integrations.title")}</h2>
@@ -647,7 +647,7 @@ export default function Landing() {
 
       {/* Commitments, Security and Compliance — contractual trust & IT assurance */}
       <section className="py-16 md:py-24">
-        <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-[max(80rem,70vw)] mx-auto px-6">
           <SectionTitle title={t("landing.v2.security.title")} subtitle={t("landing.v2.security.subtitle")} />
 
           {/* 4 Core Guarantees Banner */}
