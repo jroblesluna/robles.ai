@@ -60,6 +60,18 @@ const TUTORIALS: Record<string, Partial<Record<"en" | "es", TutorialMedia>>> = {
       seconds: 56,
     },
   },
+  langchain: {
+    en: {
+      src: "/videos/tutorials/try-langchain-tutorial-en.mp4",
+      poster: "/videos/tutorials/try-langchain-tutorial-poster-en.jpg",
+      seconds: 58,
+    },
+    es: {
+      src: "/videos/tutorials/try-langchain-tutorial-es.mp4",
+      poster: "/videos/tutorials/try-langchain-tutorial-poster-es.jpg",
+      seconds: 59,
+    },
+  },
 };
 
 type Props = {
@@ -93,7 +105,7 @@ export function DemoTutorial({ demoId, returnToId, className = "", variant = "bu
         type="button"
         onClick={() => setOpen(true)}
         aria-label={t("demoTutorial.cta", { seconds: media.seconds })}
-        className={`group grid w-full grid-cols-1 items-center gap-6 overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-950 via-indigo-900 to-violet-900 p-4 text-left shadow-xl shadow-indigo-900/20 ring-1 ring-white/10 sm:p-6 md:grid-cols-[3fr_2fr] md:gap-10 ${className}`}
+        className={`group grid w-full grid-cols-1 items-center gap-5 overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-950 via-indigo-900 to-violet-900 p-3 text-left shadow-xl shadow-indigo-900/20 ring-1 ring-white/10 sm:p-4 md:grid-cols-[minmax(0,400px)_1fr] md:gap-8 ${className}`}
       >
         <span className="relative block overflow-hidden rounded-2xl ring-1 ring-white/15">
           <img
@@ -103,10 +115,10 @@ export function DemoTutorial({ demoId, returnToId, className = "", variant = "bu
             className="block aspect-video w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           />
           <span className="absolute inset-0 flex items-center justify-center bg-slate-950/20 transition-colors group-hover:bg-slate-950/10">
-            <span className="relative flex h-16 w-16 items-center justify-center sm:h-20 sm:w-20">
+            <span className="relative flex h-14 w-14 items-center justify-center sm:h-16 sm:w-16">
               <span aria-hidden="true" className="absolute inset-0 rounded-full bg-white/40 motion-safe:animate-ping" />
               <span className="relative flex h-full w-full items-center justify-center rounded-full bg-white text-indigo-700 shadow-2xl transition-transform group-hover:scale-110">
-                <Play className="ml-1 h-7 w-7 fill-current sm:h-9 sm:w-9" aria-hidden="true" />
+                <Play className="ml-1 h-6 w-6 fill-current sm:h-7 sm:w-7" aria-hidden="true" />
               </span>
             </span>
           </span>
@@ -119,11 +131,11 @@ export function DemoTutorial({ demoId, returnToId, className = "", variant = "bu
             <PlayCircle className="h-3.5 w-3.5" aria-hidden="true" />
             {t("demoTutorial.featuredBadge")}
           </span>
-          <span className="mt-4 block text-2xl font-bold tracking-tight text-white sm:text-3xl">
+          <span className="mt-3 block text-xl font-bold tracking-tight text-white sm:text-2xl">
             {t("demoTutorial.featuredTitle", { seconds: media.seconds })}
           </span>
-          {description && <span className="mt-3 block text-base leading-relaxed text-indigo-100/85">{description}</span>}
-          <span className="tap-target mt-6 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-indigo-700 shadow-md transition-colors group-hover:bg-violet-50">
+          {description && <span className="mt-2 block max-w-xl text-sm leading-relaxed text-indigo-100/85 sm:text-base">{description}</span>}
+          <span className="tap-target mt-4 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-indigo-700 shadow-md transition-colors group-hover:bg-violet-50">
             <Play className="h-4 w-4 fill-current" aria-hidden="true" />
             {t("demoTutorial.featuredCta")}
           </span>

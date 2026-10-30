@@ -485,6 +485,16 @@ export default function TryEmotion() {
           </div>
         </div>
 
+        {/* Tutorial en video, antes de pedir la cámara */}
+        <section className="mb-10">
+          <DemoTutorial
+            demoId="emotion"
+            variant="featured"
+            returnToId="emotion-workspace"
+            description={t("try-emotion.tutorial_text")}
+          />
+        </section>
+
         {/* ── Workspace: stage (left) · expressions & log (right) ────────── */}
         <section id="emotion-workspace" className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
           <input

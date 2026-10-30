@@ -1641,6 +1641,7 @@
         "samples_hint": "A fictional demo pair — same face on both, so the match actually works."
     },
     "try-object": {
+        "tutorial_text": "Watch the full walkthrough: point your camera or upload a photo, the AI finds and labels every object in the scene, and you get the count and the detection data.",
         "badge": "Runs in your browser",
         "title": "Object Detection",
         "description": "Detect and label objects in real time — from your webcam or an uploaded image. The model runs entirely in your browser.",
@@ -1803,6 +1804,7 @@
         }
     },
     "try-emotion": {
+        "tutorial_text": "Watch the full walkthrough: turn on your camera or upload a photo, the AI reads the expressions on each face and sums them up in an anonymous, aggregated view.",
         "badge": "Runs in your browser",
         "title": "Emotion Recognition",
         "description": "Detect faces and read facial expressions in real time — 7 emotions, from your webcam or an uploaded photo. Runs entirely in your browser.",
@@ -2241,6 +2243,7 @@
         "trust_private": "Documents scoped to your session",
         "trust_realtime": "Live request/response log",
         "trust_modes": "Three reasoning modes",
+        "tutorial_text": "Watch the full walkthrough: upload a document and the AI answers citing where it found it, works through tasks step by step and hands you structured data ready for your systems.",
         "workspace_title": "LangChain Playground",
         "mode_rag_desc": "Answers grounded only in the documents you add.",
         "mode_tools_desc": "Reasons step by step and calls tools to get it done.",
