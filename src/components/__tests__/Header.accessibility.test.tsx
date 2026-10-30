@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import Header from '../Header';
-vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'en', resolvedLanguage: 'en' } }) }));
+const changeLanguage = vi.hoisted(() => vi.fn());
+vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'en', resolvedLanguage: 'en', changeLanguage } }) }));
 vi.mock('@/hooks/useReducedMotion', () => ({ useReducedMotion: () => true }));
 beforeEach(() => { window.history.replaceState(null, '', '/blog?page=2'); });
 afterEach(cleanup);
@@ -22,6 +23,21 @@ it('uses actual link destinations and preserves static pagination during languag
   expect(screen.getByRole('link', { name: 'Español' })).toHaveAttribute('href', '/blog?page=2&lang=es');
   expect(screen.getByRole('link', { name: 'nav.demos' })).toHaveAttribute('href', '/demos');
   expect(screen.getByRole('button', { name: 'nav.toggleMenu' })).toHaveAttribute('aria-controls', 'mobile-navigation');
+});
+
+it('switches language without a reload, except for modified clicks and an open blog modal', () => {
+  changeLanguage.mockClear();
+  render(<Header isMobileMenuOpen={false} setIsMobileMenuOpen={vi.fn()} />);
+  const open = () => { fireEvent.click(screen.getByRole('button', { name: 'nav.language' })); return screen.getByRole('link', { name: 'Español' }); };
+  expect(fireEvent.click(open(), { ctrlKey: true })).toBe(true);
+  expect(changeLanguage).not.toHaveBeenCalled();
+  window.history.replaceState({ blogModal: true }, '', '/blog/slug');
+  expect(fireEvent.click(open())).toBe(true);
+  expect(changeLanguage).not.toHaveBeenCalled();
+  window.history.replaceState(null, '', '/blog?page=2');
+  expect(fireEvent.click(open())).toBe(false);
+  expect(changeLanguage).toHaveBeenCalledWith('es');
+  expect(window.location.pathname + window.location.search).toBe('/blog?page=2&lang=es');
 });
 
 it('updates language links after modal metadata changes and restores them on close', async () => {

@@ -49,7 +49,7 @@ Sitio y plataforma de **Robles.AI**, consultora/estudio de soluciones de IA (Cup
 
 - **SPA** Vite + React con `wouter`; Express sirve estáticos e integra el middleware de Vite en dev.
 - **Primera respuesta legible**: `server/seo/publicContent.ts` genera HTML plano de cada ruta pública desde los mismos JSON de i18n (mejora progresiva, React lo reemplaza al iniciar) + meta tags, hreflang, canonical y JSON-LD server-side.
-- **i18n** en/es; `?lang=es` en cualquier ruta pública.
+- **i18n** en/es; `?lang=es` en cualquier ruta pública. El selector del header cambia el idioma sin recargar (`switchLanguage`: actualiza la URL y `App`/`useSEO` hacen el resto); con el modal del blog abierto hace navegación completa.
 - **Landing `/get-started`** (§6): hero orientado a resultado, tres paquetes de diagnóstico (desde USD 1,500 / 2,500 / 3,000) o proyecto directo, demos en vivo, industrias, compromisos, integraciones, seguridad y cumplimiento, fundador y oficinas EE. UU./Perú, FAQ, formulario, enlace de agenda y CTA fijo en móvil; variantes `?s=chatbots|rag|agents|docs` por grupo de anuncios.
 - **Formulario de contacto** (`ContactForm`): selector "¿Qué quieres mejorar?", mensaje opcional, notas de respuesta/privacidad; se envía por email y cuenta como `generate_lead` solo si el servidor lo acepta.
 - **Quiz de diagnóstico** (`/diagnostico-ia`): puntaje → mensaje GPT → verificación por email → PDF; leads en `quiz_leads`, visibles en `/admin/quiz-leads`; dispara `generate_lead` (`method: quiz`) al guardarse.
