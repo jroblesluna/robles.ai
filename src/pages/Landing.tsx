@@ -220,7 +220,7 @@ export default function Landing() {
         </div>
         {/* Fades the purple into the page background so there is no hard edge with the next section. */}
         <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-b from-transparent to-slate-950" aria-hidden="true" />
-        <div className="relative max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,29rem)] gap-10 lg:gap-12 xl:gap-20 items-center">
+        <div className="relative max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,29rem)] gap-10 lg:gap-12 xl:gap-20 items-center lg:items-stretch">
           <div className="text-center lg:text-left">
             <motion.p
               initial={{ opacity: 0, y: 12 }}
@@ -292,12 +292,9 @@ export default function Landing() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25 }}
-            className="relative bg-gradient-to-b from-slate-900/95 to-slate-950/95 border border-emerald-500/40 rounded-2xl p-6 shadow-2xl shadow-emerald-950/30 ring-1 ring-emerald-500/20"
+            className="relative lg:flex lg:flex-col bg-gradient-to-b from-slate-900/95 to-slate-950/95 border border-emerald-500/40 rounded-2xl p-6 shadow-2xl shadow-emerald-950/30 ring-1 ring-emerald-500/20"
             aria-label={t(variant ? `landing.v2.variants.${variant}.card.title` : "landing.v2.offerCard.title")}
           >
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-400/30 px-3 py-1 text-xs font-semibold text-emerald-300 mb-4">
-              <Sparkles className="w-3.5 h-3.5" aria-hidden="true" /> {t("landing.v2.packages.eyebrow")}
-            </div>
             {variant ? (
               <>
                 <h2 className="text-xl font-bold mb-5">{t(`landing.v2.variants.${variant}.card.title`)}</h2>
@@ -323,14 +320,14 @@ export default function Landing() {
                   ))}
                 </ul>
                 <div className="border-t border-slate-700/80 pt-4">
-                  <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight">{t("landing.v2.offerCard.price")}</div>
+                  <div className="text-2xl font-bold text-white tracking-tight">{t("landing.v2.offerCard.price")}</div>
                   <p className="text-sm text-slate-300 mt-1">{t("landing.v2.offerCard.priceNote")}</p>
                 </div>
               </>
             )}
 
             {/* Quick form: the lowest-effort way to leave contact details without scrolling to #contacto */}
-            <div id="info-form" className="mt-5 border-t border-slate-700/80 pt-5 scroll-mt-24">
+            <div id="info-form" className="mt-5 lg:mt-auto border-t border-slate-700/80 pt-4 scroll-mt-24">
               <ContactForm
                 compact
                 sendInfo
