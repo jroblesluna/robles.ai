@@ -394,6 +394,7 @@ Specs estilo Kiro (`requirements.md`, `design.md`, `tasks.md` + `tasks.meta.json
 | `/admin/quiz-leads` | AdminQuizLeads | Leads del quiz |
 | `/admin/analytics` | AdminAnalytics | Overview · Traffic · Behavior · Social · Ads |
 | `/admin/backends` | AdminBackends | Portal de backends (§21) |
+| `/admin/monitoring` | AdminMonitoring | Logs de PM2 del VPS en vivo, solo lectura, con filtro y secretos enmascarados (`server/services/vpsLogs.ts`) |
 
 ---
 
@@ -444,6 +445,7 @@ Admin (bajo `/api/admin`, requieren cookie `admin_token` salvo `status`, `setup`
 | GET/PUT | `/backends/connections` | Credenciales Hostinger/GCP (write-only) |
 | GET | `/backends`, `/backends/:id/cloudrun` | Backends con DNS + actividad; estado Cloud Run |
 | POST | `/backends/:id/dns`, `/backends/:id/ping` | Publicar CNAME; ping en vivo opt-in (despierta el servicio) |
+| GET | `/monitoring/logs?stream=error\|out&lines=&q=` | Últimas líneas de los logs de PM2 (rutas fijas en el servidor, secretos enmascarados) |
 | POST | `/test-ig-linebreaks` | Prueba interna de saltos de línea en Instagram |
 
 ---

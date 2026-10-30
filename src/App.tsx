@@ -49,6 +49,7 @@ const AdminConversationDetail = lazy(() => import('@/pages/admin/AdminConversati
 const AdminQuizLeads = lazy(() => import('@/pages/admin/AdminQuizLeads'));
 const AdminContactSubmissions = lazy(() => import('@/pages/admin/AdminContactSubmissions'));
 const AdminBackends = lazy(() => import('@/pages/admin/AdminBackends'));
+const AdminMonitoring = lazy(() => import('@/pages/admin/AdminMonitoring'));
 
 function App({ client = queryClient }: { client?: QueryClient } = {}) {
   const [clientReady, setClientReady] = useState(false);
@@ -118,6 +119,7 @@ function App({ client = queryClient }: { client?: QueryClient } = {}) {
               <Route path="/admin/contact-submissions" component={AdminContactSubmissions} />
               <Route path="/admin/quiz-leads" component={AdminQuizLeads} />
               <Route path="/admin/backends" component={AdminBackends} />
+              <Route path="/admin/monitoring" component={AdminMonitoring} />
               <Route component={NotFound} />
             </Switch>
           </AdminLayout>

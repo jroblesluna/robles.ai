@@ -330,6 +330,7 @@ Contact submissions carry de-duplicated ad attribution (UTM tags, click IDs, Val
 | `/admin/quiz-leads` | AdminQuizLeads | Quiz leads |
 | `/admin/analytics` | AdminAnalytics | Overview · Traffic · Behavior · Social · Ads |
 | `/admin/backends` | AdminBackends | Demo backends portal |
+| `/admin/monitoring` | AdminMonitoring | Live read-only PM2 logs from the VPS, with a filter and masked secrets (`server/services/vpsLogs.ts`) |
 
 ---
 
@@ -380,6 +381,7 @@ Admin (all under `/api/admin`, `admin_token` cookie required except `status`, `s
 | GET / PUT | `/backends/connections` | Hostinger / GCP credentials (write-only) |
 | GET | `/backends`, `/backends/:id/cloudrun` | Backend list with DNS + activity; Cloud Run status |
 | POST | `/backends/:id/dns`, `/backends/:id/ping` | Publish CNAME; opt-in live health ping (wakes the service) |
+| GET | `/monitoring/logs?stream=error\|out&lines=&q=` | Latest PM2 log lines (fixed server-side paths, secrets masked) |
 | POST | `/test-ig-linebreaks` | Internal Instagram formatting test |
 
 Auth: admin JWT in httpOnly cookie `admin_token` (7 days); Robly uses httpOnly cookie `chat_session` (1 hour, refreshed per message).
