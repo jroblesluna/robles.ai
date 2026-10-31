@@ -1,9 +1,10 @@
-import { Router } from 'express';
+import { Router, type Request } from 'express';
 import fs from 'fs';
 import db from './db.js';
 import { PUBLIC_CONTACT } from '../shared/publicContent.js';
 import { validClarityProjectId } from '../shared/clarity.js';
 import { getAiModel } from './services/aiModels.js';
+import { apiKeysRequired, issueDemoToken, isApiId, verifyApiCredential } from './services/apiKeys.js';
 
 const publicRouter = Router();
 
@@ -109,7 +110,56 @@ publicRouter.get('/ai-models', (_req, res) => {
     text: getAiModel('ai_model_demo_text'),
     vision: getAiModel('ai_model_demo_vision'),
     tts: getAiModel('ai_model_demo_tts'),
+    apiKeysRequired: apiKeysRequired(),
   });
+});
+
+/** POST /api/public/api-keys/verify: the backends ask whether a key or demo token is valid. */
+publicRouter.post('/api-keys/verify', (req, res) => {
+  const { api, key } = req.body ?? {};
+  res.setHeader('Cache-Control', 'no-store');
+  res.json({ valid: isApiId(api) && typeof key === 'string' && verifyApiCredential(api, key) });
+});
+
+const DEMO_TOKEN_WINDOW_MS = 60_000;
+const DEMO_TOKEN_MAX_PER_WINDOW = 60;
+const demoTokenRequests = new Map<string, { count: number; resetAt: number }>();
+
+/** nginx appends the visitor's address last; `req.ip` alone is the local proxy. */
+function clientAddress(req: Request): string {
+  const forwarded = String(req.headers['x-forwarded-for'] ?? '').split(',').pop()?.trim();
+  return forwarded || req.ip || 'unknown';
+}
+
+function allowDemoToken(client: string): boolean {
+  const now = Date.now();
+  const entry = demoTokenRequests.get(client);
+  if (!entry || entry.resetAt <= now) {
+    if (demoTokenRequests.size > 10_000) demoTokenRequests.clear();
+    demoTokenRequests.set(client, { count: 1, resetAt: now + DEMO_TOKEN_WINDOW_MS });
+    return true;
+  }
+  entry.count += 1;
+  return entry.count <= DEMO_TOKEN_MAX_PER_WINDOW;
+}
+
+/**
+ * POST /api/public/demo-token
+ * Short-lived credential for the browser demos, so no real key reaches the page.
+ * `token: null` means the demo key is not set yet.
+ */
+publicRouter.post('/demo-token', (req, res) => {
+  const { api } = req.body ?? {};
+  res.setHeader('Cache-Control', 'no-store');
+  if (!isApiId(api)) {
+    res.status(404).json({ error: 'Unknown API' });
+    return;
+  }
+  if (!allowDemoToken(clientAddress(req))) {
+    res.status(429).json({ error: 'Too many requests' });
+    return;
+  }
+  res.json(issueDemoToken(api) ?? { token: null, expiresAt: 0 });
 });
 
 /** Returns the value only when it is an absolute http(s) URL. */

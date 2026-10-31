@@ -22,6 +22,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { v4 as uuidv4 } from "uuid";
 import { DemoNav } from "@/components/demo/DemoNav";
+import { demoFetch } from "@/lib/demoAuth";
 import { BusinessCase } from "@/components/demo/BusinessCase";
 import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
 import { useDemoTracking } from "@/components/demo/business";
@@ -246,7 +247,7 @@ export default function TryTTS() {
   useEffect(() => {
     const controller = new AbortController();
     const started = performance.now();
-    fetch(`${BASE_API}/voices`, { signal: controller.signal })
+    demoFetch("tts", `${BASE_API}/voices`, { signal: controller.signal })
       .then(async (res) => {
         const json = await res.json().catch(() => null);
         recordCall({
@@ -306,7 +307,7 @@ export default function TryTTS() {
     let status: number | undefined;
     let json: any = null;
     try {
-      const res = await fetch(`${BASE_API}/voices/${encodeURIComponent(id)}/sample`);
+      const res = await demoFetch("tts", `${BASE_API}/voices/${encodeURIComponent(id)}/sample`);
       status = res.status;
       json = await res.json().catch(() => null);
       if (res.ok && json?.audio_base64) {
@@ -355,7 +356,7 @@ export default function TryTTS() {
     let status: number | undefined;
     let json: any = null;
     try {
-      const res = await fetch(`${BASE_API}/synthesize`, {
+      const res = await demoFetch("tts", `${BASE_API}/synthesize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -418,7 +419,7 @@ export default function TryTTS() {
     let status: number | undefined;
     let json: any = null;
     try {
-      const res = await fetch(`${BASE_API}/narrate`, {
+      const res = await demoFetch("tts", `${BASE_API}/narrate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),

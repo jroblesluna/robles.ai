@@ -26,6 +26,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { v4 as uuidv4 } from "uuid";
 import { DemoNav } from "@/components/demo/DemoNav";
+import { demoFetch } from "@/lib/demoAuth";
 import { BusinessCase } from "@/components/demo/BusinessCase";
 import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
 import { useDemoTracking } from "@/components/demo/business";
@@ -357,7 +358,7 @@ export default function TryChatbot() {
     let status: number | undefined;
     let json: any = null;
     try {
-      const res = await fetch(`${BASE_API}/crawl`, {
+      const res = await demoFetch("chatbot", `${BASE_API}/crawl`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: target, session_id: sid }),
@@ -390,7 +391,7 @@ export default function TryChatbot() {
     let errorEvent: any = null;
 
     try {
-      const res = await fetch(`${BASE_API}/crawl/stream`, {
+      const res = await demoFetch("chatbot", `${BASE_API}/crawl/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: target, session_id: sid }),
@@ -540,7 +541,7 @@ export default function TryChatbot() {
     let status: number | undefined;
     let json: any = null;
     try {
-      const res = await fetch(`${BASE_API}/chat`, {
+      const res = await demoFetch("chatbot", `${BASE_API}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session_id: sessionId, question: q }),

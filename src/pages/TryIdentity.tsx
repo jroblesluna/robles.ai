@@ -28,6 +28,7 @@ import {
 import VideoModal from "@/components/VideoModal";
 import { useTranslation } from "react-i18next";
 import { DemoNav } from "@/components/demo/DemoNav";
+import { demoFetch } from "@/lib/demoAuth";
 import { BusinessCase } from "@/components/demo/BusinessCase";
 import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
 import { useDemoTracking } from "@/components/demo/business";
@@ -349,7 +350,7 @@ export default function TryIdentity() {
       try {
         const url = STATUS_ENDPOINT(requestId);
         const started = performance.now();
-        const res = await fetch(url);
+        const res = await demoFetch("identity", url);
         const data = await res.json();
         const ms = performance.now() - started;
         setStatus(data.data.status);
@@ -457,7 +458,7 @@ export default function TryIdentity() {
       setPayloadPreview(preview);
 
       const started = performance.now();
-      const response = await fetch(VERIFY_ENDPOINT, {
+      const response = await demoFetch("identity", VERIFY_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -486,7 +487,7 @@ export default function TryIdentity() {
 
       toast({ title: t("try-identity.verify_sent"), description: `ID: ${data.data.id}`, variant: "success" });
 
-      fetch(`${BASE_API}/cron/verify-id`, {
+      demoFetch("identity", `${BASE_API}/cron/verify-id`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),

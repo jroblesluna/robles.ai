@@ -320,6 +320,7 @@ Catálogo en `demosCatalog.items` (en/es: `id`, `href`, `status`, `icon`, `title
 - **Guía paso a paso** (`DemoGuide.tsx`): `GuideSteps` (tarjetas de pasos vivas, copy `<prefix>.how_step<n>_*`), `GuideCue` (etiqueta animada sobre el control a usar, copy `guide_*`) y `useGuideNavigation`. Están en todas las demos; `TryChatbot` usa solo `GuideCue` porque sus pasos van debajo del pliegue.
 - **Progreso con Robly** (`RunnerTrack.tsx`): el mismo componente en RAG, Identity, Chatbot, DocExtract, narrador de TTS y análisis de Transcription. Robly solo avanza con pasos reales. Toda demo nueva con un proceso de varios pasos debe usarlo.
 - **Identity sin callback**: la demo ya no envía `callback`. Antes mandaba una URL `/webhook/<uuid>` inexistente, el POST daba 404 y **toda** verificación terminaba en `completed_with_errors`. La UI muestra el `message` de la API cuando hay un problema.
+- **API keys** (Admin → Backends → *API keys*): cada API llama a `setup_api_auth()` (`api_auth.py`, misma copia en los 7 repos), que exige `X-API-Key` (o `?api_key=` en WebSockets) y valida contra `POST /api/public/api-keys/verify`, con caché de 60 s. Las claves se guardan solo como hash. Las demos no reciben claves: la clave de demos queda en `settings` (`demo_api_key_<api>`) y el navegador pide un token de 15 min a `POST /api/public/demo-token` (`src/lib/demoAuth.ts`). El interruptor `api_keys_required` activa la exigencia sin desplegar, y no se puede activar si alguna demo no tiene clave. `/`, health y documentación siguen abiertos.
 - **Modelos de OpenAI** (Admin → Settings → *AI Models*): el sitio usa `getAiModel()` y las 6 APIs con OpenAI leen `GET /api/public/ai-models` con `model_config.py` (caché de 5 min; si el sitio no responde siguen con su default). El botón de verificación compara lo configurado con `models.list()`. Nunca escribir un modelo fijo en el código; los embeddings quedan fuera porque cambiarlos obliga a reconstruir los índices. RAG usa un solo modelo: Llama se quitó el 2026-10-30.
 - **RAG, reranking**: cuesta ~2 s por candidato en la CPU de Cloud Run. `TryRAG` envía los 12 mejores candidatos con timeout de 45 s; si falla o tarda, sigue con el orden de la búsqueda vectorial para no perder la respuesta. Una falla de los modelos en `/rag/generate` llega como texto dentro de un 200; `TryRAG` la muestra como error del paso.
 - `/try-medical` existe como página "próximamente", sin backend y fuera del catálogo; no sube nada.
@@ -354,6 +355,7 @@ Cuatro casos bilingües en `public/case-studies/content.json` y `caseStudies.ite
 | `blog_fts` | Tabla virtual FTS5 |
 | `blog_posts_index` | Índice de listado del blog |
 | `quiz_leads`, `quiz_verification_tokens` | Leads del quiz y tokens de verificación |
+| `api_keys` | Claves de las APIs (solo hash, prefijo, uso y revocación) |
 | `contact_submissions` | Formularios de contacto + `attribution` / `ads_click` / `clarity_session` (JSON) |
 
 ### Claves de la tabla `settings`

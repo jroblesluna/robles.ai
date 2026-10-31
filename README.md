@@ -270,6 +270,7 @@ All persistent state lives in `server/data/dominical.db` (gitignored, preserved 
 | `blog_fts` | FTS5 virtual table for blog search |
 | `blog_posts_index` | Listing index for paginated blog queries |
 | `quiz_leads` / `quiz_verification_tokens` | Diagnostic quiz leads and email-verification tokens |
+| `api_keys` | API keys for the demo APIs (hash, prefix, usage, revocation) |
 | `contact_submissions` | Contact-form submissions (saved before the email is sent) with `attribution`, `ads_click` and `clarity_session` JSON |
 
 Contact submissions carry de-duplicated ad attribution (UTM tags, click IDs, ValueTrack parameters, landing path, external referrer) captured by `src/lib/attribution.ts` and normalised by `shared/attribution.ts`. When a `gclid` is present and the Google Ads API is configured, `/admin/contact-submissions` enriches it from ClickView (campaign, ad group, keyword, ad, device, network and that ad group's search terms for the day).
@@ -471,6 +472,7 @@ Catalog data: `demosCatalog.items` in both translation files (`id`, `href`, `sta
 | `emotion` | `/try-emotion` | Browser (`@vladmandic/face-api`) | live |
 | `voiceagent`, `anomaly`, `imagegen` | — | — | soon |
 
+- **API keys**: generated per API in Admin → Backends. Each API requires `X-API-Key` (`?api_key=` on WebSockets) once the switch there is on, validating against `POST /api/public/api-keys/verify`. Demos keep their key on the server and give browsers 15-minute tokens from `POST /api/public/demo-token`. Interactive docs stay open at `/docs` and `/redoc` on each API.
 - **Catalog cards** work like YouTube Shorts: the whole card is one link with no playback controls; hovering (desktop) or holding (touch, ≥ 220 ms) loops the clip, and a click or quick tap opens the demo.
 - **Guided steps and progress**: `DemoGuide.tsx` (`GuideSteps`, `GuideCue`, `useGuideNavigation`) walks visitors through each demo; `RunnerTrack.tsx` is the shared Robly progress track for multi-step processes.
 - **Cold starts**: Cloud Run APIs scale to zero; each page warms its API on mount and shows a status banner.

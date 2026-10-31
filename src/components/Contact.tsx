@@ -76,6 +76,10 @@ interface ContactFormProps {
   sendInfo?: boolean;
 }
 
+/** On dark cards, light fields read at a glance as something to fill in. */
+const DARK_FIELD =
+  "h-11 border-white bg-white text-slate-900 shadow-sm shadow-black/30 focus-visible:border-emerald-400 focus-visible:ring-4 focus-visible:ring-emerald-400/40";
+
 /** The contact form card. Fires generate_lead (via trackContactLead) only after the API accepts it. */
 export const ContactForm = ({
   className = "bg-blue-100 p-5 sm:p-8 rounded-xl shadow-sm",
@@ -97,7 +101,7 @@ export const ContactForm = ({
 
   const isDark = tone === "dark";
   const inputClass = isDark
-    ? "bg-slate-950/80 border-slate-700 text-white placeholder:text-slate-500 focus-visible:border-emerald-400 focus-visible:ring-emerald-400/20"
+    ? `${DARK_FIELD} placeholder:text-slate-500`
     : "bg-white text-gray-900";
   // Compact form: placeholders carry the prompt, labels stay for screen readers.
   const labelClass = compact ? "sr-only" : isDark ? "text-sm text-slate-200" : "text-sm text-gray-900";
@@ -252,13 +256,13 @@ export const ContactForm = ({
                     {...field}
                     className={`flex h-10 w-full rounded-md border px-3 py-2 text-base md:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                       isDark
-                        ? "bg-slate-950/80 border-slate-700 text-white focus-visible:border-emerald-400 focus-visible:ring-emerald-400/20"
+                        ? `${DARK_FIELD} ${field.value ? "" : "text-slate-500"}`
                         : "border-input bg-white text-gray-900"
                     }`}
                   >
-                    <option value="" className={isDark ? "bg-slate-900 text-white" : ""}>{t(compact ? "contact.goalLabel" : "contact.goalPlaceholder")}</option>
+                    <option value="">{t(compact ? "contact.goalLabel" : "contact.goalPlaceholder")}</option>
                     {CONTACT_GOALS.map((goal) => (
-                      <option key={goal} value={goal} className={isDark ? "bg-slate-900 text-white" : ""}>{t(`contact.goals.${goal}`)}</option>
+                      <option key={goal} value={goal} className={isDark ? "text-slate-900" : ""}>{t(`contact.goals.${goal}`)}</option>
                     ))}
                   </select>
                 </FormControl>

@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { DemoNav } from "@/components/demo/DemoNav";
+import { demoFetch, demoWebSocketUrl } from "@/lib/demoAuth";
 import { applyCorrections, applyFinal, applyPartial, promoteProvisional, turnsToRefine, type TranscriptTurn } from "@/lib/transcriptTurns";
 import { GuideCue, GuideSteps, useGuideNavigation, type GuideTheme } from "@/components/demo/DemoGuide";
 import { RunnerTrack, linearRunner, useRunnerElapsed, type RunnerTheme } from "@/components/demo/RunnerTrack";
@@ -544,7 +545,7 @@ export default function TryTranscription() {
 
     // 1. Open WebSocket
     setWsStatus("connecting");
-    const ws = new WebSocket(WS_URL);
+    const ws = new WebSocket(await demoWebSocketUrl("transcription", WS_URL));
     wsRef.current = ws;
     ws.binaryType = "arraybuffer";
 
@@ -671,7 +672,7 @@ export default function TryTranscription() {
       };
       const started = performance.now();
       try {
-        const res = await fetch(REFINE_URL, {
+        const res = await demoFetch("transcription", REFINE_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -720,7 +721,7 @@ export default function TryTranscription() {
     const started = performance.now();
     try {
       if (!(await ensureWarm())) throw new Error("service unavailable");
-      const res = await fetch(url, {
+      const res = await demoFetch("transcription", url, {
         method: "POST",
         headers: { "Content-Type": file.type || "audio/mpeg" },
         body: file,
@@ -758,7 +759,7 @@ export default function TryTranscription() {
     const payload = { transcript: finalTurns, mode: targetMode, language };
     const started = performance.now();
     try {
-      const res = await fetch(ANALYZE_URL, {
+      const res = await demoFetch("transcription", ANALYZE_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

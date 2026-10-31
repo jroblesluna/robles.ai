@@ -38,6 +38,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { v4 as uuidv4 } from "uuid";
 import { DemoNav } from "@/components/demo/DemoNav";
+import { demoFetch } from "@/lib/demoAuth";
 import { BusinessCase } from "@/components/demo/BusinessCase";
 import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
 import { useDemoTracking } from "@/components/demo/business";
@@ -368,7 +369,7 @@ export default function TryDocExtract() {
     // Solo el nombre y el mime van al log (no el base64, que es enorme).
     const loggedRequest = { file_base64: `‹${Math.round(b64.length / 1024)} KB base64›`, mime_type: mime, filename: file.name };
     try {
-      const request = fetch(`${BASE_API}/extract`, {
+      const request = demoFetch("docextract", `${BASE_API}/extract`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ file_base64: b64, mime_type: mime, filename: file.name }),

@@ -36,7 +36,7 @@ describe('AI model settings', () => {
     const app = express().use('/api/public', publicRouter);
     const res = await request(app).get('/api/public/ai-models');
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ text: 'gpt-5.1-mini', vision: 'gpt-4o-mini', tts: 'gpt-4o-mini-tts' });
+    expect(res.body).toEqual({ text: 'gpt-5.1-mini', vision: 'gpt-4o-mini', tts: 'gpt-4o-mini-tts', apiKeysRequired: false });
     expect(JSON.stringify(res.body)).not.toContain('sk-secret');
   });
 });

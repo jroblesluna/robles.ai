@@ -118,6 +118,17 @@ db.exec(`
     FOREIGN KEY (lead_id) REFERENCES quiz_leads(id)
   );
 
+  CREATE TABLE IF NOT EXISTS api_keys (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    api_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    key_hash TEXT NOT NULL UNIQUE,
+    prefix TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    revoked_at TEXT,
+    last_used_at TEXT
+  );
+
   CREATE TABLE IF NOT EXISTS contact_submissions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,

@@ -22,6 +22,7 @@ import { addOneDay, subtractOneDay } from '@/utils/managmentDate';
 import adminRouter from './adminRoutes.js';
 import analyticsRouter from './analyticsRoutes.js';
 import backendRouter from './backendRoutes.js';
+import apiKeyRouter from './apiKeyRoutes.js';
 import monitoringRouter from './monitoringRoutes.js';
 import publicRouter from './publicRoutes.js';
 import searchRouter from './searchRoutes.js';
@@ -55,6 +56,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Backend management routes (DNS via Hostinger + Cloud Run read-only + health)
   app.use('/api/admin/backends', backendRouter);
+  app.use('/api/admin/api-keys', apiKeyRouter);
   app.use('/api/admin/monitoring', monitoringRouter);
 
   // Public routes (no auth — Meta servers need to access slide images)

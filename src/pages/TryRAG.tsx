@@ -28,6 +28,7 @@ import {
 import CryptoJS from "crypto-js";
 import { useTranslation } from "react-i18next";
 import { DemoNav } from "@/components/demo/DemoNav";
+import { demoFetch } from "@/lib/demoAuth";
 import { BusinessCase } from "@/components/demo/BusinessCase";
 import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
 import { useDemoTracking } from "@/components/demo/business";
@@ -464,12 +465,12 @@ export default function TryRAG() {
     // Start loading the rerank models now, fire-and-forget. Loading them on the
     // first /rag/rerank after a cold start took ~46 s; indexing and the first
     // question come first, so this usually finishes in time.
-    void fetch(`${BASE_API}/rag/warmup`, { method: "POST" }).catch(() => {});
+    void demoFetch("rag", `${BASE_API}/rag/warmup`, { method: "POST" }).catch(() => {});
 
     try {
       const checkUrl = `${BASE_API}/rag/check-namespace`;
       const checkStarted = performance.now();
-      const checkRes = await fetch(checkUrl, { method: "POST", body: new URLSearchParams({ namespace: ns }) });
+      const checkRes = await demoFetch("rag", checkUrl, { method: "POST", body: new URLSearchParams({ namespace: ns }) });
       const checkJson = await checkRes.json();
       logCall("index", "POST", checkUrl, { namespace: ns }, checkJson, checkRes.status, performance.now() - checkStarted);
 
@@ -480,7 +481,7 @@ export default function TryRAG() {
       } else {
         const uploadUrl = `${BASE_API}/rag/upload`;
         const uploadStarted = performance.now();
-        const res = await fetch(uploadUrl, {
+        const res = await demoFetch("rag", uploadUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text, namespace: ns }),
@@ -512,7 +513,7 @@ export default function TryRAG() {
           const batch = chunks.slice(offset, offset + EMBED_BATCH);
           const body = { namespace: nsFinal, chunks: batch, chunk_offset: offset, total_chunks: total };
           const embedStarted = performance.now();
-          const eRes = await fetch(embedUrl, {
+          const eRes = await demoFetch("rag", embedUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
@@ -578,7 +579,7 @@ export default function TryRAG() {
       formData.append("question", question);
       formData.append("namespace", namespace);
       const qStarted = performance.now();
-      const qRes = await fetch(queryUrl, { method: "POST", body: formData });
+      const qRes = await demoFetch("rag", queryUrl, { method: "POST", body: formData });
       const qJson = await qRes.json();
       logCall("search", "POST", queryUrl, { question, namespace }, qJson, qRes.status, performance.now() - qStarted);
       const top: any[] = qJson.data?.results;
@@ -593,7 +594,7 @@ export default function TryRAG() {
       const rStarted = performance.now();
       let reranked: any[];
       try {
-        const rRes = await fetch(rerankUrl, {
+        const rRes = await demoFetch("rag", rerankUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ question, top_results: candidates }),
@@ -633,7 +634,7 @@ export default function TryRAG() {
       beginStep("generate");
       const genUrl = `${BASE_API}/rag/generate`;
       const gStarted = performance.now();
-      const gRes = await fetch(genUrl, {
+      const gRes = await demoFetch("rag", genUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question, reranked }),

@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { DemoNav } from "@/components/demo/DemoNav";
+import { demoFetch } from "@/lib/demoAuth";
 import { DemoTutorial } from "@/components/demo/DemoTutorial";
 import { v4 as uuidv4 } from "uuid";
 import { BusinessCase } from "@/components/demo/BusinessCase";
@@ -295,7 +296,7 @@ export default function TryLangChain() {
     let status: number | undefined;
     let json: any = null;
     try {
-      const res = await fetch(`${BASE_API}${path}`, {
+      const res = await demoFetch("langchain", `${BASE_API}${path}`, {
         method: "POST",
         headers: payload.form ? undefined : { "Content-Type": "application/json" },
         body: payload.form ?? JSON.stringify(payload.json),
