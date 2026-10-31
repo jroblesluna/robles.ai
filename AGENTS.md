@@ -79,7 +79,7 @@ src/
     Team, Contact (exporta ContactForm y CONTACT_GOALS), Footer, BlogArticle, BlogModal,
     BlogSearch, VideoModal, ParticleBackground
     chat/            # ChatbotWidget, ChatPanel, MessageList, MessageInput
-    demo/            # ApiCallLog, BusinessCase, SavingsCalculator, business.ts, DemoKit, DemoNav,
+    demo/            # ApiCallLog, BusinessCase, SavingsCalculator, business.ts, DemoGate, DemoGuide, DemoKit, DemoNav, RunnerTrack,
                      # DemoTutorial, DemoVideoPreview, DemoVisualPreview, EmotionPreview, InfoTip, JsonHighlight, StepCard
     quiz/            # QuizIntro, QuizQuestionCard, QuizProgressBar, QuizAnalyzing, QuizResultPreview,
                      # QuizLeadForm, QuizWaitingVerification, QuizResultFull, QuizScoreRing
@@ -320,7 +320,7 @@ Catálogo en `demosCatalog.items` (en/es: `id`, `href`, `status`, `icon`, `title
 - **Guía paso a paso** (`DemoGuide.tsx`): `GuideSteps` (tarjetas de pasos vivas, copy `<prefix>.how_step<n>_*`), `GuideCue` (etiqueta animada sobre el control a usar, copy `guide_*`) y `useGuideNavigation`. Están en todas las demos; `TryChatbot` usa solo `GuideCue` porque sus pasos van debajo del pliegue.
 - **Progreso con Robly** (`RunnerTrack.tsx`): el mismo componente en RAG, Identity, Chatbot, DocExtract, narrador de TTS y análisis de Transcription. Robly solo avanza con pasos reales. Toda demo nueva con un proceso de varios pasos debe usarlo.
 - **Identity sin callback**: la demo ya no envía `callback`. Antes mandaba una URL `/webhook/<uuid>` inexistente, el POST daba 404 y **toda** verificación terminaba en `completed_with_errors`. La UI muestra el `message` de la API cuando hay un problema.
-- **API keys** (Admin → Backends → *API keys*): cada API llama a `setup_api_auth()` (`api_auth.py`, misma copia en los 7 repos), que exige `X-API-Key` (o `?api_key=` en WebSockets) y valida contra `POST /api/public/api-keys/verify`, con caché de 60 s. Las claves se guardan solo como hash. Las demos no reciben claves: la clave de demos queda en `settings` (`demo_api_key_<api>`) y el navegador pide un token de 15 min a `POST /api/public/demo-token` (`src/lib/demoAuth.ts`). El interruptor `api_keys_required` activa la exigencia sin desplegar, y no se puede activar si alguna demo no tiene clave. `/`, health y documentación siguen abiertos.
+- **API keys** (Admin → Backends → *API keys*): cada API llama a `setup_api_auth()` (`api_auth.py`, misma copia en los 7 repos), que exige `X-API-Key` (o `?api_key=` en WebSockets) y valida contra `POST /api/public/api-keys/verify`, con caché de 60 s. Las claves se guardan solo como hash. Las claves de terceros no caducan: valen hasta revocarlas (efecto en ≤ 60 s) y no pasan por `demo-token`. Las demos no reciben claves: la clave de demos queda en `settings` (`demo_api_key_<api>`) y el navegador pide un token de 15 min, firmado con esa clave, a `POST /api/public/demo-token` (`src/lib/demoAuth.ts`), limitado a 60 por minuto por IP, compartido entre APIs y solo en el sitio (no limita el uso del token). Revocar o cambiar la clave invalida sus tokens. El interruptor global `api_keys_required` activa la exigencia sin desplegar (las APIs lo leen cada 60 s), y no se puede activar si alguna demo no tiene clave. Con el interruptor apagado todo funciona sin clave. `/`, health y documentación siguen abiertos. Si el interruptor está activo y una demo queda sin clave (p. ej. al revocarla), `GET /api/public/site-config` la lista en `unavailableDemos` y `DemoGate` muestra un aviso en lugar de la página.
 - **Modelos de OpenAI** (Admin → Settings → *AI Models*): el sitio usa `getAiModel()` y las 6 APIs con OpenAI leen `GET /api/public/ai-models` con `model_config.py` (caché de 5 min; si el sitio no responde siguen con su default). El botón de verificación compara lo configurado con `models.list()`. Nunca escribir un modelo fijo en el código; los embeddings quedan fuera porque cambiarlos obliga a reconstruir los índices. RAG usa un solo modelo: Llama se quitó el 2026-10-30.
 - **RAG, reranking**: cuesta ~2 s por candidato en la CPU de Cloud Run. `TryRAG` envía los 12 mejores candidatos con timeout de 45 s; si falla o tarda, sigue con el orden de la búsqueda vectorial para no perder la respuesta. Una falla de los modelos en `/rag/generate` llega como texto dentro de un 200; `TryRAG` la muestra como error del paso.
 - `/try-medical` existe como página "próximamente", sin backend y fuera del catálogo; no sube nada.
@@ -374,6 +374,7 @@ Los secretos se enmascaran en `GET /api/admin/settings` (`settingsSecrets.ts`) y
 | Meta Ads | `meta_ad_account_id`, `meta_ads_access_token` |
 | Tracking del sitio | `gtm_container_id`, `ga4_measurement_id`, `meta_pixel_id`, `clarity_project_id` (servidos por `GET /api/public/analytics-config`, caché 1 h) |
 | Sitio público | `booking_url` (servido por `GET /api/public/site-config`) |
+| API keys | `api_keys_required`, `demo_api_key_<api>` (secreto, nunca sale al navegador) |
 | GA4 Data API | `ga4_property_id` |
 | Portal de backends | `hostinger_api_key`, `hostinger_domain` (por defecto `robles.ai`), `gcp_sa_key`, `dns_cname_target` (por defecto `ghs.googlehosted.com.`) |
 
@@ -428,8 +429,10 @@ Públicos:
 | GET | `/api/generate-posts?date=YYYY-MM-DD` | Generación manual de posts |
 | GET | `/api/test` | Health check |
 | GET | `/api/public/analytics-config` | IDs de GTM / GA4 / Meta Pixel |
-| GET | `/api/public/site-config` | Ajustes públicos del sitio (`bookingUrl`) |
-| GET | `/api/public/ai-models` | Nombres de modelos OpenAI para las APIs de demos |
+| GET | `/api/public/site-config` | Ajustes públicos del sitio (`bookingUrl`) y demos que no pueden funcionar (`unavailableDemos`) |
+| POST | `/api/public/demo-token` | Token de demo de 15 min (60 por minuto por IP) |
+| POST | `/api/public/api-keys/verify` | Las APIs validan una clave o token de demo |
+| GET | `/api/public/ai-models` | Nombres de modelos OpenAI e interruptor `apiKeysRequired` para las APIs de demos |
 | GET | `/api/public/slides/:reportId/:position(.png)` | Imagen de slide (para Meta) |
 | POST/GET/POST/POST | `/api/chat/session`, `/api/chat/history`, `/api/chat/message` (SSE), `/api/chat/close` | Chat de Robly (cookie `chat_session`) |
 | GET | `/sitemap.xml`, `/sitemaps/:filename` | Índice y sitemaps mensuales (`/static-pages.xml` para páginas estáticas) |
@@ -458,6 +461,7 @@ Admin (bajo `/api/admin`, requieren cookie `admin_token` salvo `status`, `setup`
 | GET/PUT | `/backends/connections` | Credenciales Hostinger/GCP (write-only) |
 | GET | `/backends`, `/backends/:id/cloudrun` | Backends con DNS + actividad; estado Cloud Run |
 | POST | `/backends/:id/dns`, `/backends/:id/ping` | Publicar CNAME; ping en vivo opt-in (despierta el servicio) |
+| GET/POST/DELETE/PUT/PUT | `/api-keys`, `/api-keys`, `/api-keys/:id`, `/api-keys/demo/:api`, `/api-keys/required` | Listar, crear y revocar claves; fijar la clave de demos; interruptor global |
 | GET | `/monitoring/logs?stream=error\|out&lines=&q=` | Últimas líneas de los logs de PM2 (rutas fijas en el servidor, secretos enmascarados) |
 | POST | `/test-ig-linebreaks` | Prueba interna de saltos de línea en Instagram |
 
@@ -609,6 +613,8 @@ Conecta, monitorea y publica el DNS de los **7 backends** de demos registrados e
 | `05f91f9` | 2026-10-18 | Registro de releases SEO verificados (#16) |
 
 ### Cambios de octubre 2026
+
+- **API keys y aviso de demos (31 oct)**: claves por API, tokens de demo, interruptor global y aviso `DemoGate` cuando una demo no puede funcionar. Redoc fijado en 2.1.5 en las 7 APIs. El CI de Chatbot fallaba desde septiembre porque faltaba `GCP_SA_KEY` en GitHub; se cargó y volvió a desplegar.
 
 - **Demos y modelos (30 oct)**: guía paso a paso y Robly compartidos (`DemoGuide.tsx`, `RunnerTrack.tsx`), tarjetas tipo Shorts, Identity sin callback ficticio, RAG con un solo modelo y rerank acotado, transcripción con Speechmatics (archivos, parada en dos fases, Auto y `/refine`), y modelos configurables en Admin → AI Models. `gpt-image-1` fue retirado por OpenAI: el default de imagen es `gpt-image-2.5-flare`. Antes de publicar la API de transcripción debe existir el secreto `SPEECHMATICS_API_KEY` en GCP.
 

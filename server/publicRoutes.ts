@@ -4,7 +4,7 @@ import db from './db.js';
 import { PUBLIC_CONTACT } from '../shared/publicContent.js';
 import { validClarityProjectId } from '../shared/clarity.js';
 import { getAiModel } from './services/aiModels.js';
-import { apiKeysRequired, issueDemoToken, isApiId, verifyApiCredential } from './services/apiKeys.js';
+import { apiKeysRequired, issueDemoToken, isApiId, unavailableDemos, verifyApiCredential } from './services/apiKeys.js';
 
 const publicRouter = Router();
 
@@ -90,13 +90,14 @@ publicRouter.get('/analytics-config', (_req, res) => {
 
 /**
  * GET /api/public/site-config
- * Public, non-secret site settings for the SPA (currently the calendar booking link).
+ * Public, non-secret site settings for the SPA: the calendar booking link and the
+ * demos that cannot run right now.
  * Only http(s) URLs are returned so a bad setting can never inject a javascript: link.
  */
 publicRouter.get('/site-config', (_req, res) => {
   const row = db.prepare("SELECT value FROM settings WHERE key = 'booking_url'").get() as { value: string | null } | undefined;
   res.setHeader('Cache-Control', 'no-store');
-  res.json({ bookingUrl: safeHttpUrl(row?.value) ?? PUBLIC_CONTACT.bookingUrl });
+  res.json({ bookingUrl: safeHttpUrl(row?.value) ?? PUBLIC_CONTACT.bookingUrl, unavailableDemos: unavailableDemos() });
 });
 
 /**

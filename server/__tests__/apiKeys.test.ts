@@ -93,4 +93,18 @@ describe('API keys', () => {
     const config = await request(app).get('/api/public/ai-models');
     expect(config.body.apiKeysRequired).toBe(false);
   });
+
+  it('lists a demo as unavailable only when enforcement is on and it has no key', async () => {
+    const app = express().use(express.json()).use('/api/public', publicRouter);
+    const unavailable = async () => (await request(app).get('/api/public/site-config')).body.unavailableDemos;
+    expect(await unavailable()).toEqual([]);
+    const keys = BACKENDS.map(({ id }) => createApiKey(id, 'Demo'));
+    BACKENDS.forEach(({ id }, i) => setDemoKey(id, keys[i].key));
+    expect(setApiKeysRequired(true).ok).toBe(true);
+    expect(await unavailable()).toEqual([]);
+    revokeApiKey(keys[BACKENDS.findIndex(({ id }) => id === 'rag')].id);
+    expect(await unavailable()).toEqual(['rag']);
+    setApiKeysRequired(false);
+    expect(await unavailable()).toEqual([]);
+  });
 });

@@ -107,6 +107,12 @@ export const verifyApiCredential = (apiId: string, credential: string): boolean 
 
 export const apiKeysRequired = () => readSetting('api_keys_required') === 'true';
 
+/** Demos that would be refused right now: enforcement is on and they have no key. */
+export function unavailableDemos(): string[] {
+  if (!apiKeysRequired()) return [];
+  return Object.entries(demoKeyStatus()).filter(([, configured]) => !configured).map(([id]) => id);
+}
+
 /** Turning enforcement on is refused while a demo would be left without a key. */
 export function setApiKeysRequired(required: boolean): { ok: boolean; missing: string[] } {
   const missing = Object.entries(demoKeyStatus()).filter(([, configured]) => !configured).map(([id]) => id);

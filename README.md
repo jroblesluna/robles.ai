@@ -100,7 +100,7 @@ src/
     Testimonials, Team, Contact (ContactForm), Footer, BlogArticle, BlogModal,
     BlogSearch, VideoModal, ParticleBackground
     chat/               # ChatbotWidget, ChatPanel, MessageList, MessageInput
-    demo/               # ApiCallLog, BusinessCase, SavingsCalculator, business.ts, DemoKit,
+    demo/               # ApiCallLog, BusinessCase, SavingsCalculator, business.ts, DemoGate, DemoGuide, DemoKit, RunnerTrack,
                         # DemoNav, DemoTutorial, DemoVideoPreview, DemoVisualPreview, EmotionPreview,
                         # InfoTip, JsonHighlight, StepCard
     quiz/               # Intro, QuestionCard, ProgressBar, Analyzing, ResultPreview,
@@ -249,6 +249,7 @@ The **Email delivery** card configures the Gmail sender, app password and defaul
 | Meta publishing / insights | `meta_app_id`, `meta_app_secret`, `instagram_business_account_id` (legacy `instagram_user_id`), `instagram_access_token`, `facebook_page_id`, `facebook_page_access_token`, `meta_token_expires_at` |
 | Meta Ads (Ads tab) | `meta_ad_account_id`, `meta_ads_access_token` (System User token with `ads_read`) |
 | Site tracking | `gtm_container_id`, `ga4_measurement_id`, `meta_pixel_id`, `clarity_project_id` (Microsoft Clarity, loaded by the site with or without GTM) |
+| API keys | `api_keys_required`, `demo_api_key_<api>` (secret, never sent to the browser) |
 | GA4 Data API | `ga4_property_id` (+ service-account JSON stored as `server/data/ga4-service-account.json`) |
 | Backends portal | `hostinger_api_key`, `hostinger_domain` (default `robles.ai`), `gcp_sa_key`, `dns_cname_target` (default `ghs.googlehosted.com.`) |
 
@@ -354,8 +355,10 @@ Public:
 | GET | `/api/generate-posts?date=YYYY-MM-DD` | Manual blog generation trigger |
 | GET | `/api/test` | Health check |
 | GET | `/api/public/analytics-config` | GTM / GA4 / Meta Pixel IDs for the site |
-| GET | `/api/public/site-config` | Public site settings (`bookingUrl`) |
-| GET | `/api/public/ai-models` | OpenAI model names for the demo APIs |
+| GET | `/api/public/site-config` | Public site settings (`bookingUrl`) and demos that cannot run (`unavailableDemos`) |
+| POST | `/api/public/demo-token` | 15-minute demo token (60 per minute per IP) |
+| POST | `/api/public/api-keys/verify` | The APIs validate a key or demo token |
+| GET | `/api/public/ai-models` | OpenAI model names and the `apiKeysRequired` switch for the demo APIs |
 | GET | `/api/public/slides/:reportId/:position(.png)` | Carousel slide image (for Meta) |
 | POST | `/api/chat/session` · GET `/api/chat/history` · POST `/api/chat/message` (SSE) · POST `/api/chat/close` | Robly chat (`chat_session` cookie) |
 | GET | `/sitemap.xml`, `/sitemaps/:filename` | Sitemap index and monthly blog sitemaps (`/static-pages.xml` for static pages) |
@@ -384,6 +387,7 @@ Admin (all under `/api/admin`, `admin_token` cookie required except `status`, `s
 | GET / PUT | `/backends/connections` | Hostinger / GCP credentials (write-only) |
 | GET | `/backends`, `/backends/:id/cloudrun` | Backend list with DNS + activity; Cloud Run status |
 | POST | `/backends/:id/dns`, `/backends/:id/ping` | Publish CNAME; opt-in live health ping (wakes the service) |
+| GET / POST / DELETE / PUT / PUT | `/api-keys`, `/api-keys`, `/api-keys/:id`, `/api-keys/demo/:api`, `/api-keys/required` | List, create and revoke keys; set the demo key; global switch |
 | GET | `/monitoring/logs?stream=error\|out&lines=&q=` | Latest PM2 log lines (fixed server-side paths, secrets masked) |
 | POST | `/test-ig-linebreaks` | Internal Instagram formatting test |
 
@@ -472,7 +476,7 @@ Catalog data: `demosCatalog.items` in both translation files (`id`, `href`, `sta
 | `emotion` | `/try-emotion` | Browser (`@vladmandic/face-api`) | live |
 | `voiceagent`, `anomaly`, `imagegen` | — | — | soon |
 
-- **API keys**: generated per API in Admin → Backends. Each API requires `X-API-Key` (`?api_key=` on WebSockets) once the switch there is on, validating against `POST /api/public/api-keys/verify`. Demos keep their key on the server and give browsers 15-minute tokens from `POST /api/public/demo-token`. Interactive docs stay open at `/docs` and `/redoc` on each API.
+- **API keys**: generated per API in Admin → Backends. Each API requires `X-API-Key` (`?api_key=` on WebSockets) once the switch there is on, validating against `POST /api/public/api-keys/verify`. Third-party keys do not expire and revocation takes effect within 60 s. Demos keep their key on the server and give browsers 15-minute tokens from `POST /api/public/demo-token`, capped at 60 per minute per IP across all APIs on the site only (the cap does not limit how often a token is used). The switch is global and the APIs read it every 60 s; with it off, everything works without a key. Interactive docs stay open at `/docs` and `/redoc` on each API. If enforcement is on and a demo has no key, `GET /api/public/site-config` lists it in `unavailableDemos` and `DemoGate` shows a notice instead of the page.
 - **Catalog cards** work like YouTube Shorts: the whole card is one link with no playback controls; hovering (desktop) or holding (touch, ≥ 220 ms) loops the clip, and a click or quick tap opens the demo.
 - **Guided steps and progress**: `DemoGuide.tsx` (`GuideSteps`, `GuideCue`, `useGuideNavigation`) walks visitors through each demo; `RunnerTrack.tsx` is the shared Robly progress track for multi-step processes.
 - **Cold starts**: Cloud Run APIs scale to zero; each page warms its API on mount and shows a status banner.

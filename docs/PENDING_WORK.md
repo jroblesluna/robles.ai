@@ -25,7 +25,7 @@
 
 - Registrado: 31 de octubre de 2026.
 - Las API keys ya existen. Falta cuota y costo por cliente, e identificar la IP real en cada API: en Cloud Run todas las peticiones llegan con la misma IP interna, así que el límite por IP actual es compartido.
-- `demo-token` es público: quien automatice la página puede obtener tokens. Lo acotan los 15 minutos y el límite por IP; revisar si hace falta un desafío anti-bots.
+- `demo-token` es público: quien automatice la página puede obtener tokens. Lo acotan los 15 minutos y el límite de 60 tokens por minuto por IP, pero ese límite cuenta tokens emitidos, no su uso: un mismo token sirve para llamadas ilimitadas durante 15 minutos. Revisar si hace falta un desafío anti-bots.
 - El `callback` de Identity acepta cualquier URL: restringirlo antes de ofrecer esa API.
 
 ## SEC-03 — Medición de uso, créditos y cuotas por cliente

@@ -4189,6 +4189,11 @@
         "finishing": "Micrófono apagado. Terminando la última frase…",
         "turn_corrected": "Corregido con el contexto"
     },
+    "demoUnavailable": {
+        "title": "Esta demo no está disponible por el momento",
+        "body": "Estamos haciendo un ajuste. Mientras tanto puedes probar las demás demos del laboratorio o escribirnos.",
+        "contact": "Hablar con nosotros"
+    },
     "demoNav": {
         "aria": "Navegación de la demo",
         "back": "Volver",

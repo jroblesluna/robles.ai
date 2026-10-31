@@ -14,6 +14,7 @@ import ChatbotWidget from '@/components/chat/ChatbotWidget';
 import { useSEO } from '@/hooks/useSEO';
 import { STATIC_PAGES, explicitLanguage } from '@shared/seoPolicy';
 import { useScrollRestoration } from '@/hooks/useScrollRestoration';
+import { DemoGate } from '@/components/demo/DemoGate';
 import DemosSkeleton from '@/components/DemosSkeleton';
 import QuizSkeleton from '@/components/quiz/QuizSkeleton';
 import CareersSkeleton from '@/components/CareersSkeleton';
@@ -146,17 +147,17 @@ function App({ client = queryClient }: { client?: QueryClient } = {}) {
               <Route path="/demos">{() => <Suspense fallback={<DemosSkeleton />}><Demos /></Suspense>}</Route>
               <Route path="/careers">{() => <Suspense fallback={<CareersSkeleton />}><Careers /></Suspense>}</Route>
               <Route path="/apply" component={Apply} />
-              <Route path="/try-identity" component={TryIdentity} />
-              <Route path="/try-langchain" component={TryLangChain} />
-              <Route path="/try-rag" component={TryRAG} />
+              <Route path="/try-identity">{() => <DemoGate api="identity"><TryIdentity /></DemoGate>}</Route>
+              <Route path="/try-langchain">{() => <DemoGate api="langchain"><TryLangChain /></DemoGate>}</Route>
+              <Route path="/try-rag">{() => <DemoGate api="rag"><TryRAG /></DemoGate>}</Route>
               <Route path="/try-medical" component={TryMedical} />
               <Route path="/try-object-detection" component={TryObjectDetection} />
               <Route path="/try-emotion" component={TryEmotion} />
-              <Route path="/try-transcription" component={TryTranscription} />
-              <Route path="/try-chatbot" component={TryChatbot} />
-              <Route path="/try-docextract" component={TryDocExtract} />
+              <Route path="/try-transcription">{() => <DemoGate api="transcription"><TryTranscription /></DemoGate>}</Route>
+              <Route path="/try-chatbot">{() => <DemoGate api="chatbot"><TryChatbot /></DemoGate>}</Route>
+              <Route path="/try-docextract">{() => <DemoGate api="docextract"><TryDocExtract /></DemoGate>}</Route>
               <Route path="/try-forecast" component={TryForecast} />
-              <Route path="/try-tts" component={TryTTS} />
+              <Route path="/try-tts">{() => <DemoGate api="tts"><TryTTS /></DemoGate>}</Route>
               <Route path="/get-started" component={Landing} />
               <Route path="/diagnostico-ia">{() => <Suspense fallback={<QuizSkeleton />}><Quiz /></Suspense>}</Route>
               <Route path="/otp" component={OTP} />

@@ -4189,6 +4189,11 @@
         "finishing": "Mic off. Finishing the last sentence…",
         "turn_corrected": "Corrected with context"
     },
+    "demoUnavailable": {
+        "title": "This demo is not available right now",
+        "body": "We are making an adjustment. In the meantime you can try the other demos in the lab or write to us.",
+        "contact": "Talk to us"
+    },
     "demoNav": {
         "aria": "Demo navigation",
         "back": "Back",
