@@ -32,6 +32,7 @@ import { BusinessCase } from "@/components/demo/BusinessCase";
 import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
 import { useDemoTracking } from "@/components/demo/business";
 import { HowItWorks, TechCard } from "@/components/demo/DemoKit";
+import { GuideCue, GuideSteps, useGuideNavigation, type GuideTheme } from "@/components/demo/DemoGuide";
 import {
   forecast,
   samplePreset,
@@ -42,6 +43,13 @@ import {
 
 const ACCENT_GRADIENT = "from-sky-500 to-cyan-600";
 const ACCENT_TEXT = "text-sky-600";
+const GUIDE_THEME: GuideTheme = {
+  gradient: ACCENT_GRADIENT,
+  text: ACCENT_TEXT,
+  current: "border-sky-300 ring-sky-100",
+  hover: "hover:border-sky-300",
+  flash: "ring-4 ring-sky-200",
+};
 
 const PRESETS: PresetId[] = ["standard", "trending", "seasonal", "noisy"];
 const HORIZONS = [24, 168] as const;
@@ -69,6 +77,15 @@ export default function TryForecast() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Paso de "cómo funciona" en el que va el visitante: avanza con cada elección.
+  const [guideStep, setGuideStep] = useState(1);
+  const dataRef = useRef<HTMLDivElement>(null);
+  const horizonRef = useRef<HTMLDivElement>(null);
+  const downloadRef = useRef<HTMLDivElement>(null);
+  const { flashStep, goTo } = useGuideNavigation(guideStep, (at) =>
+    at === 1 ? dataRef.current : at === 2 ? horizonRef.current : downloadRef.current
+  );
+
   const result = useMemo(() => forecast(series, horizon), [series, horizon]);
 
   // Marca demo_complete la primera vez que hay un pronóstico visible.
@@ -88,6 +105,7 @@ export default function TryForecast() {
     setSource("preset");
     setUploadError(null);
     setSeries(samplePreset(p));
+    setGuideStep((step) => Math.max(step, 2));
   }
 
   function handleFile(files: FileList | null) {
@@ -101,6 +119,7 @@ export default function TryForecast() {
         const parsed = parseCsvSeries(String(reader.result ?? ""));
         setSeries(parsed);
         setSource("upload");
+        setGuideStep((step) => Math.max(step, 2));
       } catch {
         setUploadError(t("try-forecast.upload_error"));
       }
@@ -115,6 +134,7 @@ export default function TryForecast() {
     setUploadError(null);
     setSeries(samplePreset("standard"));
     setHorizon(24);
+    setGuideStep(1);
     if (inputRef.current) inputRef.current.value = "";
   }
 
@@ -169,16 +189,19 @@ export default function TryForecast() {
           </ul>
         </div>
 
+        <GuideSteps prefix="try-forecast" current={guideStep} theme={GUIDE_THEME} onGo={goTo} />
+
         {/* Controles */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="mb-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
+          className="mb-6 mt-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
         >
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             {/* Presets */}
-            <div>
+            <div ref={dataRef} className={`relative rounded-xl ${flashStep === 1 ? GUIDE_THEME.flash : ""}`}>
+              {guideStep === 1 && <GuideCue step={1} label={t("try-forecast.guide_data")} gradient={ACCENT_GRADIENT} className="right-0 !-top-4" />}
               <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
                 {t("try-forecast.preset_label")}
               </p>
@@ -220,7 +243,8 @@ export default function TryForecast() {
 
             {/* Horizonte + acciones */}
             <div className="flex flex-wrap items-end gap-3">
-              <div>
+              <div ref={horizonRef} className={`relative rounded-xl ${flashStep === 2 ? GUIDE_THEME.flash : ""}`}>
+                {guideStep === 2 && <GuideCue step={2} label={t("try-forecast.guide_horizon")} gradient={ACCENT_GRADIENT} className="left-0 !-top-7" />}
                 <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
                   {t("try-forecast.horizon_label")}
                 </p>
@@ -229,7 +253,10 @@ export default function TryForecast() {
                     <button
                       key={h}
                       type="button"
-                      onClick={() => setHorizon(h)}
+                      onClick={() => {
+                        setHorizon(h);
+                        setGuideStep(3);
+                      }}
                       className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
                         horizon === h ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
                       }`}
@@ -239,6 +266,8 @@ export default function TryForecast() {
                   ))}
                 </div>
               </div>
+              <div ref={downloadRef} className={`relative rounded-lg ${flashStep === 3 ? GUIDE_THEME.flash : ""}`}>
+              {guideStep === 3 && <GuideCue step={3} label={t("try-forecast.guide_download")} gradient={ACCENT_GRADIENT} className="right-0 !-top-7" />}
               <button
                 type="button"
                 onClick={downloadCsv}
@@ -247,6 +276,7 @@ export default function TryForecast() {
                 <Download className="h-4 w-4" />
                 {t("try-forecast.download_csv")}
               </button>
+              </div>
               <button
                 type="button"
                 onClick={reset}

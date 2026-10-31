@@ -4,7 +4,6 @@ import { Router } from 'express';
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import OpenAI from 'openai';
-import { OPENAI_IMAGE_MODEL } from './services/imageGeneration.js';
 import nodemailer from 'nodemailer';
 import path from 'path';
 import fs from 'fs';
@@ -32,6 +31,8 @@ import { clarityRecordingUrl, normalizeClaritySession, validClarityProjectId } f
 import { queryMetaAds } from './services/metaAds.js';
 import { rebuildListingIndex } from './listing/indexer.js';
 import chatAdminRouter from './chatAdminRoutes.js';
+import { getAiModel } from './services/aiModels.js';
+import { AI_MODELS, isAiModelKey, isValidModelId } from '../shared/aiModels.js';
 
 const SALT_ROUNDS = 12;
 
@@ -244,6 +245,14 @@ adminRouter.put('/settings', requireAuth, (req, res) => {
       return;
     }
 
+    const badModel = Object.entries(updates).find(
+      ([key, value]) => isAiModelKey(key) && value && !isValidModelId(value)
+    );
+    if (badModel) {
+      res.status(400).json({ error: `Invalid model name for ${badModel[0]}` });
+      return;
+    }
+
     const upsert = db.prepare(
       'INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?, ?, ?)'
     );
@@ -359,6 +368,30 @@ adminRouter.post('/settings/openai/validate', requireAuth, async (_req, res) => 
       ? 'OpenAI rejected the API key. Check that the key is current.'
       : 'Could not verify the OpenAI API key. Check API access and try again.';
     res.json({ valid: false, message });
+  }
+});
+
+/** Compares the configured models with those the OpenAI key can use today. */
+adminRouter.post('/settings/ai-models/validate', requireAuth, async (_req, res) => {
+  const row = db.prepare('SELECT value FROM settings WHERE key = ?').get('openai_api_key') as
+    | { value: string | null }
+    | undefined;
+  if (!row?.value) {
+    res.json({ valid: false, message: 'Save an OpenAI API key before checking the models.' });
+    return;
+  }
+
+  try {
+    const available = new Set<string>();
+    for await (const model of new OpenAI({ apiKey: row.value }).models.list()) available.add(model.id);
+    const missing = Array.from(new Set(AI_MODELS.map(model => getAiModel(model.key)))).filter(id => !available.has(id));
+    res.json(missing.length
+      ? { valid: false, message: `Not available in OpenAI: ${missing.join(', ')}. Choose a replacement.` }
+      : { valid: true, message: 'All configured models are available in OpenAI.' });
+  } catch (error) {
+    const status = error && typeof error === 'object' && 'status' in error ? Number(error.status) : 0;
+    console.error('[admin.settings.ai-models.validate] OpenAI model check failed', { status });
+    res.json({ valid: false, message: 'Could not check the models. Verify the OpenAI API key and try again.' });
   }
 });
 
@@ -968,7 +1001,7 @@ Reglas:
 Devuelve SOLO el texto del post, sin markdown ni explicaciones adicionales.`;
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: getAiModel('ai_model_site_content'),
       temperature: 0.7,
       messages: [
         { role: 'system', content: systemPrompt },
@@ -1035,7 +1068,7 @@ REGLAS:
 Devuelve SOLO el caption, sin explicaciones ni markdown.`;
 
     const igResponse = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: getAiModel('ai_model_site_content'),
       temperature: 0.7,
       messages: [
         { role: 'system', content: igSystemPrompt },
@@ -1154,7 +1187,7 @@ REGLAS:
 Devuelve SOLO el caption, sin explicaciones ni markdown.`;
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: getAiModel('ai_model_site_content'),
       temperature: 0.7,
       messages: [
         { role: 'system', content: igSystemPrompt },
@@ -1248,7 +1281,7 @@ Reglas:
 Devuelve SOLO el texto del post, sin markdown ni explicaciones adicionales.`;
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: getAiModel('ai_model_site_content'),
       temperature: 0.7,
       messages: [
         { role: 'system', content: systemPrompt },
@@ -1365,7 +1398,7 @@ adminRouter.post('/dominical/:id/generate-image', requireAuth, async (req, res) 
     const prompt = `Professional LinkedIn cover image representing: ${themes}. Modern, clean, corporate style. Blue and purple tones. No text.`;
 
     const imageResponse = await openai.images.generate({
-      model: OPENAI_IMAGE_MODEL,
+      model: getAiModel('ai_model_site_image'),
       prompt,
       n: 1,
       size: '1536x1024',

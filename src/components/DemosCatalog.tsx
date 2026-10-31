@@ -2,7 +2,7 @@ import { normalizeLanguage, staticPagePath } from '@shared/seoPolicy';
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { DemoVideoPreview } from "@/components/demo/DemoVideoPreview";
 import { BrandSpot, useHasBrandSpot } from "@/components/BrandSpot";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState, type MouseEvent, type PointerEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
 import {
@@ -93,22 +93,41 @@ function BenefitLine({ text }: { text: string }) {
   );
 }
 
-// A single card anatomy and poster are shared by home and the lab.
+// Held this long on touch, a press previews the clip instead of opening the demo.
+const HOLD_MS = 220;
+
+// A single card anatomy and poster are shared by home and the lab. The whole card
+// is one link and works like a YouTube Short: hover or hold previews, click or tap opens.
 function DemoCard({ item, index, reducedMotion }: { item: DemoItem; index: number; reducedMotion: boolean }) {
   const { t, i18n } = useTranslation();
   const lang = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
   const [hovered, setHovered] = useState(false);
+  const [pressed, setPressed] = useState(false);
+  const holdTimer = useRef<number | undefined>(undefined);
+  const held = useRef(false);
   const Icon = ICONS[item.icon] || Sparkles;
   const isLive = item.status === "live";
   const [family] = item.modelType.split("·").map(value => value.trim());
+  const endPress = () => {
+    window.clearTimeout(holdTimer.current);
+    setPressed(false);
+  };
   return (
     <motion.div data-preview-id={item.id}
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }} transition={{ duration: 0.3, delay: Math.min(index * 0.04, 0.3) }}
-      className="relative flex h-full flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-gray-200">
-      <DemoVideoPreview id={item.id} title={item.title} hovered={hovered} reducedMotion={reducedMotion} />
+      className="relative flex h-full flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-gray-200 transition-shadow hover:shadow-xl">
       <Link href={isLive && item.href ? staticPagePath(item.href, lang) : staticPagePath("/", lang) + "#contact"}
-        className="group flex flex-1 flex-col overflow-hidden bg-white transition-shadow hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-600">
+        onPointerDown={(event: PointerEvent<HTMLAnchorElement>) => {
+          if (event.pointerType === "mouse") return;
+          held.current = false;
+          holdTimer.current = window.setTimeout(() => { held.current = true; setPressed(true); }, HOLD_MS);
+        }}
+        onPointerUp={endPress} onPointerCancel={endPress}
+        onContextMenu={(event: MouseEvent) => { if (held.current) event.preventDefault(); }}
+        onClick={(event: MouseEvent) => { if (held.current) { held.current = false; event.preventDefault(); } }}
+        className="group flex flex-1 touch-pan-y select-none flex-col overflow-hidden bg-white [-webkit-touch-callout:none] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-violet-600">
+        <DemoVideoPreview id={item.id} hovered={hovered} pressed={pressed} reducedMotion={reducedMotion} />
         <div className="flex flex-1 flex-col p-5">
           <div className="flex items-center justify-between gap-2">
             <p className="flex items-center gap-2 text-xs font-medium text-slate-600"><Icon aria-hidden="true" className="h-4 w-4" />{family}</p>
@@ -117,9 +136,11 @@ function DemoCard({ item, index, reducedMotion }: { item: DemoItem; index: numbe
           <h3 className="mt-2 text-lg font-semibold tracking-tight text-slate-900">{item.title}</h3>
           <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-600">{item.description}</p>
           {item.benefit && <BenefitLine text={item.benefit} />}
-          <span className="mt-auto flex items-center gap-2 pt-5 text-sm font-semibold text-slate-900">
-            {t(isLive ? "demosCatalog.cta_try" : "demosCatalog.cta_soon")}<ArrowRight aria-hidden="true" className="h-4 w-4" />
-          </span>
+          {!isLive && (
+            <span className="mt-auto flex items-center gap-2 pt-5 text-sm font-semibold text-slate-900">
+              {t("demosCatalog.cta_soon")}<ArrowRight aria-hidden="true" className="h-4 w-4" />
+            </span>
+          )}
         </div>
       </Link>
     </motion.div>

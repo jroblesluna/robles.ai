@@ -1530,8 +1530,6 @@
         "instructions": "Your images are processed only for this demo and are not stored permanently. Upload a clear, well-lit selfie and a photo ID where the face is fully visible for the best results.",
         "watch_demo": "Watch demo video",
         "videoSrc": "https://youtube.com/embed/Px2NqwcL5kw",
-        "webhook": "Callback URL (webhook)",
-        "webhook_hint": "Results are also posted to this endpoint when processing finishes. This is a sample URL for the demo.",
         "step_upload": "Upload images",
         "step_selfie": "Selfie",
         "step_document": "ID document",
@@ -1587,7 +1585,6 @@
         "service_warm_failed": "The service is taking longer than expected to start. Please try again in a moment.",
         "verify_warming": "Preparing service…",
         "tip_upload": "Upload two images: a selfie and a photo ID. They are sent to the API, which detects and compares the faces.",
-        "tip_webhook": "When processing finishes, the API also POSTs the result to this callback URL. Here it's a sample endpoint for the demo.",
         "tip_results": "Summary returned by the API after comparing the two faces, including the match decision and similarity score.",
         "tip_match": "Whether the API considers both faces to belong to the same person, based on the similarity threshold.",
         "tip_distance": "Cosine similarity between the two 512-dimensional face embeddings. Ranges 0–100%; higher means more alike.",
@@ -1599,7 +1596,7 @@
         "tech_flow_1": "The browser uploads both images to storage and sends their URLs to POST /recognition/verify-id, which creates a request (status: pending).",
         "tech_flow_2": "A processing step (POST /cron/verify-id) downloads the images and runs the face model.",
         "tech_flow_3": "The model detects a face in each image, extracts an embedding, and compares them.",
-        "tech_flow_4": "The client polls GET /recognition/get/{id} every 3s until the status is completed, and the result is also POSTed to the callback.",
+        "tech_flow_4": "The client polls GET /recognition/get/{id} every 3s until the status is final. In production the API can also deliver the result to your webhook.",
         "tech_model_title": "Model",
         "tech_model_name_label": "Model pack",
         "tech_model_detector_label": "Face detector",
@@ -1609,7 +1606,7 @@
         "tech_model_threshold_label": "Match threshold",
         "tech_model_note": "The model is pretrained and runs on CPU (inference only — no training happens). It outputs a 512-dimensional embedding per face.",
         "tech_api_title": "API & privacy",
-        "tech_api_1": "REST API over HTTPS with JSON payloads; processing is asynchronous with a webhook callback.",
+        "tech_api_1": "REST API over HTTPS with JSON payloads; processing is asynchronous, with optional webhook delivery.",
         "tech_api_2": "Image URLs are validated server-side (allow-listed hosts) before fetching.",
         "tech_api_3": "Demo images are processed for the verification only and are not intended for long-term storage.",
         "badge": "Live API demo",
@@ -1619,7 +1616,7 @@
         "how_step2_title": "The API compares faces",
         "how_step2_desc": "It detects each face, extracts an embedding and computes similarity.",
         "how_step3_title": "Get the match result",
-        "how_step3_desc": "A score and match decision in seconds, plus a webhook callback.",
+        "how_step3_desc": "A score and a match decision in seconds.",
         "trust_private": "Images are never stored",
         "trust_fast": "Results in seconds",
         "trust_accurate": "512-d face embeddings",
@@ -1638,7 +1635,21 @@
         "how_tech_title": "Technical architecture",
         "how_tech_subtitle": "For developers and engineers",
         "samples_cta": "No photos handy? Use sample images",
-        "samples_hint": "A fictional demo pair — same face on both, so the match actually works."
+        "samples_hint": "A fictional demo pair — same face on both, so the match actually works.",
+        "guide_upload": "Start here: use the samples or upload your photos",
+        "guide_verify": "Now run the verification",
+        "runner_step_send": "Send",
+        "runner_step_detect": "Detect faces",
+        "runner_step_compare": "Compare",
+        "runner_step_result": "Result",
+        "runner_waiting_photos": "Robly is waiting for your two photos",
+        "runner_waiting_verify": "Photos ready · Robly is waiting for you to verify",
+        "runner_done": "Verification finished",
+        "runner_failed": "The verification couldn't be completed",
+        "problem_title_failed": "We couldn't compare the images",
+        "problem_title_partial": "The comparison finished with a warning",
+        "error_no_face_document": "No face was detected in the ID document. Use a sharper, well-lit image of the photo side.",
+        "error_no_face_selfie": "No face was detected in the selfie. Use a front-facing, well-lit photo."
     },
     "try-object": {
         "tutorial_text": "Watch the full walkthrough: point your camera or upload a photo, the AI finds and labels every object in the scene, and you get the count and the detection data.",
@@ -1801,7 +1812,8 @@
             "teddy bear": "teddy bear",
             "hair drier": "hair drier",
             "toothbrush": "toothbrush"
-        }
+        },
+        "guide_start": "Start here: turn on the camera or pick an image"
     },
     "try-emotion": {
         "tutorial_text": "Watch the full walkthrough: turn on your camera or upload a photo, the AI reads the expressions on each face and sums them up in an anonymous, aggregated view.",
@@ -1892,7 +1904,8 @@
         "log_row_camera": "Camera capture",
         "log_row_image": "Uploaded photo",
         "log_row_sample": "Sample portrait",
-        "log_error_generic": "Couldn't analyze the image. Try another photo."
+        "log_error_generic": "Couldn't analyze the image. Try another photo.",
+        "guide_start": "Start here: turn on the camera or pick an image"
     },
     "try-chatbot": {
         "tutorial_text": "Before you try it, watch the full walkthrough: paste your site, the AI reads it and answers your customers with your own content.",
@@ -2014,7 +2027,9 @@
         "tab_api": "API calls",
         "pages_hint": "Your chatbot answers only from these pages. The content expires after 24 hours.",
         "suggestions_label": "Try asking",
-        "disclaimer": "AI answers based on the pages read. Double-check important details."
+        "disclaimer": "AI answers based on the pages read. Double-check important details.",
+        "guide_url": "Start here: paste your site's URL",
+        "guide_ask": "Now ask it something"
     },
     "try-docextract": {
         "onboarding_title": "Turn any document into clean data",
@@ -2117,7 +2132,14 @@
         "legend_high": "High (80%+)",
         "legend_mid": "Check (50–79%)",
         "legend_low": "Review (below 50%)",
-        "review_note": "Low-confidence values are flagged so a person can confirm them. In production they go to a review queue before reaching your ERP."
+        "review_note": "Low-confidence values are flagged so a person can confirm them. In production they go to a review queue before reaching your ERP.",
+        "how_step1_title": "Upload a document",
+        "how_step1_desc": "An invoice, receipt or form, as an image or PDF.",
+        "how_step2_title": "The AI reads it",
+        "how_step2_desc": "It detects the type of document and extracts each field.",
+        "how_step3_title": "Download the data",
+        "how_step3_desc": "Review the table and export it to JSON, CSV or Excel.",
+        "guide_upload": "Start here: upload your document"
     },
     "try-forecast": {
         "badge": "Runs in your browser",
@@ -2165,7 +2187,16 @@
         "tech_bands_title": "Uncertainty",
         "tech_bands_desc": "Bands are built from the spread of in-sample residuals, widening with the forecast horizon (q10, q50, q90).",
         "tech_local_title": "Local compute",
-        "tech_local_desc": "Pure TypeScript over your array of numbers — no backend, no cost, instant recompute as you change inputs."
+        "tech_local_desc": "Pure TypeScript over your array of numbers — no backend, no cost, instant recompute as you change inputs.",
+        "how_step1_title": "Choose your data",
+        "how_step1_desc": "Pick an example series or upload your own CSV.",
+        "how_step2_title": "Set the horizon",
+        "how_step2_desc": "Decide how far ahead you want to forecast.",
+        "how_step3_title": "Read and download",
+        "how_step3_desc": "Check the forecast with its range and export it as CSV.",
+        "guide_data": "Start here: pick a series",
+        "guide_horizon": "Now pick the horizon",
+        "guide_download": "Download your forecast"
     },
     "try-tts": {
         "title": "Give your content a voice",
@@ -2252,7 +2283,18 @@
         "tech_chunk_title": "Chunking",
         "tech_chunk_desc": "Long text is split by sentences without cutting them, narrated with bounded concurrency, and joined with ffmpeg with natural pauses.",
         "tech_subs_title": "Subtitles",
-        "tech_subs_desc": "SRT and VTT are built from per-chunk timings. Word-level timing isn't available from the TTS engine, so cues are per segment."
+        "tech_subs_desc": "SRT and VTT are built from per-chunk timings. Word-level timing isn't available from the TTS engine, so cues are per segment.",
+        "how_step1_title": "Choose a voice",
+        "how_step1_desc": "Press play on any voice to hear a sample and pick one.",
+        "how_step2_title": "Generate the audio",
+        "how_step2_desc": "Keep the example text or write your own, then generate.",
+        "how_step3_title": "Listen and download",
+        "how_step3_desc": "Play the result and download the audio.",
+        "guide_voice": "Start here: pick a voice",
+        "guide_generate": "Now generate the audio",
+        "runner_step_send": "Send",
+        "runner_step_generate": "Generate",
+        "runner_step_ready": "Ready"
     },
     "try-langchain": {
         "title": "LangChain Agent",
@@ -2389,7 +2431,10 @@
         "tech_stack_vectordb_label": "Retrieval",
         "tech_stack_tools_label": "Agent",
         "tech_stack_server_label": "Serving",
-        "tech_note": "The API scales to zero when idle, so the first request warms it up before responding."
+        "tech_note": "The API scales to zero when idle, so the first request warms it up before responding.",
+        "guide_mode": "Start here: pick a mode",
+        "guide_upload": "Now add a document or use the sample",
+        "guide_ask": "Now write your question here"
     },
     "try-medical": {
         "coming_soon": "This demo is coming soon. For now no image is analyzed and nothing leaves your browser: your images are not uploaded or stored anywhere. Want AI medical imaging for your clinic? Get in touch.",
@@ -2466,7 +2511,6 @@
         "dropzone_sample_hint": "A fictional company's travel & remote-work policy",
         "progress_extract_start": "Opening the PDF…",
         "query_placeholder": "Ask something about your PDF…",
-        "rerank_error": "Error while reranking",
         "hash_error": "Could not read the PDF text in your browser. Try a different PDF or browser.",
         "no_text": "No selectable text was found in this PDF. It may be a scanned document (images only), which this demo can't process — try a PDF with real text.",
         "process_error": "The document text could not be processed. The service may be busy — please try again in a moment.",
@@ -2474,8 +2518,8 @@
         "extracted_label": "View extracted text (what is sent to the API)",
         "tip_step2": "Each chunk is turned into a vector embedding (a numeric representation of its meaning) and stored in the Pinecone vector database under this document's namespace.",
         "tip_step3": "Your question is embedded and compared to every chunk by cosine similarity. We fetch the top 65 — a deliberately wide net: vector search is fast but approximate, so we over-retrieve candidates here and let the slower, more accurate reranker (step 4) narrow them down. Too few now would risk dropping the truly relevant passage.",
-        "tip_step4": "Two-stage reranking on those 65 candidates. First MonoT5 (a T5 model) labels each chunk relevant/not-relevant to filter out noise cheaply. Then BGE, a cross-encoder, reads the question and each surviving chunk together and scores them — far more accurate than the initial vector similarity, but too costly to run on the whole database, which is why it only runs on the pre-filtered top candidates.",
-        "tip_step5": "The top reranked chunks are given to two LLMs (Llama and GPT-4) as context so they answer grounded in your document instead of hallucinating.",
+        "tip_step4": "Two-stage reranking on the {{count}} best candidates. First MonoT5 (a T5 model) labels each chunk relevant/not-relevant to filter out noise cheaply. Then BGE, a cross-encoder, reads the question and each surviving chunk together and scores them — far more accurate than the initial vector similarity, but too costly to run on the whole database, which is why it only runs on the pre-filtered top candidates.",
+        "tip_step5": "The top reranked chunks are given to an AI model as context so it answers grounded in your document instead of hallucinating.",
         "service_cold_hint": "This demo runs on on-demand infrastructure that sleeps when idle. The first step may take ~30s while resources spin up; after that, it's fast. It warms up automatically when you start.",
         "service_warming": "Preparing the service… this can take up to ~30s the first time. Please wait — it will start automatically once resources are ready.",
         "service_warm_failed": "The service is taking longer than expected to start. Please try again in a moment.",
@@ -2486,7 +2530,7 @@
         "tech_flow_2": "Embed & index: chunks are embedded with sentence-transformers and upserted (in batches) into the Pinecone vector index.",
         "tech_flow_3": "Retrieve: the question is embedded and the top-K most similar chunks are fetched by cosine similarity.",
         "tech_flow_4": "Rerank: a MonoT5 → BGE cross-encoder re-scores candidates for precision.",
-        "tech_flow_5": "Generate: the top chunks are passed as context to Llama and GPT-4 to produce grounded answers.",
+        "tech_flow_5": "Generate: the top chunks are passed as context to the AI model to produce a grounded answer.",
         "tech_stack_title": "Stack",
         "tech_note": "A RAG pipeline lets an LLM answer using your own documents, reducing hallucinations by grounding responses in retrieved source text.",
         "badge": "Live API demo",
@@ -2496,9 +2540,7 @@
         "how_step2_title": "Ask a question",
         "how_step2_desc": "In plain language, about its content.",
         "how_step3_title": "Get the answer",
-        "how_step3_desc": "From GPT-4 and Llama, with cited sources.",
-        "guide_card_start": "Start below",
-        "guide_card_next": "Continue below",
+        "how_step3_desc": "Written by the AI, with cited sources.",
         "guide_upload": "Start here: upload your PDF",
         "guide_ask": "Now ask your question here",
         "status_checking": "Checking service…",
@@ -2536,7 +2578,7 @@
         "step_index_desc": "It's stored in the vector database",
         "step_search_desc": "The closest passages are retrieved",
         "step_rerank_desc": "They're reordered by relevance",
-        "step_generate_desc": "GPT-4 and Llama write the answer",
+        "step_generate_desc": "The AI writes the answer",
         "step_not_run": "This step hasn't run yet.",
         "sum_extract": "{{pages}} pages · {{chars}} characters",
         "sum_extract_progress": "Reading page {{current}} of {{total}}",
@@ -2547,7 +2589,7 @@
         "sum_index_reused": "Already indexed · {{count}} vectors reused",
         "sum_search": "{{count}} candidates retrieved",
         "sum_rerank": "{{count}} passages reranked",
-        "sum_generate": "Answers from GPT-4 and Llama",
+        "sum_generate": "Answer ready",
         "thinking_search": "Searching the document…",
         "stat_pages": "Pages",
         "stat_chars": "Characters",
@@ -2595,10 +2637,10 @@
         "rerank_loop_3": "That's {{count}} question–passage pairs, each going through the full model…",
         "rerank_loop_4": "This is the most expensive step, which is why it only runs on the shortlisted candidates…",
         "rerank_loop_5": "Vector search is fast but approximate; the reranker is slow but precise…",
-        "rerank_loop_6": "Almost there: once it's done, the best passages go to GPT-4 and Llama…",
+        "rerank_loop_6": "Almost there: once it's done, the best passages go to the AI model…",
         "generate_phase_1": "Building the context from the top {{count}} passages…",
-        "generate_phase_2": "Sending your question and the context to GPT-4 and Llama…",
-        "generate_phase_3": "GPT-4 and Llama are writing the answer…",
+        "generate_phase_2": "Sending your question and the context to the AI model…",
+        "generate_phase_3": "The AI model is writing the answer…",
         "generate_phase_4": "Waiting for both models to finish…",
         "generate_loop_1": "The models can only use passages from your document, so they don't make things up…",
         "generate_loop_2": "Each model answers separately so you can compare them…",
@@ -2618,7 +2660,7 @@
         "rerank_loop_5_short": "Slow, but precise…",
         "rerank_loop_6_short": "Almost there…",
         "generate_phase_1_short": "Building the context…",
-        "generate_phase_2_short": "Sending to GPT-4 and Llama…",
+        "generate_phase_2_short": "Sending to the AI model…",
         "generate_phase_3_short": "Writing the answer…",
         "generate_phase_4_short": "Waiting for both models…",
         "generate_loop_1_short": "Only from your document…",
@@ -2628,8 +2670,9 @@
         "log_empty_title": "No activity yet",
         "log_empty": "Upload a PDF to see every API request and response here, in real time.",
         "chat_title": "Chat with your document",
-        "chat_models": "Answered by",
-        "bts_title": "Live RAG pipeline"
+        "bts_title": "Live RAG pipeline",
+        "sum_rerank_skipped": "Skipped so you don't wait · using the search order",
+        "generate_error": "The models couldn't write the answer right now. Please try again in a moment."
     },
     "landing": {
         "hero": {
@@ -3901,10 +3944,8 @@
             }
         ],
         "videoPreview": {
-            "play": "Play preview",
-            "pause": "Pause",
             "illustrative": "Illustrative preview",
-            "error": "Playback failed. Tap to retry or open the demo."
+            "error": "Playback failed. Hover or hold to retry, or open the demo."
         },
         "photoPreview": {
             "stop": "Stop animation",
@@ -4044,7 +4085,7 @@
         "record_start": "Start recording",
         "record_stop": "Stop recording",
         "recording": "Recording…",
-        "tip_transcript": "Italic transcripts are interim (updating in real time). Solid ones are final (confirmed once Deepgram closes the utterance).",
+        "tip_transcript": "Italic transcripts are interim (updating in real time). Solid ones are final (confirmed once the speech engine closes the utterance).",
         "tip_language": "Pick the primary language of your conversation. 'Auto' handles mixed-language audio.",
         "tip_mode": "Sets how the AI writes the analysis: Basic uses everyday language; Specialized uses the domain's technical terminology (title, summary, roles and terms). After analyzing, switch modes to compare both versions.",
         "tip_analyze": "Sends the confirmed transcript turns to POST /analyze. The AI detects the industry, infers speaker roles, maps key terms and writes a domain-adapted summary.",
@@ -4084,12 +4125,12 @@
         "tech_subtitle": "Overview and technical architecture",
         "tech_flow_title": "Pipeline",
         "tech_flow_1": "The browser captures PCM audio at 16 kHz mono and streams raw frames over a WebSocket to /ws/transcribe.",
-        "tech_flow_2": "The backend bridges the audio stream to Deepgram Nova-3 with speaker diarization. Partial and final transcripts are fanned back over the same WS.",
+        "tech_flow_2": "The backend bridges the audio stream to Speechmatics with speaker diarization. Partial and final transcripts are fanned back over the same WS. Uploaded files go through its batch API.",
         "tech_flow_3": "On stop, the accumulated speaker turns are sent to POST /analyze.",
         "tech_flow_4": "OpenAI detects the industry, infers speaker roles, extracts key terms (basic + specialized forms) and writes a structured summary.",
         "tech_model_title": "Models & stack",
         "tech_stack_stt_label": "STT model",
-        "tech_stack_stt": "Deepgram Nova-3 (diarize, punctuate, smart_format)",
+        "tech_stack_stt": "Speechmatics (enhanced, speaker diarization)",
         "tech_stack_brain_label": "Analysis",
         "tech_stack_brain": "OpenAI (structured JSON — industry, roles, terms, summary)",
         "tech_stack_serving_label": "Serving",
@@ -4097,7 +4138,7 @@
         "tech_api_title": "Privacy",
         "tech_api_1": "Audio is streamed through and discarded server-side — nothing is written to disk or a database.",
         "tech_api_2": "Transcripts live only in memory for the duration of the session and are dropped afterward.",
-        "tech_api_3": "No biometric or personal data is stored. API keys for Deepgram and OpenAI never reach the browser.",
+        "tech_api_3": "No biometric or personal data is stored. Provider API keys never reach the browser, and uploaded files are deleted from the provider after processing.",
         "stage_empty_title": "Tap and start speaking",
         "speakers_count_one": "{{count}} speaker",
         "speakers_count_other": "{{count}} speakers",
@@ -4129,7 +4170,24 @@
         "how_simple_4_desc": "Ready-to-use notes, in plain or technical language.",
         "how_simple_privacy": "Your audio is never stored: it is processed on the fly and discarded when you finish.",
         "how_tech_title": "Technical architecture",
-        "how_tech_subtitle": "For developers and engineers"
+        "how_tech_subtitle": "For developers and engineers",
+        "guide_record": "Start here: press the mic",
+        "guide_analyze": "Now analyze the conversation",
+        "runner_step_send": "Send",
+        "runner_step_analyze": "Analyze",
+        "runner_step_ready": "Ready",
+        "upload_cta": "Or upload audio or video",
+        "upload_hint": "MP3, M4A, WAV or MP4, up to {{max}} MB. It's processed and not stored.",
+        "upload_working": "Listening to your file and separating the voices…",
+        "upload_step_send": "Send",
+        "upload_step_listen": "Separate voices",
+        "upload_step_ready": "Ready",
+        "file_too_large": "That file is too large. The limit is {{max}} MB.",
+        "file_no_speech": "We didn't find speech in that file.",
+        "file_error": "We couldn't process that file. Please try again or use another one.",
+        "detecting_language": "Detecting the language… text will appear in a few seconds.",
+        "finishing": "Mic off. Finishing the last sentence…",
+        "turn_corrected": "Corrected with context"
     },
     "demoNav": {
         "aria": "Demo navigation",
@@ -4368,5 +4426,9 @@
     "clients": {
         "title": "Companies that have trusted our team",
         "note": "Banks, public institutions and leading companies our team has delivered projects for since 2011."
+    },
+    "demoGuide": {
+        "start": "Start below",
+        "next": "Next, below"
     }
 }

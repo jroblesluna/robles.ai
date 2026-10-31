@@ -10,6 +10,17 @@
 - Implementación futura: comenzar en modo de prueba; usar checkout alojado, secretos sólo en servidor y webhooks firmados/idempotentes para confirmar pagos antes de entregar accesos o servicios.
 - No se han creado cuentas, configurado credenciales, activado suscripciones ni modificado la web para cobrar.
 
+## SEC-01 — Rotar claves de las APIs de demos desde el admin
+
+- Registrado: 30 de octubre de 2026.
+- Estado: pendiente; no implementar todavía.
+- Objetivo: cambiar desde `/admin/backends` las claves que hoy viven en Secret Manager (OpenAI, Speechmatics, Deepgram, Pinecone) y se rotan con `rotate_secret.sh` en cada repo.
+- Requisito: solo la cuenta de Antonio puede hacerlo, y con 2FA. El login admin actual no tiene 2FA ni cuentas con permisos distintos, así que hay que construir ambos antes.
+- Permisos: una cuenta de servicio nueva, separada de `backend-viewer`, limitada a agregar versiones de esos secretos y actualizar sus servicios de Cloud Run.
+- Comportamiento: campos de solo escritura; validar la clave con el proveedor antes de aplicarla; desplegar una revisión nueva para que Cloud Run la lea; destruir las versiones viejas, como hace `rotate_secret.sh`.
+- Auditoría: registrar quién cambió qué clave y cuándo, nunca su valor.
+- Riesgo a aceptar: hoy el servidor del sitio no puede modificar GCP. Con esto, comprometer el admin o el servidor podría afectar a las APIs de demos.
+
 ## MEDIA-01 — Integración completada; kit de autoría conservado
 
 - **Estado actualizado — 23 de octubre de 2026: completado.** Los 13 clips se integraron en el PR #33 (commit `46573d0`) con activación por hover/touch y carga a demanda. Ver [entrega](DEMO_VIDEO_RELEASE.md) y [manifiesto](DEMO_VIDEO_ASSETS.json).

@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import OpenAI from 'openai';
+import { getAiModel } from '../../server/services/aiModels.js';
 import dotenv from 'dotenv';
 import { searchNews } from './newsService';
 import { savePost, listRecentTopics } from './postUtils';
@@ -162,7 +163,7 @@ export async function generateHistoricalPosts(
       try {
         const client = getOpenAIClient();
         const response = await client.chat.completions.create({
-          model: 'gpt-4o',
+          model: getAiModel('ai_model_site_content'),
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userPrompt },

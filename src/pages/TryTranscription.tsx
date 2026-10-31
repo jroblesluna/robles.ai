@@ -23,10 +23,14 @@ import {
   Lightbulb,
   Code2,
   ArrowRight,
+  Upload,
   type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { DemoNav } from "@/components/demo/DemoNav";
+import { applyCorrections, applyFinal, applyPartial, promoteProvisional, turnsToRefine, type TranscriptTurn } from "@/lib/transcriptTurns";
+import { GuideCue, GuideSteps, useGuideNavigation, type GuideTheme } from "@/components/demo/DemoGuide";
+import { RunnerTrack, linearRunner, useRunnerElapsed, type RunnerTheme } from "@/components/demo/RunnerTrack";
 import { BusinessCase } from "@/components/demo/BusinessCase";
 import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
 import { useDemoTracking } from "@/components/demo/business";
@@ -36,9 +40,20 @@ import { InfoTip } from "@/components/demo/InfoTip";
 import { DemoTutorial } from "@/components/demo/DemoTutorial";
 import { Button } from "@/components/ui/button";
 
+const ANALYZE_STEPS = ["send", "analyze", "ready"];
+const UPLOAD_STEPS = ["send", "listen", "ready"];
+
 // ── Brand accent (teal/emerald) ──────────────────────────────────────────────
 const ACCENT_GRADIENT = "from-teal-500 to-emerald-600";
 const ACCENT_TEXT = "text-teal-600";
+const GUIDE_THEME: GuideTheme = {
+  gradient: ACCENT_GRADIENT,
+  text: ACCENT_TEXT,
+  current: "border-teal-300 ring-teal-100",
+  hover: "hover:border-teal-300",
+  flash: "ring-4 ring-teal-200",
+};
+const RUNNER_THEME: RunnerTheme = { gradient: ACCENT_GRADIENT, surface: "from-teal-50/50", activeTick: "bg-teal-500" };
 const TIP_HOVER = "hover:text-teal-600 focus:text-teal-600";
 const BADGE_BG = "bg-teal-100";
 const BADGE_TEXT = "text-teal-700";
@@ -59,12 +74,18 @@ const BASE_API = getBaseApi();
 const WS_BASE = BASE_API.replace(/^https?/, (p) => (p === "https" ? "wss" : "ws"));
 const HEALTH_URL = `${BASE_API}/health`;
 const ANALYZE_URL = `${BASE_API}/analyze`;
+const FILE_URL = `${BASE_API}/transcribe-file`;
+const REFINE_URL = `${BASE_API}/refine`;
+const REFINE_BATCH = 20;
+const REFINE_CONTEXT_TURNS = 8;
+const REFINE_PAUSE_MS = 3000; // keeps a fast dialogue within the API rate limit
+const MAX_UPLOAD_BYTES = 25 * 1024 * 1024; // same cap as the API
 const WS_URL = `${WS_BASE}/ws/transcribe`;
 
 // ── Audio capture (raw PCM linear16 @ 16 kHz mono) ───────────────────────────
 // The `start` frame declares `encoding: "linear16"` / 16 kHz mono, and the API
-// hands exactly that to Deepgram (it does not forward the declared encoding).
-// MediaRecorder would emit a WebM/Opus *container*, which Deepgram would then
+// hands exactly that to the speech provider (it does not forward the declared encoding).
+// MediaRecorder would emit a WebM/Opus *container*, which the provider would then
 // read as raw PCM — noise, so no `partial`/`final` ever comes back. So we
 // capture raw PCM ourselves through the Web Audio API instead.
 const TARGET_SAMPLE_RATE = 16000;
@@ -121,7 +142,7 @@ function resampleTo16k(input: Float32Array, inputRate: number): Float32Array {
   return out;
 }
 
-/** Float32 [-1,1] → little-endian signed 16-bit PCM (what Deepgram expects). */
+/** Float32 [-1,1] → little-endian signed 16-bit PCM (what the provider expects). */
 function floatTo16BitPCM(input: Float32Array): ArrayBuffer {
   const out = new Int16Array(input.length);
   for (let i = 0; i < input.length; i++) {
@@ -137,13 +158,7 @@ type WsStatus = "disconnected" | "connecting" | "ready" | "closed" | "error";
 type Language = "es" | "en" | "multi";
 type Mode = "basic" | "specialized";
 
-interface Turn {
-  key: string;       // stable identity for React
-  speaker: number;
-  text: string;
-  ts: number;
-  isFinal: boolean;
-}
+type Turn = TranscriptTurn;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -289,13 +304,21 @@ export default function TryTranscription() {
   const [recording, setRecording] = useState(false);
 
   // Session data
-  const [language, setLanguage] = useState<Language>("es");
+  const [language, setLanguage] = useState<Language>("multi");
   const [mode, setMode] = useState<Mode>("basic");
   const [transcript, setTranscript] = useState<Turn[]>([]);
   const [audioSeconds, setAudioSeconds] = useState<number | null>(null);
 
   // Analysis
   const [analyzing, setAnalyzing] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  // Second phase of a stop: the mic is off but the last words are still arriving.
+  const [finishing, setFinishing] = useState(false);
+  const refineSeen = useRef(new Set<string>());
+  const refineQueue = useRef<string[]>([]);
+  const refineRun = useRef<Promise<void> | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   // One cached analysis per mode, so switching modes after analyzing is instant
   // the second time (and never shows a result from the other mode as current).
   const [analyses, setAnalyses] = useState<Partial<Record<Mode, any>>>({});
@@ -498,6 +521,9 @@ export default function TryTranscription() {
     setWsStatus("disconnected");
     setAudioSeconds(null);
     setSidePanel("analysis");
+    setFinishing(false);
+    refineSeen.current.clear();
+    refineQueue.current = [];
   };
 
   // ── Start recording ────────────────────────────────────────────────────────
@@ -540,48 +566,11 @@ export default function TryTranscription() {
           break;
 
         case "partial":
-          setTranscript((prev) => {
-            // Upsert: if there's already a provisional turn for this speaker
-            // at roughly the same ts, replace it; otherwise append.
-            const idx = prev.findLastIndex(
-              (t) => !t.isFinal && t.speaker === msg.speaker
-            );
-            const turn: Turn = {
-              key: idx >= 0 ? prev[idx].key : uuidv4(),
-              speaker: msg.speaker,
-              text: msg.text,
-              ts: msg.ts ?? 0,
-              isFinal: false,
-            };
-            if (idx >= 0) {
-              const next = [...prev];
-              next[idx] = turn;
-              return next;
-            }
-            return [...prev, turn];
-          });
+          setTranscript((prev) => applyPartial(prev, msg, uuidv4));
           break;
 
         case "final":
-          setTranscript((prev) => {
-            // Promote the most-recent provisional turn for this speaker, or append.
-            const idx = prev.findLastIndex(
-              (t) => !t.isFinal && t.speaker === msg.speaker
-            );
-            const turn: Turn = {
-              key: idx >= 0 ? prev[idx].key : uuidv4(),
-              speaker: msg.speaker,
-              text: msg.text,
-              ts: msg.ts ?? 0,
-              isFinal: true,
-            };
-            if (idx >= 0) {
-              const next = [...prev];
-              next[idx] = turn;
-              return next;
-            }
-            return [...prev, turn];
-          });
+          setTranscript((prev) => applyFinal(prev, msg, uuidv4));
           break;
 
         case "info":
@@ -591,12 +580,16 @@ export default function TryTranscription() {
         case "error":
           setWsStatus("error");
           setRecording(false);
+          setFinishing(false);
+          setTranscript((prev) => promoteProvisional(prev, uuidv4));
           break;
 
         case "closed":
           setAudioSeconds(msg.audioSeconds ?? null);
           setWsStatus("closed");
           setRecording(false);
+          setFinishing(false);
+          setTranscript((prev) => promoteProvisional(prev, uuidv4));
           stopCapture();
           break;
 
@@ -609,6 +602,7 @@ export default function TryTranscription() {
       addCall({ method: "ERR", url: "← WS error", status: "ERR", ok: false, response: { message: "WebSocket connection error" } });
       setWsStatus("error");
       setRecording(false);
+      setFinishing(false);
     };
 
     ws.onclose = (ev) => {
@@ -623,8 +617,10 @@ export default function TryTranscription() {
         audio: {
           sampleRate: TARGET_SAMPLE_RATE,
           channelCount: 1,
-          echoCancellation: true,
-          noiseSuppression: true,
+          // Audio played from another device reaches the mic as room sound: these
+          // filters would cut parts of it and blur the voices the diarizer separates.
+          echoCancellation: false,
+          noiseSuppression: false,
         },
       });
     } catch {
@@ -654,20 +650,110 @@ export default function TryTranscription() {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({ type: "stop" }));
       addCall({ method: "WS", url: "→ stop", ok: true, response: { type: "stop" } });
+      setFinishing(true);
     }
     stopCapture();
     setRecording(false);
     setSidePanel("analysis");
   };
 
+  // ── Correct finished turns with the conversation as context ────────────────
+  const runRefineQueue = async () => {
+    while (refineQueue.current.length > 0) {
+      const keys = refineQueue.current.splice(0, REFINE_BATCH);
+      const finals = transcriptRef.current.filter((turn) => turn.isFinal);
+      const first = finals.findIndex((turn) => keys.includes(turn.key));
+      if (first < 0) continue;
+      const window = finals.slice(Math.max(0, first - REFINE_CONTEXT_TURNS));
+      const payload = {
+        turns: window.map(({ speaker, text }) => ({ speaker, text })),
+        targets: window.flatMap((turn, index) => (keys.includes(turn.key) ? [index] : [])),
+      };
+      const started = performance.now();
+      try {
+        const res = await fetch(REFINE_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        const ok = res.ok && data.status === "success";
+        addCall({ method: "POST", url: REFINE_URL, status: res.status, ok, ms: performance.now() - started, request: payload, response: data });
+        if (ok) {
+          const corrections = new Map<string, string>(
+            data.data.corrections.map((item: { index: number; text: string }) => [window[item.index].key, item.text])
+          );
+          setTranscript((prev) => applyCorrections(prev, corrections));
+        }
+      } catch {
+        // Correction is an extra: the transcript as heard stays valid without it.
+      }
+      if (refineQueue.current.length > 0) await new Promise((resolve) => setTimeout(resolve, REFINE_PAUSE_MS));
+    }
+  };
+
+  const sessionOpen = recording || finishing;
+  useEffect(() => {
+    const keys = turnsToRefine(transcript, refineSeen.current, sessionOpen);
+    if (!keys.length) return;
+    keys.forEach((key) => refineSeen.current.add(key));
+    refineQueue.current.push(...keys);
+    refineRun.current ??= runRefineQueue().finally(() => { refineRun.current = null; });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transcript, sessionOpen]);
+
+  // ── Upload a recording ─────────────────────────────────────────────────────
+  const handleFile = async (file: File | undefined) => {
+    if (!file || uploading || recording) return;
+    setFileError(null);
+    if (file.size > MAX_UPLOAD_BYTES) {
+      setFileError(t("try-transcription.file_too_large", { max: MAX_UPLOAD_BYTES / (1024 * 1024) }));
+      return;
+    }
+    trackStart();
+    setUploading(true);
+    setTranscript([]);
+    setAnalyses({});
+    setAudioSeconds(null);
+    const url = `${FILE_URL}?language=${language}`;
+    const request = { file: file.name, bytes: file.size, type: file.type };
+    const started = performance.now();
+    try {
+      if (!(await ensureWarm())) throw new Error("service unavailable");
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": file.type || "audio/mpeg" },
+        body: file,
+      });
+      const data = await res.json();
+      const ok = res.ok && data.status === "success";
+      addCall({ method: "POST", url, status: res.status, ok, ms: performance.now() - started, request, response: data });
+      if (!ok) throw new Error(data.message);
+      const turns: { speaker: number; text: string; ts: number }[] = data.data.turns;
+      if (!turns.length) {
+        setFileError(t("try-transcription.file_no_speech"));
+        return;
+      }
+      setTranscript(turns.reduce<Turn[]>((all, turn) => applyFinal(all, turn, uuidv4), []));
+      setAudioSeconds(data.data.audioSeconds ?? null);
+      setSidePanel("analysis");
+    } catch (err: any) {
+      setFileError(t(err?.message === "file_too_large" ? "try-transcription.file_too_large" : "try-transcription.file_error", { max: MAX_UPLOAD_BYTES / (1024 * 1024) }));
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
   // ── Analyze ────────────────────────────────────────────────────────────────
   const handleAnalyze = async (targetMode: Mode = mode) => {
-    const finalTurns = transcript
+    if (!transcript.some((t) => t.isFinal)) return;
+    setAnalyzing(true);
+    // Analyze the corrected text, not the version that was misheard.
+    await refineRun.current;
+    const finalTurns = transcriptRef.current
       .filter((t) => t.isFinal)
       .map((t) => ({ speaker: t.speaker, text: t.text }));
-
-    if (!finalTurns.length) return;
-    setAnalyzing(true);
 
     const payload = { transcript: finalTurns, mode: targetMode, language };
     const started = performance.now();
@@ -697,13 +783,23 @@ export default function TryTranscription() {
   useEffect(() => () => closeSession(), [closeSession]);
 
   const hasFinalTurns = transcript.some((t) => t.isFinal);
-  const canAnalyze = hasFinalTurns && wsStatus !== "connecting" && wsStatus !== "ready" && !analyzing;
-  const canRecord = serviceStatus !== "checking" && serviceStatus !== "warming" && wsStatus !== "connecting";
+  const canAnalyze = hasFinalTurns && wsStatus !== "connecting" && wsStatus !== "ready" && !analyzing && !uploading && !finishing;
+  const canRecord = serviceStatus !== "checking" && serviceStatus !== "warming" && wsStatus !== "connecting" && !uploading && !finishing;
   const speakerCount = new Set(transcript.map((turn) => turn.speaker)).size;
 
   // Robly's "on the line" session card: active while the socket is live or an
   // analysis request is in flight; failed only if the most recent call errored.
   const callActive = recording || wsStatus === "connecting" || analyzing;
+
+  // Which of the three "how it works" steps the visitor is on.
+  const guideStep = transcript.length === 0 && !recording ? 1 : !hasFinalTurns || recording ? 2 : 3;
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  const analysisRef = useRef<HTMLDivElement | null>(null);
+  const { flashStep, goTo } = useGuideNavigation(guideStep, (at) => (at === 3 ? analysisRef.current : stageRef.current));
+  const analyzeElapsed = useRunnerElapsed(analyzing);
+  const analyzeRunner = linearRunner(ANALYZE_STEPS, 1);
+  const uploadElapsed = useRunnerElapsed(uploading);
+  const uploadRunner = linearRunner(UPLOAD_STEPS, 1);
   const callFailed = calls.length > 0 && !calls[0].ok;
   const callActiveDescription = analyzing
     ? t("try-transcription.analyzing")
@@ -765,17 +861,7 @@ export default function TryTranscription() {
               </p>
               <DemoTutorial demoId="speech" returnToId="transcription-workspace" />
             </div>
-            <ol className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              {([1, 2, 3] as const).map((n) => (
-                <li key={n} className="rounded-xl border border-gray-200/80 bg-white/70 p-4">
-                  <span className={`flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br ${ACCENT_GRADIENT} text-xs font-bold text-white`}>
-                    {n}
-                  </span>
-                  <p className="mt-3 text-sm font-semibold text-gray-900">{t(`try-transcription.how_step${n}_title`)}</p>
-                  <p className="mt-1 text-sm leading-snug text-gray-600">{t(`try-transcription.how_step${n}_desc`)}</p>
-                </li>
-              ))}
-            </ol>
+            <GuideSteps prefix="try-transcription" current={guideStep} theme={GUIDE_THEME} onGo={goTo} />
 
             <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
               {[
@@ -856,9 +942,14 @@ export default function TryTranscription() {
                 )}
               </div>
 
-              <div ref={transcriptBoxRef} className="h-[360px] overflow-y-auto px-5 py-4 lg:h-auto lg:min-h-0 lg:flex-1">
+              <div ref={(el) => { transcriptBoxRef.current = el; stageRef.current = el; }} className={`h-[360px] overflow-y-auto px-5 py-4 lg:h-auto lg:min-h-0 lg:flex-1 ${flashStep === 1 || flashStep === 2 ? GUIDE_THEME.flash : ""}`}>
                 {transcript.length === 0 ? (
                   <div className="flex h-full flex-col items-center justify-center text-center">
+                    {guideStep === 1 && canRecord && (
+                      <div className="mb-4">
+                        <GuideCue step={1} label={t("try-transcription.guide_record")} gradient={ACCENT_GRADIENT} className="!static" />
+                      </div>
+                    )}
                     <button
                       type="button"
                       onClick={handleStartRecording}
@@ -878,7 +969,42 @@ export default function TryTranscription() {
                     <p className="mt-5 text-base font-semibold text-gray-900">
                       {recording ? t("try-transcription.recording") : t("try-transcription.stage_empty_title")}
                     </p>
-                    <p className="mt-1 max-w-xs text-sm text-gray-500">{t("try-transcription.transcript_empty")}</p>
+                    <p className="mt-1 max-w-xs text-sm text-gray-500">
+                      {recording && language === "multi" ? t("try-transcription.detecting_language") : t("try-transcription.transcript_empty")}
+                    </p>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="audio/*,video/*"
+                      className="sr-only"
+                      id="transcription-file"
+                      onChange={(e) => handleFile(e.target.files?.[0])}
+                    />
+                    {uploading ? (
+                      <RunnerTrack
+                        mode="running"
+                        position={uploadRunner.position}
+                        steps={UPLOAD_STEPS.map((id, i) => ({
+                          id,
+                          name: t(`try-transcription.upload_step_${id}`),
+                          status: uploadRunner.statuses[i],
+                        }))}
+                        label={t("try-transcription.upload_working")}
+                        elapsed={uploadElapsed}
+                        theme={RUNNER_THEME}
+                        className="mt-5 w-full max-w-sm text-left"
+                      />
+                    ) : !recording && (
+                      <label
+                        htmlFor="transcription-file"
+                        className="tap-target mt-5 inline-flex cursor-pointer items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-teal-300 hover:bg-teal-50/50"
+                      >
+                        <Upload className="h-4 w-4 text-teal-600" />
+                        {t("try-transcription.upload_cta")}
+                      </label>
+                    )}
+                    {!uploading && !recording && <p className="mt-2 max-w-xs text-xs text-gray-400">{t("try-transcription.upload_hint", { max: MAX_UPLOAD_BYTES / (1024 * 1024) })}</p>}
+                    {fileError && <p role="alert" className="mt-3 max-w-xs text-sm text-red-600">{fileError}</p>}
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -900,6 +1026,12 @@ export default function TryTranscription() {
                             <p className={`mt-0.5 text-sm leading-relaxed ${turn.isFinal ? "text-gray-800" : "italic text-gray-400"}`}>
                               {turn.text}
                             </p>
+                            {turn.original && (
+                              <p title={turn.original} className="mt-0.5 flex items-center gap-1 text-[11px] text-gray-400">
+                                <Sparkles className="h-3 w-3 text-teal-500" />
+                                {t("try-transcription.turn_corrected")}
+                              </p>
+                            )}
                           </div>
                         </motion.div>
                       ))}
@@ -910,6 +1042,12 @@ export default function TryTranscription() {
 
               {/* Control bar */}
               <div className="flex flex-wrap items-center gap-3 border-t border-gray-100 px-5 py-4">
+                {finishing && (
+                  <span role="status" className="order-last flex items-center gap-2 text-sm text-gray-500">
+                    <Loader2 className="h-4 w-4 animate-spin text-teal-600" />
+                    {t("try-transcription.finishing")}
+                  </span>
+                )}
                 <Button
                   onClick={recording ? handleStopRecording : handleStartRecording}
                   disabled={!canRecord}
@@ -1010,10 +1148,12 @@ export default function TryTranscription() {
 
                       {/* Always visible; enabled once there is a finished transcript */}
                       {!currentAnalysis && !reanalyzing && (
+                        <div ref={analysisRef} className={`relative mt-4 rounded-xl ${flashStep === 3 ? GUIDE_THEME.flash : ""}`}>
+                        {guideStep === 3 && canAnalyze && <GuideCue step={3} label={t("try-transcription.guide_analyze")} gradient={ACCENT_GRADIENT} />}
                         <Button
                           onClick={() => handleAnalyze()}
                           disabled={!canAnalyze}
-                          className={`mt-4 h-11 w-full rounded-xl bg-gradient-to-r ${ACCENT_GRADIENT} text-sm font-semibold text-white shadow-md shadow-teal-500/20 hover:brightness-105 disabled:opacity-50`}
+                          className={`h-11 w-full rounded-xl bg-gradient-to-r ${ACCENT_GRADIENT} text-sm font-semibold text-white shadow-md shadow-teal-500/20 hover:brightness-105 disabled:opacity-50`}
                         >
                           {analyzing ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -1022,6 +1162,22 @@ export default function TryTranscription() {
                           )}
                           {analyzing ? t("try-transcription.analyzing") : t("try-transcription.analyze")}
                         </Button>
+                        </div>
+                      )}
+                      {analyzing && !reanalyzing && (
+                        <RunnerTrack
+                          mode="running"
+                          position={analyzeRunner.position}
+                          steps={ANALYZE_STEPS.map((id, i) => ({
+                            id,
+                            name: t(`try-transcription.runner_step_${id}`),
+                            status: analyzeRunner.statuses[i],
+                          }))}
+                          label={t("try-transcription.analyzing")}
+                          elapsed={analyzeElapsed}
+                          theme={RUNNER_THEME}
+                          className="mt-3"
+                        />
                       )}
                       {reanalyzing && (
                         <p className="mt-3 flex items-center gap-2 text-xs font-medium text-amber-700">

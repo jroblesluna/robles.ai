@@ -238,7 +238,7 @@ it.each(['en', 'es'] as const)('shares %s posters and on-demand videos across ho
   const home = render(<DemosCatalog variant="home" />);
   const posters = Array.from(home.container.querySelectorAll('img')).map(img => img.getAttribute('src'));
   expect(posters).toHaveLength(copy.demosCatalog.items.filter(item => item.status === 'live').length);
-  expect(screen.getAllByText(copy.demosCatalog.videoPreview.play)).toHaveLength(posters.length);
+  expect(screen.getAllByText(copy.demosCatalog.videoPreview.illustrative)).toHaveLength(posters.length);
   // Demo cards load media only on interaction; the brand spot loads near the viewport.
   expect(document.querySelectorAll(':not([data-brand-spot]) > video[src], :not([data-brand-spot]) > video > source, [role="dialog"]')).toHaveLength(0);
   const spots = home.container.querySelectorAll('[data-brand-spot] video');
@@ -248,31 +248,19 @@ it.each(['en', 'es'] as const)('shares %s posters and on-demand videos across ho
   const lab = render(<DemosCatalog />);
   const liveLabPosters = Array.from(lab.container.querySelectorAll('[data-preview-id]')).filter(card => !card.querySelector('[data-demo-status="soon"]')).map(card => card.querySelector('img')!.getAttribute('src'));
   expect(posters).toEqual(liveLabPosters);
-  expect(screen.getAllByText(copy.demosCatalog.videoPreview.play)).toHaveLength(13);
+  expect(screen.getAllByText(copy.demosCatalog.videoPreview.illustrative)).toHaveLength(13);
   expect(lab.container.querySelectorAll('[data-demo-status="soon"]')).toHaveLength(3);
   expect(Array.from(lab.container.querySelectorAll('[data-demo-status]')).map(badge => badge.textContent)).not.toContain(copy.demosCatalog.badge_live);
   expect(lab.container.textContent).not.toMatch(/AI-generated|generad[oa] con IA|Illustrative overlay|clip ilustrativo|illustrative clip/i);
 });
 
-it.each(['en', 'es'] as const)('shows responsive posters and accessible %s playback outside the demo link', language => {
-  locale.language = language; locale.reduced = false;
-  const copy = language === 'es' ? es : en;
-  const { container } = render(<DemosCatalog variant="home" />);
-  const card = container.querySelector('[data-preview-id="emotion"]')!;
-  const image = card.querySelector('img')!;
-  expect(image).toHaveAttribute('srcset', expect.stringContaining('960w'));
-  const item = copy.demosCatalog.items.find(item => item.id === 'emotion')!;
-  const button = within(card as HTMLElement).getByRole('button', { name: `${copy.demosCatalog.videoPreview.play}: ${item.title}` });
-  expect(button).toBeEnabled();expect(button.closest('a')).toBeNull();
-  fireEvent.click(button);
-  expect(card.querySelector('video')).toHaveAttribute('src', clips.emotion.src);
-  expect(button).toHaveAttribute('aria-pressed', 'true');
-  fireEvent.ended(card.querySelector('video')!);
-  expect(button).toHaveAttribute('aria-pressed', 'false');
-  expect(card.querySelector('a')).toHaveAttribute('href', '/try-emotion' + (language === 'es' ? '?lang=es' : ''));
-});
+const press = (element: Element, type: 'pointerdown' | 'pointerup', pointerType: string) => {
+  const event = new MouseEvent(type, { bubbles: true, cancelable: true });
+  Object.defineProperty(event, 'pointerType', { value: pointerType });
+  fireEvent(element, event);
+};
 
-it.each(['en', 'es'] as const)('provides on-demand finite video and distinct localized controls for ALL 13 %s cards', language => {
+it.each(['en', 'es'] as const)('makes the whole %s card one link with no playback controls or try-it CTA', language => {
   locale.language = language; locale.reduced = false;
   const copy = language === 'es' ? es : en;
   const { container } = render(<DemosCatalog />);
@@ -286,50 +274,72 @@ it.each(['en', 'es'] as const)('provides on-demand finite video and distinct loc
     const image = card.querySelector('img')!, video = card.querySelector('video')!;
     sources.add(image.getAttribute('src')!);
     expect(image).toHaveAttribute('src', media.poster);
+    expect(image).toHaveAttribute('srcset', expect.stringContaining('960w'));
     expect(image).toHaveAttribute('loading', 'lazy');
-    expect(image).toHaveAttribute('width', '960');
     expect(video).not.toHaveAttribute('src');
-    const button = within(card).getByRole('button', { name: `${copy.demosCatalog.videoPreview.play}: ${item.title}` });
-    expect(button.closest('a')).toBeNull();
-    fireEvent.click(button);
-    expect(video).toHaveAttribute('src', media.src);
-    expect(button).toHaveAttribute('aria-pressed', 'true');
-    fireEvent.click(button);expect(button).toHaveAttribute('aria-pressed', 'false');
-    fireEvent.click(button);fireEvent.ended(video);
-    expect(button).toHaveAttribute('aria-pressed', 'false');
-    expect(video).not.toHaveAttribute('loop');
-    expect(card.querySelector('a')!.getAttribute('href')).toContain(language === 'es' ? '?lang=es' : '/');
+    expect(card.querySelector('button')).toBeNull();
+    expect(image.closest('a')).toBe(card.querySelector('a'));
+    expect(card.textContent).not.toContain(copy.demosCatalog.cta_try);
     expect(card.textContent).not.toContain('demosCatalog.videoPreview.');
+    expect(card.querySelector('a')!.getAttribute('href')).toContain(language === 'es' ? '?lang=es' : '/');
     if (item.status === 'soon') expect(card.textContent).toContain(copy.demosCatalog.badge_soon);
     else expect(card.querySelector('[data-demo-status]')).toBeNull();
   }
   expect(sources.size).toBe(13);
 });
 
-it('keeps all 13 posters static with explicit opt-in controls for reduced motion', () => {
+it('keeps all 13 posters static on hover for reduced motion', () => {
   locale.language = 'es'; locale.reduced = true;
   vi.mocked(window.matchMedia).mockReturnValue({ matches: true } as MediaQueryList);
   const { container } = render(<DemosCatalog />);
   expect(container.querySelectorAll('[data-preview-id] img')).toHaveLength(13);
   for (const card of container.querySelectorAll('[data-preview-id]')) fireEvent.mouseEnter(card);
   expect(container.querySelector('video[src]')).toBeNull();
-  expect(container.querySelectorAll('[data-preview-id] button[aria-pressed="false"]')).toHaveLength(13);
   expect(container.querySelector('.demo-scan, .emotion-scan')).toBeNull();
 });
 
-it.each(['en', 'es'] as const)('requests ALL 13 %s card videos on desktop hover without navigating', language => {
+it.each(['en', 'es'] as const)('previews ALL 13 %s cards on desktop hover without navigating', language => {
   locale.language = language; locale.reduced = false;
   vi.mocked(window.matchMedia).mockReturnValue({ matches: true } as MediaQueryList);
   const { container } = render(<DemosCatalog />);
   for (const card of Array.from(container.querySelectorAll<HTMLElement>('[data-preview-id]'))) {
     const href = card.querySelector('a')!.getAttribute('href');
+    const state = () => card.querySelector('[data-demo-video]')!.getAttribute('data-state');
     fireEvent.mouseEnter(card);
-    expect(card.querySelector('button')).toHaveAttribute('aria-pressed', 'true');
+    expect(state()).toBe('loading');
     expect(card.querySelector('video')).toHaveAttribute('src');
     fireEvent.mouseLeave(card);
-    expect(card.querySelector('button')).toHaveAttribute('aria-pressed', 'false');
-    fireEvent.mouseEnter(card);
-    expect(card.querySelector('button')).toHaveAttribute('aria-pressed', 'true');
+    expect(state()).toBe('idle');
     expect(card.querySelector('a')).toHaveAttribute('href', href!);
+  }
+});
+
+it('on touch, holding previews without opening the demo and a quick tap opens it', () => {
+  locale.language = 'en'; locale.reduced = false;
+  vi.useFakeTimers();
+  try {
+    vi.mocked(window.matchMedia).mockReturnValue({ matches: false } as MediaQueryList);
+    const { container } = render(<DemosCatalog />);
+    const card = container.querySelector<HTMLElement>('[data-preview-id="rag"]')!;
+    const link = card.querySelector('a')!;
+    const state = () => card.querySelector('[data-demo-video]')!.getAttribute('data-state');
+
+    press(link, 'pointerdown', 'touch');
+    act(() => { vi.advanceTimersByTime(250); });
+    expect(state()).toBe('loading');
+    press(link, 'pointerup', 'touch');
+    expect(state()).toBe('idle');
+    fireEvent.click(link);
+    expect(window.location.pathname).not.toBe('/try-rag');
+
+    press(link, 'pointerdown', 'touch');
+    act(() => { vi.advanceTimersByTime(80); });
+    press(link, 'pointerup', 'touch');
+    expect(state()).toBe('idle');
+    fireEvent.click(link);
+    expect(window.location.pathname).toBe('/try-rag');
+  } finally {
+    vi.useRealTimers();
+    window.history.replaceState(null, '', '/');
   }
 });

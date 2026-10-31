@@ -11,7 +11,7 @@ import { getArticleContentSummary } from '../jobs/generateDominical.js';
 import type { ScoredPost } from './dominicalScoring.js';
 import { computeRobotPose, renderRobotFrameSvg, VARIANT_NATIVE_SIZE, type RobotVariant } from './robotFrames.js';
 import { buildCaptionOverlaySvg, buildWhiteboardCaptionSvg, VIDEO_CAPTION_BAND_HEIGHT } from './slideCompositor.js';
-import { OPENAI_IMAGE_MODEL } from './imageGeneration.js';
+import { getAiModel } from './aiModels.js';
 
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 ffmpeg.setFfprobePath(ffprobeInstaller.path);
@@ -45,7 +45,7 @@ function getFrameDimensions(variant: RobotVariant): { width: number; height: num
 
 /**
  * Generates a themed AI background for the video (one image per generation,
- * reused across every frame) via OPENAI_IMAGE_MODEL — same model already used for
+ * reused across every frame) via the configured image model — same model already used for
  * carousel slide backgrounds (see carouselImageGen.ts). Kept soft/blurred and
  * low-contrast on purpose so the robot and whiteboard composited on top stay
  * readable without needing any extra scrim layer.
@@ -68,7 +68,7 @@ async function generateVideoBackground(
 
   const openai = new OpenAI({ apiKey });
   const response = await openai.images.generate({
-    model: OPENAI_IMAGE_MODEL,
+    model: getAiModel('ai_model_site_image'),
     prompt,
     n: 1,
     size: '1536x1024',
@@ -84,7 +84,7 @@ async function generateVideoBackground(
     if (!fetchResponse.ok) throw new Error(`Failed to download generated background: ${fetchResponse.status}`);
     imageBuffer = Buffer.from(await fetchResponse.arrayBuffer());
   } else {
-    throw new Error(`${OPENAI_IMAGE_MODEL} returned no background image data`);
+    throw new Error(`OpenAI returned no background image data`);
   }
 
   return sharp(imageBuffer).resize(frameWidth, frameHeight, { fit: 'cover' }).png().toBuffer();
@@ -152,7 +152,7 @@ Reglas OBLIGATORIAS:
 Devuelve SOLO el texto del guion, sin explicaciones, sin comillas, sin markdown.`;
 
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: getAiModel('ai_model_site_content'),
     temperature: 0.7,
     messages: [
       { role: 'system', content: systemPrompt },
@@ -168,7 +168,7 @@ Devuelve SOLO el texto del guion, sin explicaciones, sin comillas, sin markdown.
 async function synthesizeNarration(script: string, apiKey: string, outputPath: string): Promise<void> {
   const openai = new OpenAI({ apiKey });
   const response = await openai.audio.speech.create({
-    model: 'gpt-4o-mini-tts',
+    model: getAiModel('ai_model_site_tts'),
     voice: 'ballad',
     input: script,
     instructions: VOICE_INSTRUCTIONS,

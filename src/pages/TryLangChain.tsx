@@ -42,6 +42,7 @@ import { JsonHighlight } from "@/components/demo/JsonHighlight";
 import { ApiCallLog, type ApiCallEntry } from "@/components/demo/ApiCallLog";
 import { InfoTip } from "@/components/demo/InfoTip";
 import { HowItWorks, StatusPill, TechCard, type StatusTone } from "@/components/demo/DemoKit";
+import { GuideCue, GuideSteps, useGuideNavigation, type GuideTheme } from "@/components/demo/DemoGuide";
 import { useSpeechInput } from "@/hooks/useSpeechInput";
 
 const getBaseApi = () => {
@@ -60,6 +61,13 @@ const BASE_API = getBaseApi();
 // Brand accent (amber/orange), shared with the demo catalog card.
 const ACCENT_GRADIENT = "from-amber-500 to-orange-600";
 const ACCENT_TEXT = "text-orange-600";
+const GUIDE_THEME: GuideTheme = {
+  gradient: ACCENT_GRADIENT,
+  text: ACCENT_TEXT,
+  current: "border-orange-300 ring-orange-100",
+  hover: "hover:border-orange-300",
+  flash: "ring-4 ring-orange-200",
+};
 const BADGE_BG = "bg-orange-100";
 const BADGE_TEXT = "text-orange-700";
 const BADGE_DOT = "bg-orange-500";
@@ -189,6 +197,20 @@ export default function TryLangChain() {
   const uploading = docs.some((d) => d.state === "uploading");
   const failedDocs = docs.filter((d) => d.state === "error");
   const ragLocked = mode === "rag" && readyDocs.length === 0;
+
+  // Which of the three "how it works" steps the visitor is on.
+  const [modePicked, setModePicked] = useState(false);
+  const hasAsked = Object.values(threads).some((messages) => messages.length > 0);
+  const guideStep = hasAsked ? 3 : modePicked || docs.length > 0 ? 2 : 1;
+  const modesRef = useRef<HTMLDivElement | null>(null);
+  const composerRef = useRef<HTMLDivElement | null>(null);
+  const inspectorRef = useRef<HTMLDivElement | null>(null);
+  const { flashStep, goTo } = useGuideNavigation(guideStep, (at) =>
+    at === 1 ? modesRef.current : at === 2 ? composerRef.current : inspectorRef.current
+  );
+  const goToStep = (n: number) => {
+    if (goTo(n) === 2) textareaRef.current?.focus({ preventScroll: true });
+  };
 
   const logCalls: ApiCallEntry[] = calls.map((c) => ({
     key: c.id,
@@ -519,17 +541,7 @@ export default function TryLangChain() {
               </p>
               <DemoTutorial demoId="langchain" returnToId="langchain-workspace" />
             </div>
-            <ol className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              {([1, 2, 3] as const).map((n) => (
-                <li key={n} className="rounded-xl border border-gray-200/80 bg-white/70 p-4">
-                  <span className={`flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br ${ACCENT_GRADIENT} text-xs font-bold text-white`}>
-                    {n}
-                  </span>
-                  <p className="mt-3 text-sm font-semibold text-gray-900">{t(`try-langchain.how_step${n}_title`)}</p>
-                  <p className="mt-1 text-sm leading-snug text-gray-600">{t(`try-langchain.how_step${n}_desc`)}</p>
-                </li>
-              ))}
-            </ol>
+            <GuideSteps prefix="try-langchain" current={guideStep} theme={GUIDE_THEME} onGo={goToStep} />
 
             <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
               {[
@@ -601,7 +613,8 @@ export default function TryLangChain() {
           )}
 
           {/* Mode picker: what each mode does and which endpoint it calls */}
-          <div role="tablist" aria-label={t("try-langchain.step2_title")} className="grid grid-cols-1 gap-2 border-b border-gray-100 p-3 sm:grid-cols-3 sm:p-4">
+          <div ref={modesRef} role="tablist" aria-label={t("try-langchain.step2_title")} className={`relative grid grid-cols-1 gap-2 border-b border-gray-100 p-3 sm:grid-cols-3 sm:p-4 ${flashStep === 1 ? GUIDE_THEME.flash : ""}`}>
+            {guideStep === 1 && <GuideCue step={1} label={t("try-langchain.guide_mode")} gradient={ACCENT_GRADIENT} className="left-5 !top-0.5" />}
             {(Object.keys(MODE_META) as Mode[]).map((id) => {
               const { icon: Icon, endpoints } = MODE_META[id];
               const active = mode === id;
@@ -612,7 +625,10 @@ export default function TryLangChain() {
                   type="button"
                   role="tab"
                   aria-selected={active}
-                  onClick={() => setMode(id)}
+                  onClick={() => {
+                    setMode(id);
+                    setModePicked(true);
+                  }}
                   className={`group flex items-start gap-3 rounded-xl border p-3 text-left transition-all ${
                     active
                       ? "border-orange-300 bg-orange-50/60 ring-2 ring-orange-100"
@@ -758,12 +774,19 @@ export default function TryLangChain() {
               <div ref={threadRef} className="flex-1 overflow-y-auto px-4 py-5 sm:px-6">
                 {thread.length === 0 ? (
                   ragLocked ? (
+                    <>
+                    {guideStep === 2 && (
+                      <div className="mb-3 text-center">
+                        <GuideCue step={2} label={t("try-langchain.guide_upload")} gradient={ACCENT_GRADIENT} className="!static" />
+                      </div>
+                    )}
                     <RagOnboarding
                       uploading={uploading}
                       onPick={() => fileInputRef.current?.click()}
                       onSample={loadSampleDoc}
                       onPreview={previewSampleDoc}
                     />
+                    </>
                   ) : (
                     <EmptyThread mode={mode} suggestions={suggestions} onPick={(s) => ask(s)} disabled={busy} />
                   )
@@ -794,12 +817,15 @@ export default function TryLangChain() {
               </div>
 
               {/* Composer */}
-              <div className="shrink-0 border-t border-gray-100 bg-white p-3 sm:p-4">
+              <div ref={composerRef} className="shrink-0 border-t border-gray-100 bg-white p-3 sm:p-4">
                 <div
-                  className={`flex items-end gap-2 rounded-2xl border bg-white p-2 shadow-sm transition-all focus-within:border-orange-300 focus-within:ring-4 focus-within:ring-orange-100 ${
+                  className={`relative flex items-end gap-2 rounded-2xl border bg-white p-2 shadow-sm transition-all focus-within:border-orange-300 focus-within:ring-4 focus-within:ring-orange-100 ${
                     ragLocked ? "border-gray-200 bg-gray-50" : "border-gray-200"
-                  }`}
+                  } ${flashStep === 2 ? GUIDE_THEME.flash : ""}`}
                 >
+                  {guideStep === 2 && !ragLocked && !input && (
+                    <GuideCue step={2} label={t("try-langchain.guide_ask")} gradient={ACCENT_GRADIENT} />
+                  )}
                   {mode === "rag" && (
                     <button
                       type="button"

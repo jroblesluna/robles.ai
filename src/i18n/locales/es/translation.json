@@ -1530,8 +1530,6 @@
         "instructions": "Tus imágenes se procesan solo para esta demo y no se almacenan de forma permanente. Para mejores resultados, sube una selfie nítida y bien iluminada y un documento donde el rostro se vea completo.",
         "watch_demo": "Ver demostración",
         "videoSrc": "https://youtube.com/embed/pXTA4fu9xDc",
-        "webhook": "URL de callback (webhook)",
-        "webhook_hint": "Los resultados también se envían a este endpoint cuando termina el proceso. Esta es una URL de ejemplo para la demo.",
         "step_upload": "Sube las imágenes",
         "step_selfie": "Selfie",
         "step_document": "Documento",
@@ -1587,7 +1585,6 @@
         "service_warm_failed": "El servicio está tardando más de lo esperado en iniciar. Inténtalo de nuevo en un momento.",
         "verify_warming": "Preparando servicio…",
         "tip_upload": "Sube dos imágenes: una selfie y una foto de tu documento. Se envían a la API, que detecta y compara los rostros.",
-        "tip_webhook": "Cuando termina el proceso, la API también envía el resultado por POST a esta URL de callback. Aquí es un endpoint de ejemplo para la demo.",
         "tip_results": "Resumen que devuelve la API tras comparar los dos rostros, incluye la decisión de coincidencia y el puntaje de similitud.",
         "tip_match": "Si la API considera que ambos rostros pertenecen a la misma persona, según el umbral de similitud.",
         "tip_distance": "Similitud coseno entre los dos embeddings faciales de 512 dimensiones. Va de 0 a 100%; mayor significa más parecidos.",
@@ -1599,7 +1596,7 @@
         "tech_flow_1": "El navegador sube ambas imágenes al almacenamiento y envía sus URLs a POST /recognition/verify-id, que crea una solicitud (estado: pending).",
         "tech_flow_2": "Un paso de procesamiento (POST /cron/verify-id) descarga las imágenes y ejecuta el modelo facial.",
         "tech_flow_3": "El modelo detecta un rostro en cada imagen, extrae un embedding y los compara.",
-        "tech_flow_4": "El cliente consulta GET /recognition/get/{id} cada 3s hasta que el estado es completed, y el resultado también se envía al callback.",
+        "tech_flow_4": "El cliente consulta GET /recognition/get/{id} cada 3s hasta que el estado es final. En producción la API también puede enviar el resultado a tu webhook.",
         "tech_model_title": "Modelo",
         "tech_model_name_label": "Pack de modelo",
         "tech_model_detector_label": "Detector de rostro",
@@ -1609,7 +1606,7 @@
         "tech_model_threshold_label": "Umbral de coincidencia",
         "tech_model_note": "El modelo es preentrenado y corre en CPU (solo inferencia — no hay entrenamiento). Genera un embedding de 512 dimensiones por rostro.",
         "tech_api_title": "API y privacidad",
-        "tech_api_1": "API REST sobre HTTPS con payloads JSON; el procesamiento es asíncrono con un callback tipo webhook.",
+        "tech_api_1": "API REST sobre HTTPS con payloads JSON; el procesamiento es asíncrono, con envío opcional a un webhook.",
         "tech_api_2": "Las URLs de imagen se validan en el servidor (hosts en lista blanca) antes de descargarlas.",
         "tech_api_3": "Las imágenes de la demo se procesan solo para la verificación y no están destinadas a almacenamiento permanente.",
         "badge": "Demo de API en vivo",
@@ -1619,7 +1616,7 @@
         "how_step2_title": "La API compara los rostros",
         "how_step2_desc": "Detecta cada rostro, extrae un embedding y calcula la similitud.",
         "how_step3_title": "Obtén el resultado",
-        "how_step3_desc": "Un puntaje y la decisión de coincidencia en segundos, más un callback webhook.",
+        "how_step3_desc": "Un puntaje y la decisión de coincidencia en segundos.",
         "trust_private": "Las imágenes nunca se almacenan",
         "trust_fast": "Resultados en segundos",
         "trust_accurate": "Embeddings faciales de 512 dimensiones",
@@ -1638,7 +1635,21 @@
         "how_tech_title": "Arquitectura técnica",
         "how_tech_subtitle": "Para desarrolladores e ingenieros",
         "samples_cta": "¿No tienes fotos a mano? Usa imágenes de ejemplo",
-        "samples_hint": "Un par ficticio de demo — el mismo rostro en ambas, para que la coincidencia funcione de verdad."
+        "samples_hint": "Un par ficticio de demo — el mismo rostro en ambas, para que la coincidencia funcione de verdad.",
+        "guide_upload": "Empieza aquí: usa los ejemplos o sube tus fotos",
+        "guide_verify": "Ahora ejecuta la verificación",
+        "runner_step_send": "Enviar",
+        "runner_step_detect": "Detectar rostros",
+        "runner_step_compare": "Comparar",
+        "runner_step_result": "Resultado",
+        "runner_waiting_photos": "Robly espera tus dos fotos",
+        "runner_waiting_verify": "Fotos listas · Robly espera que verifiques",
+        "runner_done": "Verificación terminada",
+        "runner_failed": "No se pudo completar la verificación",
+        "problem_title_failed": "No pudimos comparar las imágenes",
+        "problem_title_partial": "La comparación terminó con una advertencia",
+        "error_no_face_document": "No se detectó un rostro en el documento. Usa una imagen nítida y bien iluminada del lado de la foto.",
+        "error_no_face_selfie": "No se detectó un rostro en la selfie. Usa una foto de frente y bien iluminada."
     },
     "try-object": {
         "tutorial_text": "Mira el recorrido completo: apuntas la cámara o subes una foto, la IA encuentra y etiqueta cada objeto de la escena y te entrega el conteo y los datos de cada detección.",
@@ -1801,7 +1812,8 @@
             "teddy bear": "oso de peluche",
             "hair drier": "secadora de pelo",
             "toothbrush": "cepillo de dientes"
-        }
+        },
+        "guide_start": "Empieza aquí: enciende la cámara o elige una imagen"
     },
     "try-emotion": {
         "tutorial_text": "Mira el recorrido completo: enciendes la cámara o subes una foto, la IA lee las expresiones de cada rostro y las resume en una vista agregada y anónima.",
@@ -1892,7 +1904,8 @@
         "log_row_camera": "Captura de cámara",
         "log_row_image": "Foto subida",
         "log_row_sample": "Retrato de ejemplo",
-        "log_error_generic": "No se pudo analizar la imagen. Prueba con otra foto."
+        "log_error_generic": "No se pudo analizar la imagen. Prueba con otra foto.",
+        "guide_start": "Empieza aquí: enciende la cámara o elige una imagen"
     },
     "try-chatbot": {
         "tutorial_text": "Antes de probarlo, mira el recorrido completo: pegas tu web, la IA la lee y responde a tus clientes con tu propio contenido.",
@@ -2014,7 +2027,9 @@
         "tab_api": "Llamadas a la API",
         "pages_hint": "Tu chatbot responde solo con estas páginas. El contenido expira a las 24 horas.",
         "suggestions_label": "Prueba a preguntar",
-        "disclaimer": "Respuestas de IA basadas en las páginas leídas. Verifica los datos importantes."
+        "disclaimer": "Respuestas de IA basadas en las páginas leídas. Verifica los datos importantes.",
+        "guide_url": "Empieza aquí: pega la URL de tu sitio",
+        "guide_ask": "Ahora hazle una pregunta"
     },
     "try-docextract": {
         "onboarding_title": "Convierte cualquier documento en datos limpios",
@@ -2117,7 +2132,14 @@
         "legend_high": "Alta (80%+)",
         "legend_mid": "Revisar (50–79%)",
         "legend_low": "Revisión obligatoria (menos de 50%)",
-        "review_note": "Los valores con baja confianza se marcan para que una persona los confirme. En producción pasan por una cola de revisión antes de llegar a tu ERP."
+        "review_note": "Los valores con baja confianza se marcan para que una persona los confirme. En producción pasan por una cola de revisión antes de llegar a tu ERP.",
+        "how_step1_title": "Sube un documento",
+        "how_step1_desc": "Una factura, recibo o formulario, en imagen o PDF.",
+        "how_step2_title": "La IA lo lee",
+        "how_step2_desc": "Detecta el tipo de documento y extrae cada campo.",
+        "how_step3_title": "Descarga los datos",
+        "how_step3_desc": "Revisa la tabla y expórtala a JSON, CSV o Excel.",
+        "guide_upload": "Empieza aquí: sube tu documento"
     },
     "try-forecast": {
         "badge": "Corre en tu navegador",
@@ -2165,7 +2187,16 @@
         "tech_bands_title": "Incertidumbre",
         "tech_bands_desc": "Las bandas se construyen con la dispersión de los residuos en muestra, ensanchándose con el horizonte (q10, q50, q90).",
         "tech_local_title": "Cómputo local",
-        "tech_local_desc": "TypeScript puro sobre tu arreglo de números — sin backend, sin costo, recálculo instantáneo al cambiar entradas."
+        "tech_local_desc": "TypeScript puro sobre tu arreglo de números — sin backend, sin costo, recálculo instantáneo al cambiar entradas.",
+        "how_step1_title": "Elige tus datos",
+        "how_step1_desc": "Toma una serie de ejemplo o sube tu propio CSV.",
+        "how_step2_title": "Define el horizonte",
+        "how_step2_desc": "Decide hasta dónde quieres pronosticar.",
+        "how_step3_title": "Lee y descarga",
+        "how_step3_desc": "Revisa el pronóstico con su rango y expórtalo en CSV.",
+        "guide_data": "Empieza aquí: elige una serie",
+        "guide_horizon": "Ahora elige el horizonte",
+        "guide_download": "Descarga tu pronóstico"
     },
     "try-tts": {
         "title": "Dale voz a tu contenido",
@@ -2252,7 +2283,18 @@
         "tech_chunk_title": "Fragmentación",
         "tech_chunk_desc": "El texto largo se parte por oraciones sin cortarlas, se narra con concurrencia acotada y se une con ffmpeg con pausas naturales.",
         "tech_subs_title": "Subtítulos",
-        "tech_subs_desc": "SRT y VTT se construyen a partir de las marcas por fragmento. El motor TTS no da marcas por palabra, así que los cues son por segmento."
+        "tech_subs_desc": "SRT y VTT se construyen a partir de las marcas por fragmento. El motor TTS no da marcas por palabra, así que los cues son por segmento.",
+        "how_step1_title": "Elige una voz",
+        "how_step1_desc": "Pulsa play en cualquier voz para oír una muestra y elige una.",
+        "how_step2_title": "Genera el audio",
+        "how_step2_desc": "Deja el texto de ejemplo o escribe el tuyo, y genera.",
+        "how_step3_title": "Escucha y descarga",
+        "how_step3_desc": "Reproduce el resultado y descarga el audio.",
+        "guide_voice": "Empieza aquí: elige una voz",
+        "guide_generate": "Ahora genera el audio",
+        "runner_step_send": "Enviar",
+        "runner_step_generate": "Generar",
+        "runner_step_ready": "Listo"
     },
     "try-langchain": {
         "title": "Agente LangChain",
@@ -2389,7 +2431,10 @@
         "tech_stack_vectordb_label": "Recuperación",
         "tech_stack_tools_label": "Agente",
         "tech_stack_server_label": "Servicio",
-        "tech_note": "La API se apaga cuando está inactiva, por lo que la primera solicitud la despierta antes de responder."
+        "tech_note": "La API se apaga cuando está inactiva, por lo que la primera solicitud la despierta antes de responder.",
+        "guide_mode": "Empieza aquí: elige un modo",
+        "guide_upload": "Ahora agrega un documento o usa el de ejemplo",
+        "guide_ask": "Ahora escribe tu pregunta aquí"
     },
     "try-medical": {
         "coming_soon": "Esta demo estará disponible pronto. Por ahora no se analiza ninguna imagen y nada sale de tu navegador: tus imágenes no se suben ni se guardan en ningún lado. ¿Te interesa IA de imagen médica para tu clínica? Escríbenos.",
@@ -2466,7 +2511,6 @@
         "dropzone_sample_hint": "La política de viajes y trabajo remoto de una empresa ficticia",
         "progress_extract_start": "Abriendo el PDF…",
         "query_placeholder": "Pregunta algo sobre tu PDF…",
-        "rerank_error": "Error al hacer reranking",
         "hash_error": "No se pudo leer el texto del PDF en tu navegador. Prueba con otro PDF o navegador.",
         "no_text": "No se encontró texto seleccionable en este PDF. Puede ser un documento escaneado (solo imágenes), que esta demo no puede procesar — prueba con un PDF con texto real.",
         "process_error": "No se pudo procesar el texto del documento. El servicio puede estar ocupado — inténtalo de nuevo en un momento.",
@@ -2474,8 +2518,8 @@
         "extracted_label": "Ver texto extraído (lo que se envía a la API)",
         "tip_step2": "Cada fragmento se convierte en un embedding vectorial (una representación numérica de su significado) y se guarda en la base vectorial Pinecone bajo el namespace de este documento.",
         "tip_step3": "Tu pregunta se convierte en embedding y se compara con cada fragmento por similitud coseno. Traemos los 65 mejores — una red deliberadamente amplia: la búsqueda vectorial es rápida pero aproximada, así que recuperamos muchos candidatos aquí y dejamos que el reranker más preciso (paso 4) los filtre. Traer muy pocos ahora arriesgaría descartar el fragmento realmente relevante.",
-        "tip_step4": "Reranking en dos etapas sobre esos 65 candidatos. Primero MonoT5 (un modelo T5) etiqueta cada fragmento como relevante/no relevante para filtrar ruido de forma barata. Luego BGE, un cross-encoder, lee juntas la pregunta y cada fragmento superviviente y los puntúa — mucho más preciso que la similitud vectorial inicial, pero demasiado costoso para correrlo sobre toda la base de datos, por eso solo se aplica a los candidatos pre-filtrados.",
-        "tip_step5": "Los mejores fragmentos reordenados se entregan a dos LLMs (Llama y GPT-4) como contexto para que respondan fundamentados en tu documento en vez de alucinar.",
+        "tip_step4": "Reranking en dos etapas sobre los {{count}} mejores candidatos. Primero MonoT5 (un modelo T5) etiqueta cada fragmento como relevante/no relevante para filtrar ruido de forma barata. Luego BGE, un cross-encoder, lee juntas la pregunta y cada fragmento superviviente y los puntúa — mucho más preciso que la similitud vectorial inicial, pero demasiado costoso para correrlo sobre toda la base de datos, por eso solo se aplica a los candidatos pre-filtrados.",
+        "tip_step5": "Los mejores fragmentos reordenados se entregan a un modelo de IA como contexto para que responda fundamentado en tu documento en vez de alucinar.",
         "service_cold_hint": "Esta demo corre en infraestructura bajo demanda que se apaga cuando no se usa. El primer paso puede tardar ~30s mientras se preparan los recursos; después es rápido. Se activa automáticamente cuando inicies.",
         "service_warming": "Preparando el servicio… esto puede tardar hasta ~30s la primera vez. Espera — comenzará automáticamente cuando los recursos estén listos.",
         "service_warm_failed": "El servicio está tardando más de lo esperado en iniciar. Inténtalo de nuevo en un momento.",
@@ -2486,7 +2530,7 @@
         "tech_flow_2": "Embeddings e indexación: los fragmentos se convierten en embeddings con sentence-transformers y se insertan (por lotes) en el índice vectorial de Pinecone.",
         "tech_flow_3": "Recuperación: la pregunta se convierte en embedding y se obtienen los top-K fragmentos más similares por similitud coseno.",
         "tech_flow_4": "Reranking: un cross-encoder MonoT5 → BGE reordena los candidatos para mayor precisión.",
-        "tech_flow_5": "Generación: los mejores fragmentos se pasan como contexto a Llama y GPT-4 para producir respuestas fundamentadas.",
+        "tech_flow_5": "Generación: los mejores fragmentos se pasan como contexto al modelo de IA para producir una respuesta fundamentada.",
         "tech_stack_title": "Stack",
         "tech_note": "Un pipeline RAG permite que un LLM responda usando tus propios documentos, reduciendo las alucinaciones al fundamentar las respuestas en el texto recuperado.",
         "badge": "Demo de API en vivo",
@@ -2496,9 +2540,7 @@
         "how_step2_title": "Haz una pregunta",
         "how_step2_desc": "En lenguaje natural, sobre el contenido.",
         "how_step3_title": "Recibe la respuesta",
-        "how_step3_desc": "De GPT-4 y Llama, con las fuentes citadas.",
-        "guide_card_start": "Empieza abajo",
-        "guide_card_next": "Sigue abajo",
+        "how_step3_desc": "Redactada por la IA, con las fuentes citadas.",
         "guide_upload": "Empieza aquí: sube tu PDF",
         "guide_ask": "Ahora escribe tu pregunta aquí",
         "status_checking": "Comprobando servicio…",
@@ -2536,7 +2578,7 @@
         "step_index_desc": "Se guarda en la base vectorial",
         "step_search_desc": "Se buscan los fragmentos más parecidos",
         "step_rerank_desc": "Se reordenan por relevancia",
-        "step_generate_desc": "GPT-4 y Llama redactan la respuesta",
+        "step_generate_desc": "La IA redacta la respuesta",
         "step_not_run": "Este paso todavía no se ha ejecutado.",
         "sum_extract": "{{pages}} páginas · {{chars}} caracteres",
         "sum_extract_progress": "Leyendo página {{current}} de {{total}}",
@@ -2547,7 +2589,7 @@
         "sum_index_reused": "Ya estaba indexado · {{count}} vectores reutilizados",
         "sum_search": "{{count}} candidatos recuperados",
         "sum_rerank": "{{count}} fragmentos reordenados",
-        "sum_generate": "Respuestas de GPT-4 y Llama",
+        "sum_generate": "Respuesta lista",
         "thinking_search": "Buscando en el documento…",
         "stat_pages": "Páginas",
         "stat_chars": "Caracteres",
@@ -2595,10 +2637,10 @@
         "rerank_loop_3": "Son {{count}} pares pregunta–fragmento: cada uno pasa por el modelo completo…",
         "rerank_loop_4": "Este es el paso más costoso; por eso solo se aplica a los candidatos preseleccionados…",
         "rerank_loop_5": "La búsqueda vectorial es rápida pero aproximada; el reranker es lento pero preciso…",
-        "rerank_loop_6": "Ya casi: en cuanto termine, los mejores fragmentos pasan a GPT-4 y Llama…",
+        "rerank_loop_6": "Ya casi: en cuanto termine, los mejores fragmentos pasan al modelo de IA…",
         "generate_phase_1": "Armando el contexto con los {{count}} mejores fragmentos…",
-        "generate_phase_2": "Enviando tu pregunta y el contexto a GPT-4 y Llama…",
-        "generate_phase_3": "GPT-4 y Llama están redactando la respuesta…",
+        "generate_phase_2": "Enviando tu pregunta y el contexto al modelo de IA…",
+        "generate_phase_3": "El modelo de IA está redactando la respuesta…",
         "generate_phase_4": "Esperando a que ambos modelos terminen…",
         "generate_loop_1": "Los modelos solo pueden usar los fragmentos de tu documento: así no inventan…",
         "generate_loop_2": "Cada modelo responde por separado para que puedas compararlos…",
@@ -2618,7 +2660,7 @@
         "rerank_loop_5_short": "Lento, pero preciso…",
         "rerank_loop_6_short": "Ya casi…",
         "generate_phase_1_short": "Armando el contexto…",
-        "generate_phase_2_short": "Enviando a GPT-4 y Llama…",
+        "generate_phase_2_short": "Enviando al modelo de IA…",
         "generate_phase_3_short": "Redactando la respuesta…",
         "generate_phase_4_short": "Esperando a ambos modelos…",
         "generate_loop_1_short": "Solo con tu documento…",
@@ -2628,8 +2670,9 @@
         "log_empty_title": "Sin actividad todavía",
         "log_empty": "Sube un PDF para ver aquí cada petición y respuesta de la API, en tiempo real.",
         "chat_title": "Chat con tu documento",
-        "chat_models": "Responden",
-        "bts_title": "Pipeline RAG en vivo"
+        "bts_title": "Pipeline RAG en vivo",
+        "sum_rerank_skipped": "Omitido para no hacerte esperar · se usa el orden de la búsqueda",
+        "generate_error": "Los modelos no pudieron redactar la respuesta en este momento. Inténtalo de nuevo en unos minutos."
     },
     "landing": {
         "hero": {
@@ -3901,10 +3944,8 @@
             }
         ],
         "videoPreview": {
-            "play": "Ver animación",
-            "pause": "Pausar",
             "illustrative": "Vista ilustrativa",
-            "error": "No se pudo reproducir. Toca para reintentar o abre la demo."
+            "error": "No se pudo reproducir. Pasa el cursor o mantén presionado para reintentar, o abre la demo."
         },
         "photoPreview": {
             "stop": "Detener animación",
@@ -4084,12 +4125,12 @@
         "tech_subtitle": "Visión general y arquitectura técnica",
         "tech_flow_title": "Pipeline",
         "tech_flow_1": "El navegador captura audio PCM a 16 kHz mono y transmite los fotogramas crudos por WebSocket a /ws/transcribe.",
-        "tech_flow_2": "El backend redirige el flujo de audio a Deepgram Nova-3 con diarización. Los parciales y finales se devuelven por el mismo WS.",
+        "tech_flow_2": "El backend redirige el flujo de audio a Speechmatics con diarización. Los parciales y finales se devuelven por el mismo WS. Los archivos subidos usan su API por lotes.",
         "tech_flow_3": "Al detener, los turnos acumulados se envían a POST /analyze.",
         "tech_flow_4": "OpenAI detecta la industria, infiere los roles de hablante, extrae términos clave (formas básica y especializada) y escribe un resumen estructurado.",
         "tech_model_title": "Modelos y stack",
         "tech_stack_stt_label": "Modelo STT",
-        "tech_stack_stt": "Deepgram Nova-3 (diarize, punctuate, smart_format)",
+        "tech_stack_stt": "Speechmatics (enhanced, diarización por hablante)",
         "tech_stack_brain_label": "Análisis",
         "tech_stack_brain": "OpenAI (JSON estructurado — industria, roles, términos, resumen)",
         "tech_stack_serving_label": "Hosting",
@@ -4097,7 +4138,7 @@
         "tech_api_title": "Privacidad",
         "tech_api_1": "El audio se transmite y se descarta en el servidor — nada se escribe en disco ni base de datos.",
         "tech_api_2": "Las transcripciones viven solo en memoria durante la sesión y se eliminan al terminar.",
-        "tech_api_3": "No se almacenan datos biométricos ni personales. Las claves de Deepgram y OpenAI nunca llegan al navegador.",
+        "tech_api_3": "No se almacenan datos biométricos ni personales. Las claves de los proveedores nunca llegan al navegador, y los archivos subidos se borran del proveedor al terminar.",
         "stage_empty_title": "Pulsa y empieza a hablar",
         "speakers_count_one": "{{count}} hablante",
         "speakers_count_other": "{{count}} hablantes",
@@ -4129,7 +4170,24 @@
         "how_simple_4_desc": "Un acta lista para usar, en lenguaje simple o técnico.",
         "how_simple_privacy": "Tu audio no se guarda: se procesa al instante y se descarta al terminar.",
         "how_tech_title": "Arquitectura técnica",
-        "how_tech_subtitle": "Para desarrolladores e ingenieros"
+        "how_tech_subtitle": "Para desarrolladores e ingenieros",
+        "guide_record": "Empieza aquí: pulsa el micrófono",
+        "guide_analyze": "Ahora analiza la conversación",
+        "runner_step_send": "Enviar",
+        "runner_step_analyze": "Analizar",
+        "runner_step_ready": "Listo",
+        "upload_cta": "O sube un audio o video",
+        "upload_hint": "MP3, M4A, WAV o MP4, hasta {{max}} MB. Se procesa y no se guarda.",
+        "upload_working": "Escuchando tu archivo y separando las voces…",
+        "upload_step_send": "Enviar",
+        "upload_step_listen": "Separar voces",
+        "upload_step_ready": "Listo",
+        "file_too_large": "Ese archivo es demasiado grande. El límite es {{max}} MB.",
+        "file_no_speech": "No encontramos voz en ese archivo.",
+        "file_error": "No pudimos procesar ese archivo. Inténtalo de nuevo o usa otro.",
+        "detecting_language": "Detectando el idioma… el texto aparecerá en unos segundos.",
+        "finishing": "Micrófono apagado. Terminando la última frase…",
+        "turn_corrected": "Corregido con el contexto"
     },
     "demoNav": {
         "aria": "Navegación de la demo",
@@ -4368,5 +4426,9 @@
     "clients": {
         "title": "Empresas que han confiado en nuestro equipo",
         "note": "Bancos, entidades públicas y empresas líderes para las que nuestro equipo ha desarrollado proyectos desde 2011."
+    },
+    "demoGuide": {
+        "start": "Empieza abajo",
+        "next": "Sigue abajo"
     }
 }

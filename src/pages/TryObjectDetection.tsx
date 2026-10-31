@@ -32,10 +32,18 @@ import { loadObjectDetector, type DetectedObject, type ObjectDetector } from "@/
 import { ApiCallLog, type ApiCallEntry } from "@/components/demo/ApiCallLog";
 import { InfoTip } from "@/components/demo/InfoTip";
 import { StatusPill, type StatusTone } from "@/components/demo/DemoKit";
+import { GuideCue, GuideSteps, useGuideNavigation, type GuideTheme } from "@/components/demo/DemoGuide";
 
 // Brand accent (indigo/blue) for the object-detection demo.
 const ACCENT_GRADIENT = "from-indigo-500 to-blue-600";
 const ACCENT_TEXT = "text-indigo-600";
+const GUIDE_THEME: GuideTheme = {
+  gradient: ACCENT_GRADIENT,
+  text: ACCENT_TEXT,
+  current: "border-indigo-300 ring-indigo-100",
+  hover: "hover:border-indigo-300",
+  flash: "ring-4 ring-indigo-200",
+};
 const TIP_HOVER = "hover:text-indigo-600 focus:text-indigo-600";
 
 type ModelStatus = "loading" | "ready" | "error";
@@ -399,6 +407,12 @@ export default function TryObjectDetection() {
   const showMedia = live || showImage;
   const modelReady = modelStatus === "ready";
 
+  // Which of the three "how it works" steps the visitor is on.
+  const guideStep = !showMedia ? 1 : detections.length === 0 ? 2 : 3;
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const { flashStep, goTo } = useGuideNavigation(guideStep, (at) => (at === 3 ? panelRef.current : stageRef.current));
+
   const groups = Object.values(
     detections.reduce<Record<string, { cls: string; count: number; best: number }>>((acc, d) => {
       const g = (acc[d.class] ??= { cls: d.class, count: 0, best: 0 });
@@ -465,17 +479,7 @@ export default function TryObjectDetection() {
               </p>
               <DemoTutorial demoId="objectdetection" returnToId="object-workspace" />
             </div>
-            <ol className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              {([1, 2, 3] as const).map((n) => (
-                <li key={n} className="rounded-xl border border-gray-200/80 bg-white/70 p-4">
-                  <span className={`flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br ${ACCENT_GRADIENT} text-xs font-bold text-white`}>
-                    {n}
-                  </span>
-                  <p className="mt-3 text-sm font-semibold text-gray-900">{t(`try-object.how_step${n}_title`)}</p>
-                  <p className="mt-1 text-sm leading-snug text-gray-600">{t(`try-object.how_step${n}_desc`)}</p>
-                </li>
-              ))}
-            </ol>
+            <GuideSteps prefix="try-object" current={guideStep} theme={GUIDE_THEME} onGo={goTo} />
 
             <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
               {[
@@ -562,7 +566,8 @@ export default function TryObjectDetection() {
             {/* ── Left: stage ─────────────────────────────────────────────── */}
             <div className="min-w-0 p-4 sm:p-5 lg:col-span-3 lg:border-r lg:border-gray-100">
               <div
-                className="relative flex min-h-[340px] items-center justify-center overflow-hidden rounded-xl bg-gray-950 sm:min-h-[440px]"
+                ref={stageRef}
+                className={`relative flex min-h-[340px] items-center justify-center overflow-hidden rounded-xl bg-gray-950 sm:min-h-[440px] ${flashStep === 1 || flashStep === 2 ? GUIDE_THEME.flash : ""}`}
                 style={{
                   backgroundImage: "radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)",
                   backgroundSize: "18px 18px",
@@ -581,6 +586,9 @@ export default function TryObjectDetection() {
                   pickFile(e.dataTransfer.files?.[0]);
                 }}
               >
+                {modelReady && guideStep === 1 && (
+                  <GuideCue step={1} label={t("try-object.guide_start")} gradient={ACCENT_GRADIENT} className="left-3 !top-3" />
+                )}
                 {/* Media shrink-wraps to the frame so the canvas overlay lines up with it */}
                 <div className={`relative ${showMedia ? "" : "hidden"}`}>
                   <video

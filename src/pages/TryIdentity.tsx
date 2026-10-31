@@ -34,6 +34,8 @@ import { useDemoTracking } from "@/components/demo/business";
 import { ApiCallLog, type ApiCallEntry } from "@/components/demo/ApiCallLog";
 import { InfoTip } from "@/components/demo/InfoTip";
 import { HowItWorks, StatusPill, TechCard, type StatusTone } from "@/components/demo/DemoKit";
+import { GuideCue, GuideSteps, useGuideNavigation, type GuideTheme } from "@/components/demo/DemoGuide";
+import { RunnerTrack, linearRunner, useRunnerElapsed, type RunnerTheme } from "@/components/demo/RunnerTrack";
 
 // ── Brand accent (violet/purple) ─────────────────────────────────────────────
 const ACCENT_GRADIENT = "from-violet-500 to-purple-600";
@@ -42,6 +44,14 @@ const TIP_HOVER = "hover:text-violet-600 focus:text-violet-600";
 const BADGE_BG = "bg-violet-100";
 const BADGE_TEXT = "text-violet-700";
 const BADGE_DOT = "bg-violet-500";
+const GUIDE_THEME: GuideTheme = {
+  gradient: ACCENT_GRADIENT,
+  text: ACCENT_TEXT,
+  current: "border-violet-300 ring-violet-100",
+  hover: "hover:border-violet-300",
+  flash: "ring-4 ring-violet-200",
+};
+const RUNNER_THEME: RunnerTheme = { gradient: ACCENT_GRADIENT, surface: "from-violet-50/50", activeTick: "bg-violet-500" };
 
 const getBaseApi = () => {
   // VITE_IDENTITY_API overrides the default (e.g. point local dev at prod
@@ -115,15 +125,36 @@ type StatusKey =
 
 const STATUS_META: Record<
   StatusKey,
-  { progress: number; tone: string; bar: string; dot: string }
+  { tone: string; dot: string }
 > = {
-  pending: { progress: 20, tone: "text-amber-700 bg-amber-50 border-amber-200", bar: "bg-amber-400", dot: "bg-amber-400" },
-  started: { progress: 45, tone: "text-blue-700 bg-blue-50 border-blue-200", bar: "bg-blue-500", dot: "bg-blue-500" },
-  partially_completed: { progress: 75, tone: "text-indigo-700 bg-indigo-50 border-indigo-200", bar: "bg-indigo-500", dot: "bg-indigo-500" },
-  completed: { progress: 100, tone: "text-emerald-700 bg-emerald-50 border-emerald-200", bar: "bg-emerald-500", dot: "bg-emerald-500" },
-  completed_with_errors: { progress: 100, tone: "text-orange-700 bg-orange-50 border-orange-200", bar: "bg-orange-500", dot: "bg-orange-500" },
-  failed: { progress: 100, tone: "text-red-700 bg-red-50 border-red-200", bar: "bg-red-500", dot: "bg-red-500" },
+  pending: { tone: "text-amber-700 bg-amber-50 border-amber-200", dot: "bg-amber-400" },
+  started: { tone: "text-blue-700 bg-blue-50 border-blue-200", dot: "bg-blue-500" },
+  partially_completed: { tone: "text-indigo-700 bg-indigo-50 border-indigo-200", dot: "bg-indigo-500" },
+  completed: { tone: "text-emerald-700 bg-emerald-50 border-emerald-200", dot: "bg-emerald-500" },
+  completed_with_errors: { tone: "text-orange-700 bg-orange-50 border-orange-200", dot: "bg-orange-500" },
+  failed: { tone: "text-red-700 bg-red-50 border-red-200", dot: "bg-red-500" },
 };
+
+const RUNNER_STEPS = ["send", "detect", "compare", "result"];
+/** The step of RUNNER_STEPS each API status is on. */
+const RUNNER_INDEX: Record<StatusKey, number> = {
+  pending: 0,
+  started: 1,
+  partially_completed: 2,
+  completed: 4,
+  completed_with_errors: 4,
+  failed: 2,
+};
+const TERMINAL_STATUSES = ["completed", "completed_with_errors", "failed"];
+
+/** The API reports problems in English; the two common ones get a localized explanation. */
+function failureDetail(message: string | undefined, fallback: string, t: (key: string) => string) {
+  const known = [
+    message?.includes("identity card") && t("try-identity.error_no_face_document"),
+    message?.includes("captured/uploaded photo") && t("try-identity.error_no_face_selfie"),
+  ].filter(Boolean);
+  return known.length ? known.join(" ") : message || fallback;
+}
 
 /** Styled upload dropzone with live image preview. */
 function ImageDropzone({
@@ -223,7 +254,6 @@ export default function TryIdentity() {
   const [payloadPreview, setPayloadPreview] = useState<any>(null);
   const [queryHistory, setQueryHistory] = useState<ApiCall[]>([]);
   const [modalImage, setModalImage] = useState<string | null>(null);
-  const [callbackUrl, setCallbackUrl] = useState(() => `${window.location.origin}/webhook/${uuidv4()}`);
   const [sidePanel, setSidePanel] = useState<"results" | "log">("results");
   const [loadingSamples, setLoadingSamples] = useState(false);
 
@@ -417,17 +447,12 @@ export default function TryIdentity() {
         fileToBase64(document),
       ]);
 
-      const payload = {
-        faceImageBase64,
-        cardIdImageBase64,
-        callback: callbackUrl,
-      };
+      const payload = { faceImageBase64, cardIdImageBase64 };
 
       // Show a truncated preview in the log (base64 strings are huge).
       const preview = {
         faceImageBase64: `${faceImageBase64.slice(0, 48)}… (${faceImageBase64.length} chars)`,
         cardIdImageBase64: `${cardIdImageBase64.slice(0, 48)}… (${cardIdImageBase64.length} chars)`,
-        callback: callbackUrl,
       };
       setPayloadPreview(preview);
 
@@ -504,12 +529,10 @@ export default function TryIdentity() {
     setSidePanel("results");
     if (selfieInputRef.current) selfieInputRef.current.value = "";
     if (documentInputRef.current) documentInputRef.current.value = "";
-    setCallbackUrl(`${window.location.origin}/webhook/${uuidv4()}`);
   };
 
-  const statusMeta = status ? STATUS_META[status as StatusKey] : null;
-
-  const callActive = loading || (submitted && !["completed", "completed_with_errors", "failed"].includes(status ?? ""));
+  const finished = TERMINAL_STATUSES.includes(status ?? "");
+  const callActive = loading || (submitted && !finished);
   const callFailed = status === "failed" || queryHistory.some((c) => c.httpStatus >= 400);
   const logCalls: ApiCallEntry[] = queryHistory.map((c) => {
     const apiStatus: string | undefined = (c.response as any)?.data?.status;
@@ -528,6 +551,38 @@ export default function TryIdentity() {
   });
   const showResult =
     result && ["partially_completed", "completed", "completed_with_errors", "failed"].includes(result.status);
+  const hasVerdict = typeof result?.data?.output?.distance === "number";
+  const failed = status === "failed";
+  const problem =
+    failed || status === "completed_with_errors"
+      ? failureDetail(result?.message, t(`try-identity.status_${status}_description`), t)
+      : null;
+
+  // Which of the three "how it works" steps the visitor is on.
+  const guideStep = !selfie || !document ? 1 : !callActive && !finished ? 2 : 3;
+  const uploadRef = useRef<HTMLDivElement | null>(null);
+  const verifyRef = useRef<HTMLDivElement | null>(null);
+  const resultRef = useRef<HTMLDivElement | null>(null);
+  const { flashStep, goTo } = useGuideNavigation(guideStep, (at) =>
+    at === 1 ? uploadRef.current : at === 2 ? verifyRef.current : resultRef.current
+  );
+
+  // Robly's place on the runner track.
+  const runnerElapsed = useRunnerElapsed(callActive);
+  const runnerIndex = status ? RUNNER_INDEX[status as StatusKey] ?? 0 : 0;
+  const runner = linearRunner(RUNNER_STEPS, runnerIndex, failed);
+  const runnerMode = failed ? "error" : finished ? "done" : callActive ? "running" : "waiting";
+  const runnerLabel = failed
+    ? t("try-identity.runner_failed")
+    : finished
+      ? t("try-identity.runner_done")
+      : status
+        ? t(`try-identity.status_${status}_description`)
+        : loading
+          ? t(serviceStatus === "warming" ? "try-identity.log_call_warming" : "try-identity.log_call_sending")
+          : selfie && document
+            ? t("try-identity.runner_waiting_verify")
+            : t("try-identity.runner_waiting_photos");
 
   const pillStatus: { tone: StatusTone; label: string; spinning?: boolean } =
     loading ? { tone: "busy", label: t("try-identity.verify_processing"), spinning: true }
@@ -564,17 +619,7 @@ export default function TryIdentity() {
             <p className="mt-8 text-xs font-semibold uppercase tracking-wider text-gray-500">
               {t("try-identity.how_title")}
             </p>
-            <ol className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              {([1, 2, 3] as const).map((n) => (
-                <li key={n} className="rounded-xl border border-gray-200/80 bg-white/70 p-4">
-                  <span className={`flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br ${ACCENT_GRADIENT} text-xs font-bold text-white`}>
-                    {n}
-                  </span>
-                  <p className="mt-3 text-sm font-semibold text-gray-900">{t(`try-identity.how_step${n}_title`)}</p>
-                  <p className="mt-1 text-sm leading-snug text-gray-600">{t(`try-identity.how_step${n}_desc`)}</p>
-                </li>
-              ))}
-            </ol>
+            <GuideSteps prefix="try-identity" current={guideStep} theme={GUIDE_THEME} onGo={goTo} />
 
             <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
               {[
@@ -640,6 +685,8 @@ export default function TryIdentity() {
               </div>
 
               <div className="flex flex-1 flex-col justify-between gap-6 p-5">
+                <div ref={uploadRef} className={`relative scroll-mt-24 rounded-xl ${flashStep === 1 ? GUIDE_THEME.flash : ""}`}>
+                {guideStep === 1 && <GuideCue step={1} label={t("try-identity.guide_upload")} gradient={ACCENT_GRADIENT} />}
                 <button
                   type="button"
                   onClick={handleUseSamples}
@@ -660,6 +707,7 @@ export default function TryIdentity() {
                     <Wand2 className="h-4 w-4 shrink-0 text-violet-500" />
                   )}
                 </button>
+                </div>
 
                 <div className="space-y-4">
                   <ImageDropzone
@@ -684,18 +732,8 @@ export default function TryIdentity() {
                   />
                 </div>
 
-                {/* Callback URL */}
-                <div>
-                  <h4 className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    {t("try-identity.webhook")}
-                    <InfoTip text={t("try-identity.tip_webhook")} hoverColor={TIP_HOVER} />
-                  </h4>
-                  <div className="break-all rounded-lg border border-gray-200 bg-gray-50 p-2.5 font-mono text-xs text-gray-500">
-                    {callbackUrl}
-                  </div>
-                  <p className="mt-1.5 text-xs text-gray-600">{t("try-identity.webhook_hint")}</p>
-                </div>
-
+                <div ref={verifyRef} className={`relative rounded-xl ${flashStep === 2 ? GUIDE_THEME.flash : ""}`}>
+                {guideStep === 2 && <GuideCue step={2} label={t("try-identity.guide_verify")} gradient={ACCENT_GRADIENT} />}
                 <Button
                   onClick={handleSubmit}
                   disabled={loading || submitted || !selfie || !document || serviceStatus === "checking"}
@@ -717,6 +755,7 @@ export default function TryIdentity() {
                     t("try-identity.verify")
                   )}
                 </Button>
+                </div>
               </div>
 
               {/* Control bar: fixed height so this space (bottom breathing room for
@@ -769,38 +808,41 @@ export default function TryIdentity() {
               </div>
 
               <div
+                ref={resultRef}
                 className={`scrollbar-thin max-h-[640px] overflow-x-hidden overflow-y-auto py-5 pl-5 pr-3.5 lg:max-h-none lg:min-h-0 lg:flex-1 ${
                   sidePanel === "log" ? "flex flex-col" : ""
                 }`}
               >
                 {sidePanel === "results" ? (
                   <>
-                    {/* Verification progress: lives at the top of the result panel now,
-                        since it's the outcome of the request, not part of the upload form. */}
-                    {status && statusMeta && (
-                      <div className="mb-5">
-                        <div className="mb-2 flex items-center justify-between">
-                          <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold ${statusMeta.tone}`}>
-                            <span className={`h-1.5 w-1.5 rounded-full ${statusMeta.dot} ${status !== "completed" && status !== "failed" && status !== "completed_with_errors" ? "animate-pulse" : ""}`} />
-                            {t(`try-identity.status_${status}`)}
-                          </span>
-                          <span className="text-xs font-medium text-gray-400">{statusMeta.progress}%</span>
-                        </div>
-                        <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
-                          <motion.div
-                            className={`h-full rounded-full ${statusMeta.bar}`}
-                            initial={{ width: 0 }}
-                            animate={{ width: `${statusMeta.progress}%` }}
-                            transition={{ duration: 0.5, ease: "easeOut" }}
-                          />
-                        </div>
-                        <p className="mt-2 text-xs text-gray-500">{t(`try-identity.status_${status}_description`)}</p>
+                    <RunnerTrack
+                      mode={runnerMode}
+                      position={runner.position}
+                      steps={RUNNER_STEPS.map((id, i) => ({
+                        id,
+                        name: t(`try-identity.runner_step_${id}`),
+                        status: runner.statuses[i],
+                      }))}
+                      label={runnerLabel}
+                      elapsed={runnerElapsed}
+                      theme={RUNNER_THEME}
+                      className="mb-5"
+                    />
+                    {problem && (
+                      <div
+                        role="alert"
+                        className={`mb-5 rounded-xl border px-4 py-3 text-sm ${
+                          failed ? "border-red-200 bg-red-50 text-red-800" : "border-orange-200 bg-orange-50 text-orange-800"
+                        }`}
+                      >
+                        <p className="font-semibold">{t(`try-identity.problem_title_${failed ? "failed" : "partial"}`)}</p>
+                        <p className="break-anywhere mt-1 text-xs leading-relaxed">{problem}</p>
                       </div>
                     )}
                     {showResult ? (
                     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
                       {/* Headline cards */}
-                      {result.data?.output && (
+                      {hasVerdict && (
                         <div className="grid grid-cols-2 gap-3">
                           <div
                             className={`rounded-xl border p-4 ${
@@ -847,8 +889,8 @@ export default function TryIdentity() {
                         </div>
                         <div className="flex items-center justify-between border-b border-gray-100 pb-2">
                           <dt className="text-gray-500">{t("try-identity.results_completed_ok")}</dt>
-                          <dd className={`font-medium ${result.success ? "text-emerald-600" : "text-red-600"}`}>
-                            {t(`try-identity.results_completed_ok_${result.success ? "yes" : "no"}`)}
+                          <dd className={`font-medium ${result.status === "completed" ? "text-emerald-600" : "text-red-600"}`}>
+                            {t(`try-identity.results_completed_ok_${result.status === "completed" ? "yes" : "no"}`)}
                           </dd>
                         </div>
                         <div className="flex items-center justify-between border-b border-gray-100 pb-2">
@@ -872,7 +914,7 @@ export default function TryIdentity() {
                           <div className="grid grid-cols-2 gap-3">
                             {["FaceImageCV2", "CardImageCV2", "FaceLandMarksImage", "CardLandMarksImage"].map((key, idx) => {
                               const imageUrl = result.data.output[key];
-                              const isPending = !imageUrl || imageUrl === "pending";
+                              const isPending = !imageUrl?.startsWith?.("data:");
                               return (
                                 <div
                                   key={idx}
@@ -881,7 +923,7 @@ export default function TryIdentity() {
                                 >
                                   <div className="relative h-28 w-full bg-gray-100">
                                     {isPending ? (
-                                      <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/70 to-transparent" />
+                                      !finished && <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/70 to-transparent" />
                                     ) : (
                                       <img src={imageUrl} alt={key} className="h-full w-full object-cover" />
                                     )}

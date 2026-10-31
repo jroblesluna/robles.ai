@@ -32,11 +32,19 @@ import * as faceapi from "@vladmandic/face-api";
 import { ApiCallLog, type ApiCallEntry } from "@/components/demo/ApiCallLog";
 import { InfoTip } from "@/components/demo/InfoTip";
 import { StatusPill, type StatusTone } from "@/components/demo/DemoKit";
+import { GuideCue, GuideSteps, useGuideNavigation, type GuideTheme } from "@/components/demo/DemoGuide";
 import { DemoTutorial } from "@/components/demo/DemoTutorial";
 
 // Brand accent (rose/pink) for the emotion demo.
 const ACCENT_GRADIENT = "from-rose-500 to-pink-600";
 const ACCENT_TEXT = "text-rose-600";
+const GUIDE_THEME: GuideTheme = {
+  gradient: ACCENT_GRADIENT,
+  text: ACCENT_TEXT,
+  current: "border-rose-300 ring-rose-100",
+  hover: "hover:border-rose-300",
+  flash: "ring-4 ring-rose-200",
+};
 const TIP_HOVER = "hover:text-rose-600 focus:text-rose-600";
 
 // face-api model weights served from the package's CDN (no backend needed).
@@ -394,6 +402,12 @@ export default function TryEmotion() {
   const showImage = mode === "image" && hasImage;
   const showMedia = live || showImage;
   const modelReady = modelStatus === "ready";
+
+  // Which of the three "how it works" steps the visitor is on.
+  const guideStep = !showMedia ? 1 : faces.length === 0 ? 2 : 3;
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const { flashStep, goTo } = useGuideNavigation(guideStep, (at) => (at === 3 ? panelRef.current : stageRef.current));
   const faceIndex = Math.min(selected, Math.max(0, faces.length - 1));
   const face = faces[faceIndex];
   const dominant = face ? emotionMeta(face.top) : null;
@@ -454,17 +468,7 @@ export default function TryEmotion() {
               </p>
               <DemoTutorial demoId="emotion" returnToId="emotion-workspace" />
             </div>
-            <ol className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              {([1, 2, 3] as const).map((n) => (
-                <li key={n} className="rounded-xl border border-gray-200/80 bg-white/70 p-4">
-                  <span className={`flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br ${ACCENT_GRADIENT} text-xs font-bold text-white`}>
-                    {n}
-                  </span>
-                  <p className="mt-3 text-sm font-semibold text-gray-900">{t(`try-emotion.how_step${n}_title`)}</p>
-                  <p className="mt-1 text-sm leading-snug text-gray-600">{t(`try-emotion.how_step${n}_desc`)}</p>
-                </li>
-              ))}
-            </ol>
+            <GuideSteps prefix="try-emotion" current={guideStep} theme={GUIDE_THEME} onGo={goTo} />
 
             <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
               {[
@@ -551,7 +555,8 @@ export default function TryEmotion() {
             {/* ── Left: stage ─────────────────────────────────────────────── */}
             <div className="min-w-0 p-4 sm:p-5 lg:col-span-3 lg:border-r lg:border-gray-100">
               <div
-                className="relative flex min-h-[340px] items-center justify-center overflow-hidden rounded-xl bg-gray-950 sm:min-h-[440px]"
+                ref={stageRef}
+                className={`relative flex min-h-[340px] items-center justify-center overflow-hidden rounded-xl bg-gray-950 sm:min-h-[440px] ${flashStep === 1 || flashStep === 2 ? GUIDE_THEME.flash : ""}`}
                 style={{
                   backgroundImage: "radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)",
                   backgroundSize: "18px 18px",
@@ -570,6 +575,9 @@ export default function TryEmotion() {
                   pickFile(e.dataTransfer.files?.[0]);
                 }}
               >
+                {modelReady && guideStep === 1 && (
+                  <GuideCue step={1} label={t("try-emotion.guide_start")} gradient={ACCENT_GRADIENT} className="left-3 !top-3" />
+                )}
                 {/* Media shrink-wraps to the frame so the canvas overlay lines up with it */}
                 <div className={`relative ${showMedia ? "" : "hidden"}`}>
                   <video

@@ -3,6 +3,7 @@ import fs from 'fs';
 import db from './db.js';
 import { PUBLIC_CONTACT } from '../shared/publicContent.js';
 import { validClarityProjectId } from '../shared/clarity.js';
+import { getAiModel } from './services/aiModels.js';
 
 const publicRouter = Router();
 
@@ -95,6 +96,20 @@ publicRouter.get('/site-config', (_req, res) => {
   const row = db.prepare("SELECT value FROM settings WHERE key = 'booking_url'").get() as { value: string | null } | undefined;
   res.setHeader('Cache-Control', 'no-store');
   res.json({ bookingUrl: safeHttpUrl(row?.value) ?? PUBLIC_CONTACT.bookingUrl });
+});
+
+/**
+ * GET /api/public/ai-models
+ * Model names for the demo APIs, which cache them and keep their own defaults when
+ * this is unreachable. No secrets: the demos already show which model answered.
+ */
+publicRouter.get('/ai-models', (_req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=60');
+  res.json({
+    text: getAiModel('ai_model_demo_text'),
+    vision: getAiModel('ai_model_demo_vision'),
+    tts: getAiModel('ai_model_demo_tts'),
+  });
 });
 
 /** Returns the value only when it is an absolute http(s) URL. */

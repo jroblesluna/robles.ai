@@ -1,14 +1,12 @@
 import OpenAI from 'openai';
 import db from '../db.js';
+import { getAiModel } from './aiModels.js';
 
 /**
  * Multi-provider image generation service.
  * Supports: DALL-E 3, Stability AI, Replicate FLUX.
  * Provider is selected via the `image_provider` setting in the DB.
  */
-
-/** OpenAI image model used by the Dominical (report image, carousel, video background). */
-export const OPENAI_IMAGE_MODEL = 'gpt-image-2.5-flare';
 
 /**
  * Generates an image prompt from news themes for a LinkedIn cover image.
@@ -18,7 +16,7 @@ export function generateImagePrompt(newsThemes: string): string {
 }
 
 /**
- * Generates an image using OpenAI (OPENAI_IMAGE_MODEL).
+ * Generates an image using the OpenAI model set in Admin → AI Models.
  * Returns the generated image URL or saves to disk and returns path.
  */
 export async function generateImageWithDallE(
@@ -28,7 +26,7 @@ export async function generateImageWithDallE(
   const openai = new OpenAI({ apiKey });
 
   const response = await openai.images.generate({
-    model: OPENAI_IMAGE_MODEL,
+    model: getAiModel('ai_model_site_image'),
     prompt,
     n: 1,
     size: '1536x1024',

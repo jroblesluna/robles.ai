@@ -32,6 +32,8 @@ import { useDemoTracking } from "@/components/demo/business";
 import { ApiCallLog, type ApiCallEntry } from "@/components/demo/ApiCallLog";
 import { DemoTutorial } from "@/components/demo/DemoTutorial";
 import { HowItWorks, StatusPill, TechCard } from "@/components/demo/DemoKit";
+import { GuideCue } from "@/components/demo/DemoGuide";
+import { RunnerTrack, linearRunner, useRunnerElapsed, type RunnerTheme } from "@/components/demo/RunnerTrack";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 // El backend vive en su propio Cloud Run (repo robles.ai-chatbot-api). VITE_CHATBOT_API
@@ -49,6 +51,7 @@ const BASE_API = getBaseApi();
 
 const ACCENT_GRADIENT = "from-violet-500 to-indigo-600";
 const ACCENT_TEXT = "text-violet-600";
+const RUNNER_THEME: RunnerTheme = { gradient: ACCENT_GRADIENT, surface: "from-violet-50/50", activeTick: "bg-violet-500" };
 
 /** Tope de páginas del crawler (lo impone el backend; aquí solo escala la barra de progreso). */
 const MAX_PAGES = 20;
@@ -571,9 +574,12 @@ export default function TryChatbot() {
   const suggestions = [1, 2, 3].map((n) => t(`try-chatbot.suggest_${n}`));
   const domain = hostOf(trainedUrl);
 
-  // Progreso de construcción: el crawl llena hasta 70 % según páginas leídas; indexar, 90 %.
-  const buildProgress =
-    buildStep === "done" ? 100 : buildStep === "indexing" ? 90 : Math.max(6, Math.min(crawledPages.length / MAX_PAGES, 1) * 70);
+  // Robly avanza con las páginas leídas hasta el paso de indexar, y de ahí a la meta.
+  const buildIndex = buildStep === "crawling" ? 0 : buildStep === "indexing" ? 1 : 3;
+  const buildRunner = linearRunner(["read", "train", "ready"], buildIndex);
+  const buildPosition =
+    buildStep === "crawling" ? Math.min(crawledPages.length / MAX_PAGES, 1) / 2 : buildRunner.position;
+  const buildElapsed = useRunnerElapsed(buildStep !== "done" && phase === "building");
   const buildSteps = [
     { key: "read", icon: Globe, label: t("try-chatbot.building_step_read"), state: buildStep === "crawling" ? "active" : "done" },
     {
@@ -636,12 +642,13 @@ export default function TryChatbot() {
                       {t("try-chatbot.url_label")}
                     </label>
                     <div
-                      className={`flex flex-col gap-2 rounded-2xl border bg-white p-2 shadow-lg shadow-violet-900/5 focus-within:ring-4 sm:flex-row sm:items-center ${
+                      className={`relative flex flex-col gap-2 rounded-2xl border bg-white p-2 shadow-lg shadow-violet-900/5 focus-within:ring-4 sm:flex-row sm:items-center ${
                         urlError
                           ? "border-red-300 focus-within:ring-red-100"
                           : "border-gray-200 focus-within:border-violet-400 focus-within:ring-violet-100"
                       }`}
                     >
+                      {!url && <GuideCue step={1} label={t("try-chatbot.guide_url")} gradient={ACCENT_GRADIENT} />}
                       <div className="flex min-w-0 flex-1 items-center">
                         <Globe className="ml-2 h-5 w-5 shrink-0 text-gray-400" />
                         <input
@@ -817,15 +824,20 @@ export default function TryChatbot() {
                       )}
                     </div>
 
-                    {/* Barra de progreso */}
-                    <div className="mt-7 h-2 overflow-hidden rounded-full bg-violet-50">
-                      <motion.div
-                        className={`h-full rounded-full bg-gradient-to-r ${ACCENT_GRADIENT}`}
-                        initial={false}
-                        animate={{ width: `${buildProgress}%` }}
-                        transition={{ duration: 0.5, ease: "easeOut" }}
-                      />
-                    </div>
+                    {/* Progreso con Robly */}
+                    <RunnerTrack
+                      mode={buildStep === "done" ? "done" : "running"}
+                      position={buildPosition}
+                      steps={buildSteps.map(({ key, label }, i) => ({ id: key, name: label, status: buildRunner.statuses[i] }))}
+                      label={
+                        buildStep === "done"
+                          ? t("try-chatbot.building_done_title")
+                          : t(`try-chatbot.building_${buildStep}`)
+                      }
+                      elapsed={buildElapsed}
+                      theme={RUNNER_THEME}
+                      className="mt-7"
+                    />
 
                     {/* Pasos */}
                     <ol className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -1040,7 +1052,10 @@ export default function TryChatbot() {
                           ))}
                         </div>
                       )}
-                      <div className="flex items-end gap-2">
+                      <div className="relative flex items-end gap-2">
+                        {thread.length === 0 && !input && (
+                          <GuideCue step={2} label={t("try-chatbot.guide_ask")} gradient={ACCENT_GRADIENT} className="left-3 !-top-4" />
+                        )}
                         <textarea
                           value={input}
                           onChange={(e) => setInput(e.target.value)}

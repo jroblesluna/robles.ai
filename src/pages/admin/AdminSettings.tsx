@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { Linkedin, Save, CheckCircle2, Loader2, XCircle, Camera, ShieldCheck } from "lucide-react";
+import { AI_MODELS } from "@shared/aiModels";
 
 // 30-minute publish slots: "00:00", "00:30", ..., "23:30"
 const TIME_SLOTS: string[] = Array.from({ length: 48 }, (_, i) => {
@@ -59,6 +60,7 @@ const sectionValidators: Record<string, string> = {
   "Google Ads API": "/api/admin/settings/google-ads/validate",
   "Meta Ads": "/api/admin/settings/meta-ads/validate",
   "OpenAI API Key": "/api/admin/settings/openai/validate",
+  "AI Models": "/api/admin/settings/ai-models/validate",
   "Image Generation": "/api/admin/settings/image-provider/validate",
 };
 
@@ -874,7 +876,7 @@ export default function AdminSettings() {
         <CardHeader>
           <CardTitle>OpenAI API Key</CardTitle>
           <CardDescription>
-            Used for news scoring and post generation with GPT-4o.
+            Used for Robly, the quiz, news scoring and post generation.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -889,6 +891,36 @@ export default function AdminSettings() {
             />
           </div>
           {sectionSaveButton("OpenAI API Key", ["openai_api_key"])}
+        </CardContent>
+      </Card>
+
+      {/* AI Models */}
+      <Card>
+        <CardHeader>
+          <CardTitle>AI Models</CardTitle>
+          <CardDescription>
+            OpenAI model for each use. Change one here when OpenAI retires it; no deploy needed. Empty uses the default.
+            Save, then run the check.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            {AI_MODELS.map((model) => (
+              <div key={model.key} className="space-y-2">
+                <Label htmlFor={model.key}>{model.group}: {model.label}</Label>
+                <Input
+                  id={model.key}
+                  value={settings[model.key] || ""}
+                  placeholder={model.fallback}
+                  autoComplete="off"
+                  spellCheck={false}
+                  onChange={(event) => updateSetting(model.key, event.target.value.trim())}
+                />
+                <p className="text-xs text-muted-foreground">{model.hint}</p>
+              </div>
+            ))}
+          </div>
+          {sectionSaveButton("AI Models", AI_MODELS.map((model) => model.key))}
         </CardContent>
       </Card>
 

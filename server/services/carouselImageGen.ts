@@ -3,11 +3,11 @@ import sharp from 'sharp';
 import fs from 'fs';
 import path from 'path';
 import type { PaletteConfig, ImageStyleConfig } from './carouselTypes.js';
-import { OPENAI_IMAGE_MODEL } from './imageGeneration.js';
+import { getAiModel } from './aiModels.js';
 
 /**
  * Carousel-specific image generation service.
- * Generates AI backgrounds for article slides, cover, and CTA using OPENAI_IMAGE_MODEL.
+ * Generates AI backgrounds for article slides, cover, and CTA using the configured image model.
  */
 
 const CAROUSEL_SIZE = 1080;
@@ -57,7 +57,7 @@ export function buildArticleImagePrompt(articleTitle: string, categories: string
 
 /**
  * Generates an AI background image for an article slide.
- * Calls OPENAI_IMAGE_MODEL and saves the result as a 1080x1080 PNG.
+ * Calls the configured image model and saves the result as a 1080x1080 PNG.
  * Returns the exact prompt string that was used.
  * If `promptOverride` is provided, it is used verbatim instead of building one.
  */
@@ -191,13 +191,13 @@ export async function generateCTABackground(
 }
 
 /**
- * Calls OPENAI_IMAGE_MODEL and returns the raw image buffer.
+ * Calls the configured image model and returns the raw image buffer.
  */
 async function callGptImage(prompt: string, apiKey: string): Promise<Buffer> {
   const openai = new OpenAI({ apiKey });
 
   const response = await openai.images.generate({
-    model: OPENAI_IMAGE_MODEL,
+    model: getAiModel('ai_model_site_image'),
     prompt,
     n: 1,
     size: API_SIZE,
@@ -217,7 +217,7 @@ async function callGptImage(prompt: string, apiKey: string): Promise<Buffer> {
     const arrayBuffer = await fetchResponse.arrayBuffer();
     return Buffer.from(arrayBuffer);
   } else {
-    throw new Error(`${OPENAI_IMAGE_MODEL} returned no image data`);
+    throw new Error(`OpenAI returned no image data`);
   }
 }
 

@@ -6,6 +6,7 @@ import OpenAI from 'openai';
 import db from '../db.js';
 import { getRecentPosts, scorePostsWithGPT, type PostSummary, type ScoredPost } from '../services/dominicalScoring.js';
 import { getEmailSettings } from '../services/emailSettings.js';
+import { getAiModel } from '../services/aiModels.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -101,7 +102,7 @@ Reglas:
 Devuelve SOLO el texto del post, sin markdown ni explicaciones adicionales.`;
 
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: getAiModel('ai_model_site_content'),
     temperature: 0.85,
     messages: [
       { role: 'system', content: systemPrompt },
@@ -182,7 +183,7 @@ REGLAS:
 Devuelve SOLO el caption, sin explicaciones ni markdown.`;
 
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: getAiModel('ai_model_site_content'),
     temperature: 0.85,
     messages: [
       { role: 'system', content: systemPrompt },

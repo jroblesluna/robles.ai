@@ -242,6 +242,7 @@ The **Email delivery** card configures the Gmail sender, app password and defaul
 | Area | Keys |
 |------|------|
 | OpenAI / images | `openai_api_key`, `image_provider` (default `dalle3`), `replicate_api_token`, `stability_api_key` |
+| AI models | `ai_model_site_{chat,content,image,tts}`, `ai_model_demo_{text,vision,tts}` (catalog and defaults in `shared/aiModels.ts`); the demo APIs read them from `GET /api/public/ai-models`, cached 5 minutes |
 | Dominical IA | `dominical_top_n`, `notification_email`, `auto_publish` (on unless `false`/`0`), `auto_publish_time` (default `18:00`), `auto_publish_timezone` (default `America/Lima`) |
 | Admin auth | `jwt_secret` (generated when `ADMIN_JWT_SECRET` is unset) |
 | LinkedIn | `linkedin_client_id`, `linkedin_client_secret`, `linkedin_access_token`, `linkedin_refresh_token`, `linkedin_token_expires_at`, `linkedin_person_id`, `linkedin_oauth_state` (transient) |
@@ -353,6 +354,7 @@ Public:
 | GET | `/api/test` | Health check |
 | GET | `/api/public/analytics-config` | GTM / GA4 / Meta Pixel IDs for the site |
 | GET | `/api/public/site-config` | Public site settings (`bookingUrl`) |
+| GET | `/api/public/ai-models` | OpenAI model names for the demo APIs |
 | GET | `/api/public/slides/:reportId/:position(.png)` | Carousel slide image (for Meta) |
 | POST | `/api/chat/session` · GET `/api/chat/history` · POST `/api/chat/message` (SSE) · POST `/api/chat/close` | Robly chat (`chat_session` cookie) |
 | GET | `/sitemap.xml`, `/sitemaps/:filename` | Sitemap index and monthly blog sitemaps (`/static-pages.xml` for static pages) |
@@ -460,7 +462,7 @@ Catalog data: `demosCatalog.items` in both translation files (`id`, `href`, `sta
 | `sitechatbot` | `/try-chatbot` | `chatbot-api.robles.ai` (repo `robles.ai-chatbot-api`): crawl → Pinecone (24 h namespace) → gpt-4o-mini | live |
 | `identity` | `/try-identity` | `identity-api.robles.ai` (repo `robles.ai-identity-api`, service `identity-server`) | live |
 | `rag` | `/try-rag` | `rag-api.robles.ai` (repo `robles.ai-rag-api`) | live |
-| `speech` | `/try-transcription` | `transcription-api.robles.ai` (repo `robles.ai-transcription-api`): WebSocket → Deepgram Nova-3, `/analyze` → OpenAI | live |
+| `speech` | `/try-transcription` | `transcription-api.robles.ai` (repo `robles.ai-transcription-api`): WebSocket → Speechmatics, `/transcribe-file`, `/refine` and `/analyze` → OpenAI | live |
 | `langchain` | `/try-langchain` | `langchain-api.robles.ai` (repo `robles.ai-langchain-api`) | live |
 | `docextract` | `/try-docextract` | `docextract-api.robles.ai` (repo `robles.ai-docextract-api`) | live |
 | `tts` | `/try-tts` | `tts-api.robles.ai` (repo `robles.ai-tts-api`): gpt-4o-mini-tts + ffmpeg | live |
@@ -469,9 +471,12 @@ Catalog data: `demosCatalog.items` in both translation files (`id`, `href`, `sta
 | `emotion` | `/try-emotion` | Browser (`@vladmandic/face-api`) | live |
 | `voiceagent`, `anomaly`, `imagegen` | — | — | soon |
 
+- **Catalog cards** work like YouTube Shorts: the whole card is one link with no playback controls; hovering (desktop) or holding (touch, ≥ 220 ms) loops the clip, and a click or quick tap opens the demo.
+- **Guided steps and progress**: `DemoGuide.tsx` (`GuideSteps`, `GuideCue`, `useGuideNavigation`) walks visitors through each demo; `RunnerTrack.tsx` is the shared Robly progress track for multi-step processes.
 - **Cold starts**: Cloud Run APIs scale to zero; each page warms its API on mount and shows a status banner.
 - **Document AI samples**: `/try-docextract` offers three one-click fictional samples (invoice, receipt, contract; en/es) in `public/demo-samples/docextract-*`, rendered by `node scripts/renderDocExtractSamples.mjs`.
-- **Transcription audio**: the API forwards raw PCM `linear16` 16 kHz mono to Deepgram, so `TryTranscription` captures PCM with an `AudioWorklet` (ScriptProcessor fallback).
+- **Transcription providers**: Speechmatics for live audio and file uploads (`POST /transcribe-file`, up to 25 MB, the provider job is deleted afterwards); Auto (`multi`, the demo default) detects the language from the first 5 s and continues on Speechmatics; Deepgram remains only as `STT_PROVIDER=deepgram`. Stopping has two phases: the mic turns off, then the API waits for the last final before closing. `POST /refine` corrects misheard words in finished turns using the conversation as context.
+- **Transcription audio**: the API forwards raw PCM `linear16` 16 kHz mono to the provider, so `TryTranscription` captures PCM with an `AudioWorklet` (ScriptProcessor fallback).
 - **Demo API conventions** (sibling repos): one GCP project per API, scale to zero with request-based billing, Artifact Registry `<service>-api-repo` pruned to 3 versions, secrets in Secret Manager rotated with `rotate_secret.sh`, push to `main` deploys via GitHub Actions.
 - Preview videos and visuals: [`docs/DEMO_VIDEO_RELEASE.md`](docs/DEMO_VIDEO_RELEASE.md), [`docs/DEMO_VISUALS.md`](docs/DEMO_VISUALS.md), [`docs/FIREFLY_CLIPS.md`](docs/FIREFLY_CLIPS.md).
 - **Tutorial videos** (`DemoTutorial.tsx`): a secondary *Watch how it works (45 s)* button next to the "how it works" heading opens a modal `<video>` (never autoplays on the page) and scrolls to the demo on close. Files live in `public/videos/tutorials/<route>-tutorial-<lang>.mp4` (H.264, `+faststart`) plus a `-poster-<lang>.jpg`, registered per demo and language in `TUTORIALS`; a language without a video hides the button. Tracked as `tutorial_play` / `tutorial_complete`. `variant="featured"` renders it as a large poster card with a play button (used on `/try-chatbot` right after the hero and on `/try-transcription`, `/try-object-detection`, `/try-emotion` and `/try-langchain` before the workspace, in addition to the button). Currently: `/try-object-detection` in English and Spanish, `/try-emotion` in Spanish (56 s) and English (59 s), `/try-chatbot` in Spanish (59 s) and English (58 s), `/try-transcription` in Spanish (60 s) and English (57 s), and `/try-langchain` in Spanish (59 s) and English (58 s). Briefs in `docs/demo-tutorials/`.

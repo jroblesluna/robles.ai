@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import db from '../db.js';
+import { getAiModel } from './aiModels.js';
 
 // ============================================================
 // Generates the short personalized paragraph shown at the top
@@ -136,7 +137,7 @@ export async function generateQuizResultMessage(
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const response = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: getAiModel('ai_model_site_chat'),
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },

@@ -43,6 +43,8 @@ import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
 import { useDemoTracking } from "@/components/demo/business";
 import { ApiCallLog, type ApiCallEntry } from "@/components/demo/ApiCallLog";
 import { HowItWorks, TechCard } from "@/components/demo/DemoKit";
+import { GuideCue, GuideSteps, useGuideNavigation, type GuideTheme } from "@/components/demo/DemoGuide";
+import { RunnerTrack, linearRunner, type RunnerTheme } from "@/components/demo/RunnerTrack";
 import { JsonHighlight } from "@/components/demo/JsonHighlight";
 
 // El backend vive en su propio Cloud Run (repo robles.ai-docextract-api).
@@ -60,6 +62,14 @@ const BASE_API = getBaseApi();
 
 const ACCENT_GRADIENT = "from-slate-600 to-gray-800";
 const ACCENT_TEXT = "text-slate-600";
+const GUIDE_THEME: GuideTheme = {
+  gradient: ACCENT_GRADIENT,
+  text: ACCENT_TEXT,
+  current: "border-slate-300 ring-slate-100",
+  hover: "hover:border-slate-300",
+  flash: "ring-4 ring-slate-200",
+};
+const RUNNER_THEME: RunnerTheme = { gradient: ACCENT_GRADIENT, surface: "from-slate-50/50", activeTick: "bg-slate-500" };
 
 const MAX_FILE_BYTES = 8 * 1024 * 1024; // paridad con el backend
 const SUPPORTED_MIME = ["image/png", "image/jpeg", "image/webp", "image/gif", "application/pdf"];
@@ -534,6 +544,10 @@ export default function TryDocExtract() {
   ];
   const stageIndex = stageList.findIndex((s) => s.id === stage);
 
+  const uploadRef = useRef<HTMLLabelElement>(null);
+  const { flashStep, goTo } = useGuideNavigation(1, () => uploadRef.current);
+  const extractRunner = linearRunner(stageList.map((s) => s.id), stageIndex);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50/60 via-white to-white py-12">
       <div className="container mx-auto min-w-0 max-w-[max(64rem,64vw)] px-4 sm:px-6">
@@ -562,7 +576,11 @@ export default function TryDocExtract() {
                 </p>
               </header>
 
-              <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-5">
+              <div className="mx-auto mt-8 max-w-3xl">
+                <GuideSteps prefix="try-docextract" current={1} theme={GUIDE_THEME} onGo={goTo} />
+              </div>
+
+              <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-5">
                 {/* Subir un documento propio */}
                 <section className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm lg:col-span-3">
                   <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-900">
@@ -570,6 +588,7 @@ export default function TryDocExtract() {
                     {t("try-docextract.upload_title")}
                   </h2>
                   <label
+                    ref={uploadRef}
                     onDragOver={(e) => {
                       e.preventDefault();
                       setDragOver(true);
@@ -580,10 +599,11 @@ export default function TryDocExtract() {
                       setDragOver(false);
                       handleFile(e.dataTransfer.files?.[0]);
                     }}
-                    className={`group flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-10 text-center transition-colors focus-within:ring-2 focus-within:ring-slate-400 ${
+                    className={`group relative flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-10 text-center transition-colors focus-within:ring-2 focus-within:ring-slate-400 ${
                       dragOver ? "border-slate-500 bg-slate-50" : "border-gray-300 bg-gray-50/50 hover:border-slate-400 hover:bg-slate-50/60"
-                    }`}
+                    } ${flashStep ? GUIDE_THEME.flash : ""}`}
                   >
+                    <GuideCue step={1} label={t("try-docextract.guide_upload")} gradient={ACCENT_GRADIENT} />
                     <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 transition-transform group-hover:-translate-y-0.5">
                       <UploadCloud className={`h-7 w-7 ${ACCENT_TEXT}`} />
                     </span>
@@ -728,6 +748,14 @@ export default function TryDocExtract() {
                   {t("try-docextract.extracting_title")}
                 </h2>
                 <p className="mt-2 text-gray-600">{t("try-docextract.extracting_subtitle")}</p>
+                <RunnerTrack
+                  mode="running"
+                  position={extractRunner.position}
+                  steps={stageList.map((s, i) => ({ id: s.id, name: s.label, status: extractRunner.statuses[i] }))}
+                  label={stageList[stageIndex]?.label ?? ""}
+                  theme={RUNNER_THEME}
+                  className="mt-6 text-left"
+                />
                 <ol className="mt-6 space-y-3">
                   {stageList.map((s, i) => {
                     // "Despertar" se marca como hecho si el servicio ya estaba caliente.

@@ -14,6 +14,7 @@ import {
 import { generateResponse } from './services/chatEngine.js';
 import { sendConversationEmail } from './services/chatNotifier.js';
 import type { ChatMessageRequest, ChatHistoryResponse, ChatMessage, ContactData } from '../shared/chatTypes.js';
+import { getAiModel } from './services/aiModels.js';
 
 // ============================================================
 // Chat Routes — Public API endpoints for the chatbot widget.
@@ -280,7 +281,7 @@ router.post('/message', (req: Request, res: Response) => {
           ];
 
           const followupStream = await openai.chat.completions.create({
-            model: 'gpt-4o-mini',
+            model: getAiModel('ai_model_site_chat'),
             messages: [
               { role: 'system', content: 'You are a friendly AI assistant. The visitor just shared their contact information. Acknowledge it warmly and naturally in 1-2 sentences. Continue the conversation. Do NOT ask for the same information again.' },
               ...followupMessages,

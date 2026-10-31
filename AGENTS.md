@@ -307,7 +307,7 @@ Catálogo en `demosCatalog.items` (en/es: `id`, `href`, `status`, `icon`, `title
 | `sitechatbot` | `/try-chatbot` | `chatbot-api.robles.ai` (repo `robles.ai-chatbot-api`): crawl acotado → Pinecone (namespace 24 h) → gpt-4o-mini | live |
 | `identity` | `/try-identity` | `identity-api.robles.ai` (repo `robles.ai-identity-api`, servicio `identity-server`) | live |
 | `rag` | `/try-rag` | `rag-api.robles.ai` (repo `robles.ai-rag-api`); el texto del PDF se extrae en el navegador | live |
-| `speech` | `/try-transcription` | `transcription-api.robles.ai` (repo `robles.ai-transcription-api`): WS → Deepgram Nova-3, `/analyze` → OpenAI | live |
+| `speech` | `/try-transcription` | `transcription-api.robles.ai` (repo `robles.ai-transcription-api`): WS → Speechmatics, `/transcribe-file`, `/refine` y `/analyze` → OpenAI | live |
 | `langchain` | `/try-langchain` | `langchain-api.robles.ai` (repo `robles.ai-langchain-api`) | live |
 | `docextract` | `/try-docextract` | `docextract-api.robles.ai` (repo `robles.ai-docextract-api`) | live |
 | `tts` | `/try-tts` | `tts-api.robles.ai` (repo `robles.ai-tts-api`): gpt-4o-mini-tts + ffmpeg | live |
@@ -316,10 +316,16 @@ Catálogo en `demosCatalog.items` (en/es: `id`, `href`, `status`, `icon`, `title
 | `emotion` | `/try-emotion` | Navegador (`@vladmandic/face-api`, modelos desde jsDelivr) | live |
 | `voiceagent`, `anomaly`, `imagegen` | — | — | soon |
 
+- **Tarjetas del catálogo** (`DemoCard` + `DemoVideoPreview`): funcionan como los Shorts de YouTube. Toda la tarjeta es un solo enlace, sin botones de play ni CTA en las demos live: hover en desktop o mantener presionado en móvil (≥ 220 ms) reproduce el clip en bucle y al soltar vuelve al póster; clic o toque corto abre la demo. La URL del video no se adjunta hasta el primer uso.
+- **Guía paso a paso** (`DemoGuide.tsx`): `GuideSteps` (tarjetas de pasos vivas, copy `<prefix>.how_step<n>_*`), `GuideCue` (etiqueta animada sobre el control a usar, copy `guide_*`) y `useGuideNavigation`. Están en todas las demos; `TryChatbot` usa solo `GuideCue` porque sus pasos van debajo del pliegue.
+- **Progreso con Robly** (`RunnerTrack.tsx`): el mismo componente en RAG, Identity, Chatbot, DocExtract, narrador de TTS y análisis de Transcription. Robly solo avanza con pasos reales. Toda demo nueva con un proceso de varios pasos debe usarlo.
+- **Identity sin callback**: la demo ya no envía `callback`. Antes mandaba una URL `/webhook/<uuid>` inexistente, el POST daba 404 y **toda** verificación terminaba en `completed_with_errors`. La UI muestra el `message` de la API cuando hay un problema.
+- **Modelos de OpenAI** (Admin → Settings → *AI Models*): el sitio usa `getAiModel()` y las 6 APIs con OpenAI leen `GET /api/public/ai-models` con `model_config.py` (caché de 5 min; si el sitio no responde siguen con su default). El botón de verificación compara lo configurado con `models.list()`. Nunca escribir un modelo fijo en el código; los embeddings quedan fuera porque cambiarlos obliga a reconstruir los índices. RAG usa un solo modelo: Llama se quitó el 2026-10-30.
+- **RAG, reranking**: cuesta ~2 s por candidato en la CPU de Cloud Run. `TryRAG` envía los 12 mejores candidatos con timeout de 45 s; si falla o tarda, sigue con el orden de la búsqueda vectorial para no perder la respuesta. Una falla de los modelos en `/rag/generate` llega como texto dentro de un 200; `TryRAG` la muestra como error del paso.
 - `/try-medical` existe como página "próximamente", sin backend y fuera del catálogo; no sube nada.
 - `/try-docextract` ofrece tres ejemplos ficticios de un clic (factura, boleta/recibo y contrato, en/es) en `public/demo-samples/docextract-*-{en,es}.jpg` + `.thumb.webp`, generados con `node scripts/renderDocExtractSamples.mjs`. Los PDFs se previsualizan con la página 1 (pdfjs cargado bajo demanda) y solo se dibujan cajas si el PDF tiene una página.
 - Las APIs escalan a cero: cada página hace warm-up al montar (ping `no-cors` a `/`, `GET /health` en transcription, `POST /rag/warmup` en RAG) y muestra un banner de estado. Overrides de endpoint en dev: `VITE_*_API`.
-- Transcription: el API reenvía PCM `linear16` 16 kHz mono a Deepgram e ignora el `encoding` del frame `start`; por eso se captura con `AudioWorklet` (fallback `ScriptProcessorNode`).
+- Transcription: Speechmatics para vivo y archivo (`POST /transcribe-file`, hasta 25 MB, el trabajo se borra del proveedor al terminar); Auto (`multi`, por defecto en la demo) detecta el idioma con los primeros 5 s y sigue con Speechmatics (`AutoLanguageBridge`); Deepgram queda solo como `STT_PROVIDER=deepgram`. Al detener hay dos fases: se apaga el micrófono y se espera el último `final` (máx. 10 s) antes de `closed`. `POST /refine` corrige con GPT los turnos terminados usando la conversación como contexto y descarta cambios grandes; la UI marca los turnos corregidos. Elegido tras comparar ambos con una consulta real de dos voces. Sesión máxima de 10 min. El micrófono va sin cancelación de eco ni supresión de ruido para captar audio reproducido desde otro dispositivo. El API reenvía PCM `linear16` 16 kHz mono al proveedor e ignora el `encoding` del frame `start`; por eso se captura con `AudioWorklet` (fallback `ScriptProcessorNode`).
 - Previews de video y visuales del catálogo: `docs/DEMO_VIDEO_RELEASE.md`, `docs/DEMO_VISUALS.md`, `docs/FIREFLY_CLIPS.md`, material fuente en `creative/`.
 - **Tutoriales en video** (`DemoTutorial.tsx`): botón secundario *Ver cómo se usa (45 s)* junto a `how_title` que abre un modal con `<video>` (nunca se reproduce solo); al cerrarlo hace scroll a la demo (`returnToId`). Archivos en `public/videos/tutorials/<ruta>-tutorial-<lang>.mp4` (H.264, `+faststart`) + `-poster-<lang>.jpg`, registrados en `TUTORIALS` por demo e idioma; un idioma sin video oculta el botón. Mide `tutorial_play` / `tutorial_complete` con `trackDemoEvent` (en GTM, añadirlos a la etiqueta GA4 de eventos de demo). Con `variant="featured"` se muestra como tarjeta grande con póster y botón de play (en `/try-chatbot` justo después del hero y en `/try-transcription`, `/try-object-detection`, `/try-emotion` y `/try-langchain` antes del espacio de trabajo, además del botón). Hoy: `/try-object-detection` en inglés y español, `/try-emotion` en español (56 s) e inglés (59 s), `/try-chatbot` en español (59 s) e inglés (58 s) `/try-transcription` en español (60 s) e inglés (57 s) y `/try-langchain` en español (59 s) e inglés (58 s). Briefs en `docs/demo-tutorials/`.
 - Convenciones de los repos de APIs: un proyecto GCP por API (misma cuenta de facturación), Cloud Run sin `minScale` y facturación por request, Artifact Registry `<servicio>-api-repo` podado a 3 versiones (`prune_registry.sh`), secretos en Secret Manager rotados con `rotate_secret.sh` (destruye versiones viejas), push a `main` → GitHub Actions → Cloud Run.
@@ -358,6 +364,7 @@ Los secretos se enmascaran en `GET /api/admin/settings` (`settingsSecrets.ts`) y
 |------|--------|
 | Email | `email_user`, `email_app_password` (secreto enmascarado), `email_to`; en producción se configuran desde Admin → Settings y nunca se leen del `.env` |
 | OpenAI / imágenes | `openai_api_key`, `image_provider` (por defecto `dalle3`), `replicate_api_token`, `stability_api_key` |
+| Modelos de IA | `ai_model_site_{chat,content,image,tts}`, `ai_model_demo_{text,vision,tts}` (catálogo y defaults en `shared/aiModels.ts`) |
 | Dominical | `dominical_top_n`, `notification_email`, `auto_publish`, `auto_publish_time`, `auto_publish_timezone` |
 | Auth admin | `jwt_secret` (se genera si no hay `ADMIN_JWT_SECRET`) |
 | LinkedIn | `linkedin_client_id`, `linkedin_client_secret`, `linkedin_access_token`, `linkedin_refresh_token`, `linkedin_token_expires_at`, `linkedin_person_id`, `linkedin_oauth_state` (transitoria) |
@@ -420,6 +427,7 @@ Públicos:
 | GET | `/api/test` | Health check |
 | GET | `/api/public/analytics-config` | IDs de GTM / GA4 / Meta Pixel |
 | GET | `/api/public/site-config` | Ajustes públicos del sitio (`bookingUrl`) |
+| GET | `/api/public/ai-models` | Nombres de modelos OpenAI para las APIs de demos |
 | GET | `/api/public/slides/:reportId/:position(.png)` | Imagen de slide (para Meta) |
 | POST/GET/POST/POST | `/api/chat/session`, `/api/chat/history`, `/api/chat/message` (SSE), `/api/chat/close` | Chat de Robly (cookie `chat_session`) |
 | GET | `/sitemap.xml`, `/sitemaps/:filename` | Índice y sitemaps mensuales (`/static-pages.xml` para páginas estáticas) |
@@ -599,6 +607,8 @@ Conecta, monitorea y publica el DNS de los **7 backends** de demos registrados e
 | `05f91f9` | 2026-10-18 | Registro de releases SEO verificados (#16) |
 
 ### Cambios de octubre 2026
+
+- **Demos y modelos (30 oct)**: guía paso a paso y Robly compartidos (`DemoGuide.tsx`, `RunnerTrack.tsx`), tarjetas tipo Shorts, Identity sin callback ficticio, RAG con un solo modelo y rerank acotado, transcripción con Speechmatics (archivos, parada en dos fases, Auto y `/refine`), y modelos configurables en Admin → AI Models. `gpt-image-1` fue retirado por OpenAI: el default de imagen es `gpt-image-2.5-flare`. Antes de publicar la API de transcripción debe existir el secreto `SPEECHMATICS_API_KEY` en GCP.
 
 - **Landing `/get-started`** (`819151d`, `66c7c0c`): rehecha para tráfico pagado tras una revisión CRO y simulaciones de buyer personas. Estructura actual en §6. Se eliminaron las estadísticas "Why Now" sin fuente, las secciones duplicadas de proceso, la sección de tecnologías, las fotos de stock, los casos ilustrativos, la lista de "5 preguntas" y la nota de "cupos limitados". Variantes `?s=` completas por grupo de anuncios. El HTML para crawlers (`server/seo/publicContent.ts`) refleja la estructura.
 - **Formulario de contacto**: componente `ContactForm` reutilizable (home y landing), selector de objetivo, mensaje opcional, `defaultGoal`, `showNewsletter`, `showTrustNote`, `submitLabelKey`, `titleKey`, `buttonClassName`.

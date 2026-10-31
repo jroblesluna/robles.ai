@@ -17,7 +17,6 @@ import {
   ChevronRight,
   Check,
   ArrowUp,
-  ArrowDown,
   Quote,
   Scissors,
   X,
@@ -37,6 +36,8 @@ import { JsonHighlight } from "@/components/demo/JsonHighlight";
 import { ApiCallLog } from "@/components/demo/ApiCallLog";
 import { InfoTip } from "@/components/demo/InfoTip";
 import { HowItWorks, StatusPill, TechCard, type StatusTone } from "@/components/demo/DemoKit";
+import { GuideCue, GuideSteps, useGuideNavigation, type GuideTheme } from "@/components/demo/DemoGuide";
+import { RunnerTrack, type RunnerMode, type RunnerTheme } from "@/components/demo/RunnerTrack";
 import * as pdfjsLib from "pdfjs-dist";
 // Vite: load the pdf.js worker as a URL so text extraction runs off the main thread.
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
@@ -50,6 +51,19 @@ const TIP_HOVER = "hover:text-cyan-600 focus:text-cyan-600";
 const BADGE_BG = "bg-cyan-100";
 const BADGE_TEXT = "text-cyan-700";
 const BADGE_DOT = "bg-cyan-500";
+const GUIDE_THEME: GuideTheme = {
+  gradient: ACCENT_GRADIENT,
+  text: ACCENT_TEXT,
+  current: "border-cyan-300 ring-cyan-100",
+  hover: "hover:border-cyan-300",
+  flash: "ring-4 ring-cyan-200",
+};
+const RUNNER_THEME: RunnerTheme = { gradient: ACCENT_GRADIENT, surface: "from-cyan-50/50", activeTick: "bg-cyan-500" };
+
+// Reranking costs about 2 s per candidate on the API's CPU, so only the best
+// vector matches go in. Past the timeout the answer uses the vector order instead.
+const RERANK_CANDIDATES = 12;
+const RERANK_TIMEOUT_MS = 45_000;
 
 const getBaseApi = (): string => {
   // VITE_RAG_API overrides the default (e.g. point local dev at prod).
@@ -190,26 +204,6 @@ function ProgressBar({ label, current, total }: { label: string; current: number
   );
 }
 
-/**
- * Bobbing "do it here" tag pinned to the control for the current step, so the
- * numbered steps at the top lead to the place where the visitor has to act.
- */
-function GuideCue({ step, label }: { step: number; label: string }) {
-  return (
-    <motion.span
-      aria-hidden
-      initial={{ opacity: 0, y: -4 }}
-      animate={{ opacity: 1, y: [0, 5, 0] }}
-      transition={{ opacity: { duration: 0.3 }, y: { duration: 1.2, repeat: Infinity, ease: "easeInOut" } }}
-      className={`pointer-events-none absolute -top-3 left-4 z-10 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-br ${ACCENT_GRADIENT} py-0.5 pl-0.5 pr-2.5 text-[11px] font-semibold text-white shadow-md`}
-    >
-      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-white/25 text-[10px]">{step}</span>
-      {label}
-      <ArrowDown className="h-3.5 w-3.5" />
-    </motion.span>
-  );
-}
-
 /** Status marker on the timeline rail. */
 function StepDot({ status, icon: Icon }: { status: StepStatus; icon: LucideIcon }) {
   const base = "relative z-10 flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full ring-4 ring-white";
@@ -266,98 +260,6 @@ function scoreShares(rows: any[]): number[] {
   return scores.map((s) => (max > min ? (s - min) / (max - min) : 1));
 }
 
-type RunnerMode = "waiting" | "running" | "done" | "error";
-
-const ROBLY_POSES: { mode: Exclude<RunnerMode, "error">; src: string }[] = [
-  { mode: "waiting", src: "/robly-avatar/robly-standby.svg" },
-  { mode: "running", src: "/robly-avatar/robly-running.svg" },
-  { mode: "done", src: "/robly-avatar/robly-idle.svg" },
-];
-
-/**
- * Progress track at the top of the live pipeline panel: Robly runs along it to the
- * current step while the pipeline works, waits when it needs the visitor, and
- * rests at the finish once the answer is ready. All poses stay mounted and
- * cross-fade, so switching pose never flashes an image reload.
- */
-function RunnerTrack({
-  mode,
-  position,
-  steps,
-  label,
-  elapsed,
-}: {
-  mode: RunnerMode;
-  position: number;
-  steps: { id: string; name: string; status: StepStatus }[];
-  label: string;
-  elapsed: string;
-}) {
-  const pose = mode === "error" ? "waiting" : mode;
-  const spring = { type: "spring" as const, stiffness: 60, damping: 18 };
-  return (
-    <div className="mx-3 mb-3 shrink-0 rounded-xl border border-gray-100 bg-gradient-to-b from-cyan-50/50 to-white px-4 pb-3 pt-1">
-      <div className="relative mx-5 h-[76px]">
-        {/* Track + fill */}
-        <div className="absolute inset-x-0 bottom-3 h-1 rounded-full bg-gray-100" />
-        <motion.div
-          className={`absolute bottom-3 left-0 h-1 rounded-full bg-gradient-to-r ${ACCENT_GRADIENT}`}
-          initial={false}
-          animate={{ width: `${position * 100}%` }}
-          transition={spring}
-        />
-        {/* One tick per step */}
-        {steps.map((s, i) => (
-          <span
-            key={s.id}
-            title={s.name}
-            style={{ left: `${(i / (steps.length - 1)) * 100}%` }}
-            className={`absolute bottom-[9px] h-2.5 w-2.5 -translate-x-1/2 rounded-full ring-2 ring-white ${
-              s.status === "done"
-                ? "bg-emerald-500"
-                : s.status === "running"
-                  ? "animate-pulse bg-cyan-500"
-                  : s.status === "error"
-                    ? "bg-red-500"
-                    : "bg-gray-200"
-            }`}
-          />
-        ))}
-        {/* Robly */}
-        <motion.div
-          aria-hidden
-          className="absolute bottom-1 h-[68px] w-[68px] -translate-x-1/2"
-          initial={false}
-          animate={{ left: `${position * 100}%` }}
-          transition={spring}
-        >
-          {ROBLY_POSES.map(({ mode: m, src }) => (
-            <img
-              key={m}
-              src={src}
-              alt=""
-              draggable={false}
-              className={`absolute inset-0 h-full w-full transition-opacity duration-300 ${pose === m ? "opacity-100" : "opacity-0"} ${
-                mode === "error" ? "grayscale" : ""
-              }`}
-            />
-          ))}
-        </motion.div>
-      </div>
-      <div className="mt-1 flex items-center justify-between gap-3 text-xs">
-        <p
-          key={label}
-          aria-live="polite"
-          className={`line-clamp-2 animate-in fade-in duration-300 ${mode === "error" ? "text-red-600" : "text-gray-600"}`}
-        >
-          {label}
-        </p>
-        {elapsed && <span className="shrink-0 font-mono tabular-nums text-gray-400">{elapsed}</span>}
-      </div>
-    </div>
-  );
-}
-
 /** Small label/value tile inside a timeline detail. */
 function Stat({ label, value, mono }: { label: string; value: ReactNode; mono?: boolean }) {
   return (
@@ -396,7 +298,8 @@ export default function TryRAG() {
   const [answerError, setAnswerError] = useState("");
   const [topResults, setTopResults] = useState<any[]>([]);
   const [rerankedResults, setRerankedResults] = useState<any[]>([]);
-  const [hfAnswer, setHfAnswer] = useState("");
+  const [rerankSkipped, setRerankSkipped] = useState(false);
+  const [answerModel, setAnswerModel] = useState("");
   const [gptAnswer, setGptAnswer] = useState("");
 
   // Live pipeline timeline
@@ -412,9 +315,6 @@ export default function TryRAG() {
   const queryInputRef = useRef<HTMLInputElement | null>(null);
   const docBarRef = useRef<HTMLDivElement | null>(null);
   const conversationRef = useRef<HTMLDivElement | null>(null);
-  // Brief highlight on the control a step card sends the visitor to.
-  const [flashStep, setFlashStep] = useState<number | null>(null);
-  const flashTimer = useRef<number | undefined>(undefined);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const anyRunning = STEP_IDS.some((id) => runs[id].status === "running");
@@ -502,7 +402,8 @@ export default function TryRAG() {
     setAnswerError("");
     setTopResults([]);
     setRerankedResults([]);
-    setHfAnswer("");
+    setRerankSkipped(false);
+    setAnswerModel("");
     setGptAnswer("");
     setShowAllSearch(false);
   };
@@ -688,24 +589,43 @@ export default function TryRAG() {
       current = "rerank";
       beginStep("rerank");
       const rerankUrl = `${BASE_API}/rag/rerank`;
+      const candidates = top.slice(0, RERANK_CANDIDATES);
       const rStarted = performance.now();
-      const rRes = await fetch(rerankUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question, top_results: top }),
-      });
-      const rJson = await rRes.json();
-      logCall(
-        "rerank",
-        "POST",
-        rerankUrl,
-        { question, top_results: `${top.length} candidates` },
-        rJson,
-        rRes.status,
-        performance.now() - rStarted
-      );
-      if (rJson.status !== "success" || !rJson.data?.reranked) throw new Error(t("try-rag.rerank_error"));
-      const reranked: any[] = rJson.data.reranked;
+      let reranked: any[];
+      try {
+        const rRes = await fetch(rerankUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question, top_results: candidates }),
+          signal: AbortSignal.timeout(RERANK_TIMEOUT_MS),
+        });
+        const rJson = await rRes.json();
+        logCall(
+          "rerank",
+          "POST",
+          rerankUrl,
+          { question, top_results: `${candidates.length} candidates` },
+          rJson,
+          rRes.status,
+          performance.now() - rStarted
+        );
+        if (rJson.status !== "success" || !rJson.data?.reranked) throw new Error("bad rerank response");
+        reranked = rJson.data.reranked;
+      } catch (error) {
+        // A slow or failed reranker must not cost the visitor the answer.
+        console.warn("RAG rerank skipped:", error);
+        logCall(
+          "rerank",
+          "POST",
+          rerankUrl,
+          { question, top_results: `${candidates.length} candidates` },
+          { skipped: true, reason: error instanceof Error ? error.name : "error" },
+          undefined,
+          performance.now() - rStarted
+        );
+        reranked = top.slice(0, 5);
+        setRerankSkipped(true);
+      }
       setRerankedResults(reranked);
       endStep("rerank");
 
@@ -728,18 +648,22 @@ export default function TryRAG() {
         gRes.status,
         performance.now() - gStarted
       );
-      // Response shape is { gpt: {llm_request, llm_response}, llama: {...} };
-      // fall back to the old plain-string shape.
-      const pickAnswer = (v: any) => (v && typeof v === "object" ? v.llm_response : v);
-      setHfAnswer(pickAnswer(gJson.data?.llama) || "");
-      setGptAnswer(pickAnswer(gJson.data?.gpt) || "");
+      // The API reports a model failure as text inside a successful response.
+      const gpt = gJson.data?.gpt;
+      const answer: string = typeof gpt?.llm_response === "string" ? gpt.llm_response : "";
+      if (!answer || answer.startsWith("Ocurrió un error")) {
+        const message = t("try-rag.generate_error");
+        failStep("generate", message);
+        setAnswerError(message);
+        return;
+      }
+      setGptAnswer(answer);
+      setAnswerModel(gpt.llm_request?.model ?? "");
       endStep("generate");
       trackComplete();
     } catch (error) {
       console.error(`RAG ${current} error:`, error);
-      const message = error instanceof Error && error.message === t("try-rag.rerank_error")
-        ? error.message
-        : t("try-rag.process_error");
+      const message = t("try-rag.process_error");
       failStep(current, message);
       setAnswerError(message);
     } finally {
@@ -748,22 +672,20 @@ export default function TryRAG() {
   };
 
   // ── Derived view state ─────────────────────────────────────────────────────
-  const hasAnswer = !!(gptAnswer || hfAnswer);
+  const hasAnswer = !!gptAnswer;
   // Which of the three "how it works" steps the visitor is on.
   const guideStep = docStatus !== "ready" ? 1 : asked ? 3 : 2;
 
   // Visitors click the step cards themselves: take them to where that step
   // happens, or to the earliest step they still have to do.
+  const { flashStep, goTo } = useGuideNavigation(guideStep, (at) =>
+    at === 1 ? docBarRef.current : at === 2 ? queryInputRef.current : conversationRef.current
+  );
   const goToStep = (n: number) => {
-    const at = Math.min(n, guideStep);
-    const target = at === 1 ? docBarRef.current : at === 2 ? queryInputRef.current : conversationRef.current;
-    target?.scrollIntoView({ behavior: "smooth", block: "center" });
-    if (at === 2) queryInputRef.current?.focus({ preventScroll: true });
-    setFlashStep(at);
-    window.clearTimeout(flashTimer.current);
-    flashTimer.current = window.setTimeout(() => setFlashStep(null), 1600);
+    if (goTo(n) === 2) queryInputRef.current?.focus({ preventScroll: true });
   };
   const runningStep = STEP_IDS.find((id) => runs[id].status === "running");
+  const rerankCount = Math.min(topResults.length, RERANK_CANDIDATES);
 
   const status: { tone: StatusTone; label: string; spinning?: boolean } =
     serviceStatus === "warming" ? { tone: "busy", label: t("try-rag.status_warming"), spinning: true }
@@ -801,8 +723,10 @@ export default function TryRAG() {
         return run.status === "running" ? t("try-rag.thinking_search") : t("try-rag.sum_search", { count: topResults.length });
       case "rerank":
         return run.status === "running"
-          ? t(phase(phaseKey("rerank", now - (run.startedAt ?? now))), { count: topResults.length })
-          : t("try-rag.sum_rerank", { count: rerankedResults.length });
+          ? t(phase(phaseKey("rerank", now - (run.startedAt ?? now))), { count: rerankCount })
+          : rerankSkipped
+            ? t("try-rag.sum_rerank_skipped")
+            : t("try-rag.sum_rerank", { count: rerankedResults.length });
       case "generate":
         return run.status === "running"
           ? t(phase(phaseKey("generate", now - (run.startedAt ?? now))), { count: rerankedResults.length })
@@ -885,7 +809,7 @@ export default function TryRAG() {
     }
     return (
       <div className="space-y-3">
-        <p className="text-xs leading-relaxed text-gray-500">{t(`try-rag.${STEP_TIP[id]}`)}</p>
+        <p className="text-xs leading-relaxed text-gray-500">{t(`try-rag.${STEP_TIP[id]}`, { count: rerankCount || RERANK_CANDIDATES })}</p>
 
         {run.status === "error" && (
           <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">{run.error}</p>
@@ -1031,48 +955,7 @@ export default function TryRAG() {
             <p className="mt-8 text-xs font-semibold uppercase tracking-wider text-gray-500">
               {t("try-rag.how_title")}
             </p>
-            <ol className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              {([1, 2, 3] as const).map((n) => {
-                const current = n === guideStep;
-                const done = n < guideStep;
-                return (
-                  <li key={n}>
-                    <button
-                      type="button"
-                      onClick={() => goToStep(n)}
-                      aria-current={current ? "step" : undefined}
-                      className={`h-full w-full rounded-xl border p-4 text-left transition-all hover:border-cyan-300 hover:bg-white ${
-                        current ? "border-cyan-300 bg-white shadow-sm ring-2 ring-cyan-100" : "border-gray-200/80 bg-white/70"
-                      }`}
-                    >
-                      <span className="flex items-center justify-between gap-2">
-                        <span
-                          className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white ${
-                            done ? "bg-emerald-500" : `bg-gradient-to-br ${ACCENT_GRADIENT}`
-                          }`}
-                        >
-                          {done ? <Check className="h-3.5 w-3.5" /> : n}
-                        </span>
-                        {current && (
-                          <span className={`flex items-center gap-1 text-[11px] font-semibold ${ACCENT_TEXT}`}>
-                            {t(n === 1 ? "try-rag.guide_card_start" : "try-rag.guide_card_next")}
-                            <motion.span
-                              aria-hidden
-                              animate={{ y: [0, 3, 0] }}
-                              transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-                            >
-                              <ArrowDown className="h-3.5 w-3.5" />
-                            </motion.span>
-                          </span>
-                        )}
-                      </span>
-                      <span className="mt-3 block text-sm font-semibold text-gray-900">{t(`try-rag.how_step${n}_title`)}</span>
-                      <span className="mt-1 block text-sm leading-snug text-gray-600">{t(`try-rag.how_step${n}_desc`)}</span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ol>
+            <GuideSteps prefix="try-rag" current={guideStep} theme={GUIDE_THEME} onGo={goToStep} />
 
             <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
               {[
@@ -1141,9 +1024,7 @@ export default function TryRAG() {
                   {t("try-rag.chat_title")}
                 </h2>
                 <span className="flex items-center gap-1.5 text-[11px] text-gray-400">
-                  <span className="hidden sm:inline">{t("try-rag.chat_models")}</span>
-                  <span className="rounded-md bg-gray-900 px-1.5 py-0.5 font-semibold text-white">GPT-4</span>
-                  <span className="rounded-md bg-blue-100 px-1.5 py-0.5 font-semibold text-blue-700">Llama</span>
+                  <span className="rounded-md bg-gray-900 px-1.5 py-0.5 font-semibold text-white">{answerModel || "OpenAI"}</span>
                 </span>
               </div>
 
@@ -1155,9 +1036,9 @@ export default function TryRAG() {
                       htmlFor="rag-pdf-input"
                       className={`group relative flex cursor-pointer items-center gap-4 rounded-xl border-2 border-dashed p-4 transition-all ${
                         dragging ? "border-cyan-400 bg-cyan-50/60" : "border-cyan-300 hover:border-cyan-400 hover:bg-cyan-50/40"
-                      } ${flashStep === 1 ? "bg-cyan-50/60 ring-4 ring-cyan-200" : ""}`}
+                      } ${flashStep === 1 ? `bg-cyan-50/60 ${GUIDE_THEME.flash}` : ""}`}
                     >
-                      <GuideCue step={1} label={t("try-rag.guide_upload")} />
+                      <GuideCue step={1} label={t("try-rag.guide_upload")} gradient={ACCENT_GRADIENT} />
                       <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${ACCENT_GRADIENT} text-white shadow-sm`}>
                         <Upload className="h-5 w-5" />
                       </span>
@@ -1291,15 +1172,12 @@ export default function TryRAG() {
                     {/* The answer: both models + the sources they used */}
                     {hasAnswer && (
                       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
-                        {[
-                          { model: "GPT-4", answer: gptAnswer, chip: "bg-gray-900 text-white" },
-                          { model: "Llama", answer: hfAnswer, chip: "bg-blue-100 text-blue-700" },
-                        ].map(({ model, answer, chip }) => (
-                          <div key={model} className="rounded-xl border border-gray-200/80 bg-white p-4 shadow-sm">
-                            <span className={`inline-flex rounded-md px-2 py-0.5 text-[11px] font-semibold ${chip}`}>{model}</span>
-                            <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-gray-800">{answer || "–"}</p>
-                          </div>
-                        ))}
+                        <div className="rounded-xl border border-gray-200/80 bg-white p-4 shadow-sm">
+                          {answerModel && (
+                            <span className="inline-flex rounded-md bg-gray-900 px-2 py-0.5 text-[11px] font-semibold text-white">{answerModel}</span>
+                          )}
+                          <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-gray-800">{gptAnswer}</p>
+                        </div>
 
                         {rerankedResults.length > 0 && (
                           <div className="pt-1">
@@ -1350,9 +1228,9 @@ export default function TryRAG() {
                 <div
                   className={`relative flex items-center gap-2 rounded-xl border bg-white p-1.5 pl-4 shadow-sm focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-100 ${
                     guideStep === 2 ? "border-cyan-300" : "border-gray-200"
-                  } ${flashStep === 2 ? "ring-4 ring-cyan-200" : ""}`}
+                  } ${flashStep === 2 ? GUIDE_THEME.flash : ""}`}
                 >
-                  {guideStep === 2 && !query && <GuideCue step={2} label={t("try-rag.guide_ask")} />}
+                  {guideStep === 2 && !query && <GuideCue step={2} label={t("try-rag.guide_ask")} gradient={ACCENT_GRADIENT} />}
                   <input
                     ref={queryInputRef}
                     value={query}
@@ -1445,6 +1323,8 @@ export default function TryRAG() {
                       steps={STEP_IDS.map((id) => ({ id, name: t(`try-rag.step_${id}`), status: runs[id].status }))}
                       label={runnerLabel}
                       elapsed={runnerElapsed}
+                      theme={RUNNER_THEME}
+                      className="mx-3 mb-3 shrink-0"
                     />
                     <ol className="relative flex flex-col before:absolute before:bottom-6 before:left-[23px] before:top-6 before:w-px before:bg-gray-200 lg:gap-4">
                       {STEP_IDS.map((id) => {
@@ -1575,7 +1455,7 @@ export default function TryRAG() {
                     ["tech_stack_vectordb_label", "Pinecone"],
                     ["tech_stack_embed_label", "sentence-transformers"],
                     ["tech_stack_rerank_label", "MonoT5 → BGE"],
-                    ["tech_stack_llm_label", "Llama + GPT-4"],
+                    ["tech_stack_llm_label", "OpenAI"],
                     ["tech_stack_framework_label", "LangChain · FastAPI"],
                   ].map(([labelKey, value]) => (
                     <div key={labelKey} className="rounded-lg bg-gray-50 px-3 py-2.5 ring-1 ring-gray-100">

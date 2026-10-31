@@ -3,6 +3,7 @@ import type { ChatCompletionMessageParam, ChatCompletionTool } from 'openai/reso
 import db from '../db.js';
 import { getPageContext } from './chatContext.js';
 import type { ContactData } from '../../shared/chatTypes.js';
+import { getAiModel } from './aiModels.js';
 
 // ============================================================
 // AI Engine — Generates streaming chatbot responses using
@@ -162,7 +163,7 @@ export async function* generateResponse(
   try {
     // Create streaming completion with tool support
     const stream = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: getAiModel('ai_model_site_chat'),
       messages: openaiMessages,
       tools: TOOLS,
       tool_choice: 'auto',
@@ -272,7 +273,7 @@ export async function extractContactData(
 
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: getAiModel('ai_model_site_chat'),
       messages: openaiMessages,
       tools: [
         {

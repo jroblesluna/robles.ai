@@ -27,6 +27,8 @@ import { SavingsCalculator } from "@/components/demo/SavingsCalculator";
 import { useDemoTracking } from "@/components/demo/business";
 import { ApiCallLog, type ApiCallEntry } from "@/components/demo/ApiCallLog";
 import { HowItWorks, TechCard, StatusPill, type StatusTone } from "@/components/demo/DemoKit";
+import { GuideCue, GuideSteps, useGuideNavigation, type GuideTheme } from "@/components/demo/DemoGuide";
+import { RunnerTrack, linearRunner, useRunnerElapsed, type RunnerTheme } from "@/components/demo/RunnerTrack";
 import { InfoTip } from "@/components/demo/InfoTip";
 
 // El backend vive en su propio Cloud Run (repo robles.ai-tts-api). VITE_TTS_API
@@ -44,6 +46,15 @@ const BASE_API = getBaseApi();
 
 const ACCENT_GRADIENT = "from-rose-500 to-pink-600";
 const ACCENT_TEXT = "text-rose-600";
+const GUIDE_THEME: GuideTheme = {
+  gradient: ACCENT_GRADIENT,
+  text: ACCENT_TEXT,
+  current: "border-rose-300 ring-rose-100",
+  hover: "hover:border-rose-300",
+  flash: "ring-4 ring-rose-200",
+};
+const RUNNER_THEME: RunnerTheme = { gradient: ACCENT_GRADIENT, surface: "from-rose-50/50", activeTick: "bg-rose-500" };
+const NARRATE_STEPS = ["send", "generate", "ready"];
 const ACCENT_SOFT = "bg-rose-100";
 const TIP_HOVER = "hover:text-rose-600 focus:text-rose-600";
 
@@ -185,6 +196,11 @@ export default function TryTTS() {
   const [narrateResult, setNarrateResult] = useState<NarrateResult | null>(null);
   const [useCase, setUseCase] = useState<UseCaseId | null>(null);
 
+  const [voicePicked, setVoicePicked] = useState(false);
+  const narrateElapsed = useRunnerElapsed(narrateBusy);
+  const voiceRef = useRef<HTMLDivElement | null>(null);
+  const generateRef = useRef<HTMLDivElement | null>(null);
+  const resultRef = useRef<HTMLDivElement | null>(null);
   const previewAudioRef = useRef<HTMLAudioElement | null>(null);
   // Ref al <audio> del resultado de narracion, para iniciar el play automaticamente.
   const narrateAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -598,6 +614,13 @@ export default function TryTTS() {
     </div>
   );
 
+  const resultNow = mode === "studio" ? studioResult : narrateResult;
+  const guideStep = resultNow ? 3 : voicePicked ? 2 : 1;
+  const { flashStep, goTo } = useGuideNavigation(guideStep, (at) =>
+    at === 1 ? voiceRef.current : at === 2 ? generateRef.current : resultRef.current
+  );
+  const narrateRunner = linearRunner(NARRATE_STEPS, 1);
+
   const rateLabel =
     rate === 1 ? t("try-tts.rate_normal") : `${rate.toFixed(2).replace(/\.?0+$/, "")}×`;
 
@@ -622,6 +645,10 @@ export default function TryTTS() {
 
         {/* Caso de negocio desde el inicio */}
         <BusinessCase demoId="tts" variant="banner" />
+
+        <div className="mb-6">
+          <GuideSteps prefix="try-tts" current={guideStep} theme={GUIDE_THEME} onGo={goTo} />
+        </div>
 
         {/* Aviso de IA global (ambos modos) */}
         <AiDisclosure className="mb-6" />
@@ -679,7 +706,16 @@ export default function TryTTS() {
                       {t("try-tts.voice_label")}
                       <InfoTip text={t("try-tts.voice_tip")} hoverColor={TIP_HOVER} />
                     </p>
-                    <VoiceChips selected={studioVoice} onSelect={setStudioVoice} />
+                    <div ref={voiceRef} className={`relative rounded-xl ${flashStep === 1 ? GUIDE_THEME.flash : ""}`}>
+                      {guideStep === 1 && <GuideCue step={1} label={t("try-tts.guide_voice")} gradient={ACCENT_GRADIENT} className="right-0 !-top-8" />}
+                      <VoiceChips
+                        selected={studioVoice}
+                        onSelect={(id) => {
+                          setStudioVoice(id);
+                          setVoicePicked(true);
+                        }}
+                      />
+                    </div>
                   </div>
 
                   <div>
@@ -718,6 +754,8 @@ export default function TryTTS() {
                     </p>
                   )}
 
+                  <div ref={generateRef} className={`relative rounded-xl ${flashStep === 2 ? GUIDE_THEME.flash : ""}`}>
+                  {guideStep === 2 && <GuideCue step={2} label={t("try-tts.guide_generate")} gradient={ACCENT_GRADIENT} />}
                   <button
                     type="button"
                     onClick={synthesize}
@@ -727,9 +765,12 @@ export default function TryTTS() {
                     {studioBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4" />}
                     {t("try-tts.generate_cta")}
                   </button>
+                  </div>
 
                   {studioResult && (
-                    <AudioResult result={studioResult} filename="robles-tts-studio.mp3" />
+                    <div ref={resultRef}>
+                      <AudioResult result={studioResult} filename="robles-tts-studio.mp3" />
+                    </div>
                   )}
                 </motion.div>
               )}
@@ -793,7 +834,16 @@ export default function TryTTS() {
                       <Mic className="h-4 w-4 text-gray-400" />
                       {t("try-tts.voice_label")}
                     </p>
-                    <VoiceChips selected={narrateVoice} onSelect={setNarrateVoice} />
+                    <div ref={voiceRef} className={`relative rounded-xl ${flashStep === 1 ? GUIDE_THEME.flash : ""}`}>
+                      {guideStep === 1 && <GuideCue step={1} label={t("try-tts.guide_voice")} gradient={ACCENT_GRADIENT} className="right-0 !-top-8" />}
+                      <VoiceChips
+                        selected={narrateVoice}
+                        onSelect={(id) => {
+                          setNarrateVoice(id);
+                          setVoicePicked(true);
+                        }}
+                      />
+                    </div>
                   </div>
 
                   <div>
@@ -838,6 +888,8 @@ export default function TryTTS() {
                     </p>
                   )}
 
+                  <div ref={generateRef} className={`relative rounded-xl ${flashStep === 2 ? GUIDE_THEME.flash : ""}`}>
+                  {guideStep === 2 && <GuideCue step={2} label={t("try-tts.guide_generate")} gradient={ACCENT_GRADIENT} />}
                   <button
                     type="button"
                     onClick={narrate}
@@ -847,13 +899,26 @@ export default function TryTTS() {
                     {narrateBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <AudioLines className="h-4 w-4" />}
                     {t("try-tts.narrate_cta")}
                   </button>
+                  </div>
 
                   {narrateBusy && (
-                    <p className="text-center text-xs text-gray-600">{t("try-tts.narrate_working")}</p>
+                    <RunnerTrack
+                      mode="running"
+                      position={narrateRunner.position}
+                      steps={NARRATE_STEPS.map((id, i) => ({
+                        id,
+                        name: t(`try-tts.runner_step_${id}`),
+                        status: narrateRunner.statuses[i],
+                      }))}
+                      label={t("try-tts.narrate_working")}
+                      elapsed={narrateElapsed}
+                      theme={RUNNER_THEME}
+                    />
                   )}
 
                   {narrateResult && (
                     <>
+                      <div ref={resultRef} />
                       <AudioResult
                         result={narrateResult}
                         filename="robles-tts-narration.mp3"

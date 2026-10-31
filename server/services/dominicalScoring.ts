@@ -3,6 +3,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import OpenAI from 'openai';
 import db from '../db.js';
+import { getAiModel } from './aiModels.js';
 
 // Reconstruct __dirname for ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -156,7 +157,7 @@ ${postList}
 Return the JSON object with ALL ${postsToScore.length} articles scored.`;
 
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: getAiModel('ai_model_site_content'),
     temperature: 0.3,
     messages: [
       { role: 'system', content: systemPrompt },
