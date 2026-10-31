@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { ApiKeysPanel } from "@/components/admin/ApiKeysPanel";
 import {
   Server,
   Globe,
@@ -212,7 +211,6 @@ export default function AdminBackends() {
         </div>
       )}
 
-      <ApiKeysPanel backends={data?.items ?? []} />
 
       {/* Conexiones */}
       <section className="mb-8 grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-2">

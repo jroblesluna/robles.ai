@@ -115,7 +115,7 @@ src/
                         # BlogRoute, OTP, not-found, Try* demo pages
     admin/              # AdminLayout, AdminDashboard, AdminLogin, AdminSetup, AdminSettings,
                         # AdminDominicalList/Detail, AdminConversationList/Detail,
-                        # AdminAnalytics, AdminQuizLeads, AdminBackends
+                        # AdminAnalytics, AdminQuizLeads, AdminBackends, AdminApiKeys
   hooks/                # useChatSession, useSearch, useSEO, useScrollRestoration,
                         # useReducedMotion, useBlogModalRouting, useDemoPreviewMotion,
                         # useSpeechInput, useAdminDialog, usePublicDialog, use-toast, use-mobile
@@ -333,6 +333,7 @@ Contact submissions carry de-duplicated ad attribution (UTM tags, click IDs, Val
 | `/admin/quiz-leads` | AdminQuizLeads | Quiz leads |
 | `/admin/analytics` | AdminAnalytics | Overview · Traffic · Behavior · Social · Ads |
 | `/admin/backends` | AdminBackends | Demo backends portal |
+| `/admin/api-keys` | AdminApiKeys | Global switch, demo keys and client keys |
 | `/admin/monitoring` | AdminMonitoring | Live read-only PM2 logs from the VPS, with a filter and masked secrets (`server/services/vpsLogs.ts`) |
 
 ---
@@ -476,7 +477,7 @@ Catalog data: `demosCatalog.items` in both translation files (`id`, `href`, `sta
 | `emotion` | `/try-emotion` | Browser (`@vladmandic/face-api`) | live |
 | `voiceagent`, `anomaly`, `imagegen` | — | — | soon |
 
-- **API keys**: generated per API in Admin → Backends. Each API requires `X-API-Key` (`?api_key=` on WebSockets) once the switch there is on, validating against `POST /api/public/api-keys/verify`. Third-party keys do not expire and revocation takes effect within 60 s. Demos keep their key on the server and give browsers 15-minute tokens from `POST /api/public/demo-token`, capped at 60 per minute per IP across all APIs on the site only (the cap does not limit how often a token is used). The switch is global and the APIs read it every 60 s; with it off, everything works without a key. Interactive docs stay open at `/docs` and `/redoc` on each API. If enforcement is on and a demo has no key, `GET /api/public/site-config` lists it in `unavailableDemos` and `DemoGate` shows a notice instead of the page.
+- **API keys** (`/admin/api-keys`): the global switch, internal demo keys and any number of client keys per API. Each API requires `X-API-Key` (`?api_key=` on WebSockets) once the switch there is on, validating against `POST /api/public/api-keys/verify`. Third-party keys do not expire and revocation takes effect within 60 s. Demos keep their key on the server and give browsers 15-minute tokens from `POST /api/public/demo-token`, capped at 60 per minute per IP across all APIs on the site only (the cap does not limit how often a token is used). The switch is global and the APIs read it every 60 s; with it off, everything works without a key. Interactive docs stay open at `/docs` and `/redoc` on each API. If enforcement is on and a demo has no key, `GET /api/public/site-config` lists it in `unavailableDemos` and `DemoGate` shows a notice instead of the page.
 - **Catalog cards** work like YouTube Shorts: the whole card is one link with no playback controls; hovering (desktop) or holding (touch, ≥ 220 ms) loops the clip, and a click or quick tap opens the demo.
 - **Guided steps and progress**: `DemoGuide.tsx` (`GuideSteps`, `GuideCue`, `useGuideNavigation`) walks visitors through each demo; `RunnerTrack.tsx` is the shared Robly progress track for multi-step processes.
 - **Cold starts**: Cloud Run APIs scale to zero; each page warms its API on mount and shows a status banner.

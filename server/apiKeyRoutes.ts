@@ -11,6 +11,7 @@ import {
   setApiKeysRequired,
   setDemoKey,
 } from './services/apiKeys.js';
+import { BACKENDS } from './services/backends/registry.js';
 
 /** Admin management of API keys. A key's value is returned only by the POST that creates it. */
 const apiKeyRouter = Router();
@@ -18,7 +19,12 @@ apiKeyRouter.use(requireAuth);
 apiKeyRouter.use((_req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
 
 apiKeyRouter.get('/', (_req: Request, res: Response) => {
-  res.json({ keys: listApiKeys(), demoKeys: demoKeyStatus(), required: apiKeysRequired() });
+  res.json({
+    apis: BACKENDS.map(({ id, label }) => ({ id, label })),
+    keys: listApiKeys(),
+    demoKeys: demoKeyStatus(),
+    required: apiKeysRequired(),
+  });
 });
 
 apiKeyRouter.post('/', (req: Request, res: Response) => {

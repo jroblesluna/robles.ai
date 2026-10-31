@@ -18,6 +18,7 @@ export interface ApiKeyRow {
   created_at: string;
   revoked_at: string | null;
   last_used_at: string | null;
+  is_demo: boolean;
 }
 
 export const isApiId = (id: unknown): id is string => BACKENDS.some(backend => backend.id === id);
@@ -36,9 +37,13 @@ function writeSetting(key: string, value: string | null) {
 }
 
 export function listApiKeys(): ApiKeyRow[] {
-  return db.prepare(
-    'SELECT id, api_id, name, prefix, created_at, revoked_at, last_used_at FROM api_keys ORDER BY created_at DESC'
-  ).all() as ApiKeyRow[];
+  const rows = db.prepare(
+    'SELECT id, api_id, name, prefix, key_hash, created_at, revoked_at, last_used_at FROM api_keys ORDER BY created_at DESC'
+  ).all() as (Omit<ApiKeyRow, 'is_demo'> & { key_hash: string })[];
+  return rows.map(({ key_hash, ...row }) => {
+    const demoKey = readSetting(demoSetting(row.api_id));
+    return { ...row, is_demo: Boolean(demoKey) && hashKey(demoKey as string) === key_hash };
+  });
 }
 
 export function createApiKey(apiId: string, name: string): { id: number; key: string } {

@@ -31,6 +31,7 @@ import publicRouter from '../publicRoutes.js';
 import {
   createApiKey,
   issueDemoToken,
+  listApiKeys,
   revokeApiKey,
   setApiKeysRequired,
   setDemoKey,
@@ -92,6 +93,15 @@ describe('API keys', () => {
     expect((await verify({ api: 'unknown', key })).body).toEqual({ valid: false });
     const config = await request(app).get('/api/public/ai-models');
     expect(config.body.apiKeysRequired).toBe(false);
+  });
+
+  it('marks the demo key in the list without exposing hashes', () => {
+    const demo = createApiKey('rag', 'Demos');
+    createApiKey('rag', 'Client');
+    setDemoKey('rag', demo.key);
+    const rows = listApiKeys();
+    expect(rows.filter(row => row.is_demo).map(row => row.name)).toEqual(['Demos']);
+    expect(rows.every(row => !('key_hash' in row))).toBe(true);
   });
 
   it('lists a demo as unavailable only when enforcement is on and it has no key', async () => {
