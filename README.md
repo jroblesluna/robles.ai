@@ -645,6 +645,8 @@ Secrets: `VPS_HOST` (`robles.ai`), `VPS_USER` (`roblesai`), `VPS_SSH_KEY`, `VPS_
 | [`ADMIN_AUDIT.md`](docs/ADMIN_AUDIT.md) | Functional and responsive audit of the admin panel |
 | [`DESIGN_AUDIT.md`](docs/DESIGN_AUDIT.md) | Professional design audit of the public site |
 | [`SEO_AUDIT.md`](docs/SEO_AUDIT.md), [`SEO_IMPLEMENTATION_PLAN.md`](docs/SEO_IMPLEMENTATION_PLAN.md) | Technical SEO / GEO audit and implementation plan |
+| [`HANDOVER_KIRO.md`](docs/HANDOVER_KIRO.md) | Handover to Kiro IDE: state of the 8 repos, completed work, pending items and cautions |
+| [`NEWS_ENGINE_OVERHAUL.md`](docs/NEWS_ENGINE_OVERHAUL.md) | News engine overhaul plan for Kiro: architecture, specs and feasibility analysis |
 | [`PENDING_WORK.md`](docs/PENDING_WORK.md) | Pending work backlog |
 
 Feature specs (requirements/design/tasks) live in `.kiro/specs/`: `admin-backend-management`, `ai-chatbot-widget`, `analytics-dashboard`, `blog-fts5-search`, `blog-posts-db-index`, `dominical-carousel-images`, `dominical-ia`, `multi-platform-publishing`, `seo-improvements`, `ux-overhaul`, `whatsapp-widget-time-fix`.

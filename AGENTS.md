@@ -695,6 +695,8 @@ Conecta, monitorea y publica el DNS de los **7 backends** de demos registrados e
 | `docs/ADMIN_AUDIT.md` | Auditoría funcional y responsive del panel admin |
 | `docs/DESIGN_AUDIT.md` | Auditoría de diseño del sitio público |
 | `docs/SEO_AUDIT.md`, `docs/SEO_IMPLEMENTATION_PLAN.md` | Auditoría SEO/GEO técnica y plan de implementación |
+| `docs/HANDOVER_KIRO.md` | Handover a Kiro IDE: estado de los 8 repos, trabajo realizado, pendientes y cuidados |
+| `docs/NEWS_ENGINE_OVERHAUL.md` | Plan del overhaul del motor de noticias para Kiro: arquitectura, specs y análisis de viabilidad |
 | `docs/PENDING_WORK.md` | Backlog de trabajo pendiente |
 
 - `.kiro/specs/*/`: specs de features (§14).
