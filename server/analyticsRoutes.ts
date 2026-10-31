@@ -9,6 +9,7 @@ import { getGoogleAdsClicks } from './services/googleAdsClicks.js';
 import { getGoogleAdsInsights } from './services/googleAdsInsights.js';
 import type { LeadForm } from '../shared/adsAnalytics.js';
 import * as metaAds from './services/metaAds.js';
+import type { FacebookData, InstagramData } from '../shared/socialAnalytics.js';
 
 const analyticsRouter = Router();
 analyticsRouter.use(requireAuth);
@@ -125,41 +126,36 @@ analyticsRouter.get('/behavior', (req: Request, res: Response) => {
   })();
 });
 
-analyticsRouter.get('/social/instagram', (_req: Request, res: Response) => {
-  (async () => {
-    try {
-      const key = 'social:instagram';
-      const cached = analyticsCache.get(key);
-      if (cached) { res.json(cached); return; }
-      const data = await metaInsights.queryInstagram();
-      if (metaInsights.isMetaInsightsError(data)) { res.json(data); return; }
-      analyticsCache.set(key, data, analyticsCache.TTL.META);
-      res.json(data);
-    } catch (error) {
-      console.error('[Analytics] Instagram error:', error);
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      res.status(500).json({ error: message });
-    }
-  })();
-});
+type SocialNetwork = 'instagram' | 'facebook';
 
-analyticsRouter.get('/social/facebook', (_req: Request, res: Response) => {
-  (async () => {
-    try {
-      const key = 'social:facebook';
-      const cached = analyticsCache.get(key);
-      if (cached) { res.json(cached); return; }
-      const data = await metaInsights.queryFacebookPage();
-      if (metaInsights.isMetaInsightsError(data)) { res.json(data); return; }
-      analyticsCache.set(key, data, analyticsCache.TTL.META);
-      res.json(data);
-    } catch (error) {
-      console.error('[Analytics] Facebook error:', error);
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      res.status(500).json({ error: message });
-    }
-  })();
-});
+/** Instagram or Facebook data for the range (plus the previous period), cached like the other Meta calls. */
+async function loadSocial(network: SocialNetwork, startDate: string, endDate: string) {
+  const range = metaInsights.metaRangeFromDates(startDate, endDate);
+  const key = range ? cacheKey(`social:${network}`, startDate, endDate) : `social:${network}`;
+  const cached = analyticsCache.get<InstagramData | FacebookData>(key);
+  if (cached) return cached;
+  const query = network === 'instagram' ? metaInsights.queryInstagram : metaInsights.queryFacebookPage;
+  const data = range
+    ? await query(range.current.since, range.current.until, range.previous)
+    : await query();
+  if (!metaInsights.isMetaInsightsError(data)) analyticsCache.set(key, data, analyticsCache.TTL.META);
+  return data;
+}
+
+for (const network of ['instagram', 'facebook'] as const) {
+  analyticsRouter.get(`/social/${network}`, (req: Request, res: Response) => {
+    (async () => {
+      try {
+        const { startDate, endDate } = parseDateRange(req);
+        res.json(await loadSocial(network, startDate, endDate));
+      } catch (error) {
+        console.error(`[Analytics] ${network} error:`, error);
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        res.status(500).json({ error: message });
+      }
+    })();
+  });
+}
 
 // --- Paid campaigns (Ads tab) ---
 

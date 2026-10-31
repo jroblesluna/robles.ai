@@ -85,6 +85,7 @@ src/
                      # QuizLeadForm, QuizWaitingVerification, QuizResultFull, QuizScoreRing
     admin/           # CarouselPreview, SlideEditor, RegenerateModal, PlatformPublishStatus, VideoGenerator
     admin/analytics/ # OverviewTab, TrafficTab, BehaviorTab, SocialTab, AdsTab, KpiCard, DateRangeSelector
+      social/        # ActionPlan, SocialKpis, GrowthChart, ContentInsights, PostsTable
     state/           # LoadingState, EmptyState, ErrorState
     ui/              # primitivas shadcn/ui
   pages/             # Home, Landing, Quiz, Demos, Careers, Apply, BlogRoute, BlogList, BlogPost, OTP,
@@ -216,10 +217,11 @@ Configuración externa: el GTM existente tiene una etiqueta GA4 *catch-all* que 
 | Overview | GA4 Data API | Usuarios, sesiones, vistas, rebote, duración vs período anterior, tendencia diaria, usuarios en tiempo real |
 | Traffic | GA4 | Páginas top, canales, países, dispositivos |
 | Behavior | GA4 | Landing pages, nuevos vs recurrentes |
-| Social | Meta Graph API | Insights de Instagram y de la página de Facebook + publicaciones recientes |
+| Social | Meta Graph API | Por red (Instagram/Facebook): KPIs vs período anterior, crecimiento diario con promedio de 7 días, días con publicación y días atípicos, rendimiento por formato, mapa día × hora, longitud del texto, ritmo de publicación y tabla de los últimos 30 posts vs el post típico (mediana). Las estadísticas salen de `shared/socialInsights.ts`. |
 | Ads | Google Ads REST API opcional (`googleAdsApi.ts`), fallback GA4 (`googleAdsReport.ts`) + Meta Marketing API | Filtro por cuenta/campaña y fecha; gasto/clics/conversiones Ads; señales `generate_lead` GA4 separadas por formulario cuando la dimensión está registrada. Canales globales y tasa nativa `sessionKeyEventRate` en Traffic. Configuración y límites en `docs/ADS_ANALYTICS.md`. |
 
 - Caché `analytics_cache`: tiempo real 30 s, rangos que terminan hoy 5 min, históricos 1 h, Meta 30 min; *Refresh* la limpia.
+- Social respeta el rango de fechas (`metaRangeFromDates`) y pide además el período anterior de igual duración; Instagram se consulta en ventanas de ≤ 30 días y las páginas de Facebook de ≤ 90 (`splitRange`). Meta marca cada valor diario con el `end_time` del **fin** del día, así que la fecha se corre un día atrás (`dayOfEndTime`). El `follower_count` diario de Instagram son seguidores **nuevos**, no el total; Instagram no reporta dejar de seguir. Los tipos de respuesta están en `shared/socialAnalytics.ts`.
 - GA4 requiere `ga4_property_id` + JSON de service account (`server/data/ga4-service-account.json`, subido desde settings).
 - Meta Ads requiere `meta_ad_account_id` + `meta_ads_access_token` (token de System User con `ads_read`; los tokens de página/Instagram no sirven). El token va en cabecera `Authorization`, nunca en la URL.
 - Leads de Meta: se toma el primer tipo presente entre `lead`, `offsite_conversion.fb_pixel_lead`, `onsite_conversion.lead_grouped` (no se suman para no duplicar).

@@ -107,7 +107,7 @@ src/
                         # LeadForm, WaitingVerification, ResultFull, ScoreRing
     admin/              # CarouselPreview, SlideEditor, RegenerateModal,
                         # PlatformPublishStatus, VideoGenerator
-    admin/analytics/    # OverviewTab, TrafficTab, BehaviorTab, SocialTab, AdsTab,
+    admin/analytics/    # OverviewTab, TrafficTab, BehaviorTab, SocialTab (+ social/), AdsTab,
                         # KpiCard, DateRangeSelector
     state/              # LoadingState, EmptyState, ErrorState
     ui/                 # shadcn/ui primitives
@@ -444,10 +444,10 @@ Google Ads (account *Robles.AI*, USD, Pacific time) imports `generate_lead` from
 | Overview | GA4 Data API | Users, sessions, page views, bounce rate, avg. duration vs previous period, daily trend, real-time users |
 | Traffic | GA4 | Top pages, channel groups, countries, devices |
 | Behavior | GA4 | Landing pages, new vs returning |
-| Social | Meta Graph API | Instagram and Facebook page insights and recent posts |
+| Social | Meta Graph API | Per network: KPIs vs the previous period, daily growth with 7-day average, post days and unusual days, performance by format, day × time heatmap, caption length, posting rhythm and the latest 30 posts vs the typical (median) post. Statistics come from `shared/socialInsights.ts`. |
 | Ads | GA4 (`googleAdsReport.ts`) + Meta Marketing API (`metaAds.ts`) | Google Ads spend, clicks, impressions, CPC, key events per campaign and per day (requires the Ads account linked to GA4); paid vs organic channels; Meta Ads spend, clicks, leads per campaign and per day |
 
-Caching (`analytics_cache`): real-time 30 s, ranges ending today 5 min, historical ranges 1 h, Meta 30 min. *Refresh* clears the cache. GA4 needs `ga4_property_id` and the service-account JSON (uploaded in settings); Meta Ads needs `meta_ad_account_id` + `meta_ads_access_token`.
+Caching (`analytics_cache`): real-time 30 s, ranges ending today 5 min, historical ranges 1 h, Meta 30 min. *Refresh* clears the cache. Social honours the selected dates and also fetches the equal-length previous period (Instagram in ≤ 30-day windows, Facebook in ≤ 90-day windows); Meta's daily values are re-dated to the day they measure. GA4 needs `ga4_property_id` and the service-account JSON (uploaded in settings); Meta Ads needs `meta_ad_account_id` + `meta_ads_access_token`.
 
 ---
 

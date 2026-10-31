@@ -24,6 +24,9 @@ import {
   queryFacebookPosts,
   queryFacebookPage,
   isMetaInsightsError,
+  splitRange,
+  metaRangeFromDates,
+  dayOfEndTime,
 } from '../metaInsights.js';
 import { GRAPH_API_BASE, GRAPH_API_VERSION } from '../metaGraphApi.js';
 
@@ -195,9 +198,10 @@ describe('metaInsights', () => {
         expect(result.reach).toBe(170); // 80 + 90
         expect(result.views).toBe(250);
         expect(result.accountsEngaged).toBe(45);
+        // end_time marks the end of the measured day, so each value belongs to the day before
         expect(result.dailyMetrics).toEqual([
-          { date: '2024-01-01', reach: 80, followerCount: 3 },
-          { date: '2024-01-02', reach: 90, followerCount: 5 },
+          { date: '2023-12-31', reach: 80, followerCount: 3 },
+          { date: '2024-01-01', reach: 90, followerCount: 5 },
         ]);
       }
     });
@@ -522,6 +526,58 @@ describe('metaInsights', () => {
         expect(result.warnings?.[0]).toContain('pages_read_user_content');
       }
     });
+  });
+});
+
+describe('date ranges', () => {
+  const DAY = 86400;
+
+  it('dates a daily value by the day it measures, not its end_time', () => {
+    expect(dayOfEndTime('2024-01-02T08:00:00+0000')).toBe('2024-01-01');
+    expect(dayOfEndTime('2024-03-01T07:00:00+0000')).toBe('2024-02-29');
+  });
+
+  it('turns admin dates into an inclusive range plus the equal-length previous period', () => {
+    const range = metaRangeFromDates('2024-01-01', '2024-01-10');
+    const start = Date.parse('2024-01-01T00:00:00Z') / 1000;
+    expect(range?.current).toEqual({ since: String(start), until: String(start + 10 * DAY) });
+    expect(range?.previous).toEqual({ since: String(start - 10 * DAY), until: String(start) });
+  });
+
+  it('rejects malformed dates and caps the range at now', () => {
+    expect(metaRangeFromDates('30daysAgo', 'today')).toBeNull();
+    const today = new Date().toISOString().slice(0, 10);
+    const range = metaRangeFromDates(today, today)!;
+    expect(Number(range.current.until)).toBeLessThanOrEqual(Math.floor(Date.now() / 1000));
+  });
+
+  it('splits long ranges into windows Meta accepts', () => {
+    const chunks = splitRange({ since: '0', until: String(75 * DAY) }, 30);
+    expect(chunks).toEqual([
+      { since: '0', until: String(30 * DAY) },
+      { since: String(30 * DAY), until: String(60 * DAY) },
+      { since: String(60 * DAY), until: String(75 * DAY) },
+    ]);
+  });
+
+  it('queries every window of a long Instagram range and merges the series', async () => {
+    mockSettingsByKey({ instagram_access_token: 't', instagram_business_account_id: 'ig-1' });
+    routeFetch((url) => {
+      if (!url.pathname.endsWith('/insights')) return { followers_count: 10 };
+      const metric = url.searchParams.get('metric')!;
+      if (url.searchParams.get('metric_type') === 'total_value') return { data: [{ name: metric, total_value: { value: 5 } }] };
+      const end = new Date((Number(url.searchParams.get('until'))) * 1000).toISOString();
+      return { data: [{ name: metric, values: [{ value: 1, end_time: end }] }] };
+    });
+
+    const result = await queryInstagramInsights('0', String(45 * DAY));
+
+    expect(isMetaInsightsError(result)).toBe(false);
+    if (!isMetaInsightsError(result)) {
+      expect(result.dailyMetrics).toHaveLength(2); // one point per window in this mock
+      expect(result.reach).toBe(2);
+      expect(result.views).toBe(10); // total_value summed across windows
+    }
   });
 });
 
