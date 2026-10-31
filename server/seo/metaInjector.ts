@@ -11,7 +11,7 @@ import { injectMeta } from './htmlInjector.js';
 import { injectPublicContent, renderStaticContent, renderArticleContent, renderArchiveContent, publicDocument } from './publicContent.js';
 
 export interface MetaInjectorResult { handler: RequestHandler; slugIndex: SlugIndex }
-const utilityRoute = /^(?:\/otp|\/admin(?:\/(?:settings|analytics|backends|quiz-leads|conversations(?:\/[^/]+)?|dominical(?:\/[^/]+)?))?)$/;
+const utilityRoute = /^(?:\/otp|\/admin(?:\/(?:settings|analytics|backends|api-keys|monitoring|contact-submissions|quiz-leads|conversations(?:\/[^/]+)?|dominical(?:\/[^/]+)?))?)$/;
 
 export function createMetaInjector(config: MetaInjectorConfig): MetaInjectorResult {
   // Paths are explicit inputs, independent of esbuild's flattened module __dirname.
