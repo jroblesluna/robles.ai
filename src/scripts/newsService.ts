@@ -158,3 +158,35 @@ export async function searchNews(query: string, date: string): Promise<ArticleRe
   console.log(`📰 Content filter too aggressive, returning top ${Math.min(5, results.length)} articles`);
   return results.slice(0, 5);
 }
+
+const MAX_ARTICLES_PER_POST = 8;
+
+/**
+ * Articles from several searches, one taken from each in turn so the editor's main
+ * topic is not crowded out. The same story from two searches is kept once. A failed
+ * search does not stop the others.
+ */
+export async function searchEditorNews(queries: string[], date: string): Promise<ArticleResult[]> {
+  const lists: ArticleResult[][] = [];
+  for (const query of queries) {
+    try {
+      lists.push(await searchNews(query, date));
+    } catch (err) {
+      console.warn(`⚠️ News search failed for "${query}":`, err instanceof Error ? err.message : err);
+    }
+  }
+
+  const seen = new Set<string>();
+  const merged: ArticleResult[] = [];
+  const longest = Math.max(0, ...lists.map((list) => list.length));
+  for (let i = 0; i < longest && merged.length < MAX_ARTICLES_PER_POST; i++) {
+    for (const list of lists) {
+      const article = list[i];
+      const title = article?.title?.trim().toLowerCase();
+      if (!article || !title || seen.has(title) || merged.length >= MAX_ARTICLES_PER_POST) continue;
+      seen.add(title);
+      merged.push({ ...article, articleId: merged.length + 1 });
+    }
+  }
+  return merged;
+}

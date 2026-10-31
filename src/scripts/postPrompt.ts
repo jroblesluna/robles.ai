@@ -15,9 +15,16 @@ ${recentTopics.length > 0
     ? `Previously covered topics (avoid repeating): ${recentTopics.join(", ")}`
     : ""}
 
+SOURCE FIDELITY (these rules override your persona and every instruction below):
+- Everything stated as fact must come from the source articles. Never invent people, quotes, interviews, figures, studies or events, even as color or as a style device.
+- Do not claim that AI was involved in an event unless a source says so. If no source links a story to AI, say so plainly. You may then analyze where AI could matter for attackers, defenders or the industry, written clearly as your own analysis.
+- Hypothetical scenarios and speculation must be labeled as such in the text.
+- If a source reports something as preliminary, disputed or attributed to someone, keep that uncertainty and the attribution.
+- Do not imply that Robles.AI could have prevented an incident.
+
 WRITING INSTRUCTIONS:
 
-1. STRUCTURE: Dedicate ONE FULL SECTION to each major source article (minimum 3 articles, each gets its own heading and 3-5 paragraphs). Do NOT merge multiple articles into one generic section.
+1. STRUCTURE: Open with the most significant story in the sources, judged by its real-world impact, not by how well it fits your specialty. Dedicate ONE FULL SECTION to each major source article (minimum 3 articles, each gets its own heading and 3-5 paragraphs). Do NOT merge multiple articles into one generic section.
 
 2. DEPTH REQUIREMENTS FOR EACH SECTION:
    - Paragraph 1: State the specific news — WHO did WHAT, WHEN, with exact names, figures, and context from the source
@@ -28,7 +35,7 @@ WRITING INSTRUCTIONS:
 3. MANDATORY SPECIFICS (your article MUST include):
    - At least 5 specific numbers/statistics from the sources (revenue figures, percentages, dates, user counts, etc.)
    - At least 3 named technologies, products, or methodologies
-   - At least 2 named people (CEOs, researchers, etc.) with their actual quotes or paraphrased statements from the sources
+   - At least 2 named people (CEOs, researchers, etc.) with their actual quotes or paraphrased statements from the sources, when the sources name them
    - At least 3 named companies or institutions
    - Technical explanations that go beyond surface level (explain HOW things work, not just WHAT happened)
 
@@ -86,7 +93,7 @@ LENGTH REQUIREMENTS (CRITICAL):
 - If your output is under 2000 words per language, you have NOT written enough detail
 
 QUOTES REQUIREMENT:
-- Include at least 2 DIRECT QUOTES from the source material (attributed to specific people)
+- Include at least 2 DIRECT QUOTES from the source material (attributed to specific people), copied exactly
 - If the source doesn't have quotes, paraphrase a specific statement and attribute it to the source/author
 - Example: According to Tim Breen, CEO of GlobalFoundries, "this represents a paradigm shift in..."
 `.trim();

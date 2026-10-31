@@ -126,6 +126,9 @@ async function main() {
           } else if (s.skipped === 'no_news') {
             console.log('⚠️  No news found');
             skipped++;
+          } else if (s.skipped === 'generation_failed') {
+            console.log('❌ Generation failed');
+            failed++;
           } else {
             console.log(`✅ ${s.newsCount} news, ${s.tokensUsed} tokens`);
             filled++;

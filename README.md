@@ -56,7 +56,7 @@ The platform plays three roles:
 - **AI Demos Lab** (`/demos`): 10 live demos (7 backed by Cloud Run APIs, 3 fully in the browser) and 3 coming soon.
 - **Robly chatbot widget**: GPT-4o-mini with SSE streaming, page-aware context, contact capture, transcripts and an admin inbox.
 - **Blog**: 24 AI editors, bilingual posts as JSON files, hourly generation, SQLite listing index and FTS5 search, accessible in-page modal viewer.
-- **El Dominical IA**: weekly newsletter — GPT-4o scoring, LinkedIn/Instagram drafts, 1080×1080 carousels (gpt-image-2.5-flare + sharp + pdfkit), narrated video (ffmpeg), auto-publishing to LinkedIn, Instagram and Facebook.
+- **El Dominical IA**: weekly newsletter — AI scoring, LinkedIn/Instagram drafts, 1080×1080 carousels (gpt-image-2.5-flare + sharp + pdfkit), narrated video (ffmpeg), auto-publishing to LinkedIn, Instagram and Facebook.
 - **Analytics dashboard** (`/admin/analytics`): Overview, Traffic, Behavior, Social and **Ads** (Google Ads via GA4 + Meta Ads via Marketing API), cached in SQLite.
 - **Backends portal** (`/admin/backends`): DNS (Hostinger), Cloud Run status and activity (Cloud Monitoring) for the demo APIs, read-only towards GCP.
 - **Analytics on the public site**: GTM (preferred) or direct GA4 + Meta Pixel, configured from `/admin/settings` and active only in production.
@@ -70,7 +70,7 @@ The platform plays three roles:
 | Frontend | React 19, Vite 6, TypeScript, Tailwind CSS, shadcn/ui (Radix), framer-motion, recharts, wouter, TanStack Query |
 | Backend | Express 4, Node.js ≥ 20 (production runs v22.14.0), `tsx watch` in dev, esbuild bundle in prod |
 | Database | SQLite via `better-sqlite3` (single file `server/data/dominical.db`) |
-| AI | OpenAI — GPT-4o, GPT-4o-mini, gpt-image-2.5-flare; optional image providers (Replicate, Stability) |
+| AI | OpenAI — `gpt-6-luna` (blog and Dominical), GPT-4o-mini, gpt-image-2.5-flare; optional image providers (Replicate, Stability) |
 | Social / Ads APIs | LinkedIn UGC Posts API + OAuth 2.0, Meta Graph API (Instagram, Facebook, Marketing API) |
 | Analytics | Google Analytics Data API (GA4), Meta Graph API insights, GTM / GA4 / Meta Pixel on the site |
 | Media | sharp, pdfkit, fluent-ffmpeg (+ `@ffmpeg-installer`, `@ffprobe-installer`) |
@@ -503,7 +503,7 @@ Catalog data: `demosCatalog.items` in both translation files (`id`, `href`, `sta
 
 ## El Dominical IA
 
-- **Saturday 12:00 (America/Lima)** — `generateDominical`: reads the last 7 days of posts, scores them with GPT-4o (novelty, people impact, economic impact, narrative potential), keeps the top N (`dominical_top_n`, default 5), drafts LinkedIn and Instagram texts, stores the report as `pending_review`, emails `notification_email`, then generates the carousel (`natural` palette, `cinematic-scene` style).
+- **Saturday 12:00 (America/Lima)** — `generateDominical`: reads the last 7 days of posts, scores them with the content model (novelty, people impact, economic impact, narrative potential), keeps the top N (`dominical_top_n`, default 5), drafts LinkedIn and Instagram texts, stores the report as `pending_review`, emails `notification_email`, then generates the carousel (`natural` palette, `cinematic-scene` style).
 - **Review** (`/admin/dominical/:id`): edit texts, regenerate posts, 1080×1080 carousel (cover + articles + CTA; gpt-image-2.5-flare backgrounds, SVG overlay via sharp, per-slide regenerate/edit, PDF via pdfkit), narrated video with Robly poses (`dominicalVideoGen.ts`, `robotFrames.ts`, `VideoGenerator.tsx`), publish status per platform, manual publish or cancel.
 - **Auto-publish** — a cron runs every 30 minutes and publishes only on **Sunday** at `auto_publish_time` (default 18:00) in `auto_publish_timezone` (default America/Lima), unless `auto_publish` is `false`/`0`. Platforms with valid credentials and `not_published` status are published in sequence (5 s apart, failures isolated) and a summary email is sent.
 
@@ -527,7 +527,7 @@ Adapters in `server/services/platforms/` behind `publishingEngine.ts`:
 
 - Posts: `server/data/posts/YYYY/MM/DD/*.json` (`slug`, `date`, `image?`, `editorId`, `categories`, `keywords`, `translations.en/es` with `slug`, `title`, `excerpt`, `content[{heading, body}]`, `sources`).
 - **24 editor personas** in `server/data/editors.json` (ids 1–24; specialty, system prompt, profile, signature, palette, temperature/top_p ranges); avatars in `public/avatars/`.
-- Hourly cron generates posts (NewsAPI topics) and updates the FTS5 and listing indexes; `detect-gaps`, `fill-gaps`, `cleanup-duplicates` scripts.
+- Hourly cron generates posts (NewsAPI topics) and updates the FTS5 and listing indexes. Each post carries the previous day's date. Alex Cypher and Felipe Mesh have `extraNewsQueries` in `editors.json`: searches without "AI" for major security and crypto incidents, never words from one specific story. A post needs at least 2 articles. `postPrompt.ts` forbids inventing people, quotes or figures and claiming AI was involved unless a source says so. An unusable model reply is logged in full and retried once (`draftPost`). `/api/generate-posts?date=` also indexes that day; `detect-gaps`, `fill-gaps`, `cleanup-duplicates` scripts.
 - `/blog` opens posts in an accessible modal (`BlogModal`, `useBlogModalRouting`, `lib/blogModal.ts`) with History-API deep links; a direct load of `/blog/:slug` renders the full `BlogPost` page.
 
 ---

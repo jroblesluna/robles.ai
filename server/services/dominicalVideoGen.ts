@@ -11,7 +11,7 @@ import { getArticleContentSummary } from '../jobs/generateDominical.js';
 import type { ScoredPost } from './dominicalScoring.js';
 import { computeRobotPose, renderRobotFrameSvg, VARIANT_NATIVE_SIZE, type RobotVariant } from './robotFrames.js';
 import { buildCaptionOverlaySvg, buildWhiteboardCaptionSvg, VIDEO_CAPTION_BAND_HEIGHT } from './slideCompositor.js';
-import { getAiModel } from './aiModels.js';
+import { chatOptionsFor, getAiModel } from './aiModels.js';
 
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 ffmpeg.setFfprobePath(ffprobeInstaller.path);
@@ -152,8 +152,7 @@ Reglas OBLIGATORIAS:
 Devuelve SOLO el texto del guion, sin explicaciones, sin comillas, sin markdown.`;
 
   const response = await openai.chat.completions.create({
-    model: getAiModel('ai_model_site_content'),
-    temperature: 0.7,
+    ...chatOptionsFor('ai_model_site_content', { temperature: 0.7 }),
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt },

@@ -437,6 +437,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 
   // Cron job to call each hour
+  /** Makes the posts of a day queryable in the slug, search and listing indexes. */
+  const indexPostsOfDay = async (targetDate: string) => {
+    // Rebuild the SlugIndex so newly generated posts are immediately queryable
+    const slugIndex = getSlugIndex();
+    if (slugIndex) {
+      await slugIndex.rebuild();
+      console.log('[CRON] SlugIndex rebuilt with new posts.');
+    }
+
+    // Collect newly generated posts for indexing
+    let posts: ListingPostJson[] = [];
+    try {
+      const [yyyy, mm, dd] = targetDate.split('-');
+      const dayDir = path.resolve(__dirname, `./data/posts/${yyyy}/${mm}/${dd}`);
+      const dayFiles = await readdir(dayDir);
+      const jsonFiles = dayFiles.filter((f) => f.endsWith('.json'));
+
+      for (const file of jsonFiles) {
+        try {
+          const content = await readFile(path.join(dayDir, file), 'utf-8');
+          posts.push(JSON.parse(content) as ListingPostJson);
+        } catch (parseErr) {
+          console.warn(`[CRON] Skipped (parse error): ${file}`, parseErr);
+        }
+      }
+    } catch (collectErr) {
+      console.error('[CRON] Error collecting new posts (non-fatal):', collectErr);
+    }
+
+    // Index into FTS5 for search
+    try {
+      if (posts.length > 0) {
+        indexNewPosts(db, posts as unknown as PostJson[]);
+        console.log(`[CRON] FTS indexed ${posts.length} new posts.`);
+      }
+    } catch (ftsErr) {
+      console.error('[CRON] FTS indexing error (non-fatal):', ftsErr);
+    }
+
+    // Index into listing index (blog_posts_index)
+    try {
+      if (posts.length > 0) {
+        indexListingPosts(db, posts);
+        console.log(`[CRON] Listing indexed ${posts.length} new posts.`);
+      }
+    } catch (listingErr) {
+      console.error('[CRON] Listing indexing error (non-fatal):', listingErr);
+    }
+  };
+
   cron.schedule(
     '0 * * * *',
     async () => {
@@ -496,52 +546,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           await generateHistoricalPosts(targetDate, editorId, previousDate);
         }
 
-        // Rebuild the SlugIndex so newly generated posts are immediately queryable
-        const slugIndex = getSlugIndex();
-        if (slugIndex) {
-          await slugIndex.rebuild();
-          console.log('[CRON] SlugIndex rebuilt with new posts.');
-        }
-
-        // Collect newly generated posts for indexing
-        let posts: ListingPostJson[] = [];
-        try {
-          const [yyyy, mm, dd] = targetDate.split('-');
-          const dayDir = path.resolve(__dirname, `./data/posts/${yyyy}/${mm}/${dd}`);
-          const dayFiles = await readdir(dayDir);
-          const jsonFiles = dayFiles.filter((f) => f.endsWith('.json'));
-
-          for (const file of jsonFiles) {
-            try {
-              const content = await readFile(path.join(dayDir, file), 'utf-8');
-              posts.push(JSON.parse(content) as ListingPostJson);
-            } catch (parseErr) {
-              console.warn(`[CRON] Skipped (parse error): ${file}`, parseErr);
-            }
-          }
-        } catch (collectErr) {
-          console.error('[CRON] Error collecting new posts (non-fatal):', collectErr);
-        }
-
-        // Index into FTS5 for search
-        try {
-          if (posts.length > 0) {
-            indexNewPosts(db, posts as unknown as PostJson[]);
-            console.log(`[CRON] FTS indexed ${posts.length} new posts.`);
-          }
-        } catch (ftsErr) {
-          console.error('[CRON] FTS indexing error (non-fatal):', ftsErr);
-        }
-
-        // Index into listing index (blog_posts_index)
-        try {
-          if (posts.length > 0) {
-            indexListingPosts(db, posts);
-            console.log(`[CRON] Listing indexed ${posts.length} new posts.`);
-          }
-        } catch (listingErr) {
-          console.error('[CRON] Listing indexing error (non-fatal):', listingErr);
-        }
+        await indexPostsOfDay(targetDate);
 
         console.log('[CRON] Scheduled task completed.');
       } catch (error) {
@@ -613,6 +618,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Direct mode: generate for a specific date, bypassing lastPostDate logic
         console.log(`[API] Generating for specific date: ${specificDate}, editor: ${editorId || 'all'}`);
         const result = await generateHistoricalPosts(specificDate, editorId, specificDate);
+        await indexPostsOfDay(specificDate);
         console.log('[API] Specific date generation completed.');
         res.status(200).json({ success: true, data: `Generated for ${specificDate}`, stats: result });
         return;

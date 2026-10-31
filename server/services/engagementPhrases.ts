@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import type { ArticleInput } from './carouselTypes.js';
-import { getAiModel } from './aiModels.js';
+import { chatOptionsFor } from './aiModels.js';
 
 /** Result of generating engagement phrases for a set of articles */
 export interface EngagementPhraseResult {
@@ -117,13 +117,11 @@ export async function generateEngagementPhrases(
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const response = await openai.chat.completions.create({
-        model: getAiModel('ai_model_site_content'),
+        ...chatOptionsFor('ai_model_site_content', { temperature: 0.8, maxTokens: 1000 }),
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
         ],
-        temperature: 0.8,
-        max_tokens: 1000,
       });
 
       const content = response.choices?.[0]?.message?.content;

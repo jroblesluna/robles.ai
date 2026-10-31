@@ -2,9 +2,9 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import OpenAI from 'openai';
-import { getAiModel } from '../../server/services/aiModels.js';
+import { chatOptions, getAiModel } from '../../server/services/aiModels.js';
 import dotenv from 'dotenv';
-import { searchNews } from './newsService';
+import { searchEditorNews } from './newsService';
 import { savePost, listRecentTopics } from './postUtils';
 import { buildPostPrompt } from './postPrompt';
 import { updateSitemap } from './sitemapService';
@@ -79,6 +79,48 @@ function generateDatePrefix(date: Date, editorId: number): string {
   return `${year}-${month}-${day}-${hours}-${minutes}-${seconds}`;
 }
 
+const DRAFT_ATTEMPTS = 2;
+/** With a single source the post drifts off topic: the search matched only loosely. */
+const MIN_ARTICLES_PER_POST = 2;
+const POST_MAX_TOKENS = 32000;
+
+/**
+ * Asks the model for a post, once more if the reply is not a usable post. The whole
+ * reply is logged because a refusal arrives as ordinary text.
+ */
+export async function draftPost(editor: any, systemPrompt: string, userPrompt: string, dateString: string) {
+  const client = getOpenAIClient();
+  for (let attempt = 1; attempt <= DRAFT_ATTEMPTS; attempt++) {
+    const response = await client.chat.completions.create({
+      ...chatOptions(getAiModel('ai_model_site_content'), {
+        temperature: randomBetween(editor.min_temperature, editor.max_temperature),
+        top_p: randomBetween(editor.min_top_p, editor.max_top_p),
+        maxTokens: POST_MAX_TOKENS,
+      }),
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      response_format: { type: 'json_object' },
+    });
+    const choice = response.choices[0];
+    const content = (choice?.message?.content ?? '').replace(/```json\s*|\s*```/g, '').trim();
+    try {
+      const post = JSON.parse(content);
+      if (post.translations?.en?.content?.length && post.translations?.es?.content?.length) {
+        return { post, usage: response.usage };
+      }
+    } catch {
+      // Reported below with the rest of the unusable replies.
+    }
+    console.error(
+      `❌ Unusable reply for ${editor.name} on ${dateString} (attempt ${attempt}/${DRAFT_ATTEMPTS}): ` +
+        `finish=${choice?.finish_reason} refusal=${choice?.message?.refusal ?? 'none'} text=${content.slice(0, 500)}`
+    );
+  }
+  return null;
+}
+
 export interface GenResult { newsCount: number; tokensUsed: number; skipped?: string }
 
 export async function generateHistoricalPosts(
@@ -93,6 +135,7 @@ export async function generateHistoricalPosts(
   const editorsData = JSON.parse(await fs.readFile(editorsPath, 'utf-8'));
   const editors = editorsData.editors;
 
+  let failed = false;
   const datesToProcess: Date[] = [];
   console.log(`🗓️ Parameters: `);
   console.log(`- Target Date: ${targetDate || 'No date specified'}`);
@@ -123,9 +166,9 @@ export async function generateHistoricalPosts(
       }
 
       const recentTopics = await listRecentTopics(dateString);
-      const news = await searchNews(editor.specialty, dateString);
+      const news = await searchEditorNews([editor.specialty, ...(editor.extraNewsQueries ?? [])], dateString);
 
-      if (!news.length) {
+      if (news.length < MIN_ARTICLES_PER_POST) {
         console.warn(`⚠️ No news found for ${editor.name} on ${dateString}. Skipping.`);
         return { newsCount: 0, tokensUsed: 0, skipped: 'no_news' };
         continue;
@@ -154,80 +197,13 @@ export async function generateHistoricalPosts(
         recentTopics
       );
 
-      const temperature = randomBetween(editor.min_temperature, editor.max_temperature);
-      const top_p = randomBetween(editor.min_top_p, editor.max_top_p);
-
-      console.log(`🚀 Generating post for ${editor.name} on ${dateString}`);
-      console.log(`Temperature: ${temperature.toFixed(2)}, Top_p: ${top_p.toFixed(2)}`);
-
       try {
-        const client = getOpenAIClient();
-        const response = await client.chat.completions.create({
-          model: getAiModel('ai_model_site_content'),
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt },
-          ],
-          temperature,
-          top_p,
-          max_tokens: 16000,
-        });
-        //Simulate response
-        /*
-        const response = {
-          choices: [
-            {
-              message: {
-                content: `{
-                  "translations": {
-                    "en": {
-                      "title": "Sample Title",
-                      "excerpt": "Sample Excerpt",
-                      "content": [
-                        { "heading": "Sample Heading", "body": "Sample Body" }
-                      ]
-                    },
-                    "es": {
-                      "title": "Título de muestra",
-                      "excerpt": "Extracto de muestra",
-                      "content": [
-                        { "heading": "Encabezado de muestra", "body": "Cuerpo de muestra" }
-                      ]
-                    }
-                  },
-                  "image": "https://example.com/image.jpg",
-                  "sources": [
-                    { "articleId": 1, "title": "Source Title", "source": "Source Name" }
-                  ],
-                  "translations": {
-                    "en": {
-                      "slug": "sample-slug"
-                    },
-                    "es": {
-                      "slug": "slug-de-muestra"
-                    }
-                  }
-                }`,
-                role: 'assistant'
-              },
-              finish_reason: 'stop'
-            }
-          ],
-          usage: {
-            prompt_tokens: 100,
-            completion_tokens: 200,
-            total_tokens: 300
-          }
-        };*/
-
-        let content = response.choices[0]?.message?.content;
-        if (!content) {
-          console.error(`❌ No content returned for ${editor.name} on ${dateString}`);
+        const draft = await draftPost(editor, systemPrompt, userPrompt, dateString);
+        if (!draft) {
+          failed = true;
           continue;
         }
-
-        content = content.replace(/```json\s*|\s*```/g, '').trim();
-        const post = JSON.parse(content);
+        const { post, usage } = draft;
 
         post.editorId = editor.id;
         const datePrefix = generateDatePrefix(date, editor.id);
@@ -258,9 +234,9 @@ export async function generateHistoricalPosts(
         }
 
         post.stats = {
-          prompt_tokens: response.usage?.prompt_tokens || 0,
-          completion_tokens: response.usage?.completion_tokens || 0,
-          total_tokens: response.usage?.total_tokens || 0,
+          prompt_tokens: usage?.prompt_tokens || 0,
+          completion_tokens: usage?.completion_tokens || 0,
+          total_tokens: usage?.total_tokens || 0,
         };
 
         await savePost(post, dateString);
@@ -273,9 +249,11 @@ export async function generateHistoricalPosts(
         return { newsCount: news.length, tokensUsed: post.stats.total_tokens };
       } catch (error) {
         console.error(`❌ Error generating post for ${editor.name} on ${dateString}:`, error);
+        failed = true;
       }
     }
   }
+  return failed ? { newsCount: 0, tokensUsed: 0, skipped: 'generation_failed' } : null;
 }
 
 // // Capturar argumentos

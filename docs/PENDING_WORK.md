@@ -56,3 +56,22 @@
 - Pendientes: generación real en Adobe, revisión temporal e integración. No se usaron credenciales/créditos de Adobe ni se habilitaron videos nuevos en producción. Imágenes con image_gen integrada.
 
 - Actualización TTS 3.12: MP4 programado local ya generado y verificado (`creative/firefly-demo-pairs-v3/tts/rendered-v1/`). Para TTS quedan revisión del usuario e integración; no es necesario regenerar letras en Firefly. Las demás generaciones externas siguen sin verificarse desde los archivos locales.
+
+## NEWS-01 — Editores con instrucciones de inventar contenido
+
+- Registrado: 31 de octubre de 2026.
+- `postPrompt.ts` ya prohíbe inventar datos y esa regla manda sobre la persona, pero varios editores conservan el texto original en `editors.json`: Mike Electrum (ingenieros ficticios), Carlos Dataflux (datos ficticios), Elena Stream, Victor Frame (mezcla avances reales y ficticios), Oscar Synth, Andrés Signal y las `styleNotes` de otros. Limpiar esas personas.
+- Los posts ya publicados pueden contener citas o datos ficticios de esas instrucciones; no se han auditado.
+
+## NEWS-02 — Selección de El Dominical
+
+- `scorePostsWithGPT` solo puntúa los 30 posts más recientes, no toda la semana: en la práctica cubre unos dos días. El resto queda con puntaje 0.
+- El top 5 no evita temas repetidos: el reporte 21 tenía dos posts de Rivian y tres de avances cuánticos.
+
+## NEWS-03 — `/api/generate-posts` es público
+
+- Cualquiera puede llamarlo y gastar créditos de OpenAI y NewsAPI. Protegerlo con autenticación y ajustar `fillGaps.ts`.
+
+## NEWS-04 — Retiro de modelos de OpenAI
+
+- `gpt-4o-mini` se apaga el 14 de enero de 2027 y `gpt-4o-mini-tts` posiblemente el 6 de enero. Elegir y probar reemplazos antes de diciembre.

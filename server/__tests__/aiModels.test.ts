@@ -8,7 +8,7 @@ vi.mock('../db.js', () => ({
 }));
 
 import publicRouter from '../publicRoutes.js';
-import { getAiModel } from '../services/aiModels.js';
+import { chatOptions, getAiModel } from '../services/aiModels.js';
 import { AI_MODELS, isAiModelKey, isValidModelId } from '../../shared/aiModels.js';
 
 beforeEach(() => stored.clear());
@@ -16,9 +16,9 @@ afterEach(() => vi.restoreAllMocks());
 
 describe('AI model settings', () => {
   it('uses the default when unset or invalid and the saved model otherwise', () => {
-    expect(getAiModel('ai_model_site_content')).toBe('gpt-4o');
+    expect(getAiModel('ai_model_site_content')).toBe('gpt-6-luna');
     stored.set('ai_model_site_content', 'not a model; rm -rf');
-    expect(getAiModel('ai_model_site_content')).toBe('gpt-4o');
+    expect(getAiModel('ai_model_site_content')).toBe('gpt-6-luna');
     stored.set('ai_model_site_content', 'gpt-5.1-mini');
     expect(getAiModel('ai_model_site_content')).toBe('gpt-5.1-mini');
   });
@@ -38,5 +38,15 @@ describe('AI model settings', () => {
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ text: 'gpt-5.1-mini', vision: 'gpt-4o-mini', tts: 'gpt-4o-mini-tts', apiKeysRequired: false });
     expect(JSON.stringify(res.body)).not.toContain('sk-secret');
+  });
+});
+
+describe('chatOptions', () => {
+  it('sends sampling options and max_tokens only to the models that accept them', () => {
+    const options = { temperature: 0.7, top_p: 0.9, maxTokens: 100 };
+    expect(chatOptions('gpt-4o', options)).toEqual({ model: 'gpt-4o', temperature: 0.7, top_p: 0.9, max_tokens: 100 });
+    expect(chatOptions('gpt-6-luna', options)).toEqual({ model: 'gpt-6-luna', max_completion_tokens: 100 });
+    expect(chatOptions('o3-mini', options)).toEqual({ model: 'o3-mini', max_completion_tokens: 100 });
+    expect(chatOptions('gpt-6-luna', {})).toEqual({ model: 'gpt-6-luna' });
   });
 });

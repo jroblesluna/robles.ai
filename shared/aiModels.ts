@@ -5,7 +5,7 @@
  */
 export const AI_MODELS = [
   { key: 'ai_model_site_chat', fallback: 'gpt-4o-mini', group: 'Site', label: 'Robly and quiz', hint: 'Fast and low cost' },
-  { key: 'ai_model_site_content', fallback: 'gpt-4o', group: 'Site', label: 'Blog and El Dominical IA', hint: 'Writing and scoring' },
+  { key: 'ai_model_site_content', fallback: 'gpt-6-luna', group: 'Site', label: 'Blog and El Dominical IA', hint: 'Writing and scoring' },
   { key: 'ai_model_site_image', fallback: 'gpt-image-2.5-flare', group: 'Site', label: 'Generated images', hint: 'Carousels and video backgrounds' },
   { key: 'ai_model_site_tts', fallback: 'gpt-4o-mini-tts', group: 'Site', label: 'Narrated video', hint: 'Text to speech' },
   { key: 'ai_model_demo_text', fallback: 'gpt-4o-mini', group: 'Demos', label: 'Chatbot, RAG, agents, transcription', hint: 'Applied on each API within 5 minutes' },

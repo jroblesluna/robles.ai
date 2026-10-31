@@ -31,7 +31,7 @@ import { clarityRecordingUrl, normalizeClaritySession, validClarityProjectId } f
 import { queryMetaAds } from './services/metaAds.js';
 import { rebuildListingIndex } from './listing/indexer.js';
 import chatAdminRouter from './chatAdminRoutes.js';
-import { getAiModel } from './services/aiModels.js';
+import { getAiModel, chatOptionsFor } from './services/aiModels.js';
 import { AI_MODELS, isAiModelKey, isValidModelId } from '../shared/aiModels.js';
 
 const SALT_ROUNDS = 12;
@@ -1001,8 +1001,7 @@ Reglas:
 Devuelve SOLO el texto del post, sin markdown ni explicaciones adicionales.`;
 
     const response = await openai.chat.completions.create({
-      model: getAiModel('ai_model_site_content'),
-      temperature: 0.7,
+      ...chatOptionsFor('ai_model_site_content', { temperature: 0.7 }),
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
@@ -1068,8 +1067,7 @@ REGLAS:
 Devuelve SOLO el caption, sin explicaciones ni markdown.`;
 
     const igResponse = await openai.chat.completions.create({
-      model: getAiModel('ai_model_site_content'),
-      temperature: 0.7,
+      ...chatOptionsFor('ai_model_site_content', { temperature: 0.7 }),
       messages: [
         { role: 'system', content: igSystemPrompt },
         { role: 'user', content: igUserPrompt },
@@ -1187,8 +1185,7 @@ REGLAS:
 Devuelve SOLO el caption, sin explicaciones ni markdown.`;
 
     const response = await openai.chat.completions.create({
-      model: getAiModel('ai_model_site_content'),
-      temperature: 0.7,
+      ...chatOptionsFor('ai_model_site_content', { temperature: 0.7 }),
       messages: [
         { role: 'system', content: igSystemPrompt },
         { role: 'user', content: igUserPrompt },
@@ -1281,8 +1278,7 @@ Reglas:
 Devuelve SOLO el texto del post, sin markdown ni explicaciones adicionales.`;
 
     const response = await openai.chat.completions.create({
-      model: getAiModel('ai_model_site_content'),
-      temperature: 0.7,
+      ...chatOptionsFor('ai_model_site_content', { temperature: 0.7 }),
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },

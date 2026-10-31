@@ -156,7 +156,7 @@ describe('generateEngagementPhrases', () => {
     expect(result.phrases).toEqual(phrases);
   });
 
-  it('uses gpt-4o model in the API call', async () => {
+  it('uses the content model in the API call', async () => {
     const phrases = ['Frase uno', 'Frase dos'];
 
     mockCreate.mockResolvedValue({
@@ -166,6 +166,6 @@ describe('generateEngagementPhrases', () => {
     await generateEngagementPhrases(sampleArticles, 'test-api-key');
 
     const callArgs = mockCreate.mock.calls[0][0] as { model: string };
-    expect(callArgs.model).toBe('gpt-4o');
+    expect(callArgs.model).toBe('gpt-6-luna');
   });
 });
